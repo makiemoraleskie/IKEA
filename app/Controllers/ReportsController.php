@@ -39,7 +39,7 @@ class ReportsController extends BaseController
 
 		// Basic HTML to PDF via Dompdf if available
 		ob_start();
-		include BASE_PATH . '/src/views/reports/pdf.php';
+		include BASE_PATH . '/resources/views/reports/pdf.php';
 		$html = ob_get_clean();
 
 		if (class_exists('Dompdf\\Dompdf')) {
