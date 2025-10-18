@@ -30,6 +30,20 @@ class Delivery extends BaseModel
 		$row = $stmt->fetch();
 		return (float)($row['total'] ?? 0.0);
 	}
+
+	public function getPendingCount(): int
+	{
+		// Count purchases that have partial deliveries or no deliveries yet
+		$sql = 'SELECT COUNT(DISTINCT p.id) as count 
+				FROM purchases p 
+				LEFT JOIN deliveries d ON p.id = d.purchase_id 
+				WHERE p.payment_status = "Paid" 
+				AND (d.id IS NULL OR p.quantity > COALESCE((SELECT SUM(quantity_received) FROM deliveries WHERE purchase_id = p.id), 0))';
+		$stmt = $this->db->prepare($sql);
+		$stmt->execute();
+		$row = $stmt->fetch();
+		return (int)($row['count'] ?? 0);
+	}
 }
 
 

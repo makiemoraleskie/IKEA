@@ -14,9 +14,9 @@ define('BASE_PATH', __DIR__);
 // Simple class autoloader (no namespaces)
 spl_autoload_register(function (string $className): void {
 	$paths = [
-		BASE_PATH . '/src/controllers/' . $className . '.php',
-		BASE_PATH . '/src/models/' . $className . '.php',
-		BASE_PATH . '/src/utils/' . $className . '.php',
+		BASE_PATH . '/app/Controllers/' . $className . '.php',
+		BASE_PATH . '/app/Models/' . $className . '.php',
+		BASE_PATH . '/app/Utils/' . $className . '.php',
 	];
 	foreach ($paths as $path) {
 		if (file_exists($path)) {

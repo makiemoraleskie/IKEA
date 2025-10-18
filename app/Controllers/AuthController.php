@@ -8,7 +8,7 @@ class AuthController extends BaseController
 		if (Auth::check()) {
 			$this->redirect('/dashboard');
 		}
-		$this->render('auth/login.php');
+		$this->renderLogin('auth/login.php');
 	}
 
 	public function login(): void

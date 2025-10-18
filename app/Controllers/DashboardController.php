@@ -9,12 +9,19 @@ class DashboardController extends BaseController
 			$this->redirect('/login');
 		}
 
+		$user = Auth::user();
+		if (!$user) {
+			// If user is null, redirect to login
+			$this->redirect('/login');
+		}
+
 		// Placeholder stats; will be replaced with real queries
 		$stats = [
 			'user' => Auth::user(),
 			'lowStockCount' => 0,
 			'pendingRequests' => 0,
-			'todayPurchases' => 0,
+			'pendingDeliveries' => 0,
+			'inventoryValue' => 0,
 		];
 
 		// Compute low stock count
@@ -31,13 +38,22 @@ class DashboardController extends BaseController
 		$pending = $requestModel->listAll('Pending');
 		$stats['pendingRequests'] = count($pending);
 
-		// Today's purchases
-		$purchaseModel = new Purchase();
-		$stats['todayPurchases'] = $purchaseModel->getTodayCount();
+		// Pending deliveries
+		$deliveryModel = new Delivery();
+		$stats['pendingDeliveries'] = $deliveryModel->getPendingCount();
+
+		// Calculate inventory value (placeholder - would need cost data)
+		$totalValue = 0;
+		foreach ($all as $ingredient) {
+			// This is a placeholder calculation - in reality you'd need cost per unit
+			$totalValue += (float)$ingredient['quantity'] * 10; // Assuming ₱10 per unit average
+		}
+		$stats['inventoryValue'] = $totalValue;
 
 		$this->render('dashboard/index.php', [
-			'user' => Auth::user(),
+			'user' => $user,
 			'stats' => $stats,
+			'pageTitle' => 'Dashboard',
 		]);
 	}
 }

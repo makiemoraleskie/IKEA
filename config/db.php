@@ -12,7 +12,7 @@ class Database
 		}
 
 		$dbHost = getenv('DB_HOST') ?: '127.0.0.1';
-		$dbName = getenv('DB_NAME') ?: 'ikea_commissary';
+		$dbName = getenv('DB_NAME') ?: 'ikea';
 		$dbUser = getenv('DB_USER') ?: 'root';
 		$dbPass = getenv('DB_PASS') ?: '';
 		$charset = 'utf8mb4';
