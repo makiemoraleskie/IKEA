@@ -14,7 +14,7 @@
 				<option value="">Select Purchase</option>
 				<?php foreach ($purchases as $p): $deliv = (float)($deliveredTotals[(int)$p['id']] ?? 0); ?>
 					<option value="<?php echo (int)$p['id']; ?>">
-						#<?php echo (int)$p['id']; ?> — <?php echo htmlspecialchars($p['item_name']); ?> (<?php echo number_format((float)$p['quantity'],2); ?> <?php echo htmlspecialchars($p['unit']); ?>) — Delivered: <?php echo number_format($deliv,2); ?>
+						#<?php echo (int)$p['id']; ?> — <?php echo htmlspecialchars($p['item_name']); ?> (<?php echo isset($p['display_factor']) && (float)$p['display_factor']>0 ? number_format((float)$p['quantity']/(float)$p['display_factor'],2) : number_format((float)$p['quantity'],2); ?> <?php echo htmlspecialchars($p['display_unit'] ?: $p['unit']); ?>) — Delivered: <?php echo number_format($deliv,2); ?>
 					</option>
 				<?php endforeach; ?>
 			</select>
@@ -80,8 +80,8 @@
 				<tr class="border-t">
 					<td class="px-4 py-2"><?php echo (int)$d['id']; ?></td>
 					<td class="px-4 py-2">#<?php echo (int)$d['purchase_id']; ?></td>
-					<td class="px-4 py-2"><?php echo htmlspecialchars($d['item_name'] . ' (' . $d['unit'] . ')'); ?></td>
-					<td class="px-4 py-2"><?php echo number_format((float)$d['quantity_received'], 2); ?></td>
+					<td class="px-4 py-2"><?php echo htmlspecialchars($d['item_name']); ?> (<?php echo htmlspecialchars($d['display_unit'] ?: $d['unit']); ?>)</td>
+					<td class="px-4 py-2"><?php echo isset($d['display_factor']) && (float)$d['display_factor']>0 ? number_format((float)$d['quantity_received']/(float)$d['display_factor'],2) : number_format((float)$d['quantity_received'],2); ?></td>
 					<td class="px-4 py-2">
 						<span class="px-2 py-1 rounded text-xs <?php echo $d['delivery_status']==='Complete'?'bg-green-100 text-green-700':'bg-yellow-100 text-yellow-800'; ?>"><?php echo htmlspecialchars($d['delivery_status']); ?></span>
 					</td>

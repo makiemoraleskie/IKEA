@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 class Delivery extends BaseModel
 {
-	public function listAll(): array
+    public function listAll(): array
 	{
-		$sql = 'SELECT d.*, p.item_id, p.quantity AS purchase_quantity, i.name AS item_name, i.unit
+        $sql = 'SELECT d.*, p.item_id, p.quantity AS purchase_quantity, i.name AS item_name, i.unit, i.display_unit, i.display_factor
 			FROM deliveries d
 			JOIN purchases p ON d.purchase_id = p.id
 			JOIN ingredients i ON p.item_id = i.id

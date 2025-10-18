@@ -24,6 +24,7 @@ return [
 		'/purchases' => ['PurchaseController', 'store'],
 		'/purchases/mark-paid' => ['PurchaseController', 'markPaid'],
 		'/deliveries' => ['DeliveryController', 'store'],
+		// removed force-delete feature routes
 		'/inventory' => ['InventoryController', 'store'],
 		'/users' => ['UserController', 'store'],
 		'/users/reset-password' => ['UserController', 'resetPassword'],

@@ -4,7 +4,10 @@
 </div>
 
 <div class="bg-white border rounded">
-	<div class="p-4 border-b"><h2 class="text-lg font-semibold">Ingredients</h2></div>
+    <div class="p-4 border-b"><h2 class="text-lg font-semibold">Ingredients</h2></div>
+    <?php if (!empty($flash)): ?>
+    <div class="px-4 py-2 <?php echo $flash['type']==='success'?'bg-emerald-50 text-emerald-700':'bg-red-50 text-red-700'; ?>"><?php echo htmlspecialchars($flash['text']); ?></div>
+    <?php endif; ?>
 	<?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
 	<?php if (in_array(Auth::role(), ['Owner','Manager'], true)): ?>
 	<div class="p-4 border-b bg-gray-50">
@@ -45,7 +48,8 @@
 					<th class="text-left px-4 py-2">Quantity</th>
 					<th class="text-left px-4 py-2">Reorder Level</th>
 					<th class="text-left px-4 py-2">Status</th>
-				</tr>
+                    
+                </tr>
 			</thead>
 			<tbody>
 				<?php foreach ($ingredients as $ing): $low = (float)$ing['quantity'] <= (float)$ing['reorder_level']; ?>
