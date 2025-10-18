@@ -22,6 +22,9 @@ spl_autoload_register(function (string $className): void {
 		if (file_exists($path)) {
 			require_once $path;
 			return;
+
+
+			// ggfdfg
 		}
 	}
 });
