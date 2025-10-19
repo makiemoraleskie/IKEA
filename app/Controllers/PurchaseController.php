@@ -74,9 +74,14 @@ class PurchaseController extends BaseController
         $ingredientModel = new Ingredient();
         $ingredient = $ingredientModel->find($itemId);
         $baseUnit = $ingredient['unit'] ?? '';
+        $displayUnit = $ingredient['display_unit'] ?? '';
+        $displayFactor = (float)($ingredient['display_factor'] ?? 1);
         $factor = 1.0;
-        if ($baseUnit === 'g' && $unitSelected === 'kg') { $factor = 1000.0; }
-        if ($baseUnit === 'ml' && $unitSelected === 'L') { $factor = 1000.0; }
+        if ($displayUnit && $unitSelected === $displayUnit && $displayFactor > 0) {
+            $factor = $displayFactor;
+        } elseif (($baseUnit === 'g' && $unitSelected === 'kg') || ($baseUnit === 'ml' && $unitSelected === 'L')) {
+            $factor = 1000.0;
+        }
         $quantity = $quantityInput * $factor;
 
         $purchaseModel = new Purchase();

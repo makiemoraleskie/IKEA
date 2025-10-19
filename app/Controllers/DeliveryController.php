@@ -44,9 +44,14 @@ class DeliveryController extends BaseController
         $ingredientModel = new Ingredient();
         $item = $ingredientModel->find((int)$purchase['item_id']);
         $baseUnit = $item['unit'] ?? '';
+        $displayUnit = $item['display_unit'] ?? '';
+        $displayFactor = (float)($item['display_factor'] ?? 1);
         $factor = 1.0;
-        if ($baseUnit === 'g' && $quantityUnit === 'kg') { $factor = 1000.0; }
-        if ($baseUnit === 'ml' && $quantityUnit === 'L') { $factor = 1000.0; }
+        if ($displayUnit && $quantityUnit === $displayUnit && $displayFactor > 0) {
+            $factor = $displayFactor;
+        } elseif (($baseUnit === 'g' && $quantityUnit === 'kg') || ($baseUnit === 'ml' && $quantityUnit === 'L')) {
+            $factor = 1000.0;
+        }
         $quantityReceived = $quantityInput * $factor;
         $deliveryId = $deliveryModel->create($purchaseId, $quantityReceived, $deliveryStatus);
 

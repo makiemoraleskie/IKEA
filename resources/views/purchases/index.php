@@ -229,17 +229,32 @@ foreach ($purchases as $p) {
 							<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
 								<i data-lucide="package" class="w-4 h-4 text-blue-600"></i>
 							</div>
+							<?php
+							// Derive friendly display if not configured
+							$baseUnit = $p['unit'];
+							$dispUnit = $p['display_unit'] ?: '';
+							$dispFactor = (float)($p['display_factor'] ?? 0);
+							if (!$dispUnit) {
+								if ($baseUnit === 'g') { $dispUnit = 'kg'; $dispFactor = 1000; }
+								elseif ($baseUnit === 'ml') { $dispUnit = 'L'; $dispFactor = 1000; }
+								else { $dispUnit = $baseUnit; $dispFactor = 1; }
+							}
+							?>
 							<div>
 								<div class="font-medium text-gray-900"><?php echo htmlspecialchars($p['item_name']); ?></div>
-								<div class="text-xs text-gray-500"><?php echo htmlspecialchars($p['display_unit'] ?: $p['unit']); ?></div>
+								<div class="text-xs text-gray-500"><?php echo htmlspecialchars($dispUnit); ?></div>
 							</div>
 						</div>
 					</td>
 					
 					<td class="px-6 py-4">
+						<?php
+						$qtyBase = (float)$p['quantity'];
+						$showQty = $dispFactor > 0 ? $qtyBase / $dispFactor : $qtyBase;
+						?>
 						<div class="flex items-center gap-2">
-							<span class="font-semibold text-gray-900"><?php echo isset($p['display_factor']) && (float)$p['display_factor'] > 0 ? number_format((float)$p['quantity'] / (float)$p['display_factor'], 2) : htmlspecialchars($p['quantity']); ?></span>
-							<span class="text-gray-500 text-sm"><?php echo htmlspecialchars($p['display_unit'] ?: $p['unit']); ?></span>
+							<span class="font-semibold text-gray-900"><?php echo number_format($showQty, 2); ?></span>
+							<span class="text-gray-500 text-sm"><?php echo htmlspecialchars($dispUnit); ?></span>
 						</div>
 					</td>
 					
