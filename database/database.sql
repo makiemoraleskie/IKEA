@@ -91,6 +91,8 @@ CREATE TABLE purchases (
   cost DECIMAL(16,2) NOT NULL,
   receipt_url VARCHAR(255) NULL,
   payment_status ENUM('Paid','Pending') NOT NULL DEFAULT 'Pending',
+  payment_type ENUM('Card','Cash') NOT NULL DEFAULT 'Card',
+  cash_base_amount DECIMAL(16,2) NULL,
   date_purchased DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -99,6 +101,7 @@ CREATE TABLE purchases (
   KEY idx_purchases_item (item_id),
   KEY idx_purchases_supplier (supplier),
   KEY idx_purchases_payment_status (payment_status),
+  KEY idx_purchases_payment_type (payment_type),
   CONSTRAINT fk_purchases_purchaser FOREIGN KEY (purchaser_id) REFERENCES users(id) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT fk_purchases_item FOREIGN KEY (item_id) REFERENCES ingredients(id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

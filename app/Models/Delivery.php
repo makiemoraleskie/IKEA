@@ -4,14 +4,29 @@ declare(strict_types=1);
 class Delivery extends BaseModel
 {
     public function listAll(): array
-	{
-        $sql = 'SELECT d.*, p.item_id, p.quantity AS purchase_quantity, i.name AS item_name, i.unit, i.display_unit, i.display_factor
-			FROM deliveries d
-			JOIN purchases p ON d.purchase_id = p.id
-			JOIN ingredients i ON p.item_id = i.id
-			ORDER BY d.date_received DESC';
-		return $this->db->query($sql)->fetchAll();
-	}
+    {
+        $sql = 'SELECT 
+                d.*,
+                p.id AS purchase_id,
+                p.purchaser_id,
+                p.supplier,
+                p.payment_status,
+                p.receipt_url,
+                p.date_purchased,
+                p.item_id,
+                p.quantity AS purchase_quantity,
+                u.name AS purchaser_name,
+                i.name AS item_name,
+                i.unit,
+                i.display_unit,
+                i.display_factor
+            FROM deliveries d
+            JOIN purchases p ON d.purchase_id = p.id
+            JOIN users u ON p.purchaser_id = u.id
+            JOIN ingredients i ON p.item_id = i.id
+            ORDER BY d.date_received DESC';
+        return $this->db->query($sql)->fetchAll();
+    }
 
 	public function create(int $purchaseId, float $quantityReceived, string $deliveryStatus): int
 	{

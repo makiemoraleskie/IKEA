@@ -13,12 +13,35 @@ class Purchase extends BaseModel
 		return $this->db->query($sql)->fetchAll();
 	}
 
-	public function create(int $purchaserId, int $itemId, string $supplier, float $quantity, float $cost, ?string $receiptUrl, string $paymentStatus): int
+    public function create(
+        int $purchaserId,
+        int $itemId,
+        string $supplier,
+        float $quantity,
+        float $cost,
+        ?string $receiptUrl,
+        string $paymentStatus,
+        string $paymentType = 'Card',
+        ?float $cashBaseAmount = null
+    ): int
 	{
-		$sql = 'INSERT INTO purchases (purchaser_id, item_id, supplier, quantity, cost, receipt_url, payment_status, date_purchased)
-			VALUES (?, ?, ?, ?, ?, ?, ?, NOW())';
+        $sql = 'INSERT INTO purchases (
+                purchaser_id, item_id, supplier, quantity, cost, receipt_url, payment_status, payment_type, cash_base_amount, date_purchased
+            ) VALUES (
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()
+            )';
 		$stmt = $this->db->prepare($sql);
-		$stmt->execute([$purchaserId, $itemId, $supplier, $quantity, $cost, $receiptUrl, $paymentStatus]);
+        $stmt->execute([
+            $purchaserId,
+            $itemId,
+            $supplier,
+            $quantity,
+            $cost,
+            $receiptUrl,
+            $paymentStatus,
+            $paymentType,
+            $cashBaseAmount,
+        ]);
 		return (int)$this->db->lastInsertId();
 	}
 

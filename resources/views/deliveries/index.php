@@ -78,37 +78,32 @@ foreach ($deliveries as $d) {
 		<p class="text-sm text-gray-600 mt-1">Record a delivery for an existing purchase</p>
 	</div>
 	
-	<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/deliveries" class="p-6">
+    <form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/deliveries" class="p-6" id="deliveriesForm">
 		<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+        <input type="hidden" name="items_json" id="deliveriesItemsJson" value="[]">
 		
 		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-			<!-- Purchase Selection -->
-			<div class="space-y-2 md:col-span-2">
-				<label class="block text-sm font-medium text-gray-700">Select Purchase</label>
-				<select name="purchase_id" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors" required>
-					<option value="">Choose a purchase to deliver</option>
-					<?php foreach ($purchases as $p): $deliv = (float)($deliveredTotals[(int)$p['id']] ?? 0); ?>
-						<option value="<?php echo (int)$p['id']; ?>">
-							#<?php echo (int)$p['id']; ?> — <?php echo htmlspecialchars($p['item_name']); ?> (<?php echo number_format((float)$p['quantity'],2); ?> <?php echo htmlspecialchars($p['unit']); ?>) — Delivered: <?php echo number_format($deliv,2); ?>
-						</option>
-					<?php endforeach; ?>
-				</select>
-				<p class="text-xs text-gray-500">Select the purchase order to record delivery for</p>
-			</div>
+            <!-- Purchase Batch Selection -->
+            <div class="space-y-2 md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700">Select Purchase Batch</label>
+                <select id="batchSelect" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors">
+                    <option value="">Choose a batch</option>
+                    <?php foreach (($purchaseGroups ?? []) as $g): ?>
+                        <option value="<?php echo htmlspecialchars($g['group_id']); ?>"><?php echo '#'.htmlspecialchars($g['group_id']).' — '.htmlspecialchars($g['supplier']).' — '.htmlspecialchars($g['purchaser_name']); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <p class="text-xs text-gray-500">After selecting a batch, set per-item received quantities below.</p>
+            </div>
 			
-			<!-- Quantity Received -->
-			<div class="space-y-2">
-				<label class="block text-sm font-medium text-gray-700">Quantity Received</label>
-				<input id="deliveryQty" type="number" step="0.01" min="0.01" name="quantity_received" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors" placeholder="Enter amount" required />
-			</div>
-			
-			<!-- Unit -->
-			<div class="space-y-2">
-				<label class="block text-sm font-medium text-gray-700">Unit</label>
-				<select id="deliveryQtyUnit" name="quantity_unit" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors">
-					<option value="">Auto-detect</option>
-				</select>
-			</div>
+            <!-- Quantity fields are handled per-row when a batch is chosen -->
+            <div class="space-y-2 hidden">
+                <label class="block text-sm font-medium text-gray-700">Quantity Received</label>
+                <input id="deliveryQty" type="number" step="0.01" min="0.01" class="w-full border border-gray-300 rounded-lg px-4 py-3" placeholder="Enter amount" />
+            </div>
+            <div class="space-y-2 hidden">
+                <label class="block text-sm font-medium text-gray-700">Unit</label>
+                <select id="deliveryQtyUnit" class="w-full border border-gray-300 rounded-lg px-4 py-3"><option value="">Auto-detect</option></select>
+            </div>
 			
 			<!-- Delivery Status -->
 			<div class="space-y-2">
@@ -120,7 +115,23 @@ foreach ($deliveries as $d) {
 			</div>
 		</div>
 		
-		<div class="mt-6 flex justify-end">
+        <div id="batchItemsBox" class="mt-4 hidden">
+            <div class="overflow-x-auto border rounded-lg">
+                <table class="min-w-full text-sm" id="batchItemsTable">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="text-left px-4 py-2">Item</th>
+                            <th class="text-left px-4 py-2">Remaining</th>
+                            <th class="text-left px-4 py-2">Receive Now</th>
+                            <th class="text-left px-4 py-2">Unit</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="mt-6 flex justify-end">
 			<button type="submit" class="inline-flex items-center gap-2 bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors">
 				<i data-lucide="package-check" class="w-4 h-4"></i>
 				Record Delivery
@@ -157,14 +168,14 @@ foreach ($deliveries as $d) {
 	<div class="overflow-x-auto">
 		<table class="w-full text-sm">
 			<thead class="bg-gray-50">
-				<tr>
-					<th class="text-left px-6 py-3 font-medium text-gray-700">Delivery ID</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700">Purchase</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700">Item</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700">Quantity Received</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700">Status</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700">Date Received</th>
-				</tr>
+                <tr>
+                    <th class="text-left px-6 py-3 font-medium text-gray-700">Delivery ID</th>
+                    <th class="text-left px-6 py-3 font-medium text-gray-700">Batch</th>
+                    <th class="text-left px-6 py-3 font-medium text-gray-700">Item</th>
+                    <th class="text-left px-6 py-3 font-medium text-gray-700">Quantity Received</th>
+                    <th class="text-left px-6 py-3 font-medium text-gray-700">Status</th>
+                    <th class="text-left px-6 py-3 font-medium text-gray-700">Date Received</th>
+                </tr>
 			</thead>
 			<tbody class="divide-y divide-gray-200">
 				<?php foreach ($deliveries as $d): ?>
@@ -177,13 +188,14 @@ foreach ($deliveries as $d) {
 						</div>
 					</td>
 					
-					<td class="px-6 py-4">
-						<div class="flex items-center gap-2">
-							<div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-								<span class="text-xs font-semibold text-purple-600">#<?php echo (int)$d['purchase_id']; ?></span>
-							</div>
-						</div>
-					</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                                <?php $ts = substr((string)($d['date_purchased'] ?? ''),0,19); $batchId = substr(sha1(($d['purchaser_id']??'').'|'.($d['supplier']??'').'|'.($d['payment_status']??'').'|'.($d['receipt_url']??'').'|'.$ts),0,10); ?>
+                                <span class="text-xs font-semibold text-purple-600">#<?php echo htmlspecialchars($batchId); ?></span>
+                            </div>
+                        </div>
+                    </td>
 					
 					<td class="px-6 py-4">
 						<div class="flex items-center gap-3">
@@ -242,22 +254,77 @@ foreach ($deliveries as $d) {
 
 <script>
 (function(){
-  const purchaseSel = document.querySelector('select[name="purchase_id"]');
-  const unitSel = document.getElementById('deliveryQtyUnit');
-  function configure(){
-    const opt = purchaseSel.selectedOptions[0];
-    if (!opt) { unitSel.innerHTML=''; return; }
-    // parse item unit from option text e.g. "ItemName (kg) — Delivered:"
-    const m = opt.textContent.match(/\(([^)]+)\)/);
-    const unit = m ? m[1] : '';
-    unitSel.innerHTML = '';
-    const add=(v,t)=>{ const o=document.createElement('option'); o.value=v; o.textContent=t; unitSel.appendChild(o); };
-    if (unit === 'g'){ add('g','g'); add('kg','kg'); }
-    else if (unit === 'ml'){ add('ml','ml'); add('L','L'); }
-    else { add(unit || '', unit || ''); }
+  const GROUPS = <?php echo json_encode(array_map(function($g) use ($deliveredTotals) {
+    return [
+      'group_id' => $g['group_id'],
+      'items' => array_map(function($p) use ($deliveredTotals){
+        $del = (float)($deliveredTotals[(int)$p['id']] ?? 0);
+        return [
+          'purchase_id' => (int)$p['id'],
+          'item_name' => $p['item_name'],
+          'unit' => $p['unit'],
+          'display_unit' => $p['display_unit'],
+          'display_factor' => (float)$p['display_factor'],
+          'quantity' => (float)$p['quantity'],
+          'delivered' => $del,
+        ];
+      }, $g['items'])
+    ];
+  }, ($purchaseGroups ?? [])), JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
+
+  const sel = document.getElementById('batchSelect');
+  const box = document.getElementById('batchItemsBox');
+  const tableBody = document.querySelector('#batchItemsTable tbody');
+  const itemsJson = document.getElementById('deliveriesItemsJson');
+  const form = document.getElementById('deliveriesForm');
+
+  function buildUnitOptions(baseUnit, dispUnit){
+    const sel = document.createElement('select'); sel.className='border rounded px-3 py-2'; sel.name='row_unit[]';
+    const add=(v,t)=>{ const o=document.createElement('option'); o.value=v; o.textContent=t; sel.appendChild(o); };
+    if (baseUnit === 'g'){ add('g','g'); add('kg','kg'); }
+    else if (baseUnit === 'ml'){ add('ml','ml'); add('L','L'); }
+    else { add(baseUnit, baseUnit); }
+    if (dispUnit && ![baseUnit].includes(dispUnit)) {
+      let exists=false; for (const o of sel.options) if (o.value===dispUnit) exists=true; if (!exists) add(dispUnit, dispUnit);
+    }
+    return sel;
   }
-  purchaseSel.addEventListener('change', configure);
-  configure();
+
+  function render(groupId){
+    tableBody.innerHTML='';
+    const g = GROUPS.find(x=>x.group_id===groupId);
+    if (!g){ box.classList.add('hidden'); itemsJson.value='[]'; return; }
+    for (const it of g.items){
+      const remaining = Math.max(0, (it.quantity - it.delivered));
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td class="px-4 py-2">${it.item_name}<input type="hidden" name="purchase_id[]" value="${it.purchase_id}"></td>
+                      <td class="px-4 py-2 text-gray-600">${remaining.toFixed(2)} ${it.unit}</td>
+                      <td class="px-4 py-2"><input type="number" step="0.01" min="0" name="row_qty[]" value="${remaining.toFixed(2)}" class="w-32 border rounded px-3 py-2" /></td>`;
+      const unitTd = document.createElement('td'); unitTd.className='px-4 py-2';
+      const unitSel = buildUnitOptions(it.unit, it.display_unit);
+      unitTd.appendChild(unitSel);
+      tr.appendChild(unitTd);
+      tableBody.appendChild(tr);
+    }
+    box.classList.remove('hidden');
+    sync();
+  }
+
+  function sync(){
+    const rows = [];
+    const ids = Array.from(document.querySelectorAll('input[name="purchase_id[]"]')).map(i=>parseInt(i.value,10));
+    const qtys = Array.from(document.querySelectorAll('input[name="row_qty[]"]')).map(i=>parseFloat(i.value||'0'));
+    const units = Array.from(document.querySelectorAll('select[name="row_unit[]"]')).map(s=>s.value||'');
+    for (let i=0;i<ids.length;i++){
+      const q = qtys[i]; if (!ids[i] || !q || q<=0) continue;
+      rows.push({ purchase_id: ids[i], quantity: q, unit: units[i] });
+    }
+    itemsJson.value = JSON.stringify(rows);
+  }
+
+  sel.addEventListener('change', ()=>{ render(sel.value); });
+  document.addEventListener('input', (e)=>{ if (e.target.matches('input[name="row_qty[]"]')) sync(); });
+  document.addEventListener('change', (e)=>{ if (e.target.matches('select[name="row_unit[]"]')) sync(); });
 })();
 </script>
 
