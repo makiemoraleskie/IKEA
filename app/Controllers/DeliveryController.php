@@ -17,6 +17,10 @@ class DeliveryController extends BaseController
         // Build grouped purchases for selection (same grouping key as purchases page)
         $groups = [];
         foreach ($purchases as $p) {
+			$status = strtoupper((string)($p['payment_status'] ?? ''));
+			if ($status !== 'PAID') {
+				continue;
+			}
             $ts = substr((string)($p['date_purchased'] ?? $p['created_at'] ?? ''), 0, 19);
             $key = ($p['purchaser_id'] ?? '') . '|' . ($p['supplier'] ?? '') . '|' . ($p['payment_status'] ?? '') . '|' . ($p['receipt_url'] ?? '') . '|' . $ts;
             if (!isset($groups[$key])) {
@@ -38,11 +42,25 @@ class DeliveryController extends BaseController
             $groups[$key]['delivered_sum'] += (float)($deliveredTotals[(int)$p['id']] ?? 0);
         }
 
+        // Keep only groups that still have remaining quantities after recent deliveries
+        $groups = array_filter($groups, static function(array $group) use ($deliveredTotals): bool {
+            foreach ($group['items'] as $item) {
+                $delivered = (float)($deliveredTotals[(int)$item['id']] ?? 0);
+                if (((float)$item['quantity'] - $delivered) > 0.0001) {
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        $awaitingPurchases = $deliveryModel->listOutstandingPurchases();
+
         $this->render('deliveries/index.php', [
             'purchases' => $purchases,
             'purchaseGroups' => array_values($groups),
             'deliveries' => $deliveries,
             'deliveredTotals' => $deliveredTotals,
+            'awaitingPurchases' => $awaitingPurchases,
         ]);
 	}
 
@@ -54,7 +72,6 @@ class DeliveryController extends BaseController
 			echo 'Invalid CSRF token';
 			return;
 		}
-        $deliveryStatus = in_array(($_POST['delivery_status'] ?? ''), ['Partial','Complete'], true) ? (string)$_POST['delivery_status'] : 'Partial';
         $itemsJson = trim((string)($_POST['items_json'] ?? ''));
         $rows = json_decode($itemsJson, true);
         if (!is_array($rows) || empty($rows)) { $this->redirect('/deliveries'); }
@@ -63,6 +80,7 @@ class DeliveryController extends BaseController
         $deliveryModel = new Delivery();
         $ingredientModel = new Ingredient();
         $logger = new AuditLog();
+        $deliveredCache = [];
 
         foreach ($rows as $row) {
             $purchaseId = (int)($row['purchase_id'] ?? 0);
@@ -84,7 +102,22 @@ class DeliveryController extends BaseController
                 $factor = 1000.0;
             }
             $quantityReceived = $quantityInput * $factor;
+            $purchaseQuantity = (float)($purchase['quantity'] ?? 0);
+            if (!array_key_exists($purchaseId, $deliveredCache)) {
+                $deliveredCache[$purchaseId] = $deliveryModel->getDeliveredTotal($purchaseId);
+            }
+            $deliveredSoFar = $deliveredCache[$purchaseId];
+            $remainingBefore = max(0.0, $purchaseQuantity - $deliveredSoFar);
+            if ($remainingBefore <= 0.0) { continue; }
+
+            if ($quantityReceived >= $remainingBefore - 0.0001) {
+                $deliveryStatus = 'Complete';
+                $quantityReceived = $remainingBefore;
+            } else {
+                $deliveryStatus = 'Partial';
+            }
             $deliveryId = $deliveryModel->create($purchaseId, $quantityReceived, $deliveryStatus);
+            $deliveredCache[$purchaseId] += $quantityReceived;
 
             // Stock-in update
             if ($item) {

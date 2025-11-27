@@ -13,6 +13,7 @@ class ReportsController extends BaseController
 			'date_to' => trim((string)($_GET['date_to'] ?? '')),
 			'supplier' => trim((string)($_GET['supplier'] ?? '')),
 			'item_id' => isset($_GET['item_id']) ? (int)$_GET['item_id'] : null,
+			'payment_status' => 'Paid',
 		];
 		$model = new Reports();
 		$purchases = $model->getPurchases($filters);

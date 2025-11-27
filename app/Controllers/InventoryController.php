@@ -8,8 +8,11 @@ class InventoryController extends BaseController
 		Auth::requireRole(['Owner','Manager','Stock Handler']);
 		$ingredientModel = new Ingredient();
 		$ingredients = $ingredientModel->all();
+		$setModel = new IngredientSet();
+		$ingredientSets = $setModel->listWithComponents();
 		$this->render('inventory/index.php', [
 			'ingredients' => $ingredients,
+			'ingredientSets' => $ingredientSets,
             'flash' => $_SESSION['flash_inventory'] ?? null,
 		]);
         unset($_SESSION['flash_inventory']);
@@ -91,6 +94,101 @@ class InventoryController extends BaseController
         $logger->log(Auth::id() ?? 0, 'delete', 'ingredients', ['ingredient_id' => $id, 'force' => (bool)$force]);
         $this->redirect('/inventory');
     }
+
+	public function storeSet(): void
+	{
+		Auth::requireRole(['Owner','Manager']);
+		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
+			http_response_code(400);
+			echo 'Invalid CSRF token';
+			return;
+		}
+
+		$setId = (int)($_POST['set_id'] ?? 0);
+		$name = trim((string)($_POST['set_name'] ?? ''));
+		$description = trim((string)($_POST['set_description'] ?? '')) ?: null;
+		$componentsRaw = (string)($_POST['components_json'] ?? '[]');
+		$components = json_decode($componentsRaw, true);
+
+		if ($name === '') {
+			$_SESSION['flash_inventory'] = ['type' => 'error', 'text' => 'Set name is required.'];
+			$this->redirect('/inventory');
+		}
+
+		if (!is_array($components) || empty($components)) {
+			$_SESSION['flash_inventory'] = ['type' => 'error', 'text' => 'Add at least one ingredient to the set.'];
+			$this->redirect('/inventory');
+		}
+
+		$ingredientModel = new Ingredient();
+		$setModel = new IngredientSet();
+		$normalized = [];
+		$seen = [];
+
+		foreach ($components as $component) {
+			$ingredientId = (int)($component['ingredient_id'] ?? 0);
+			$quantity = (float)($component['quantity'] ?? 0);
+			if ($ingredientId <= 0 || $quantity <= 0) {
+				continue;
+			}
+			if (isset($seen[$ingredientId])) {
+				$_SESSION['flash_inventory'] = ['type' => 'error', 'text' => 'Each ingredient can only appear once in a set.'];
+				$this->redirect('/inventory');
+			}
+			$ingredient = $ingredientModel->find($ingredientId);
+			if (!$ingredient) {
+				$_SESSION['flash_inventory'] = ['type' => 'error', 'text' => 'One of the selected ingredients no longer exists. Refresh and try again.'];
+				$this->redirect('/inventory');
+			}
+			$seen[$ingredientId] = true;
+			$normalized[] = [
+				'ingredient_id' => $ingredientId,
+				'quantity' => $quantity,
+			];
+		}
+
+		if (empty($normalized)) {
+			$_SESSION['flash_inventory'] = ['type' => 'error', 'text' => 'Unable to save set without valid components.'];
+			$this->redirect('/inventory');
+		}
+
+		try {
+			$logger = new AuditLog();
+			if ($setId > 0) {
+				$setModel->update($setId, $name, $description, $normalized);
+				$logger->log(Auth::id() ?? 0, 'update', 'ingredient_sets', ['set_id' => $setId, 'name' => $name]);
+				$_SESSION['flash_inventory'] = ['type' => 'success', 'text' => 'Set updated successfully.'];
+			} else {
+				$setId = $setModel->create($name, $description, $normalized, Auth::id());
+				$logger->log(Auth::id() ?? 0, 'create', 'ingredient_sets', ['set_id' => $setId, 'name' => $name]);
+				$_SESSION['flash_inventory'] = ['type' => 'success', 'text' => 'Set created successfully.'];
+			}
+		} catch (Throwable $e) {
+			$_SESSION['flash_inventory'] = ['type' => 'error', 'text' => 'Failed to save set. Ensure the name is unique.'];
+		}
+
+		$this->redirect('/inventory');
+	}
+
+	public function deleteSet(): void
+	{
+		Auth::requireRole(['Owner','Manager']);
+		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
+			http_response_code(400);
+			echo 'Invalid CSRF token';
+			return;
+		}
+		$setId = (int)($_POST['set_id'] ?? 0);
+		if ($setId <= 0) {
+			$this->redirect('/inventory');
+		}
+		$setModel = new IngredientSet();
+		$setModel->delete($setId);
+		$logger = new AuditLog();
+		$logger->log(Auth::id() ?? 0, 'delete', 'ingredient_sets', ['set_id' => $setId]);
+		$_SESSION['flash_inventory'] = ['type' => 'success', 'text' => 'Set deleted.'];
+		$this->redirect('/inventory');
+	}
 }
 
 

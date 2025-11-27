@@ -25,10 +25,11 @@ class Purchase extends BaseModel
         ?float $cashBaseAmount = null
     ): int
 	{
+        $paidAt = $paymentStatus === 'Paid' ? date('Y-m-d H:i:s') : null;
         $sql = 'INSERT INTO purchases (
-                purchaser_id, item_id, supplier, quantity, cost, receipt_url, payment_status, payment_type, cash_base_amount, date_purchased
+                purchaser_id, item_id, supplier, quantity, cost, receipt_url, payment_status, payment_type, cash_base_amount, date_purchased, paid_at
             ) VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?
             )';
 		$stmt = $this->db->prepare($sql);
         $stmt->execute([
@@ -41,6 +42,7 @@ class Purchase extends BaseModel
             $paymentStatus,
             $paymentType,
             $cashBaseAmount,
+            $paidAt,
         ]);
 		return (int)$this->db->lastInsertId();
 	}
@@ -67,6 +69,54 @@ class Purchase extends BaseModel
 		$row = $this->db->query($sql)->fetch();
 		return (int)($row['cnt'] ?? 0);
 	}
+
+    public function countByPaymentStatus(string $status): int
+    {
+        $sql = 'SELECT COUNT(*) AS cnt FROM purchases WHERE payment_status = ?';
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$status]);
+        $row = $stmt->fetch();
+        return (int)($row['cnt'] ?? 0);
+    }
+
+    public function averageCostPerItem(): array
+    {
+        $sql = 'SELECT item_id, SUM(cost) AS total_cost, SUM(quantity) AS total_quantity
+                FROM purchases
+                GROUP BY item_id';
+        $rows = $this->db->query($sql)->fetchAll();
+        $averages = [];
+        foreach ($rows as $row) {
+            $qty = (float)($row['total_quantity'] ?? 0);
+            if ($qty <= 0) {
+                continue;
+            }
+            $averages[(int)$row['item_id']] = (float)$row['total_cost'] / $qty;
+        }
+        return $averages;
+    }
+
+    public function dailyCounts(string $startDate, string $endDate): array
+    {
+        $sql = 'SELECT DATE(date_purchased) AS day, COUNT(*) AS total
+                FROM purchases
+                WHERE DATE(date_purchased) BETWEEN ? AND ?
+                GROUP BY day';
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$startDate, $endDate]);
+        $result = [];
+        foreach ($stmt->fetchAll() as $row) {
+            $result[$row['day']] = (int)$row['total'];
+        }
+        return $result;
+    }
+
+    public function markPaidWithReceipt(int $id, string $receiptUrl): void
+    {
+        $sql = 'UPDATE purchases SET payment_status = "Paid", receipt_url = ?, paid_at = NOW() WHERE id = ?';
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$receiptUrl, $id]);
+    }
 }
 
 

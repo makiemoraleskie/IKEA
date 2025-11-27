@@ -20,11 +20,27 @@ class AuditLog extends BaseModel
 		if (!empty($filters['module'])) { $where[] = 'a.module = ?'; $params[] = $filters['module']; }
 		if (!empty($filters['date_from'])) { $where[] = 'a.timestamp >= ?'; $params[] = $filters['date_from'] . ' 00:00:00'; }
 		if (!empty($filters['date_to'])) { $where[] = 'a.timestamp <= ?'; $params[] = $filters['date_to'] . ' 23:59:59'; }
+		if (!empty($filters['search'])) {
+			$where[] = '(a.action LIKE ? OR a.module LIKE ? OR a.details LIKE ?)';
+			$like = '%' . $filters['search'] . '%';
+			$params[] = $like;
+			$params[] = $like;
+			$params[] = $like;
+		}
 		if ($where) { $sql .= ' WHERE ' . implode(' AND ', $where); }
 		$sql .= ' ORDER BY a.timestamp DESC';
+		$limit = isset($filters['limit']) ? max(20, min((int)$filters['limit'], 500)) : 200;
+		$sql .= ' LIMIT ' . $limit;
 		$stmt = $this->db->prepare($sql);
 		$stmt->execute($params);
 		return $stmt->fetchAll();
+	}
+
+	public function listModules(): array
+	{
+		$sql = 'SELECT DISTINCT module FROM audit_log ORDER BY module ASC';
+		$stmt = $this->db->query($sql);
+		return array_column($stmt->fetchAll(), 'module');
 	}
 }
 

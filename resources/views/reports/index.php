@@ -1,10 +1,11 @@
+<?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
 <!-- Page Header -->
-<div class="flex items-center justify-between mb-8">
+<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
 	<div>
 		<h1 class="text-3xl font-bold text-gray-900">Purchase Reports</h1>
 		<p class="text-gray-600 mt-1">Analyze and export purchase data</p>
 	</div>
-	<a href="/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
 		<i data-lucide="arrow-left" class="w-4 h-4"></i>
 		Back to Dashboard
 	</a>
@@ -75,7 +76,6 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 <?php endif; ?>
 
 <!-- Filters Section -->
-<?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
 <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
 	<div class="bg-gradient-to-r from-indigo-50 to-blue-50 px-6 py-4 border-b">
 		<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
@@ -113,6 +113,16 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 					<?php foreach ($ingredients as $ing): ?>
 						<option value="<?php echo (int)$ing['id']; ?>" <?php echo ((int)($filters['item_id'] ?? 0) === (int)$ing['id'])?'selected':''; ?>><?php echo htmlspecialchars($ing['name']); ?></option>
 					<?php endforeach; ?>
+				</select>
+			</div>
+			
+			<!-- Payment Status -->
+			<div class="space-y-2">
+				<label class="block text-sm font-medium text-gray-700">Payment Status</label>
+				<select name="payment_status" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+					<option value="">All</option>
+					<option value="Paid" <?php echo (($filters['payment_status'] ?? '') === 'Paid') ? 'selected' : ''; ?>>Paid</option>
+					<option value="Pending" <?php echo (($filters['payment_status'] ?? '') === 'Pending') ? 'selected' : ''; ?>>Pending</option>
 				</select>
 			</div>
 			
@@ -232,8 +242,8 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 		</div>
 		
 		<div class="p-6">
-			<div class="h-80">
-				<canvas id="dailyChart"></canvas>
+			<div class="relative min-h-[18rem] sm:min-h-[20rem] lg:min-h-[24rem]">
+				<canvas id="dailyChart" class="h-full w-full"></canvas>
 			</div>
 			
 			<?php if (empty($daily)): ?>

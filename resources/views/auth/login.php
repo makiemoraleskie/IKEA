@@ -1,117 +1,115 @@
-<!-- Login Page Container -->
-<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-	<div class="sm:mx-auto sm:w-full sm:max-w-md">
-		<!-- Logo and Branding -->
-		<div class="flex flex-col items-center mb-8">
-			<div class="w-12 h-12 border-2 border-blue-600 rounded-lg flex items-center justify-center mb-4">
-				<div class="w-6 h-6 bg-blue-600 rounded"></div>
-			</div>
-			<h1 class="text-3xl font-bold text-gray-900">iKEA</h1>
-			<p class="text-sm text-gray-600 mt-1">Inventory Management System</p>
-		</div>
-	</div>
+<?php
+$baseUrl = defined('BASE_URL') ? BASE_URL : '';
+$logoPath = (defined('BASE_URL') ? BASE_URL : '') . '/public/uploads/ikea-commissary-logo.jpg';
+$demoAccounts = [
+	['role' => 'Owner', 'email' => 'makiemorales2@gmail.com', 'note' => 'Executive Oversight'],
+	['role' => 'Manager', 'email' => 'manager@demo.local', 'note' => 'Approvals & Scheduling'],
+	['role' => 'Stock Handler', 'email' => 'stock@demo.local', 'note' => 'Warehouse Ops'],
+	['role' => 'Purchaser', 'email' => 'purchaser@demo.local', 'note' => 'Supplier Coordination'],
+	['role' => 'Kitchen Staff', 'email' => 'kitchen@demo.local', 'note' => 'Line Consumption'],
+];
+?>
 
-	<div class="sm:mx-auto sm:w-full sm:max-w-md">
-		<!-- Main Login Form -->
-		<div class="bg-white py-8 px-6 shadow-lg rounded-lg sm:px-10">
-			<h2 class="text-xl font-semibold text-gray-900 mb-6">Sign in to your account</h2>
-			
-			<?php if (!empty($error)): ?>
-				<div class="mb-4 p-3 rounded bg-red-50 text-red-700 text-sm"><?php echo htmlspecialchars($error); ?></div>
-			<?php endif; ?>
-			
-			<?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
-			<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/login" class="space-y-6" novalidate>
-				<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
-				
-				<div>
-					<label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-					<input 
-						id="email" 
-						name="email" 
-						type="email" 
-						placeholder="Enter your email"
-						class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
-						required 
-					/>
+<div class="min-h-screen bg-gradient-to-br from-[#F5E6F0] via-white to-[#FCBBE9] flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+	<div class="w-full max-w-5xl bg-white border border-[#F5E6F0] rounded-[28px] shadow-2xl overflow-hidden">
+		<div class="grid gap-0 lg:grid-cols-2">
+			<section class="relative hidden lg:flex flex-col justify-between bg-gradient-to-br from-[#FCBBE9] via-[#F5E6F0] to-[#008000] text-[#1d1b1e] p-10">
+				<div class="space-y-5">
+					<img src="<?php echo htmlspecialchars($logoPath); ?>" alt="IKEA Commissary logo" class="h-16 w-16 rounded-2xl border border-white/70 bg-white/40 p-2 shadow-lg shadow-[#008000]/15">
+					<div class="inline-flex items-center gap-3 text-xs uppercase tracking-[0.35em] text-[#5f5b60]">
+						<span class="h-2 w-2 rounded-full bg-white/80"></span>
+						Ormoc City, PH
+					</div>
+					<h1 class="text-3xl font-semibold leading-tight text-[#1b1720]">
+						Well-loved pastry and snack shop since 1990.
+					</h1>
+					<p class="text-[#423a44] text-sm max-w-md leading-relaxed">
+						A well-loved pastry and snack shop in Ormoc City, Philippines. Opened in 1990 it became popular because of its chocolate and mango cake, and their specialties like Palabok, Siopao, Mami, Empanada, Arroz Caldo to name a few.
+					</p>
 				</div>
-				
-				<div>
-					<label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-					<input 
-						id="password" 
-						name="password" 
-						type="password" 
-						placeholder="Enter your password"
-						class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
-						required 
-					/>
+				<div class="rounded-2xl bg-white/40 border border-white/60 p-5 space-y-3 text-sm text-[#3c383d]">
+					<p class="font-semibold text-[#1c3a2a]">House Specials</p>
+					<ul class="space-y-2 text-[#3c383d]">
+						<li class="flex items-center gap-3"><span class="h-1.5 w-1.5 rounded-full bg-[#008000]"></span>Chocolate & mango celebration cakes</li>
+						<li class="flex items-center gap-3"><span class="h-1.5 w-1.5 rounded-full bg-[#008000]"></span>Palabok, siopao, and comforting mami</li>
+						<li class="flex items-center gap-3"><span class="h-1.5 w-1.5 rounded-full bg-[#008000]"></span>Empanada and arroz caldo favorites</li>
+					</ul>
 				</div>
-				
-				<button 
-					type="submit"
-					class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-				>
-					Sign in
-				</button>
-			</form>
-		</div>
+			</section>
 
-		<!-- Demo Accounts -->
-		<div class="mt-6 bg-white py-6 px-6 shadow-lg rounded-lg">
-			<h3 class="text-lg font-semibold text-gray-900 mb-4">Demo Accounts</h3>
-			
-			<!-- Owner Account -->
-			<div class="mb-4 p-4 border border-gray-200 rounded-lg">
-				<div class="flex items-center justify-between mb-2">
-					<h4 class="font-semibold text-gray-900">Owner</h4>
-					<span class="text-blue-600 text-sm font-medium">Use this account</span>
+			<section class="p-8 sm:p-10 bg-white">
+				<div class="flex items-center gap-3 mb-8">
+					<img src="<?php echo htmlspecialchars($logoPath); ?>" alt="IKEA Commissary logo" class="w-12 h-12 rounded-2xl border border-[#FCBBE9] bg-[#F5E6F0] object-cover">
+					<div>
+						<p class="text-xs uppercase tracking-[0.3em] text-gray-400">Portal</p>
+						<p class="text-2xl font-semibold text-gray-900">Dashboard Sign-in</p>
+					</div>
 				</div>
-				<p class="text-sm text-gray-700">Email: makiemorales2@gmail.com</p>
-				<p class="text-sm text-gray-700">Password: Admin@123</p>
-			</div>
 
-			<!-- Manager Account -->
-			<div class="mb-4 p-4 border border-gray-200 rounded-lg">
-				<div class="flex items-center justify-between mb-2">
-					<h4 class="font-semibold text-gray-900">Manager</h4>
-					<span class="text-blue-600 text-sm font-medium">Use this account</span>
-				</div>
-				<p class="text-sm text-gray-700">Email: manager@demo.local</p>
-				<p class="text-sm text-gray-700">Password: Admin@123</p>
-			</div>
+				<?php if (!empty($error)): ?>
+					<div class="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+						<?php echo htmlspecialchars($error); ?>
+					</div>
+				<?php endif; ?>
 
-			<!-- Stock Handler Account -->
-			<div class="mb-4 p-4 border border-gray-200 rounded-lg">
-				<div class="flex items-center justify-between mb-2">
-					<h4 class="font-semibold text-gray-900">Stock Handler</h4>
-					<span class="text-blue-600 text-sm font-medium">Use this account</span>
-				</div>
-				<p class="text-sm text-gray-700">Email: stock@demo.local</p>
-				<p class="text-sm text-gray-700">Password: Admin@123</p>
-			</div>
+				<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/login" class="space-y-5" novalidate>
+					<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 
-			<!-- Purchaser Account -->
-			<div class="mb-4 p-4 border border-gray-200 rounded-lg">
-				<div class="flex items-center justify-between mb-2">
-					<h4 class="font-semibold text-gray-900">Purchaser</h4>
-					<span class="text-blue-600 text-sm font-medium">Use this account</span>
-				</div>
-				<p class="text-sm text-gray-700">Email: purchaser@demo.local</p>
-				<p class="text-sm text-gray-700">Password: Admin@123</p>
-			</div>
+					<div class="space-y-2">
+						<label for="email" class="text-xs font-semibold uppercase tracking-wide text-gray-500">Email</label>
+						<input
+							id="email"
+							name="email"
+							type="email"
+							placeholder="name@company.com"
+							class="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition focus:border-[#008000] focus:outline-none focus:ring-2 focus:ring-[#008000]/20"
+							required
+						/>
+					</div>
 
-			<!-- Kitchen Staff Account -->
-			<div class="p-4 border border-gray-200 rounded-lg">
-				<div class="flex items-center justify-between mb-2">
-					<h4 class="font-semibold text-gray-900">Kitchen Staff</h4>
-					<span class="text-blue-600 text-sm font-medium">Use this account</span>
+					<div class="space-y-2">
+						<label for="password" class="text-xs font-semibold uppercase tracking-wide text-gray-500">Password</label>
+						<input
+							id="password"
+							name="password"
+							type="password"
+							placeholder="••••••••"
+							class="w-full rounded-2xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition focus:border-[#008000] focus:outline-none focus:ring-2 focus:ring-[#008000]/20"
+							required
+						/>
+					</div>
+
+					<button
+						type="submit"
+						class="w-full rounded-2xl bg-[#008000] py-3 text-base font-semibold text-white shadow-lg shadow-[#008000]/25 transition hover:bg-[#006a00] focus:outline-none focus:ring-2 focus:ring-[#008000]/40 focus:ring-offset-2 focus:ring-offset-white"
+					>
+						Continue
+					</button>
+				</form>
+
+				<div class="mt-10 pt-8 border-t border-gray-100">
+					<div class="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400 mb-4">
+						<span class="block h-px flex-1 bg-gray-200"></span>
+						Demo Access
+						<span class="block h-px flex-1 bg-gray-200"></span>
+					</div>
+
+					<div class="space-y-3">
+						<?php foreach ($demoAccounts as $account): ?>
+							<div class="rounded-2xl border border-[#F5E6F0] bg-[#FCBBE9]/20 px-4 py-3">
+								<div class="flex items-center justify-between">
+									<div>
+										<p class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($account['role']); ?></p>
+										<p class="text-xs text-gray-500"><?php echo htmlspecialchars($account['note']); ?></p>
+									</div>
+									<span class="text-[11px] font-semibold uppercase tracking-wide text-[#008000]">Admin@123</span>
+								</div>
+								<p class="text-xs font-mono text-gray-600 mt-2">Email: <?php echo htmlspecialchars($account['email']); ?></p>
+							</div>
+						<?php endforeach; ?>
+					</div>
 				</div>
-				<p class="text-sm text-gray-700">Email: kitchen@demo.local</p>
-				<p class="text-sm text-gray-700">Password: Admin@123</p>
-			</div>
+			</section>
 		</div>
 	</div>
 </div>
-
-

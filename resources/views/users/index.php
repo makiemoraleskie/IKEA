@@ -1,43 +1,61 @@
-<div class="flex items-center justify-between mt-4 mb-6">
-	<h1 class="text-2xl font-semibold">User Management</h1>
-	<a href="/dashboard" class="text-sm text-blue-600">Back to Dashboard</a>
+<?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
+<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mt-4 mb-6">
+	<div>
+		<h1 class="text-3xl font-bold text-gray-900">User Management</h1>
+		<p class="text-gray-600 mt-1">Create and manage commissary accounts</p>
+	</div>
+	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+		<i data-lucide="arrow-left" class="w-4 h-4"></i>
+		Back to Dashboard
+	</a>
 </div>
 
-<?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
-<div class="bg-white border rounded p-4 mb-6">
-	<h2 class="text-lg font-semibold mb-3">Create User</h2>
+<div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-4 sm:p-6 mb-6">
+	<div class="flex flex-col gap-1 mb-4">
+		<h2 class="text-xl font-semibold text-gray-900">Create User</h2>
+		<p class="text-sm text-gray-600">Invite a teammate with appropriate access level</p>
+	</div>
 	<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/users" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
 		<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 		<div>
-			<label class="block text-sm mb-1">Name</label>
-			<input name="name" class="w-full border rounded px-3 py-2" required />
+			<label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+			<input name="name" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
 		</div>
 		<div>
-			<label class="block text-sm mb-1">Email</label>
-			<input type="email" name="email" class="w-full border rounded px-3 py-2" required />
+			<label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+			<input type="email" name="email" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
 		</div>
 		<div>
-			<label class="block text-sm mb-1">Role</label>
-			<select name="role" class="w-full border rounded px-3 py-2">
+			<label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+			<select name="role" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
 				<?php foreach ($roles as $r): ?>
 					<option value="<?php echo htmlspecialchars($r); ?>"><?php echo htmlspecialchars($r); ?></option>
 				<?php endforeach; ?>
 			</select>
 		</div>
 		<div>
-			<label class="block text-sm mb-1">Password (min 8 chars)</label>
-			<input type="password" name="password" minlength="8" class="w-full border rounded px-3 py-2" required />
+			<label class="block text-sm font-medium text-gray-700 mb-1">Password (min 8 chars)</label>
+			<input type="password" name="password" minlength="8" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
 		</div>
 		<div class="md:col-span-4">
-			<button class="bg-blue-600 text-white px-4 py-2 rounded w-full">Create</button>
+			<button class="w-full inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+				<i data-lucide="user-plus" class="w-4 h-4"></i>
+				Create user
+			</button>
 		</div>
 	</form>
 </div>
 
-<div class="bg-white border rounded">
-	<div class="p-4 border-b"><h2 class="text-lg font-semibold">Users</h2></div>
+<div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+	<div class="px-4 sm:px-6 py-4 border-b flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+		<div>
+			<h2 class="text-xl font-semibold text-gray-900">Users</h2>
+			<p class="text-sm text-gray-600">Existing accounts and quick resets</p>
+		</div>
+		<span class="text-sm text-gray-500"><?php echo count($users); ?> total</span>
+	</div>
 	<div class="overflow-x-auto">
-		<table class="min-w-full text-sm">
+		<table class="min-w-full text-sm min-w-[680px]">
 			<thead class="bg-gray-50">
 				<tr>
 					<th class="text-left px-4 py-2">ID</th>

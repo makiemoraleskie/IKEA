@@ -1,26 +1,37 @@
+<?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
 <!-- Page Header -->
-<div class="flex items-center justify-between mb-8">
+<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
 	<div>
 		<h1 class="text-3xl font-bold text-gray-900">Purchase Transactions</h1>
 		<p class="text-gray-600 mt-1">Record and manage ingredient purchases</p>
 	</div>
-	<a href="/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
 		<i data-lucide="arrow-left" class="w-4 h-4"></i>
 		Back to Dashboard
 	</a>
 </div>
 
+<?php if (!empty($flash)): ?>
+<div class="mb-6 px-4 py-3 rounded-lg border <?php echo ($flash['type'] ?? '') === 'error' ? 'border-red-200 bg-red-50 text-red-800' : 'border-green-200 bg-green-50 text-green-800'; ?>">
+    <div class="flex items-center gap-2">
+        <i data-lucide="<?php echo ($flash['type'] ?? '') === 'error' ? 'alert-circle' : 'check-circle'; ?>" class="w-4 h-4"></i>
+        <span class="text-sm font-medium"><?php echo htmlspecialchars($flash['text'] ?? ''); ?></span>
+    </div>
+</div>
+<?php endif; ?>
+
 <!-- Summary Cards -->
-<?php if (!empty($purchases)): ?>
 <?php 
-// Calculate pending count for summary cards
 $pendingCount = 0;
-foreach ($purchases as $p) {
-	if ($p['payment_status'] === 'Pending') {
-		$pendingCount++;
+if (!empty($purchases)) {
+	foreach ($purchases as $p) {
+		if (($p['payment_status'] ?? '') === 'Pending') {
+			$pendingCount++;
+		}
 	}
 }
 ?>
+<?php if (!empty($purchases)): ?>
 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
 	<!-- Total Purchases -->
 	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -77,9 +88,11 @@ foreach ($purchases as $p) {
 <?php endif; ?>
 
 <!-- New Batch Purchase Form -->
-<?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
-    <div class="bg-gradient-to-r from-purple-50 to-indigo-50 px-6 py-4 border-b">
+<?php 
+$paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
+?>
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
+    <div class="bg-gradient-to-r from-purple-50 to-indigo-50 px-4 sm:px-6 py-4 border-b">
         <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
             <i data-lucide="shopping-cart" class="w-5 h-5 text-purple-600"></i>
             Record New Purchase (Batch)
@@ -87,7 +100,7 @@ foreach ($purchases as $p) {
         <p class="text-sm text-gray-600 mt-1">Search ingredient, set qty/unit/cost, add to list, then save</p>
     </div>
     
-    <form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/purchases" enctype="multipart/form-data" class="p-6" id="purchaseForm">
+    <form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/purchases" enctype="multipart/form-data" class="p-4 sm:p-6" id="purchaseForm">
         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
         
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -163,11 +176,12 @@ foreach ($purchases as $p) {
                         <input name="supplier" class="w-full border rounded-lg px-4 py-3" placeholder="Supplier name" required />
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Payment Status</label>
-                        <select name="payment_status" class="w-full border rounded-lg px-4 py-3">
-                            <option value="Pending">Pending</option>
-                            <option value="Paid">Paid</option>
+                        <label class="block text-sm font-medium text-gray-700">Purchase Type</label>
+                        <select name="purchase_type" id="purchaseType" class="w-full border rounded-lg px-4 py-3">
+                            <option value="in_store">In-store purchase</option>
+                            <option value="delivery">Delivery</option>
                         </select>
+                        <input type="hidden" name="payment_status" id="paymentStatusHidden" value="Paid">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Payment Type</label>
@@ -194,17 +208,26 @@ foreach ($purchases as $p) {
                     </div>
                     <div class="md:col-span-3">
                         <label class="block text-sm font-medium text-gray-700">Receipt Upload</label>
-                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
-                            <input type="file" name="receipt" accept="image/jpeg,image/png,image/webp,application/pdf" class="hidden" id="receiptUpload" />
-                            <label for="receiptUpload" class="cursor-pointer">
-                                <i data-lucide="upload" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors" id="receiptDropzone">
+                            <input type="file" name="receipt" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf" class="hidden" id="receiptUpload" required />
+                            <label for="receiptUpload" class="cursor-pointer flex flex-col items-center gap-2">
+                                <i data-lucide="upload" class="w-8 h-8 text-gray-400 mx-auto"></i>
                                 <p class="text-sm text-gray-600">Click to upload receipt (applies to batch)</p>
+                                <p class="text-xs text-gray-500">JPG, PNG, WebP, HEIC or PDF — up to 10MB</p>
                             </label>
+                            <div id="receiptSelected" class="mt-3 hidden text-left bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 flex items-center justify-between gap-3">
+                                <div class="min-w-0">
+                                    <p id="receiptFileName" class="text-sm font-medium text-gray-800 truncate"></p>
+                                    <p id="receiptFileSize" class="text-xs text-gray-500"></p>
+                                </div>
+                                <button type="button" id="receiptClearBtn" class="text-xs text-red-600 hover:underline whitespace-nowrap">Remove</button>
+                            </div>
+                            <p id="receiptError" class="mt-2 text-sm text-red-600 hidden"></p>
                         </div>
                     </div>
                 </div>
                 <div class="p-4 border-t flex justify-end">
-                    <button type="submit" class="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700">
+                    <button type="submit" id="recordPurchaseBtn" class="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition disabled:opacity-60 disabled:cursor-not-allowed">
                         <i data-lucide="shopping-cart" class="w-4 h-4"></i>
                         Record Purchase Batch
                     </button>
@@ -215,9 +238,9 @@ foreach ($purchases as $p) {
 </div>
 
 <!-- Recent Purchases Table (Grouped) -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-	<div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b">
-		<div class="flex items-center justify-between">
+<div id="recent-purchases" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+	<div class="bg-gradient-to-r from-gray-50 to-gray-100 px-4 sm:px-6 py-4 border-b">
+		<div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 			<div>
                 <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
                     <i data-lucide="receipt" class="w-5 h-5 text-gray-600"></i>
@@ -225,22 +248,32 @@ foreach ($purchases as $p) {
                 </h2>
 				<p class="text-sm text-gray-600 mt-1">View and manage all purchase transactions</p>
 			</div>
-			<div class="flex items-center gap-4">
-				<div class="text-sm text-gray-600">
-                    <span class="font-medium"><?php echo isset($purchaseGroups) ? count($purchaseGroups) : count($purchases); ?></span> total purchases
-				</div>
-				<?php if ($pendingCount > 0): ?>
-					<div class="flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
-						<i data-lucide="clock" class="w-4 h-4"></i>
-						<?php echo $pendingCount; ?> pending
+			<div class="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
+				<div class="flex items-center gap-4">
+					<div class="text-sm text-gray-600">
+						<span class="font-medium"><?php echo isset($purchaseGroups) ? count($purchaseGroups) : count($purchases); ?></span> total purchases
 					</div>
-				<?php endif; ?>
+					<?php if ($pendingCount > 0): ?>
+						<div class="flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
+							<i data-lucide="clock" class="w-4 h-4"></i>
+							<?php echo $pendingCount; ?> pending
+						</div>
+					<?php endif; ?>
+				</div>
+				<div class="flex items-center gap-2 text-sm text-gray-600">
+					<label for="paymentStatusFilter" class="whitespace-nowrap">Filter payment:</label>
+					<select id="paymentStatusFilter" data-default="<?php echo htmlspecialchars($paymentFilter); ?>" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+						<option value="all">All</option>
+						<option value="paid">Paid</option>
+						<option value="pending">Pending</option>
+					</select>
+				</div>
 			</div>
 		</div>
 	</div>
 	
 	<div class="overflow-x-auto">
-        <table class="w-full text-sm">
+        <table class="w-full text-sm min-w-[700px]">
 			<thead class="bg-gray-50">
 				<tr>
                     <th class="text-left px-6 py-3 font-medium text-gray-700">Batch</th>
@@ -257,7 +290,7 @@ foreach ($purchases as $p) {
 			</thead>
             <tbody class="divide-y divide-gray-200">
                 <?php foreach (($purchaseGroups ?? []) as $g): ?>
-                <tr class="hover:bg-gray-50 transition-colors">
+                <tr class="hover:bg-gray-50 transition-colors" data-payment-status="<?php echo strtolower($g['payment_status'] ?? ''); ?>">
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
@@ -316,6 +349,9 @@ foreach ($purchases as $p) {
                             <i data-lucide="<?php echo $paymentIcon; ?>" class="w-3 h-3"></i>
                             <?php echo htmlspecialchars($g['payment_status']); ?>
                         </span>
+                        <?php if (!empty($g['paid_at'])): ?>
+                            <p class="text-xs text-gray-500 mt-1">Paid on <?php echo htmlspecialchars(date('M j, Y g:i A', strtotime($g['paid_at']))); ?></p>
+                        <?php endif; ?>
                     </td>
                     <td class="px-6 py-4">
                         <?php if (!empty($g['receipt_url'])): ?>
@@ -353,7 +389,7 @@ foreach ($purchases as $p) {
                     </td>
                 </tr>
                 <!-- Hidden modal content for this group -->
-                <tr class="hidden"><td colspan="10">
+                <tr class="hidden" data-payment-status="<?php echo strtolower($g['payment_status'] ?? ''); ?>" data-detail-row="true"><td colspan="10">
                     <div id="modal-content-<?php echo htmlspecialchars($g['group_id']); ?>" data-pay-type="<?php echo htmlspecialchars($g['payment_type'] ?? ''); ?>" data-cash-base="<?php echo isset($g['cash_base_amount']) ? number_format((float)$g['cash_base_amount'],2,'.','') : ''; ?>">
                         <div class="mb-4">
                             <div class="text-sm text-gray-600">Batch ID</div>
@@ -451,7 +487,7 @@ foreach ($purchases as $p) {
                                 <?php endif; ?>
                             </div>
                         </div>
-                        <div class="mt-4 flex items-center gap-2">
+                        <div class="mt-4 flex flex-wrap items-center gap-2">
                             <?php if (!empty($g['receipt_url'])): ?>
                                 <?php $fullUrl2 = (preg_match('#^https?://#', $g['receipt_url'])) ? $g['receipt_url'] : (rtrim($baseUrl, '/').'/'.ltrim($g['receipt_url'], '/')); ?>
                                 <a href="<?php echo htmlspecialchars($fullUrl2); ?>" target="_blank" class="inline-flex items-center gap-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
@@ -463,12 +499,28 @@ foreach ($purchases as $p) {
                                 <i data-lucide="<?php echo ($g['payment_status']==='Paid')?'check-circle':'clock'; ?>" class="w-3 h-3"></i>
                                 <?php echo htmlspecialchars($g['payment_status']); ?>
                             </span>
+                            <?php if (($g['payment_status'] ?? '') === 'Pending'): ?>
+                                <button
+                                    type="button"
+                                    class="markPaidBtn inline-flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+                                    data-purchase-id="<?php echo (int)$g['first_id']; ?>"
+                                    data-delivery-status="<?php echo strtolower($deliveryStatus); ?>"
+                                >
+                                    <i data-lucide="check" class="w-3 h-3"></i>
+                                    Set to Paid
+                                </button>
+                            <?php elseif (!empty($g['paid_at'])): ?>
+                                <span class="text-xs text-gray-500">Paid on <?php echo htmlspecialchars(date('M j, Y g:i A', strtotime($g['paid_at']))); ?></span>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </td></tr>
                 <?php endforeach; ?>
             </tbody>
 		</table>
+        <div id="purchasesFilterEmpty" class="hidden px-6 py-4 text-center text-sm text-gray-500 border-t">
+            No purchases match the selected payment filter.
+        </div>
 		
 		<?php if (empty($purchases)): ?>
 		<div class="flex flex-col items-center justify-center py-12 text-gray-500">
@@ -483,6 +535,12 @@ foreach ($purchases as $p) {
 		<?php endif; ?>
 	</div>
 </div>
+
+<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/purchases/mark-paid" id="markPaidForm" class="hidden" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+    <input type="hidden" name="id" id="markPaidPurchaseId" value="0">
+    <input type="file" name="receipt" id="markPaidReceiptInput" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf" class="hidden">
+</form>
 
 
 <script>
@@ -504,6 +562,86 @@ foreach ($purchases as $p) {
   const changeReadonly = document.getElementById('changeReadonly');
   const payType = document.getElementById('paymentType');
   const cashFields = document.getElementById('cashFields');
+  const purchaseTypeSel = document.getElementById('purchaseType');
+  const paymentStatusHidden = document.getElementById('paymentStatusHidden');
+  const purchaseForm = document.getElementById('purchaseForm');
+  const receiptInput = document.getElementById('receiptUpload');
+  const receiptSelected = document.getElementById('receiptSelected');
+  const receiptFileName = document.getElementById('receiptFileName');
+  const receiptFileSize = document.getElementById('receiptFileSize');
+  const receiptClearBtn = document.getElementById('receiptClearBtn');
+  const receiptError = document.getElementById('receiptError');
+  const receiptDropzone = document.getElementById('receiptDropzone');
+  const recordPurchaseBtn = document.getElementById('recordPurchaseBtn');
+  const RECEIPT_ALLOWED = ['image/jpeg','image/png','image/webp','image/heic','image/heif','image/heic-sequence','image/heif-sequence','application/pdf'];
+  const RECEIPT_MAX_BYTES = 10 * 1024 * 1024;
+  const paymentFilterSelect = document.getElementById('paymentStatusFilter');
+  const purchaseRows = Array.from(document.querySelectorAll('tr[data-payment-status]')).filter(row => !row.hasAttribute('data-detail-row'));
+  const purchasesFilterEmpty = document.getElementById('purchasesFilterEmpty');
+  const markPaidForm = document.getElementById('markPaidForm');
+  const markPaidPurchaseId = document.getElementById('markPaidPurchaseId');
+  const markPaidReceiptInput = document.getElementById('markPaidReceiptInput');
+  let pendingMarkPaidId = null;
+  let receiptPopupTimer = null;
+
+  function setRecordBtnReady(isReady){
+    if (!recordPurchaseBtn) return;
+    recordPurchaseBtn.classList.toggle('opacity-60', !isReady);
+    recordPurchaseBtn.classList.toggle('cursor-not-allowed', !isReady);
+    recordPurchaseBtn.dataset.ready = isReady ? '1' : '0';
+  }
+
+  function hasReceiptFile(){
+    return !!(receiptInput && receiptInput.files && receiptInput.files.length > 0);
+  }
+
+  function ensureReceiptPopup(){
+    let popup = document.getElementById('receiptRequirementPopup');
+    if (!popup){
+      popup = document.createElement('div');
+      popup.id = 'receiptRequirementPopup';
+      popup.className = 'fixed inset-x-0 top-6 z-[9999] flex justify-center px-4 transition-opacity duration-300 opacity-0 pointer-events-none';
+      popup.innerHTML = `
+        <div class="bg-red-600 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 w-full max-w-md">
+          <i data-lucide="alert-octagon" class="w-5 h-5 text-white/90"></i>
+          <span class="text-sm font-semibold" data-popup-text></span>
+        </div>`;
+      document.body.appendChild(popup);
+      const icon = popup.querySelector('i[data-lucide]');
+      if (window.lucide?.createIcons && icon){
+        window.lucide.createIcons({ elements: [icon] });
+      }
+    }
+    return popup;
+  }
+
+  function showReceiptPopup(message){
+    const popup = ensureReceiptPopup();
+    const textEl = popup.querySelector('[data-popup-text]');
+    if (textEl){ textEl.textContent = message; }
+    popup.classList.remove('opacity-0','pointer-events-none');
+    popup.classList.add('opacity-100');
+    clearTimeout(receiptPopupTimer);
+    receiptPopupTimer = setTimeout(()=>{
+      popup.classList.add('opacity-0','pointer-events-none');
+      popup.classList.remove('opacity-100');
+    }, 2500);
+  }
+
+  function requireReceipt(event){
+    if (hasReceiptFile()){
+      return true;
+    }
+    event?.preventDefault();
+    const message = 'Upload the receipt image before recording this purchase batch.';
+    showReceiptError(message);
+    showReceiptPopup(message);
+    receiptInput?.focus();
+    receiptDropzone?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return false;
+  }
+
+  setRecordBtnReady(false);
 
   function renderResults(items){
     if (!items.length){ results.classList.add('hidden'); results.innerHTML=''; return; }
@@ -537,6 +675,89 @@ foreach ($purchases as $p) {
     else if (baseUnit === 'ml'){ add('ml','ml'); add('L','L'); }
     else { add(baseUnit || '', baseUnit || ''); }
   }
+  function applyPaymentFilter(value){
+    if (!purchaseRows.length) { return; }
+    const normalized = value && value !== 'all' ? value.toLowerCase() : 'all';
+    let visible = 0;
+    purchaseRows.forEach(row => {
+      const status = (row.getAttribute('data-payment-status') || '').toLowerCase();
+      const matches = normalized === 'all' || status === normalized;
+      row.classList.toggle('hidden', !matches);
+      const detailRow = row.nextElementSibling;
+      if (detailRow && detailRow.hasAttribute('data-detail-row')){
+        if (!matches){
+          detailRow.classList.add('hidden');
+        }
+      }
+      if (matches){ visible++; }
+    });
+    if (purchasesFilterEmpty){
+      purchasesFilterEmpty.classList.toggle('hidden', visible !== 0);
+    }
+  }
+  if (paymentFilterSelect){
+    const initial = (paymentFilterSelect.dataset.default || 'all').toLowerCase();
+    paymentFilterSelect.value = initial;
+    applyPaymentFilter(initial);
+    paymentFilterSelect.addEventListener('change', ()=>{
+      const value = (paymentFilterSelect.value || 'all').toLowerCase();
+      const params = new URLSearchParams(window.location.search);
+      if (value === 'all'){
+        params.delete('payment');
+      } else {
+        params.set('payment', value);
+      }
+      const query = params.toString();
+      const newUrl = window.location.pathname + (query ? `?${query}` : '') + window.location.hash;
+      window.history.replaceState({}, '', newUrl);
+      applyPaymentFilter(value);
+    });
+  } else {
+    applyPaymentFilter('all');
+  }
+  function formatBytes(bytes){
+    if (!bytes || bytes <= 0){ return '0 B'; }
+    const units = ['B','KB','MB','GB'];
+    const exponent = Math.min(Math.floor(Math.log(bytes)/Math.log(1024)), units.length - 1);
+    const value = bytes / Math.pow(1024, exponent);
+    return `${value.toFixed(exponent === 0 ? 0 : 1)} ${units[exponent]}`;
+  }
+  function resetReceiptUi(){
+    receiptSelected?.classList.add('hidden');
+    setRecordBtnReady(false);
+    if (receiptError){
+      receiptError.textContent = '';
+      receiptError.classList.add('hidden');
+    }
+    receiptDropzone?.classList.remove('border-purple-400','bg-purple-50','border-red-300','bg-red-50');
+  }
+  function showReceiptError(message){
+    if (!receiptError) return;
+    receiptError.textContent = message;
+    receiptError.classList.remove('hidden');
+    receiptDropzone?.classList.add('border-red-300','bg-red-50');
+    if (receiptInput){ receiptInput.value = ''; }
+    receiptSelected?.classList.add('hidden');
+    setRecordBtnReady(false);
+  }
+  function handleReceiptSelection(file){
+    if (!file){ resetReceiptUi(); return; }
+    if (!RECEIPT_ALLOWED.includes(file.type)){
+      showReceiptError('Unsupported file type. Use JPG, PNG, WebP, HEIC or PDF.');
+      return;
+    }
+    if (file.size > RECEIPT_MAX_BYTES){
+      showReceiptError('File exceeds 10MB. Please compress or upload a PDF scan.');
+      return;
+    }
+    if (receiptError){ receiptError.classList.add('hidden'); }
+    if (receiptSelected){ receiptSelected.classList.remove('hidden'); }
+    if (receiptFileName){ receiptFileName.textContent = file.name; }
+    if (receiptFileSize){ receiptFileSize.textContent = formatBytes(file.size); }
+    receiptDropzone?.classList.remove('border-red-300','bg-red-50');
+    receiptDropzone?.classList.add('border-purple-400','bg-purple-50');
+    setRecordBtnReady(true);
+  }
   select.addEventListener('change', ()=>{
     hiddenId.value = '';
     const opt = select.selectedOptions[0];
@@ -546,6 +767,102 @@ foreach ($purchases as $p) {
   });
   // initial
   configureUnits('');
+  if (receiptInput){
+    receiptInput.addEventListener('change', ()=>{
+      const file = receiptInput.files && receiptInput.files[0] ? receiptInput.files[0] : null;
+      if (!file){ resetReceiptUi(); return; }
+      handleReceiptSelection(file);
+    });
+  }
+  receiptClearBtn?.addEventListener('click', (e)=>{
+    e.preventDefault();
+    if (receiptInput){ receiptInput.value = ''; }
+    resetReceiptUi();
+  });
+  if (receiptDropzone){
+    ['dragover','dragleave','drop'].forEach(evt=>{
+      receiptDropzone.addEventListener(evt, (event)=>{
+        event.preventDefault();
+        event.stopPropagation();
+        if (evt === 'dragover'){
+          receiptDropzone.classList.add('border-purple-400','bg-purple-50');
+        } else if (evt === 'dragleave'){
+          receiptDropzone.classList.remove('border-purple-400','bg-purple-50');
+        } else if (evt === 'drop'){
+          receiptDropzone.classList.remove('border-purple-400','bg-purple-50');
+          const files = event.dataTransfer?.files;
+          if (files && files.length > 0 && receiptInput){
+            try {
+              if (typeof DataTransfer !== 'undefined'){
+                const dt = new DataTransfer();
+                dt.items.add(files[0]);
+                receiptInput.files = dt.files;
+                receiptInput.dispatchEvent(new Event('change', { bubbles: true }));
+              } else {
+                showReceiptError('Drag & drop is not supported in this browser. Click to select instead.');
+              }
+            } catch (err) {
+              showReceiptError('Drag & drop is not supported in this browser. Click to select instead.');
+            }
+          }
+        }
+      });
+    });
+  }
+
+  recordPurchaseBtn?.addEventListener('click', (event)=>{
+    if (!requireReceipt(event)){
+      event.stopPropagation();
+    }
+  });
+
+  purchaseForm?.addEventListener('submit', (event)=>{
+    if (!requireReceipt(event)){
+      return;
+    }
+  });
+
+  document.addEventListener('click', (event)=>{
+    const btn = event.target.closest('.markPaidBtn');
+    if (!btn){ return; }
+    const purchaseId = parseInt(btn.dataset.purchaseId || '0', 10);
+    if (!purchaseId || !markPaidForm || !markPaidPurchaseId || !markPaidReceiptInput){
+      showReceiptPopup('Unable to start payment confirmation. Refresh the page and try again.');
+      return;
+    }
+    const deliveryStatus = (btn.dataset.deliveryStatus || '').toLowerCase();
+    if (deliveryStatus !== 'complete'){
+      showReceiptPopup('Finish receiving this purchase before marking it as paid.');
+      return;
+    }
+    pendingMarkPaidId = purchaseId;
+    markPaidReceiptInput.value = '';
+    markPaidReceiptInput.click();
+  });
+
+  markPaidReceiptInput?.addEventListener('change', ()=>{
+    const file = markPaidReceiptInput.files && markPaidReceiptInput.files[0] ? markPaidReceiptInput.files[0] : null;
+    if (!pendingMarkPaidId || !file){
+      pendingMarkPaidId = null;
+      markPaidReceiptInput.value = '';
+      return;
+    }
+    if (!RECEIPT_ALLOWED.includes(file.type)){
+      showReceiptPopup('Upload JPG, PNG, WebP, HEIC or PDF receipts only.');
+      markPaidReceiptInput.value = '';
+      pendingMarkPaidId = null;
+      return;
+    }
+    if (file.size > RECEIPT_MAX_BYTES){
+      showReceiptPopup('Receipt exceeds 10MB. Please compress or upload a PDF scan.');
+      markPaidReceiptInput.value = '';
+      pendingMarkPaidId = null;
+      return;
+    }
+    markPaidPurchaseId.value = String(pendingMarkPaidId);
+    pendingMarkPaidId = null;
+    markPaidForm.submit();
+  });
 
   function syncItemsJson(){
     const items = [];
@@ -572,6 +889,15 @@ foreach ($purchases as $p) {
     const toggle = ()=>{ cashFields.classList.toggle('hidden', payType.value !== 'Cash'); recalcTotal(); };
     payType.addEventListener('change', toggle); toggle();
   }
+  const syncPaymentStatus = ()=>{
+    if (!paymentStatusHidden) return;
+    const typeValue = purchaseTypeSel ? purchaseTypeSel.value : 'in_store';
+    paymentStatusHidden.value = typeValue === 'delivery' ? 'Pending' : 'Paid';
+  };
+  if (purchaseTypeSel){
+    purchaseTypeSel.addEventListener('change', syncPaymentStatus);
+  }
+  syncPaymentStatus();
 
   function addRow(itemId, name, baseUnit, baseQty, displayUnit, displayFactor, rowCost){
     // Merge by itemId

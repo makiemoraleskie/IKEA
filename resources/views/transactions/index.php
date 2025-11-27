@@ -1,17 +1,17 @@
+<?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
 <!-- Page Header -->
-<div class="flex items-center justify-between mb-8">
+<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
 	<div>
 		<h1 class="text-3xl font-bold text-gray-900">Purchase Transactions</h1>
 		<p class="text-gray-600 mt-1">Record and manage ingredient purchases</p>
 	</div>
-	<a href="/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
 		<i data-lucide="arrow-left" class="w-4 h-4"></i>
 		Back to Dashboard
 	</a>
 </div>
 
 <!-- New Purchase Form -->
-<?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
 <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
 	<div class="bg-gradient-to-r from-purple-50 to-indigo-50 px-6 py-4 border-b">
 		<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">

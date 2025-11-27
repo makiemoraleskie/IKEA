@@ -26,6 +26,7 @@ class DashboardController extends BaseController
 
 		// Compute low stock count
 		$ingredientModel = new Ingredient();
+        $purchaseModel = new Purchase();
 		$all = $ingredientModel->all();
 		$low = 0;
 		foreach ($all as $ing) {
@@ -41,14 +42,43 @@ class DashboardController extends BaseController
 		// Pending deliveries
 		$deliveryModel = new Delivery();
 		$stats['pendingDeliveries'] = $deliveryModel->getPendingCount();
+        $stats['partialDeliveries'] = $deliveryModel->countDeliveriesByStatus('Partial');
+        $stats['pendingPayments'] = $purchaseModel->countByPaymentStatus('Pending');
 
-		// Calculate inventory value (placeholder - would need cost data)
+		// Calculate inventory value using weighted average purchase cost
+        $averageCosts = $purchaseModel->averageCostPerItem();
 		$totalValue = 0;
 		foreach ($all as $ingredient) {
-			// This is a placeholder calculation - in reality you'd need cost per unit
-			$totalValue += (float)$ingredient['quantity'] * 10; // Assuming ₱10 per unit average
+            $itemId = (int)($ingredient['id'] ?? 0);
+            $avgCost = $averageCosts[$itemId] ?? null;
+            if ($avgCost === null) {
+                continue;
+            }
+			$totalValue += (float)$ingredient['quantity'] * $avgCost;
 		}
 		$stats['inventoryValue'] = $totalValue;
+
+        // Build weekly chart data (last 7 days)
+        $endDate = new DateTime('today');
+        $startDate = (clone $endDate)->modify('-6 days');
+        $purchaseCounts = $purchaseModel->dailyCounts($startDate->format('Y-m-d'), $endDate->format('Y-m-d'));
+        $deliveryCounts = $deliveryModel->dailyCounts($startDate->format('Y-m-d'), $endDate->format('Y-m-d'));
+        $labels = [];
+        $purchaseSeries = [];
+        $deliverySeries = [];
+        $cursor = clone $startDate;
+        while ($cursor <= $endDate) {
+            $key = $cursor->format('Y-m-d');
+            $labels[] = $cursor->format('M j');
+            $purchaseSeries[] = $purchaseCounts[$key] ?? 0;
+            $deliverySeries[] = $deliveryCounts[$key] ?? 0;
+            $cursor->modify('+1 day');
+        }
+        $stats['chart'] = [
+            'labels' => $labels,
+            'purchases' => $purchaseSeries,
+            'deliveries' => $deliverySeries,
+        ];
 
 		$this->render('dashboard/index.php', [
 			'user' => $user,

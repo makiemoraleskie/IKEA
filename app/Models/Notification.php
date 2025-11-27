@@ -1,0 +1,71 @@
+<?php
+declare(strict_types=1);
+
+class Notification extends BaseModel
+{
+    private bool $tableEnsured = false;
+
+    private function ensureTable(): void
+    {
+        if ($this->tableEnsured) {
+            return;
+        }
+        $this->db->exec('CREATE TABLE IF NOT EXISTS notifications (
+            id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            user_id INT UNSIGNED NOT NULL,
+            message VARCHAR(255) NOT NULL,
+            link VARCHAR(255) NULL,
+            read_at DATETIME NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_notifications_user (user_id),
+            KEY idx_notifications_read (read_at),
+            CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+        $this->tableEnsured = true;
+    }
+
+    public function create(int $userId, string $message, ?string $link = null, string $level = 'info'): void
+    {
+        $this->ensureTable();
+        $sql = 'INSERT INTO notifications (user_id, message, link, level) VALUES (?, ?, ?, ?)';
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$userId, $message, $link, $level]);
+    }
+
+    public function listLatest(int $userId, int $limit = 10): array
+    {
+        $this->ensureTable();
+        $limit = max(1, min($limit, 50));
+        $sql = 'SELECT id, message, link, level, read_at, created_at FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT ' . $limit;
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$userId]);
+        return $stmt->fetchAll();
+    }
+
+    public function markAllRead(int $userId): void
+    {
+        $this->ensureTable();
+        $sql = 'UPDATE notifications SET read_at = NOW() WHERE user_id = ? AND read_at IS NULL';
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$userId]);
+    }
+
+	public function deleteAll(int $userId): void
+	{
+		$this->ensureTable();
+		$sql = 'DELETE FROM notifications WHERE user_id = ?';
+		$stmt = $this->db->prepare($sql);
+		$stmt->execute([$userId]);
+	}
+
+	public function deleteNonCritical(int $userId): void
+	{
+		$this->ensureTable();
+		$sql = 'DELETE FROM notifications WHERE user_id = ? AND level <> "danger"';
+		$stmt = $this->db->prepare($sql);
+		$stmt->execute([$userId]);
+	}
+}
+
+

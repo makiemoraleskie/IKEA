@@ -18,6 +18,7 @@ class Reports extends BaseModel
 		if (!empty($filters['date_to'])) { $where[] = 'p.date_purchased <= ?'; $params[] = $filters['date_to'] . ' 23:59:59'; }
 		if (!empty($filters['supplier'])) { $where[] = 'p.supplier LIKE ?'; $params[] = '%' . $filters['supplier'] . '%'; }
 		if (!empty($filters['item_id'])) { $where[] = 'p.item_id = ?'; $params[] = (int)$filters['item_id']; }
+		if (!empty($filters['payment_status'])) { $where[] = 'p.payment_status = ?'; $params[] = $filters['payment_status']; }
 		if ($where) { $sql .= ' WHERE ' . implode(' AND ', $where); }
 		$sql .= ' ORDER BY p.date_purchased DESC';
 		$stmt = $this->db->prepare($sql);
@@ -38,6 +39,7 @@ class Reports extends BaseModel
 		if (!empty($filters['date_to'])) { $where[] = 'p.date_purchased <= ?'; $params[] = $filters['date_to'] . ' 23:59:59'; }
 		if (!empty($filters['supplier'])) { $where[] = 'p.supplier LIKE ?'; $params[] = '%' . $filters['supplier'] . '%'; }
 		if (!empty($filters['item_id'])) { $where[] = 'p.item_id = ?'; $params[] = (int)$filters['item_id']; }
+		if (!empty($filters['payment_status'])) { $where[] = 'p.payment_status = ?'; $params[] = $filters['payment_status']; }
 		if ($where) { $sql .= ' WHERE ' . implode(' AND ', $where); }
 		$sql .= ' GROUP BY DATE(p.date_purchased) ORDER BY d ASC';
 		$stmt = $this->db->prepare($sql);

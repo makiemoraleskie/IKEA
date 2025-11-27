@@ -7,10 +7,14 @@ SET time_zone = '+00:00';
 
 -- Drop tables in reverse FK order (for idempotent re-import during dev)
 SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS notifications;
 DROP TABLE IF EXISTS deliveries;
 DROP TABLE IF EXISTS purchases;
 DROP TABLE IF EXISTS requests;
 DROP TABLE IF EXISTS request_batches;
+DROP TABLE IF EXISTS request_item_sets;
+DROP TABLE IF EXISTS ingredient_set_items;
+DROP TABLE IF EXISTS ingredient_sets;
 DROP TABLE IF EXISTS audit_log;
 DROP TABLE IF EXISTS ingredients;
 DROP TABLE IF EXISTS users;
@@ -44,11 +48,34 @@ CREATE TABLE ingredients (
   UNIQUE KEY uniq_ingredient_name (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Ingredient Sets (composed products)
+CREATE TABLE ingredient_sets (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  name VARCHAR(160) NOT NULL,
+  description VARCHAR(255) NULL,
+  created_by INT UNSIGNED NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uniq_set_name (name),
+  CONSTRAINT fk_set_creator FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE ingredient_set_items (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  set_id INT UNSIGNED NOT NULL,
+  ingredient_id INT UNSIGNED NOT NULL,
+  quantity DECIMAL(16,4) NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uniq_set_item (set_id, ingredient_id),
+  CONSTRAINT fk_set_items_set FOREIGN KEY (set_id) REFERENCES ingredient_sets(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_set_items_ingredient FOREIGN KEY (ingredient_id) REFERENCES ingredients(id) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Requests from Kitchen Staff
 CREATE TABLE request_batches (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
   staff_id INT UNSIGNED NOT NULL,
-  status ENUM('Pending','Approved','Rejected') NOT NULL DEFAULT 'Pending',
+  status ENUM('Pending','To Prepare','Distributed','Rejected') NOT NULL DEFAULT 'Pending',
   date_requested DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   date_approved DATETIME NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -81,6 +108,18 @@ CREATE TABLE requests (
   CONSTRAINT fk_requests_item FOREIGN KEY (item_id) REFERENCES ingredients(id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE request_item_sets (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  request_id INT UNSIGNED NOT NULL,
+  set_id INT UNSIGNED NULL,
+  set_name VARCHAR(160) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uniq_request_set (request_id),
+  KEY idx_request_item_sets_name (set_name),
+  CONSTRAINT fk_request_item_set_request FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Purchases by Purchaser
 CREATE TABLE purchases (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -93,6 +132,7 @@ CREATE TABLE purchases (
   payment_status ENUM('Paid','Pending') NOT NULL DEFAULT 'Pending',
   payment_type ENUM('Card','Cash') NOT NULL DEFAULT 'Card',
   cash_base_amount DECIMAL(16,2) NULL,
+  paid_at DATETIME NULL DEFAULT NULL,
   date_purchased DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -133,6 +173,21 @@ CREATE TABLE audit_log (
   KEY idx_audit_module (module),
   KEY idx_audit_timestamp (timestamp),
   CONSTRAINT fk_audit_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- User notifications
+CREATE TABLE notifications (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id INT UNSIGNED NOT NULL,
+  message VARCHAR(255) NOT NULL,
+  link VARCHAR(255) NULL,
+  level ENUM('info','warning','success','danger') NOT NULL DEFAULT 'info',
+  read_at DATETIME NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_notifications_user (user_id),
+  KEY idx_notifications_read (read_at),
+  CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Optional: seed an admin (change password after first login)
