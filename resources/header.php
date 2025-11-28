@@ -109,22 +109,22 @@ if ($user) {
 	<link rel="icon" href="<?php echo htmlspecialchars($baseUrl); ?>/public/favicon.ico">
 	<script src="https://cdn.tailwindcss.com"></script>
 	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+	<link rel="stylesheet" href="<?php echo htmlspecialchars($baseUrl); ?>/public/css/theme.css">
 	<script>
 		// Tailwind config placeholder if needed
 	</script>
 </head>
-<body class="min-h-screen bg-gray-50 text-gray-800 antialiased">
+<body class="min-h-screen theme-body text-gray-800 antialiased">
 	<?php if ($user): ?>
-	<div class="min-h-screen bg-gray-50 md:flex">
+	<div class="min-h-screen md:flex theme-shell">
 		<!-- Sidebar -->
 		<div
 			id="sidebar"
-			class="fixed inset-y-0 z-40 flex w-64 lg:w-72 flex-col bg-white shadow-lg transition-transform duration-300 -translate-x-full md:relative md:flex-shrink-0 md:translate-x-0 md:shadow-none">
+			class="theme-sidebar fixed inset-y-0 z-40 flex w-64 lg:w-72 flex-col shadow-lg transition-transform duration-300 -translate-x-full md:relative md:flex-shrink-0 md:translate-x-0 md:shadow-none">
 			<!-- Logo -->
 			<div class="p-6 border-b flex items-center justify-between">
 				<div class="flex items-center gap-3">
-					<div class="w-1 h-8 bg-blue-600"></div>
-					<span class="text-xl font-bold text-gray-800">iKEA</span>
+					<img src="<?php echo htmlspecialchars(BASE_URL . '/resources/views/logo/540473678_1357706066360607_6728109697986200356_n (1).jpg'); ?>" alt="IKEA logo" class="w-10 h-10 object-cover rounded-xl border border-white/60 shadow-sm">
 				</div>
 				<button type="button" id="sidebarClose" class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none" aria-label="Close navigation">
 					<i data-lucide="x" class="w-5 h-5"></i>
@@ -165,7 +165,7 @@ if ($user) {
 				
 				foreach ($navItems as $item): 
 					$isActive = strpos($currentPage, $item['url']) !== false;
-					$classes = $isActive ? 'flex items-center gap-3 px-6 py-3 text-blue-600 bg-blue-50 border-r-2 border-blue-600' : 'flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50';
+					$classes = 'sidebar-link flex items-center gap-3 px-6 py-3 transition-colors duration-200' . ($isActive ? ' active' : '');
 				?>
 					<a href="<?php echo htmlspecialchars($baseUrl . $item['url']); ?>" class="<?php echo $classes; ?>">
 						<i data-lucide="<?php echo $item['icon']; ?>" class="w-5 h-5"></i>
@@ -175,7 +175,7 @@ if ($user) {
 			</nav>
 			
 			<!-- User Info -->
-			<div class="mt-auto p-6 border-t bg-white">
+			<div class="mt-auto p-6 border-t sidebar-user">
 				<div class="flex items-center gap-3 mb-3">
 					<div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
 						<span class="text-sm font-medium text-gray-600"><?php echo strtoupper(substr($user['name'] ?? 'U', 0, 2)); ?></span>
@@ -198,7 +198,7 @@ if ($user) {
 		<!-- Main Content -->
 		<div class="flex-1 flex flex-col transition-all duration-300">
 			<!-- Top Header -->
-			<header class="bg-white border-b">
+			<header class="bg-white border-b theme-header">
 				<div class="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8 xl:px-10">
 					<h1 class="text-2xl font-bold text-gray-800 truncate"><?php echo $pageTitle ?? 'Dashboard'; ?></h1>
 					<div class="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto">
@@ -331,7 +331,7 @@ if ($user) {
 			</script>
 			
 			<!-- Main Content Area -->
-			<main class="flex-1 overflow-y-auto bg-gray-50">
+			<main class="flex-1 overflow-y-auto bg-transparent">
 				<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 space-y-8">
 	<?php else: ?>
 	<main class="max-w-7xl mx-auto p-4">

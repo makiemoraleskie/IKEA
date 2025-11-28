@@ -18,5 +18,3 @@ RewriteRule ^ index.php [QSA,L]
     Header always set Referrer-Policy "no-referrer-when-downgrade"
     Header always set X-XSS-Protection "1; mode=block"
 </IfModule>
-
-

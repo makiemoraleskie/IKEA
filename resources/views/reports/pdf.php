@@ -1,5 +1,11 @@
 <?php
 // Variables available: $purchases, $filters
+$filters = is_array($filters ?? null) ? $filters : [];
+$filterDateFrom = trim((string)($filters['date_from'] ?? ''));
+$filterDateTo = trim((string)($filters['date_to'] ?? ''));
+$filterSupplier = trim((string)($filters['supplier'] ?? ''));
+$filterItem = trim((string)($filters['item_id'] ?? ''));
+$filterPaymentStatus = trim((string)($filters['payment_status'] ?? ''));
 ?>
 <!doctype html>
 <html>
@@ -39,10 +45,10 @@
 	<section class="card">
 		<h2 style="margin:0 0 10px 0; font-size:16px;">Filter Summary</h2>
 		<ul class="filter-list">
-			<li><strong>Date range:</strong> <?php echo $filters['date_from'] ?: 'Any'; ?> → <?php echo $filters['date_to'] ?: 'Any'; ?></li>
-			<li><strong>Supplier:</strong> <?php echo $filters['supplier'] ?: 'All suppliers'; ?></li>
-			<li><strong>Item:</strong> <?php echo $filters['item_id'] ? 'ID #' . (int)$filters['item_id'] : 'All items'; ?></li>
-			<li><strong>Payment Status:</strong> <?php echo $filters['payment_status'] ?: 'All'; ?></li>
+			<li><strong>Date range:</strong> <?php echo $filterDateFrom ?: 'Any'; ?> → <?php echo $filterDateTo ?: 'Any'; ?></li>
+			<li><strong>Supplier:</strong> <?php echo $filterSupplier ?: 'All suppliers'; ?></li>
+			<li><strong>Item:</strong> <?php echo $filterItem ? 'ID #' . (int)$filterItem : 'All items'; ?></li>
+			<li><strong>Payment Status:</strong> <?php echo $filterPaymentStatus ?: 'All'; ?></li>
 		</ul>
 	</section>
 

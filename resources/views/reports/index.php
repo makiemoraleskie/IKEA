@@ -138,6 +138,10 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 						<i data-lucide="file-text" class="w-4 h-4"></i>
 						Export PDF
 					</a>
+					<button type="button" id="printReportBtn" class="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 text-white px-4 py-3 rounded-lg hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors">
+						<i data-lucide="printer" class="w-4 h-4"></i>
+						Print Report
+					</button>
 				</div>
 			</div>
 		</div>
@@ -259,6 +263,9 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+document.getElementById('printReportBtn')?.addEventListener('click', () => {
+	window.print();
+});
 const daily = <?php echo json_encode($daily, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
 const labels = daily.map(x => x.d);
 const data = daily.map(x => Number(x.total));

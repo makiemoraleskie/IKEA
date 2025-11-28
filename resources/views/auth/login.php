@@ -1,12 +1,10 @@
 <?php
 $baseUrl = defined('BASE_URL') ? BASE_URL : '';
-$logoPath = (defined('BASE_URL') ? BASE_URL : '') . '/public/uploads/ikea-commissary-logo.jpg';
-$demoAccounts = [
-	['role' => 'Owner', 'email' => 'makiemorales2@gmail.com', 'note' => 'Executive Oversight'],
-	['role' => 'Manager', 'email' => 'manager@demo.local', 'note' => 'Approvals & Scheduling'],
-	['role' => 'Stock Handler', 'email' => 'stock@demo.local', 'note' => 'Warehouse Ops'],
-	['role' => 'Purchaser', 'email' => 'purchaser@demo.local', 'note' => 'Supplier Coordination'],
-	['role' => 'Kitchen Staff', 'email' => 'kitchen@demo.local', 'note' => 'Line Consumption'],
+$logoPath = (defined('BASE_URL') ? BASE_URL : '') . '/resources/views/logo/540473678_1357706066360607_6728109697986200356_n (1).jpg';
+$chant = [
+	'Sift the flour, fold the dreams, taste the city’s slow heartbeat.',
+	'Keep the ovens glowing; Ormoc wakes up to stories and sugar.',
+	'Cakes remember every celebration—you just have to listen.',
 ];
 ?>
 
@@ -27,13 +25,12 @@ $demoAccounts = [
 						A well-loved pastry and snack shop in Ormoc City, Philippines. Opened in 1990 it became popular because of its chocolate and mango cake, and their specialties like Palabok, Siopao, Mami, Empanada, Arroz Caldo to name a few.
 					</p>
 				</div>
-				<div class="rounded-2xl bg-white/40 border border-white/60 p-5 space-y-3 text-sm text-[#3c383d]">
-					<p class="font-semibold text-[#1c3a2a]">House Specials</p>
-					<ul class="space-y-2 text-[#3c383d]">
-						<li class="flex items-center gap-3"><span class="h-1.5 w-1.5 rounded-full bg-[#008000]"></span>Chocolate & mango celebration cakes</li>
-						<li class="flex items-center gap-3"><span class="h-1.5 w-1.5 rounded-full bg-[#008000]"></span>Palabok, siopao, and comforting mami</li>
-						<li class="flex items-center gap-3"><span class="h-1.5 w-1.5 rounded-full bg-[#008000]"></span>Empanada and arroz caldo favorites</li>
-					</ul>
+				<div class="rounded-2xl bg-white/40 border border-white/60 p-5 space-y-4 text-sm text-[#3c383d]">
+					<p class="font-semibold text-[#1c3a2a] uppercase tracking-[0.25em] text-xs">Midnight kitchen mantra</p>
+					<?php foreach ($chant as $line): ?>
+						<p class="italic text-[#2a232c]"><?php echo htmlspecialchars($line); ?></p>
+					<?php endforeach; ?>
+					<div class="text-xs text-[#4c4350] pt-2 border-t border-white/60">“Don’t ask for passwords. Ask for purpose.”</div>
 				</div>
 			</section>
 
@@ -90,23 +87,19 @@ $demoAccounts = [
 				<div class="mt-10 pt-8 border-t border-gray-100">
 					<div class="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400 mb-4">
 						<span class="block h-px flex-1 bg-gray-200"></span>
-						Demo Access
+						Studio Notes
 						<span class="block h-px flex-1 bg-gray-200"></span>
 					</div>
 
-					<div class="space-y-3">
-						<?php foreach ($demoAccounts as $account): ?>
-							<div class="rounded-2xl border border-[#F5E6F0] bg-[#FCBBE9]/20 px-4 py-3">
-								<div class="flex items-center justify-between">
-									<div>
-										<p class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($account['role']); ?></p>
-										<p class="text-xs text-gray-500"><?php echo htmlspecialchars($account['note']); ?></p>
-									</div>
-									<span class="text-[11px] font-semibold uppercase tracking-wide text-[#008000]">Admin@123</span>
-								</div>
-								<p class="text-xs font-mono text-gray-600 mt-2">Email: <?php echo htmlspecialchars($account['email']); ?></p>
-							</div>
-						<?php endforeach; ?>
+					<div class="grid gap-4">
+						<div class="rounded-2xl border border-[#F5E6F0] bg-[#FCBBE9]/30 px-4 py-3 text-sm text-[#2d2730]">
+							<p class="font-semibold uppercase tracking-[0.2em] text-xs text-[#008000]">Quiet Policy</p>
+							<p>The login room stays silent so the ovens can hum. Kindly keep your secrets to yourself.</p>
+						</div>
+						<div class="rounded-2xl border border-[#F5E6F0] bg-white px-4 py-3 shadow-sm text-sm text-[#2d2730]">
+							<p class="font-semibold uppercase tracking-[0.2em] text-xs text-[#008000]">Lost Credentials?</p>
+							<p>Check in with the Owner for access. We don’t pin passwords to the wall anymore.</p>
+						</div>
 					</div>
 				</div>
 			</section>

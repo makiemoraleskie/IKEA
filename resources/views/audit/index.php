@@ -1,15 +1,42 @@
-<?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
+<?php
+$baseUrl = defined('BASE_URL') ? BASE_URL : '';
+$activeDateLabel = 'All activity';
+$from = $filters['date_from'] ?? '';
+$to = $filters['date_to'] ?? '';
+if ($from || $to) {
+	$fromLabel = $from ? date('M d, Y', strtotime((string)$from)) : 'start';
+	$toLabel = $to ? date('M d, Y', strtotime((string)$to)) : 'today';
+	$activeDateLabel = $fromLabel . ' → ' . $toLabel;
+}
+$currentQuery = http_build_query(array_filter($_GET ?? [], fn($value) => $value !== '' && $value !== null));
+?>
+<style>
+.custom-scroll::-webkit-scrollbar{width:8px;height:8px}
+.custom-scroll::-webkit-scrollbar-thumb{background:rgba(100,116,139,0.4);border-radius:9999px}
+.custom-scroll::-webkit-scrollbar-track{background:rgba(226,232,240,0.4)}
+</style>
 <!-- Page Header -->
 <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
 	<div>
 		<h1 class="text-3xl font-bold text-gray-900">Audit Logs</h1>
-		<p class="text-gray-600 mt-1">Track and monitor system activities</p>
+		<p class="text-gray-600 mt-1">Track and monitor system activities across modules</p>
+		<div class="mt-2 inline-flex items-center gap-2 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold px-3 py-1">
+			<i data-lucide="calendar" class="w-3 h-3"></i>
+			<span><?php echo htmlspecialchars($activeDateLabel); ?></span>
+		</div>
 	</div>
 	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
 		<i data-lucide="arrow-left" class="w-4 h-4"></i>
 		Back to Dashboard
 	</a>
 </div>
+
+<?php if (!empty($flash)): ?>
+	<div class="mb-6 rounded-xl border px-4 py-3 flex items-center gap-3 <?php echo $flash['type'] === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-blue-50 border-blue-200 text-blue-800'; ?>">
+		<i data-lucide="<?php echo $flash['type'] === 'success' ? 'check-circle' : 'info'; ?>" class="w-5 h-5"></i>
+		<p class="text-sm font-medium"><?php echo htmlspecialchars($flash['text'] ?? ''); ?></p>
+	</div>
+<?php endif; ?>
 
 <!-- Summary Cards -->
 <?php
@@ -124,7 +151,12 @@ foreach ($logs as $log) {
 			<i data-lucide="clock-3" class="w-3 h-3"></i>
 			Updated <?php echo htmlspecialchars(date('M j, Y g:i A')); ?>
 		</span>
+		<div class="text-xs text-gray-500 bg-white/70 border border-gray-200 rounded-full px-3 py-1 inline-flex items-center gap-2">
+			<i data-lucide="calendar" class="w-3 h-3"></i>
+			<?php echo htmlspecialchars($activeDateLabel); ?>
+		</div>
 	</div>
+	<div class="max-h-[26rem] overflow-y-auto custom-scroll pr-2">
 	<ol class="relative border-l border-gray-200 p-6 space-y-6">
 		<?php foreach ($timeline as $entry): 
 			$action = strtolower((string)$entry['action']);
@@ -151,6 +183,7 @@ foreach ($logs as $log) {
 		</li>
 		<?php endforeach; ?>
 	</ol>
+	</div>
 </div>
 <?php endif; ?>
 
@@ -231,6 +264,26 @@ foreach ($logs as $log) {
 			</a>
 		</div>
 	</form>
+	<div class="border-t border-gray-100 px-4 sm:px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-slate-50/60">
+		<div class="text-sm text-gray-600">
+			Clear logs <span class="font-semibold">by date range or entire history</span>. Only Owners and Managers can perform this action.
+		</div>
+		<form id="clearLogsForm" method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/audit/clear" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+			<input type="hidden" name="return_query" value="<?php echo htmlspecialchars($currentQuery); ?>">
+			<?php foreach (['user_id','module','date_from','date_to','search','limit'] as $key): ?>
+				<input type="hidden" name="current[<?php echo $key; ?>]" value="<?php echo htmlspecialchars($filters[$key] ?? ''); ?>">
+			<?php endforeach; ?>
+			<select name="scope" class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-slate-500 focus:border-slate-500">
+				<option value="filtered">Only logs matching current filters</option>
+				<option value="all">All audit logs</option>
+			</select>
+			<button type="submit" class="inline-flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-sm transition-colors">
+				<i data-lucide="trash-2" class="w-4 h-4"></i>
+				Clear Logs
+			</button>
+		</form>
+	</div>
 </div>
 
 <!-- Audit Logs Table -->
@@ -264,6 +317,7 @@ foreach ($logs as $log) {
 	</div>
 	
 	<div class="overflow-x-auto">
+		<div class="max-h-[32rem] overflow-y-auto custom-scroll">
 		<table class="w-full text-sm min-w-[720px]">
 			<thead class="bg-gray-50">
 				<tr>
@@ -381,6 +435,7 @@ foreach ($logs as $log) {
 				<?php endforeach; ?>
 			</tbody>
 		</table>
+		</div>
 		
 		<?php if (empty($logs)): ?>
 		<div class="flex flex-col items-center justify-center py-12 text-gray-500">
@@ -437,6 +492,16 @@ foreach ($logs as $log) {
 		});
 	});
 })();
+
+document.getElementById('clearLogsForm')?.addEventListener('submit', function(e){
+	const scope = this.querySelector('select[name="scope"]')?.value || 'filtered';
+	const message = scope === 'all'
+		? 'This will delete every audit log in the system. Continue?'
+		: 'Delete the logs that match your current filters?';
+	if (!confirm(message)) {
+		e.preventDefault();
+	}
+});
 </script>
 
 

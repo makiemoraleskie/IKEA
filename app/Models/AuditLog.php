@@ -36,6 +36,30 @@ class AuditLog extends BaseModel
 		return $stmt->fetchAll();
 	}
 
+	public function clear(array $filters = []): int
+	{
+		$sql = 'DELETE FROM audit_log';
+		$where = [];
+		$params = [];
+		if (!empty($filters['user_id'])) { $where[] = 'user_id = ?'; $params[] = (int)$filters['user_id']; }
+		if (!empty($filters['module'])) { $where[] = 'module = ?'; $params[] = $filters['module']; }
+		if (!empty($filters['date_from'])) { $where[] = 'timestamp >= ?'; $params[] = $filters['date_from'] . ' 00:00:00'; }
+		if (!empty($filters['date_to'])) { $where[] = 'timestamp <= ?'; $params[] = $filters['date_to'] . ' 23:59:59'; }
+		if (!empty($filters['search'])) {
+			$where[] = '(action LIKE ? OR module LIKE ? OR details LIKE ?)';
+			$like = '%' . $filters['search'] . '%';
+			$params[] = $like;
+			$params[] = $like;
+			$params[] = $like;
+		}
+		if ($where) {
+			$sql .= ' WHERE ' . implode(' AND ', $where);
+		}
+		$stmt = $this->db->prepare($sql);
+		$stmt->execute($params);
+		return $stmt->rowCount();
+	}
+
 	public function listModules(): array
 	{
 		$sql = 'SELECT DISTINCT module FROM audit_log ORDER BY module ASC';

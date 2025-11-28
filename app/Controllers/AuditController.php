@@ -20,13 +20,44 @@ class AuditController extends BaseController
 		$usersModel = new User();
 		$users = $usersModel->all();
 		$modules = $audit->listModules();
+		$flash = $_SESSION['flash_audit'] ?? null;
+		unset($_SESSION['flash_audit']);
 		$this->render('audit/index.php', [
 			'logs' => $logs,
 			'filters' => $filters,
 			'users' => $users,
 			'modules' => $modules,
 			'limitReached' => count($logs) >= $limit,
+			'flash' => $flash,
 		]);
+	}
+
+	public function clear(): void
+	{
+		Auth::requireRole(['Owner','Manager']);
+		Csrf::verify($_POST['csrf_token'] ?? '');
+		$scope = $_POST['scope'] ?? 'filtered';
+		$current = $_POST['current'] ?? [];
+		$filters = [
+			'user_id' => isset($current['user_id']) && $current['user_id'] !== '' ? (int)$current['user_id'] : null,
+			'module' => trim((string)($current['module'] ?? '')),
+			'date_from' => trim((string)($current['date_from'] ?? '')),
+			'date_to' => trim((string)($current['date_to'] ?? '')),
+			'search' => trim((string)($current['search'] ?? '')),
+		];
+		if ($scope === 'all') {
+			$filters = [];
+		}
+		$audit = new AuditLog();
+		$deleted = $audit->clear($filters);
+		if ($deleted > 0) {
+			$_SESSION['flash_audit'] = ['type' => 'success', 'text' => number_format($deleted) . ' audit log' . ($deleted === 1 ? '' : 's') . ' removed.'];
+		} else {
+			$_SESSION['flash_audit'] = ['type' => 'info', 'text' => 'No audit logs matched the selected criteria.'];
+		}
+		$returnQuery = trim((string)($_POST['return_query'] ?? ''));
+		$redirectTo = '/audit' . ($returnQuery ? ('?' . $returnQuery) : '');
+		$this->redirect($redirectTo);
 	}
 }
 

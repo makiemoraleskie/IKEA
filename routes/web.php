@@ -31,8 +31,11 @@ return [
 		'/inventory/set' => ['InventoryController', 'storeSet'],
 		'/inventory/set/delete' => ['InventoryController', 'deleteSet'],
 		'/users' => ['UserController', 'store'],
+		'/users/update' => ['UserController', 'update'],
+		'/users/delete' => ['UserController', 'delete'],
 		'/users/reset-password' => ['UserController', 'resetPassword'],
 		'/notifications' => ['NotificationController', 'index'],
+		'/audit/clear' => ['AuditController', 'clear'],
 	],
 ];
 

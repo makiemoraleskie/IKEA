@@ -34,6 +34,7 @@ class ReportsController extends BaseController
 			'date_to' => trim((string)($_GET['date_to'] ?? '')),
 			'supplier' => trim((string)($_GET['supplier'] ?? '')),
 			'item_id' => isset($_GET['item_id']) ? (int)$_GET['item_id'] : null,
+			'payment_status' => trim((string)($_GET['payment_status'] ?? '')),
 		];
 		$model = new Reports();
 		$purchases = $model->getPurchases($filters);
@@ -48,12 +49,14 @@ class ReportsController extends BaseController
 			$dompdf->loadHtml($html);
 			$dompdf->setPaper('A4', 'portrait');
 			$dompdf->render();
-			$dompdf->stream('report.pdf', ['Attachment' => false]);
+			$filename = 'purchases-report-' . date('Ymd_His') . '.pdf';
+			$dompdf->stream($filename, ['Attachment' => true]);
 			return;
 		}
 
-		// Fallback: render HTML directly
+		// Fallback: render HTML directly with download headers
 		header('Content-Type: text/html; charset=utf-8');
+		header('Content-Disposition: attachment; filename="purchases-report.html"');
 		echo $html;
 	}
 }
