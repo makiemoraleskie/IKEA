@@ -20,6 +20,69 @@
 </div>
 <?php endif; ?>
 
+<?php if (!empty($lowStockGroups)): ?>
+<div id="lowStockSection" class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
+	<div class="bg-gradient-to-r from-rose-50 to-orange-50 px-4 sm:px-6 py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+		<div>
+			<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+				<i data-lucide="shopping-bag" class="w-5 h-5 text-rose-600"></i>
+				Low Stock Purchase List
+			</h2>
+			<p class="text-sm text-gray-600 mt-1">Ingredients at or below their reorder levels, grouped by supplier.</p>
+		</div>
+		<button type="button" id="printLowStockList" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-rose-600 text-white rounded-lg hover:bg-rose-700 focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 transition-colors">
+			<i data-lucide="printer" class="w-4 h-4"></i>
+			Print Purchase List
+		</button>
+	</div>
+	<div class="p-4 sm:p-6 space-y-6">
+		<?php foreach ($lowStockGroups as $group): 
+			$supplier = $group['label'] ?? 'Unassigned Supplier';
+			$items = $group['items'] ?? [];
+		?>
+		<div class="border rounded-2xl p-4 sm:p-6 shadow-sm bg-white">
+			<div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+				<div>
+					<p class="text-xs uppercase tracking-wide text-gray-500">Supplier</p>
+					<h3 class="text-lg font-semibold text-gray-900"><?php echo htmlspecialchars($supplier); ?></h3>
+				</div>
+				<span class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium"><?php echo count($items); ?> item<?php echo count($items) === 1 ? '' : 's'; ?></span>
+			</div>
+			<div class="mt-4 overflow-x-auto">
+				<table class="w-full text-sm min-w-[520px]">
+					<thead class="bg-gray-50">
+						<tr>
+							<th class="text-left px-4 py-2 font-medium text-gray-700">Ingredient</th>
+							<th class="text-left px-4 py-2 font-medium text-gray-700">Status</th>
+							<th class="text-left px-4 py-2 font-medium text-gray-700">On Hand</th>
+							<th class="text-left px-4 py-2 font-medium text-gray-700">Reorder Level</th>
+							<th class="text-left px-4 py-2 font-medium text-gray-700">Recommended Qty</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-gray-100">
+						<?php foreach ($items as $item): ?>
+						<tr>
+							<td class="px-4 py-2 font-semibold text-gray-900"><?php echo htmlspecialchars($item['name']); ?></td>
+							<td class="px-4 py-2">
+								<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium <?php echo ($item['stock_status'] ?? '') === 'Out of Stock' ? 'bg-red-100 text-red-800 border border-red-200' : 'bg-amber-50 text-amber-700 border border-amber-200'; ?>">
+									<i data-lucide="<?php echo ($item['stock_status'] ?? '') === 'Out of Stock' ? 'x' : 'alert-triangle'; ?>" class="w-3 h-3"></i>
+									<?php echo htmlspecialchars($item['stock_status'] ?? 'Low Stock'); ?>
+								</span>
+							</td>
+							<td class="px-4 py-2 text-gray-700"><?php echo number_format((float)$item['quantity'], 2); ?> <?php echo htmlspecialchars($item['unit']); ?></td>
+							<td class="px-4 py-2 text-gray-700"><?php echo number_format((float)$item['reorder_level'], 2); ?> <?php echo htmlspecialchars($item['unit']); ?></td>
+							<td class="px-4 py-2 font-semibold text-gray-900"><?php echo number_format((float)$item['recommended_qty'], 2); ?> <?php echo htmlspecialchars($item['unit']); ?></td>
+						</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<?php endforeach; ?>
+	</div>
+</div>
+<?php endif; ?>
+
 <!-- Summary Cards -->
 <?php 
 $pendingCount = 0;
@@ -545,7 +608,30 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
 
 <script>
 (function(){
-  const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=>(int)$i['id'],'name'=>$i['name'],'unit'=>$i['unit'],'display_unit'=>$i['display_unit'] ?? '', 'display_factor'=>(float)($i['display_factor'] ?? 1)]; }, $ingredients), JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
+const lowStockSection = document.getElementById('lowStockSection');
+const printLowStockBtn = document.getElementById('printLowStockList');
+if (lowStockSection && printLowStockBtn){
+	const printContent = () => {
+		const popup = window.open('', '_blank', 'width=900,height=700');
+		if (!popup) { return; }
+		popup.document.write(`<html><head><title>Low Stock Purchase List</title>
+			<style>
+				body { font-family: Arial, sans-serif; padding: 24px; color: #111827; }
+				h2, h3 { margin: 0 0 12px; }
+				table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+				th, td { border: 1px solid #e5e7eb; padding: 8px 10px; font-size: 13px; }
+				th { background: #f3f4f6; text-align: left; }
+				section { margin-bottom: 24px; }
+			</style>
+		</head><body>${lowStockSection.innerHTML}</body></html>`);
+		popup.document.close();
+		popup.focus();
+		popup.print();
+	};
+	printLowStockBtn.addEventListener('click', printContent);
+}
+
+const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=>(int)$i['id'],'name'=>$i['name'],'unit'=>$i['unit'],'display_unit'=>$i['display_unit'] ?? '', 'display_factor'=>(float)($i['display_factor'] ?? 1)]; }, $ingredients), JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
   const search = document.getElementById('ingSearch');
   const results = document.getElementById('ingResults');
   const hiddenId = document.getElementById('ingIdHidden');

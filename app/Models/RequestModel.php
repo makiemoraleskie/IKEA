@@ -4,6 +4,25 @@ declare(strict_types=1);
 class RequestModel extends BaseModel
 {
 	private bool $setTableEnsured = false;
+	private bool $batchMetaEnsured = false;
+
+	private function ensureBatchMetadata(): void
+	{
+		if ($this->batchMetaEnsured) {
+			return;
+		}
+		$columns = $this->db->query('SHOW COLUMNS FROM request_batches')->fetchAll(PDO::FETCH_COLUMN);
+		if (!in_array('custom_requester', $columns, true)) {
+			$this->db->exec("ALTER TABLE request_batches ADD COLUMN custom_requester VARCHAR(160) NOT NULL DEFAULT ''");
+		}
+		if (!in_array('custom_ingredients', $columns, true)) {
+			$this->db->exec("ALTER TABLE request_batches ADD COLUMN custom_ingredients TEXT NULL");
+		}
+		if (!in_array('custom_request_date', $columns, true)) {
+			$this->db->exec("ALTER TABLE request_batches ADD COLUMN custom_request_date DATE NULL");
+		}
+		$this->batchMetaEnsured = true;
+	}
 
 	private function ensureSetTable(): void
 	{
@@ -24,11 +43,12 @@ class RequestModel extends BaseModel
 		$this->setTableEnsured = true;
 	}
 
-	public function createBatch(int $staffId): int
+	public function createBatch(int $staffId, string $requesterName, string $ingredientsNote, ?string $requestedDate = null): int
 	{
-		$sql = 'INSERT INTO request_batches (staff_id, status, date_requested) VALUES (?, "Pending", NOW())';
+		$this->ensureBatchMetadata();
+		$sql = 'INSERT INTO request_batches (staff_id, status, date_requested, custom_requester, custom_ingredients, custom_request_date) VALUES (?, "Pending", NOW(), ?, ?, ?)';
 		$stmt = $this->db->prepare($sql);
-		$stmt->execute([$staffId]);
+		$stmt->execute([$staffId, $requesterName, $ingredientsNote, $requestedDate ?: null]);
 		return (int)$this->db->lastInsertId();
 	}
 
@@ -120,9 +140,24 @@ class RequestModel extends BaseModel
 
 	public function setBatchStatus(int $batchId, string $status): void
 	{
-		$sql = 'UPDATE request_batches SET status=?, date_approved = CASE WHEN ? IN ("To Prepare","Distributed","Rejected") THEN NOW() ELSE date_approved END WHERE id=?';
+		$sql = 'UPDATE request_batches SET status=?, date_approved = CASE WHEN (?) IN ("To Prepare","Distributed","Rejected") THEN NOW() ELSE date_approved END WHERE id=?';
 		$stmt = $this->db->prepare($sql);
 		$stmt->execute([$status, $status, $batchId]);
+	}
+
+	public function replaceBatchItems(int $batchId, int $staffId, array $items): void
+	{
+		$this->ensureSetTable();
+		$delete = $this->db->prepare('DELETE FROM requests WHERE batch_id = ?');
+		$delete->execute([$batchId]);
+		if (empty($items)) {
+			return;
+		}
+		$sql = 'INSERT INTO requests (batch_id, staff_id, item_id, quantity, status, date_requested) VALUES (?, ?, ?, ?, "Pending", NOW())';
+		$insert = $this->db->prepare($sql);
+		foreach ($items as $item) {
+			$insert->execute([$batchId, $staffId, $item['item_id'], $item['quantity']]);
+		}
 	}
 
 	public function findBatch(int $batchId): ?array

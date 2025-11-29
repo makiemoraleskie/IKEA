@@ -31,11 +31,32 @@ class InventoryController extends BaseController
 		$reorder = (float)($_POST['reorder_level'] ?? 0);
 		$displayUnit = trim((string)($_POST['display_unit'] ?? '')) ?: null;
 		$displayFactor = (float)($_POST['display_factor'] ?? 1);
+		$supplier = trim((string)($_POST['preferred_supplier'] ?? ''));
+		$restockQuantity = (float)($_POST['restock_quantity'] ?? 0);
 		if ($name === '' || $unit === '') { $this->redirect('/inventory'); }
 		$model = new Ingredient();
-		$id = $model->create($name, $unit, $reorder, $displayUnit, $displayFactor > 0 ? $displayFactor : 1);
+		$id = $model->create($name, $unit, $reorder, $displayUnit, $displayFactor > 0 ? $displayFactor : 1, $supplier, $restockQuantity);
 		$logger = new AuditLog();
 		$logger->log(Auth::id() ?? 0, 'create', 'ingredients', ['ingredient_id' => $id, 'name' => $name]);
+		$this->redirect('/inventory');
+	}
+
+	public function updateMeta(): void
+	{
+		Auth::requireRole(['Owner','Manager']);
+		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
+			http_response_code(400);
+			echo 'Invalid CSRF token';
+			return;
+		}
+		$id = (int)($_POST['id'] ?? 0);
+		$supplier = trim((string)($_POST['preferred_supplier'] ?? ''));
+		$restockQuantity = (float)($_POST['restock_quantity'] ?? 0);
+		if ($id <= 0) { $this->redirect('/inventory'); }
+		$model = new Ingredient();
+		$model->updateMeta($id, $supplier, $restockQuantity);
+		$logger = new AuditLog();
+		$logger->log(Auth::id() ?? 0, 'update', 'ingredients', ['ingredient_id' => $id, 'preferred_supplier' => $supplier, 'restock_quantity' => $restockQuantity]);
 		$this->redirect('/inventory');
 	}
 

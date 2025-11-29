@@ -23,11 +23,13 @@ return [
 		'/requests/approve' => ['RequestController', 'approve'],
 		'/requests/reject' => ['RequestController', 'reject'],
 		'/requests/distribute' => ['RequestController', 'distribute'],
+		'/requests/prepare' => ['RequestController', 'prepare'],
 		'/purchases' => ['PurchaseController', 'store'],
 		'/purchases/mark-paid' => ['PurchaseController', 'markPaid'],
 		'/deliveries' => ['DeliveryController', 'store'],
 		// removed force-delete feature routes
 		'/inventory' => ['InventoryController', 'store'],
+		'/inventory/meta' => ['InventoryController', 'updateMeta'],
 		'/inventory/set' => ['InventoryController', 'storeSet'],
 		'/inventory/set/delete' => ['InventoryController', 'deleteSet'],
 		'/users' => ['UserController', 'store'],

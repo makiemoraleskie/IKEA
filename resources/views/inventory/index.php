@@ -2,6 +2,7 @@
 $baseUrl = defined('BASE_URL') ? BASE_URL : '';
 $ingredientSets = $ingredientSets ?? [];
 $canManageSets = in_array(Auth::role(), ['Owner','Manager'], true);
+$canManageInventory = in_array(Auth::role(), ['Owner','Manager'], true);
 ?>
 <!-- Page Header -->
 <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
@@ -225,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function(){
 	<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory" class="p-4 sm:p-6">
 		<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 		
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-6">
 			<div class="space-y-2">
 				<label class="block text-sm font-medium text-gray-700">Ingredient Name</label>
 				<input name="name" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" placeholder="e.g., Flour, Sugar" required />
@@ -262,6 +263,18 @@ document.addEventListener('DOMContentLoaded', function(){
 				<label class="block text-sm font-medium text-gray-700">Reorder Level</label>
 				<input type="number" step="0.01" min="0" name="reorder_level" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" value="0" />
 				<p class="text-xs text-gray-500">Minimum stock level</p>
+			</div>
+
+			<div class="space-y-2">
+				<label class="block text-sm font-medium text-gray-700">Preferred Supplier</label>
+				<input name="preferred_supplier" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" placeholder="e.g., ABC Foods">
+				<p class="text-xs text-gray-500">Appears on auto-generated purchase list</p>
+			</div>
+
+			<div class="space-y-2">
+				<label class="block text-sm font-medium text-gray-700">Restock Quantity</label>
+				<input type="number" step="0.01" min="0" name="restock_quantity" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" value="0" />
+				<p class="text-xs text-gray-500">Recommended amount to purchase</p>
 			</div>
 		</div>
 		
@@ -512,6 +525,24 @@ document.addEventListener('DOMContentLoaded', function(){
 								<div class="font-medium text-gray-900"><?php echo htmlspecialchars($ing['name']); ?></div>
 								<?php if (!empty($ing['display_unit'])): ?>
 									<div class="text-xs text-gray-500">Display: <?php echo htmlspecialchars($ing['display_unit']); ?></div>
+								<?php endif; ?>
+								<?php if (!empty($ing['preferred_supplier'])): ?>
+									<p class="text-xs text-gray-500 mt-1">Supplier: <?php echo htmlspecialchars($ing['preferred_supplier']); ?></p>
+								<?php endif; ?>
+								<?php if (!empty($ing['restock_quantity'])): ?>
+									<p class="text-xs text-gray-500">Restock qty: <?php echo number_format((float)$ing['restock_quantity'], 2); ?> <?php echo htmlspecialchars($ing['unit']); ?></p>
+								<?php endif; ?>
+								<?php if ($canManageInventory): ?>
+									<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/meta" class="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-600">
+										<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+										<input type="hidden" name="id" value="<?php echo (int)$ing['id']; ?>">
+										<input name="preferred_supplier" value="<?php echo htmlspecialchars($ing['preferred_supplier'] ?? ''); ?>" placeholder="Supplier" class="border border-gray-200 rounded-lg px-2 py-1 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+										<input type="number" step="0.01" min="0" name="restock_quantity" value="<?php echo htmlspecialchars($ing['restock_quantity'] ?? ''); ?>" placeholder="Restock" class="border border-gray-200 rounded-lg px-2 py-1 w-24 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+										<button class="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors" type="submit">
+											<i data-lucide="save" class="w-3 h-3"></i>
+											Save
+										</button>
+									</form>
 								<?php endif; ?>
 							</div>
 						</div>
