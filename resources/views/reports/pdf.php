@@ -1,11 +1,22 @@
 <?php
-// Variables available: $purchases, $filters
+// Variables available: $purchases, $filters, $consumption, $section
 $filters = is_array($filters ?? null) ? $filters : [];
+$section = $section ?? 'purchase';
 $filterDateFrom = trim((string)($filters['date_from'] ?? ''));
 $filterDateTo = trim((string)($filters['date_to'] ?? ''));
 $filterSupplier = trim((string)($filters['supplier'] ?? ''));
 $filterItem = trim((string)($filters['item_id'] ?? ''));
 $filterPaymentStatus = trim((string)($filters['payment_status'] ?? ''));
+$filterCategory = trim((string)($filters['category'] ?? ''));
+$filterUsageStatus = trim((string)($filters['usage_status'] ?? ''));
+$usageStatusLabels = [
+	'used' => 'Used',
+	'expired' => 'Expired',
+	'transferred' => 'Transferred',
+];
+$usageStatusLabel = $filterUsageStatus !== '' ? ($usageStatusLabels[$filterUsageStatus] ?? ucfirst($filterUsageStatus)) : 'All';
+$purchases = $purchases ?? [];
+$consumption = $consumption ?? [];
 ?>
 <!doctype html>
 <html>
@@ -46,66 +57,114 @@ $filterPaymentStatus = trim((string)($filters['payment_status'] ?? ''));
 		<h2 style="margin:0 0 10px 0; font-size:16px;">Filter Summary</h2>
 		<ul class="filter-list">
 			<li><strong>Date range:</strong> <?php echo $filterDateFrom ?: 'Any'; ?> → <?php echo $filterDateTo ?: 'Any'; ?></li>
-			<li><strong>Supplier:</strong> <?php echo $filterSupplier ?: 'All suppliers'; ?></li>
-			<li><strong>Item:</strong> <?php echo $filterItem ? 'ID #' . (int)$filterItem : 'All items'; ?></li>
-			<li><strong>Payment Status:</strong> <?php echo $filterPaymentStatus ?: 'All'; ?></li>
+			<?php if ($section === 'purchase'): ?>
+				<li><strong>Supplier:</strong> <?php echo $filterSupplier ?: 'All suppliers'; ?></li>
+				<li><strong>Item:</strong> <?php echo $filterItem ? 'ID #' . (int)$filterItem : 'All items'; ?></li>
+				<li><strong>Payment Status:</strong> <?php echo $filterPaymentStatus ?: 'All'; ?></li>
+				<li><strong>Category:</strong> <?php echo $filterCategory !== '' ? htmlspecialchars($filterCategory) : 'All categories'; ?></li>
+			<?php else: ?>
+				<li><strong>Category:</strong> <?php echo $filterCategory !== '' ? htmlspecialchars($filterCategory) : 'All categories'; ?></li>
+				<li><strong>Usage Status:</strong> <?php echo htmlspecialchars($usageStatusLabel); ?></li>
+			<?php endif; ?>
 		</ul>
 	</section>
 
-	<section class="card">
-		<h2 style="margin:0 0 10px 0; font-size:16px;">Snapshot</h2>
-		<div class="summary-grid">
-			<div class="summary">
-				<span>Transactions</span>
-				<strong><?php echo count($purchases); ?></strong>
+	<?php if ($section === 'consumption'): ?>
+		<section class="card">
+			<h2 style="margin:0 0 10px 0; font-size:16px;">Ingredient Consumption</h2>
+			<table>
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>Ingredient</th>
+						<th>Category</th>
+						<th>Total Used (Base)</th>
+						<th>Unit</th>
+						<th>Converted Display</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ($consumption as $index => $row): 
+						$baseQty = (float)($row['total_quantity'] ?? 0);
+						$displayUnit = $row['display_unit'] ?? '';
+						$displayFactor = (float)($row['display_factor'] ?? 1);
+						$converted = ($displayUnit !== '' && $displayFactor > 0 && abs($displayFactor - 1) > 0.00001)
+							? number_format($baseQty / $displayFactor, 2) . ' ' . $displayUnit
+							: '—';
+					?>
+					<tr>
+						<td><?php echo $index + 1; ?></td>
+						<td><?php echo htmlspecialchars($row['name']); ?></td>
+						<td><?php echo htmlspecialchars($row['category'] ?? ''); ?></td>
+						<td><?php echo number_format($baseQty, 2); ?></td>
+						<td><?php echo htmlspecialchars($row['unit']); ?></td>
+						<td><?php echo htmlspecialchars($converted); ?></td>
+					</tr>
+					<?php endforeach; ?>
+					<?php if (empty($consumption)): ?>
+					<tr>
+						<td colspan="6" style="text-align:center; color:var(--muted); padding:20px;">No consumption records match the selected filters.</td>
+					</tr>
+					<?php endif; ?>
+				</tbody>
+			</table>
+		</section>
+	<?php else: ?>
+		<section class="card">
+			<h2 style="margin:0 0 10px 0; font-size:16px;">Snapshot</h2>
+			<div class="summary-grid">
+				<div class="summary">
+					<span>Transactions</span>
+					<strong><?php echo count($purchases); ?></strong>
+				</div>
+				<div class="summary">
+					<span>Total Cost</span>
+					<strong>₱<?php echo number_format(array_sum(array_column($purchases, 'cost')), 2); ?></strong>
+				</div>
+				<div class="summary">
+					<span>Suppliers</span>
+					<strong><?php echo count(array_unique(array_column($purchases, 'supplier'))); ?></strong>
+				</div>
+				<div class="summary">
+					<span>Items</span>
+					<strong><?php echo count(array_unique(array_column($purchases, 'item_name'))); ?></strong>
+				</div>
 			</div>
-			<div class="summary">
-				<span>Total Cost</span>
-				<strong>₱<?php echo number_format(array_sum(array_column($purchases, 'cost')), 2); ?></strong>
-			</div>
-			<div class="summary">
-				<span>Suppliers</span>
-				<strong><?php echo count(array_unique(array_column($purchases, 'supplier'))); ?></strong>
-			</div>
-			<div class="summary">
-				<span>Items</span>
-				<strong><?php echo count(array_unique(array_column($purchases, 'item_name'))); ?></strong>
-			</div>
-		</div>
-	</section>
+		</section>
 
-	<section class="card">
-		<h2 style="margin:0 0 10px 0; font-size:16px;">Detailed Transactions</h2>
-		<table>
-			<thead>
-				<tr>
-					<th>#</th>
-					<th>Date</th>
-					<th>Item</th>
-					<th>Supplier</th>
-					<th>Quantity</th>
-					<th>Cost</th>
-				</tr>
-			</thead>
-			<tbody>
-				<?php foreach ($purchases as $index => $p): ?>
-				<tr>
-					<td><?php echo $index + 1; ?></td>
-					<td><?php echo htmlspecialchars($p['date_purchased']); ?></td>
-					<td><?php echo htmlspecialchars($p['item_name']); ?></td>
-					<td><?php echo htmlspecialchars($p['supplier']); ?></td>
-					<td><?php echo htmlspecialchars(number_format((float)$p['quantity'], 2)); ?></td>
-					<td>₱<?php echo number_format((float)$p['cost'], 2); ?></td>
-				</tr>
-				<?php endforeach; ?>
-				<?php if (empty($purchases)): ?>
-				<tr>
-					<td colspan="6" style="text-align:center; color:var(--muted); padding:20px;">No purchases match the selected filters.</td>
-				</tr>
-				<?php endif; ?>
-			</tbody>
-		</table>
-	</section>
+		<section class="card">
+			<h2 style="margin:0 0 10px 0; font-size:16px;">Detailed Transactions</h2>
+			<table>
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>Date</th>
+						<th>Item</th>
+						<th>Supplier</th>
+						<th>Quantity</th>
+						<th>Cost</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ($purchases as $index => $p): ?>
+					<tr>
+						<td><?php echo $index + 1; ?></td>
+						<td><?php echo htmlspecialchars($p['date_purchased']); ?></td>
+						<td><?php echo htmlspecialchars($p['item_name']); ?></td>
+						<td><?php echo htmlspecialchars($p['supplier']); ?></td>
+						<td><?php echo htmlspecialchars(number_format((float)$p['quantity'], 2)); ?></td>
+						<td>₱<?php echo number_format((float)$p['cost'], 2); ?></td>
+					</tr>
+					<?php endforeach; ?>
+					<?php if (empty($purchases)): ?>
+					<tr>
+						<td colspan="6" style="text-align:center; color:var(--muted); padding:20px;">No purchases match the selected filters.</td>
+					</tr>
+					<?php endif; ?>
+				</tbody>
+			</table>
+		</section>
+	<?php endif; ?>
 </body>
 </html>
 

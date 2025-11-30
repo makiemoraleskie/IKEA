@@ -43,6 +43,7 @@ class InventoryController extends BaseController
 			return;
 		}
 		$name = trim((string)($_POST['name'] ?? ''));
+		$category = trim((string)($_POST['category'] ?? ''));
 		$unit = trim((string)($_POST['unit'] ?? ''));
 		$reorder = (float)($_POST['reorder_level'] ?? 0);
 		$displayUnit = trim((string)($_POST['display_unit'] ?? '')) ?: null;
@@ -51,7 +52,7 @@ class InventoryController extends BaseController
 		$restockQuantity = (float)($_POST['restock_quantity'] ?? 0);
 		if ($name === '' || $unit === '') { $this->redirect('/inventory'); }
 		$model = new Ingredient();
-		$id = $model->create($name, $unit, $reorder, $displayUnit, $displayFactor > 0 ? $displayFactor : 1, $supplier, $restockQuantity);
+		$id = $model->create($name, $unit, $reorder, $displayUnit, $displayFactor > 0 ? $displayFactor : 1, $supplier, $restockQuantity, $category);
 		$logger = new AuditLog();
 		$logger->log(Auth::id() ?? 0, 'create', 'ingredients', ['ingredient_id' => $id, 'name' => $name]);
 		$this->redirect('/inventory');

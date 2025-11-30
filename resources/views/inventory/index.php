@@ -406,6 +406,10 @@ document.addEventListener('DOMContentLoaded', function(){
 				<label class="block text-sm font-medium text-gray-700">Ingredient Name</label>
 				<input name="name" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" placeholder="e.g., Flour, Sugar" required />
 			</div>
+			<div class="space-y-2">
+				<label class="block text-sm font-medium text-gray-700">Category</label>
+				<input name="category" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" placeholder="e.g., Dry Goods, Packaging" />
+			</div>
 			
 			<div class="space-y-2">
 				<label class="block text-sm font-medium text-gray-700">Base Unit</label>

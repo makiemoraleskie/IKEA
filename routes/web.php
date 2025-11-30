@@ -10,6 +10,8 @@ return [
 		'/purchases' => ['PurchaseController', 'index'],
 		'/deliveries' => ['DeliveryController', 'index'],
 		'/reports' => ['ReportsController', 'index'],
+		'/reports/export/excel' => ['ReportsController', 'excel'],
+		'/reports/export/csv' => ['ReportsController', 'csv'],
 		'/audit' => ['AuditController', 'index'],
 		'/notifications' => ['NotificationController', 'index'],
 		'/reports/pdf' => ['ReportsController', 'pdf'],

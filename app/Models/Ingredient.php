@@ -11,6 +11,9 @@ class Ingredient extends BaseModel
 			return;
 		}
 		$columns = $this->db->query('SHOW COLUMNS FROM ingredients')->fetchAll(PDO::FETCH_COLUMN);
+		if (!in_array('category', $columns, true)) {
+			$this->db->exec("ALTER TABLE ingredients ADD COLUMN category VARCHAR(120) NOT NULL DEFAULT '' AFTER name");
+		}
 		if (!in_array('preferred_supplier', $columns, true)) {
 			$this->db->exec("ALTER TABLE ingredients ADD COLUMN preferred_supplier VARCHAR(160) NOT NULL DEFAULT '' AFTER reorder_level");
 		}
@@ -23,14 +26,14 @@ class Ingredient extends BaseModel
 	public function all(): array
 	{
 		$this->ensureSupplierFields();
-		$sql = 'SELECT id, name, unit, display_unit, display_factor, quantity, reorder_level, preferred_supplier, restock_quantity FROM ingredients ORDER BY name ASC';
+		$sql = 'SELECT id, name, category, unit, display_unit, display_factor, quantity, reorder_level, preferred_supplier, restock_quantity FROM ingredients ORDER BY name ASC';
 		return $this->db->query($sql)->fetchAll();
 	}
 
 	public function find(int $id): ?array
 	{
 		$this->ensureSupplierFields();
-		$sql = 'SELECT id, name, unit, display_unit, display_factor, quantity, reorder_level, preferred_supplier, restock_quantity FROM ingredients WHERE id = ?';
+		$sql = 'SELECT id, name, category, unit, display_unit, display_factor, quantity, reorder_level, preferred_supplier, restock_quantity FROM ingredients WHERE id = ?';
 		$stmt = $this->db->prepare($sql);
 		$stmt->execute([$id]);
 		$row = $stmt->fetch();
@@ -44,12 +47,12 @@ class Ingredient extends BaseModel
 		$stmt->execute([$newQuantity, $id]);
 	}
 
-	public function create(string $name, string $unit, float $reorderLevel, ?string $displayUnit = null, float $displayFactor = 1.0, ?string $preferredSupplier = null, float $restockQuantity = 0.0): int
+	public function create(string $name, string $unit, float $reorderLevel, ?string $displayUnit = null, float $displayFactor = 1.0, ?string $preferredSupplier = null, float $restockQuantity = 0.0, ?string $category = null): int
 	{
 		$this->ensureSupplierFields();
-		$sql = 'INSERT INTO ingredients (name, unit, display_unit, display_factor, quantity, reorder_level, preferred_supplier, restock_quantity) VALUES (?, ?, ?, ?, 0, ?, ?, ?)';
+		$sql = 'INSERT INTO ingredients (name, category, unit, display_unit, display_factor, quantity, reorder_level, preferred_supplier, restock_quantity) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?)';
 		$stmt = $this->db->prepare($sql);
-		$stmt->execute([$name, $unit, $displayUnit, $displayFactor, $reorderLevel, $preferredSupplier ?? '', $restockQuantity]);
+		$stmt->execute([$name, $category ?? '', $unit, $displayUnit, $displayFactor, $reorderLevel, $preferredSupplier ?? '', $restockQuantity]);
 		return (int)$this->db->lastInsertId();
 	}
 
@@ -64,7 +67,7 @@ class Ingredient extends BaseModel
 	public function getLowStockItems(): array
 	{
 		$this->ensureSupplierFields();
-		$sql = 'SELECT id, name, unit, quantity, reorder_level, preferred_supplier, restock_quantity
+		$sql = 'SELECT id, name, category, unit, quantity, reorder_level, preferred_supplier, restock_quantity
 			FROM ingredients
 			WHERE quantity <= reorder_level OR quantity <= 0
 			ORDER BY preferred_supplier, name';
