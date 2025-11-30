@@ -8,21 +8,6 @@ class PurchaseController extends BaseController
 		Auth::requireRole(['Purchaser','Manager','Owner']);
 		$ingredientModel = new Ingredient();
 		$ingredients = $ingredientModel->all();
-		$lowStockItems = $ingredientModel->getLowStockItems();
-		$lowStockGroups = [];
-		foreach ($lowStockItems as $item) {
-			$rawSupplier = trim((string)($item['preferred_supplier'] ?? ''));
-			$displaySupplier = $rawSupplier !== '' ? $rawSupplier : 'Unassigned Supplier';
-			$key = function_exists('mb_strtolower') ? mb_strtolower($displaySupplier) : strtolower($displaySupplier);
-			if (!isset($lowStockGroups[$key])) {
-				$lowStockGroups[$key] = [
-					'label' => $displaySupplier,
-					'items' => [],
-				];
-			}
-			$lowStockGroups[$key]['items'][] = $item;
-		}
-		$lowStockGroups = array_values($lowStockGroups);
         $purchaseModel = new Purchase();
         $purchases = $purchaseModel->listAll();
         $deliveryModel = new Delivery();
@@ -78,7 +63,6 @@ class PurchaseController extends BaseController
             'ingredients' => $ingredients,
             'purchases' => $purchases,
             'purchaseGroups' => array_values($groups),
-            'lowStockGroups' => $lowStockGroups,
             'flash' => $flash,
         ]);
 	}

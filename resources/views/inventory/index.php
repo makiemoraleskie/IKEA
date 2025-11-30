@@ -1,6 +1,7 @@
 <?php
 $baseUrl = defined('BASE_URL') ? BASE_URL : '';
 $ingredientSets = $ingredientSets ?? [];
+$lowStockGroups = $lowStockGroups ?? [];
 $canManageSets = in_array(Auth::role(), ['Owner','Manager'], true);
 $canManageInventory = in_array(Auth::role(), ['Owner','Manager'], true);
 ?>
@@ -24,6 +25,133 @@ $canManageInventory = in_array(Auth::role(), ['Owner','Manager'], true);
 		</div>
 	</div>
 <?php endif; ?>
+
+<!-- Purchase List Modal -->
+<div id="purchaseListModal" class="fixed inset-0 z-50 hidden">
+	<div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" data-purchase-list-dismiss></div>
+	<div class="relative z-10 flex min-h-full items-center justify-center px-4 py-8">
+		<div class="w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col max-h-[85vh]">
+			<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 px-6 py-5 border-b">
+				<div>
+					<p class="text-xs uppercase tracking-[0.35em] text-rose-400 font-semibold">Low Stock</p>
+					<h2 class="text-2xl font-semibold text-gray-900">Purchase Preparation List</h2>
+					<p class="text-sm text-gray-600 mt-1">Ingredients at or below their reorder level, grouped by supplier.</p>
+				</div>
+				<div class="flex flex-col sm:flex-row gap-2">
+					<button type="button" id="purchaseListPrint" class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-rose-600 text-white text-sm font-semibold shadow-sm hover:bg-rose-700 focus:ring-2 focus:ring-rose-500 focus:ring-offset-2">
+						<i data-lucide="printer" class="w-4 h-4"></i>
+						Print List
+					</button>
+					<button type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50" data-purchase-list-dismiss>
+						<i data-lucide="x" class="w-4 h-4"></i>
+						Close
+					</button>
+				</div>
+			</div>
+			<div id="purchaseListContent" class="px-6 py-5 overflow-y-auto space-y-6">
+				<?php if (!empty($lowStockGroups)): ?>
+					<?php foreach ($lowStockGroups as $group): 
+						$supplier = $group['label'] ?? 'Unassigned Supplier';
+						$items = $group['items'] ?? [];
+					?>
+					<section class="border rounded-2xl p-4 sm:p-6 shadow-sm bg-white">
+						<div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+							<div>
+								<p class="text-xs uppercase tracking-wide text-gray-500">Supplier</p>
+								<h3 class="text-lg font-semibold text-gray-900"><?php echo htmlspecialchars($supplier); ?></h3>
+							</div>
+							<span class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium"><?php echo count($items); ?> item<?php echo count($items) === 1 ? '' : 's'; ?></span>
+						</div>
+						<div class="mt-4 overflow-x-auto">
+							<table class="w-full text-sm min-w-[520px]">
+								<thead class="bg-gray-50">
+									<tr>
+										<th class="text-left px-4 py-2 font-medium text-gray-700">Ingredient</th>
+										<th class="text-left px-4 py-2 font-medium text-gray-700">Status</th>
+										<th class="text-left px-4 py-2 font-medium text-gray-700">On Hand</th>
+										<th class="text-left px-4 py-2 font-medium text-gray-700">Reorder Level</th>
+										<th class="text-left px-4 py-2 font-medium text-gray-700">Recommended Qty</th>
+									</tr>
+								</thead>
+								<tbody class="divide-y divide-gray-100">
+									<?php foreach ($items as $item): ?>
+									<tr>
+										<td class="px-4 py-2 font-semibold text-gray-900"><?php echo htmlspecialchars($item['name']); ?></td>
+										<td class="px-4 py-2">
+											<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium <?php echo ($item['stock_status'] ?? '') === 'Out of Stock' ? 'bg-red-100 text-red-800 border border-red-200' : 'bg-amber-50 text-amber-700 border border-amber-200'; ?>">
+												<i data-lucide="<?php echo ($item['stock_status'] ?? '') === 'Out of Stock' ? 'x' : 'alert-triangle'; ?>" class="w-3 h-3"></i>
+												<?php echo htmlspecialchars($item['stock_status'] ?? 'Low Stock'); ?>
+											</span>
+										</td>
+										<td class="px-4 py-2 text-gray-700"><?php echo number_format((float)$item['quantity'], 2); ?> <?php echo htmlspecialchars($item['unit']); ?></td>
+										<td class="px-4 py-2 text-gray-700"><?php echo number_format((float)$item['reorder_level'], 2); ?> <?php echo htmlspecialchars($item['unit']); ?></td>
+										<td class="px-4 py-2 font-semibold text-gray-900"><?php echo number_format((float)$item['recommended_qty'], 2); ?> <?php echo htmlspecialchars($item['unit']); ?></td>
+									</tr>
+									<?php endforeach; ?>
+								</tbody>
+							</table>
+						</div>
+					</section>
+					<?php endforeach; ?>
+				<?php else: ?>
+					<div class="py-12 text-center text-gray-500">
+						<i data-lucide="sparkles" class="w-10 h-10 mx-auto mb-3 text-green-500"></i>
+						<p class="text-sm font-medium">All inventory items are above their reorder levels. Nothing to purchase right now.</p>
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+	const modal = document.getElementById('purchaseListModal');
+	const openBtn = document.getElementById('inventoryPurchaseListBtn');
+	const printBtn = document.getElementById('purchaseListPrint');
+	const modalContent = document.getElementById('purchaseListContent');
+	const dismissButtons = modal ? modal.querySelectorAll('[data-purchase-list-dismiss]') : [];
+
+	const toggleModal = (show) => {
+		if (!modal) { return; }
+		modal.classList.toggle('hidden', !show);
+		document.body.classList.toggle('overflow-hidden', show);
+	};
+
+	openBtn?.addEventListener('click', () => {
+		if (openBtn.disabled) { return; }
+		toggleModal(true);
+	});
+
+	modal?.addEventListener('click', (event) => {
+		if (event.target === modal) {
+			toggleModal(false);
+		}
+	});
+
+	dismissButtons.forEach((btn) => btn.addEventListener('click', () => toggleModal(false)));
+
+	if (printBtn && modalContent) {
+		printBtn.addEventListener('click', () => {
+			const popup = window.open('', '_blank', 'width=900,height=700');
+			if (!popup) { return; }
+			popup.document.write(`<html><head><title>Low Stock Purchase List</title>
+				<style>
+					body { font-family: Arial, sans-serif; padding: 24px; color: #111827; }
+					h2, h3 { margin: 0 0 12px; }
+					table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+					th, td { border: 1px solid #e5e7eb; padding: 8px 10px; font-size: 13px; }
+					th { background: #f3f4f6; text-align: left; }
+					section { margin-bottom: 24px; }
+				</style>
+			</head><body>${modalContent.innerHTML}</body></html>`);
+			popup.document.close();
+			popup.focus();
+			popup.print();
+		});
+	}
+});
+</script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function(){
@@ -490,6 +618,15 @@ document.addEventListener('DOMContentLoaded', function(){
 						<?php echo $lowStockCount; ?> low stock
 					</div>
 				<?php endif; ?>
+				<button
+					type="button"
+					id="inventoryPurchaseListBtn"
+					class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg shadow-sm border border-rose-200 bg-rose-600 text-white hover:bg-rose-700 focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
+					<?php echo empty($lowStockGroups) ? 'disabled title="No low stock items to print"' : ''; ?>
+				>
+					<i data-lucide="printer" class="w-4 h-4"></i>
+					Print Purchase List
+				</button>
 			</div>
 		</div>
 	</div>

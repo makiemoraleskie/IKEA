@@ -48,8 +48,8 @@ $ingredientStockMap = $ingredientStock ?? [];
 		<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 			<div class="space-y-2">
-				<label class="block text-sm font-medium text-gray-700">Request Name / Event</label>
-				<input name="requester_name" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., Brunch Buffet Prep" required>
+				<label class="block text-sm font-medium text-gray-700">Name</label>
+				<input name="requester_name" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., malupiton" required>
 			</div>
 			<div class="space-y-2">
 				<label class="block text-sm font-medium text-gray-700">Date Needed</label>

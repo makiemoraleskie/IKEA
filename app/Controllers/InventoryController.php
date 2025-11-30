@@ -8,11 +8,27 @@ class InventoryController extends BaseController
 		Auth::requireRole(['Owner','Manager','Stock Handler']);
 		$ingredientModel = new Ingredient();
 		$ingredients = $ingredientModel->all();
+		$lowStockItems = $ingredientModel->getLowStockItems();
+		$lowStockGroups = [];
+		foreach ($lowStockItems as $item) {
+			$rawSupplier = trim((string)($item['preferred_supplier'] ?? ''));
+			$displaySupplier = $rawSupplier !== '' ? $rawSupplier : 'Unassigned Supplier';
+			$key = function_exists('mb_strtolower') ? mb_strtolower($displaySupplier) : strtolower($displaySupplier);
+			if (!isset($lowStockGroups[$key])) {
+				$lowStockGroups[$key] = [
+					'label' => $displaySupplier,
+					'items' => [],
+				];
+			}
+			$lowStockGroups[$key]['items'][] = $item;
+		}
+		$lowStockGroups = array_values($lowStockGroups);
 		$setModel = new IngredientSet();
 		$ingredientSets = $setModel->listWithComponents();
 		$this->render('inventory/index.php', [
 			'ingredients' => $ingredients,
 			'ingredientSets' => $ingredientSets,
+			'lowStockGroups' => $lowStockGroups,
             'flash' => $_SESSION['flash_inventory'] ?? null,
 		]);
         unset($_SESSION['flash_inventory']);
