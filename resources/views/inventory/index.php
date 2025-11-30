@@ -4,6 +4,16 @@ $ingredientSets = $ingredientSets ?? [];
 $lowStockGroups = $lowStockGroups ?? [];
 $canManageSets = in_array(Auth::role(), ['Owner','Manager'], true);
 $canManageInventory = in_array(Auth::role(), ['Owner','Manager'], true);
+$supplierFilterOptions = [];
+if (!empty($lowStockGroups)) {
+	foreach ($lowStockGroups as $group) {
+		$label = trim((string)($group['label'] ?? 'Unassigned Supplier'));
+		$key = function_exists('mb_strtolower') ? mb_strtolower($label) : strtolower($label);
+		if (!isset($supplierFilterOptions[$key])) {
+			$supplierFilterOptions[$key] = $label;
+		}
+	}
+}
 ?>
 <!-- Page Header -->
 <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
@@ -37,7 +47,18 @@ $canManageInventory = in_array(Auth::role(), ['Owner','Manager'], true);
 					<h2 class="text-2xl font-semibold text-gray-900">Purchase Preparation List</h2>
 					<p class="text-sm text-gray-600 mt-1">Ingredients at or below their reorder level, grouped by supplier.</p>
 				</div>
-				<div class="flex flex-col sm:flex-row gap-2">
+				<div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+					<?php if (!empty($supplierFilterOptions)): ?>
+					<div class="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm text-gray-700">
+						<i data-lucide="filter" class="w-4 h-4 text-gray-500"></i>
+						<select id="purchaseListSupplierFilter" class="bg-transparent border-none focus:border-none focus:ring-0 text-sm text-gray-900">
+							<option value="">All suppliers</option>
+							<?php foreach ($supplierFilterOptions as $key => $label): ?>
+								<option value="<?php echo htmlspecialchars($key); ?>"><?php echo htmlspecialchars($label); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+					<?php endif; ?>
 					<button type="button" id="purchaseListPrint" class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-rose-600 text-white text-sm font-semibold shadow-sm hover:bg-rose-700 focus:ring-2 focus:ring-rose-500 focus:ring-offset-2">
 						<i data-lucide="printer" class="w-4 h-4"></i>
 						Print List
@@ -53,8 +74,9 @@ $canManageInventory = in_array(Auth::role(), ['Owner','Manager'], true);
 					<?php foreach ($lowStockGroups as $group): 
 						$supplier = $group['label'] ?? 'Unassigned Supplier';
 						$items = $group['items'] ?? [];
+						$supplierKey = function_exists('mb_strtolower') ? mb_strtolower($supplier) : strtolower($supplier);
 					?>
-					<section class="border rounded-2xl p-4 sm:p-6 shadow-sm bg-white">
+					<section class="border rounded-2xl p-4 sm:p-6 shadow-sm bg-white" data-supplier="<?php echo htmlspecialchars($supplierKey); ?>">
 						<div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
 							<div>
 								<p class="text-xs uppercase tracking-wide text-gray-500">Supplier</p>
@@ -93,6 +115,9 @@ $canManageInventory = in_array(Auth::role(), ['Owner','Manager'], true);
 						</div>
 					</section>
 					<?php endforeach; ?>
+					<div id="purchaseListFilterEmpty" class="hidden py-8 text-center text-sm text-gray-500 border border-dashed border-gray-200 rounded-2xl">
+						No suppliers match the selected filter.
+					</div>
 				<?php else: ?>
 					<div class="py-12 text-center text-gray-500">
 						<i data-lucide="sparkles" class="w-10 h-10 mx-auto mb-3 text-green-500"></i>
@@ -111,12 +136,33 @@ document.addEventListener('DOMContentLoaded', function () {
 	const printBtn = document.getElementById('purchaseListPrint');
 	const modalContent = document.getElementById('purchaseListContent');
 	const dismissButtons = modal ? modal.querySelectorAll('[data-purchase-list-dismiss]') : [];
+	const supplierFilter = document.getElementById('purchaseListSupplierFilter');
+	const supplierSections = modalContent ? Array.from(modalContent.querySelectorAll('[data-supplier]')) : [];
+	const filterEmptyState = document.getElementById('purchaseListFilterEmpty');
 
 	const toggleModal = (show) => {
 		if (!modal) { return; }
 		modal.classList.toggle('hidden', !show);
 		document.body.classList.toggle('overflow-hidden', show);
 	};
+
+	const applySupplierFilter = () => {
+		const selected = (supplierFilter?.value || '').toLowerCase();
+		let visibleCount = 0;
+		supplierSections.forEach(section => {
+			const matches = !selected || (section.dataset.supplier || '').toLowerCase() === selected;
+			section.classList.toggle('hidden', !matches);
+			if (matches) { visibleCount++; }
+		});
+		if (filterEmptyState) {
+			filterEmptyState.classList.toggle('hidden', visibleCount > 0);
+		}
+	};
+
+	supplierFilter?.addEventListener('change', applySupplierFilter);
+	if (supplierFilter) {
+		applySupplierFilter();
+	}
 
 	openBtn?.addEventListener('click', () => {
 		if (openBtn.disabled) { return; }
@@ -143,6 +189,7 @@ document.addEventListener('DOMContentLoaded', function () {
 					th, td { border: 1px solid #e5e7eb; padding: 8px 10px; font-size: 13px; }
 					th { background: #f3f4f6; text-align: left; }
 					section { margin-bottom: 24px; }
+					.hidden { display: none !important; }
 				</style>
 			</head><body>${modalContent.innerHTML}</body></html>`);
 			popup.document.close();
