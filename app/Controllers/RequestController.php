@@ -112,7 +112,16 @@ class RequestController extends BaseController
 		$model = new RequestModel();
 		$batchId = $model->createBatch(Auth::id() ?? 0, $requesterName, $notes, $requestDate ?: null);
 		$logger = new AuditLog();
-		$logger->log(Auth::id() ?? 0, 'create', 'requests', ['batch_id' => $batchId, 'summary' => $notes]);
+		$logger->log(
+			Auth::id() ?? 0,
+			'create',
+			'requests',
+			[
+				'batch_id' => $batchId,
+				'summary' => $notes,
+				'requester_name' => $requesterName,
+			]
+		);
         $_SESSION['flash_requests'] = ['type' => 'success', 'messages' => ['Request submitted. Pending approval.']];
 		$this->redirect('/requests');
 	}

@@ -17,6 +17,8 @@ return [
 		'/reports/pdf' => ['ReportsController', 'pdf'],
 		'/inventory' => ['InventoryController', 'index'],
 		'/users' => ['UserController', 'index'],
+		'/admin/settings' => ['AdminSettingsController', 'index'],
+		'/account/security' => ['AccountController', 'security'],
 	],
 	'POST' => [
 		'/login' => ['AuthController', 'login'],
@@ -40,6 +42,14 @@ return [
 		'/users/reset-password' => ['UserController', 'resetPassword'],
 		'/notifications' => ['NotificationController', 'index'],
 		'/audit/clear' => ['AuditController', 'clear'],
+		'/admin/settings/save' => ['AdminSettingsController', 'save'],
+		'/admin/settings/branding' => ['AdminSettingsController', 'updateBranding'],
+		'/admin/settings/backup/export' => ['AdminSettingsController', 'exportBackup'],
+		'/admin/settings/backup/import' => ['AdminSettingsController', 'importInventory'],
+		'/admin/settings/users/status' => ['AdminSettingsController', 'toggleUserStatus'],
+		'/admin/settings/users/force-logout' => ['AdminSettingsController', 'forceLogoutUser'],
+		'/account/security/password' => ['AccountController', 'updatePassword'],
+		'/account/theme' => ['AccountController', 'updateTheme'],
 	],
 ];
 

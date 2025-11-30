@@ -2,6 +2,7 @@
 // Variables available: $purchases, $filters, $consumption, $section
 $filters = is_array($filters ?? null) ? $filters : [];
 $section = $section ?? 'purchase';
+$showCosts = isset($showCosts) ? (bool)$showCosts : true;
 $filterDateFrom = trim((string)($filters['date_from'] ?? ''));
 $filterDateTo = trim((string)($filters['date_to'] ?? ''));
 $filterSupplier = trim((string)($filters['supplier'] ?? ''));
@@ -117,10 +118,12 @@ $consumption = $consumption ?? [];
 					<span>Transactions</span>
 					<strong><?php echo count($purchases); ?></strong>
 				</div>
+				<?php if ($showCosts): ?>
 				<div class="summary">
 					<span>Total Cost</span>
 					<strong>₱<?php echo number_format(array_sum(array_column($purchases, 'cost')), 2); ?></strong>
 				</div>
+				<?php endif; ?>
 				<div class="summary">
 					<span>Suppliers</span>
 					<strong><?php echo count(array_unique(array_column($purchases, 'supplier'))); ?></strong>
@@ -142,7 +145,9 @@ $consumption = $consumption ?? [];
 						<th>Item</th>
 						<th>Supplier</th>
 						<th>Quantity</th>
+						<?php if ($showCosts): ?>
 						<th>Cost</th>
+						<?php endif; ?>
 					</tr>
 				</thead>
 				<tbody>
@@ -153,12 +158,14 @@ $consumption = $consumption ?? [];
 						<td><?php echo htmlspecialchars($p['item_name']); ?></td>
 						<td><?php echo htmlspecialchars($p['supplier']); ?></td>
 						<td><?php echo htmlspecialchars(number_format((float)$p['quantity'], 2)); ?></td>
+						<?php if ($showCosts): ?>
 						<td>₱<?php echo number_format((float)$p['cost'], 2); ?></td>
+						<?php endif; ?>
 					</tr>
 					<?php endforeach; ?>
 					<?php if (empty($purchases)): ?>
 					<tr>
-						<td colspan="6" style="text-align:center; color:var(--muted); padding:20px;">No purchases match the selected filters.</td>
+						<td colspan="<?php echo $showCosts ? 6 : 5; ?>" style="text-align:center; color:var(--muted); padding:20px;">No purchases match the selected filters.</td>
 					</tr>
 					<?php endif; ?>
 				</tbody>

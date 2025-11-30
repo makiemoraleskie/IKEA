@@ -329,7 +329,39 @@ foreach ($logs as $log) {
 				</tr>
 			</thead>
 			<tbody class="divide-y divide-gray-200">
-				<?php foreach ($logs as $log): ?>
+				<?php foreach ($logs as $log):
+					$detailsRaw = $log['details'] ?? '';
+					$detailArray = null;
+					$detailJsonPretty = null;
+					if ($detailsRaw !== '' && $detailsRaw !== null) {
+						$decoded = json_decode((string)$detailsRaw, true);
+						if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+							$detailArray = $decoded;
+							$detailJsonPretty = json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+						} else {
+							$detailJsonPretty = trim((string)$detailsRaw);
+						}
+					}
+					$sentenceDetails = $formatDetailSentence($detailsRaw);
+					$isRequestCreate = strtolower((string)$log['action']) === 'create' && ($log['module'] ?? '') === 'requests';
+					$formRequester = null;
+					if ($isRequestCreate && isset($detailArray['requester_name'])) {
+						$formRequester = trim((string)$detailArray['requester_name']);
+						if ($formRequester === '') {
+							$formRequester = null;
+						}
+					}
+					$accountDisplay = trim((string)($log['user_name'] ?? ''));
+					if ($accountDisplay === '') {
+						$accountDisplay = (string)($log['user_id'] ?? 'System');
+					}
+					$accountLabelId = 'account-name-' . (int)$log['id'];
+					$initialsSource = $formRequester ?: $accountDisplay;
+					$initials = strtoupper(substr($initialsSource, 0, 2));
+					if ($initials === '') {
+						$initials = 'ID';
+					}
+				?>
 				<tr class="hover:bg-gray-50 transition-colors">
 					<td class="px-6 py-4">
 						<div class="flex items-center gap-2">
@@ -339,11 +371,27 @@ foreach ($logs as $log) {
 					</td>
 					
 					<td class="px-6 py-4">
-						<div class="flex items-center gap-2">
+						<div class="flex items-start gap-2">
 							<div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-								<span class="text-xs font-medium text-gray-600"><?php echo strtoupper(substr($log['user_name'] ?? 'U', 0, 2)); ?></span>
+								<span class="text-xs font-semibold text-gray-600"><?php echo htmlspecialchars($initials); ?></span>
 							</div>
-							<span class="font-medium text-gray-900"><?php echo htmlspecialchars($log['user_name'] ?? (string)($log['user_id'] ?? '')); ?></span>
+							<div class="flex-1">
+								<?php if ($formRequester): ?>
+									<div class="flex items-center gap-2">
+										<span class="font-semibold text-gray-900"><?php echo htmlspecialchars($formRequester); ?></span>
+										<span class="inline-flex items-center text-[11px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">Form name</span>
+									</div>
+									<?php if ($accountDisplay !== ''): ?>
+									<button type="button" class="revealAccount inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 mt-1" data-target="<?php echo $accountLabelId; ?>">
+										<i data-lucide="eye" class="w-3 h-3"></i>
+										<span data-label>Show account</span>
+									</button>
+									<p id="<?php echo $accountLabelId; ?>" class="hidden text-xs text-gray-500 mt-1">Account: <?php echo htmlspecialchars($accountDisplay); ?></p>
+									<?php endif; ?>
+								<?php else: ?>
+									<span class="font-medium text-gray-900"><?php echo htmlspecialchars($accountDisplay); ?></span>
+								<?php endif; ?>
+							</div>
 						</div>
 					</td>
 					
@@ -380,18 +428,6 @@ foreach ($logs as $log) {
 					<td class="px-6 py-4">
 						<?php
 						$detailsBlockId = 'details-' . (int)$log['id'];
-						$detailArray = null;
-						$detailJsonPretty = null;
-						if (!empty($log['details'])) {
-							$decoded = json_decode((string)$log['details'], true);
-							if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-								$detailArray = $decoded;
-								$detailJsonPretty = json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-							} else {
-								$detailJsonPretty = trim((string)$log['details']);
-							}
-						}
-						$sentenceDetails = $formatDetailSentence($log['details'] ?? '');
 						?>
 						<?php if ($sentenceDetails !== null): ?>
 							<div class="max-w-sm space-y-2">
@@ -409,7 +445,7 @@ foreach ($logs as $log) {
 											<span class="font-semibold text-gray-700"><?php echo htmlspecialchars((string)$key); ?></span>
 											<span class="text-gray-600 text-right break-all"><?php echo htmlspecialchars((string)$displayValue); ?></span>
 										</div>
-										<?php endforeach; ?>
+			<?php endforeach; ?>
 										<?php if (count($detailArray) > 4): ?>
 											<p class="text-[11px] text-gray-500 italic">+<?php echo count($detailArray) - 4; ?> more fields</p>
 										<?php endif; ?>
@@ -489,6 +525,23 @@ foreach ($logs as $log) {
 			}).catch(()=>{
 				showDetailToast('Unable to copy. Select and copy manually.');
 			});
+		});
+	});
+
+	const revealButtons = document.querySelectorAll('.revealAccount');
+	revealButtons.forEach(btn => {
+		btn.addEventListener('click', ()=>{
+			const targetId = btn.getAttribute('data-target');
+			if (!targetId) return;
+			const target = document.getElementById(targetId);
+			if (!target) return;
+			const label = btn.querySelector('[data-label]');
+			const hidden = target.classList.toggle('hidden');
+			if (label) {
+				label.textContent = hidden ? 'Show account' : 'Hide account';
+			}
+			btn.classList.toggle('text-indigo-700', !hidden);
+			btn.classList.toggle('text-blue-600', hidden);
 		});
 	});
 })();

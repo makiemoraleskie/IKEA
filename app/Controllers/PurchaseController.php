@@ -64,6 +64,7 @@ class PurchaseController extends BaseController
             'purchases' => $purchases,
             'purchaseGroups' => array_values($groups),
             'flash' => $flash,
+            'canViewCosts' => Settings::costVisibleForRole(Auth::role()),
         ]);
 	}
 

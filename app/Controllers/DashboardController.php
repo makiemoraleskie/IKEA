@@ -23,6 +23,7 @@ class DashboardController extends BaseController
 			'pendingDeliveries' => 0,
 			'inventoryValue' => 0,
 		];
+		$canViewCosts = Settings::costVisibleForRole($user['role'] ?? null);
 
 		// Compute low stock count
 		$ingredientModel = new Ingredient();
@@ -84,6 +85,8 @@ class DashboardController extends BaseController
 			'user' => $user,
 			'stats' => $stats,
 			'pageTitle' => 'Dashboard',
+			'canViewCosts' => $canViewCosts,
+			'dashboardWidgets' => Settings::dashboardWidgetsForRole($user['role'] ?? ''),
 		]);
 	}
 }

@@ -12,6 +12,15 @@ class User extends BaseModel
 		return $row ?: null;
 	}
 
+	public function findAuthById(int $id): ?array
+	{
+		$sql = 'SELECT id, name, role, email, password_hash FROM users WHERE id = ? LIMIT 1';
+		$stmt = $this->db->prepare($sql);
+		$stmt->execute([$id]);
+		$row = $stmt->fetch();
+		return $row ?: null;
+	}
+
 	public function all(): array
 	{
 		$sql = 'SELECT id, name, role, email, created_at FROM users ORDER BY name ASC';

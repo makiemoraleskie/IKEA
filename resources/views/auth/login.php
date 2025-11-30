@@ -48,6 +48,18 @@ $chant = [
 						<?php echo htmlspecialchars($error); ?>
 					</div>
 				<?php endif; ?>
+				<?php
+				$status = $_GET['status'] ?? '';
+				$statusMessages = [
+					'password-updated' => 'Password updated. Please sign in with your new credentials.',
+					'disabled' => 'Your account has been disabled. Contact an administrator.',
+					'expired' => 'Your session expired. Please sign in again.',
+				];
+				if ($status && isset($statusMessages[$status])): ?>
+					<div class="mb-5 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+						<?php echo htmlspecialchars($statusMessages[$status]); ?>
+					</div>
+				<?php endif; ?>
 
 				<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/login" class="space-y-5" novalidate>
 					<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">

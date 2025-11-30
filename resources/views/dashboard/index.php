@@ -14,8 +14,10 @@
 	</div>
 </div>
 
-<?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
 <?php
+$baseUrl = defined('BASE_URL') ? BASE_URL : '';
+$canViewCosts = $canViewCosts ?? true;
+$dashboardWidgets = $dashboardWidgets ?? ['low_stock','pending_requests','pending_payments','partial_deliveries','pending_deliveries','inventory_value'];
 $lowStock = (int)($stats['lowStockCount'] ?? 0);
 $pendingRequests = (int)($stats['pendingRequests'] ?? 0);
 $pendingPayments = (int)($stats['pendingPayments'] ?? 0);
@@ -50,6 +52,7 @@ $cardCopy = [
 <!-- Dashboard Cards -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
 	<!-- Low Stock Items -->
+	<?php if (in_array('low_stock', $dashboardWidgets, true)): ?>
 	<div class="bg-white rounded-lg shadow-sm border p-4 sm:p-6 relative <?php echo $lowStock ? 'border-red-300 ring-2 ring-red-200 bg-red-50' : 'border-gray-200'; ?>">
 		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
 			<div class="flex-1">
@@ -66,8 +69,10 @@ $cardCopy = [
 			</div>
 		</div>
 	</div>
+	<?php endif; ?>
 
 	<!-- Pending Requests -->
+	<?php if (in_array('pending_requests', $dashboardWidgets, true)): ?>
 	<div class="bg-white rounded-lg shadow-sm border p-4 sm:p-6 relative <?php echo $pendingRequests ? 'border-amber-300 ring-2 ring-amber-200 bg-amber-50' : 'border-gray-200'; ?>">
 		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
 			<div class="flex-1">
@@ -84,8 +89,10 @@ $cardCopy = [
 			</div>
 		</div>
 	</div>
+	<?php endif; ?>
 
 	<!-- Pending Payments -->
+	<?php if (in_array('pending_payments', $dashboardWidgets, true)): ?>
 	<div class="bg-white rounded-lg shadow-sm border p-4 sm:p-6 relative <?php echo $pendingPayments ? 'border-rose-300 ring-2 ring-rose-200 bg-rose-50' : 'border-gray-200'; ?>">
 		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
 			<div class="flex-1">
@@ -102,8 +109,10 @@ $cardCopy = [
 			</div>
 		</div>
 	</div>
+	<?php endif; ?>
 
 	<!-- Partial Deliveries -->
+	<?php if (in_array('partial_deliveries', $dashboardWidgets, true)): ?>
 	<div class="bg-white rounded-lg shadow-sm border p-4 sm:p-6 relative <?php echo $partialDeliveries ? 'border-purple-300 ring-2 ring-purple-200 bg-purple-50' : 'border-gray-200'; ?>">
 		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
 			<div class="flex-1">
@@ -120,8 +129,10 @@ $cardCopy = [
 			</div>
 		</div>
 	</div>
+	<?php endif; ?>
 
 	<!-- Pending Deliveries -->
+	<?php if (in_array('pending_deliveries', $dashboardWidgets, true)): ?>
 	<div class="bg-white rounded-lg shadow-sm border p-4 sm:p-6 relative <?php echo $pendingDeliveries ? 'border-blue-200 ring-2 ring-blue-100 bg-blue-50' : 'border-gray-200'; ?>">
 		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
 			<div class="flex-1">
@@ -138,24 +149,32 @@ $cardCopy = [
 			</div>
 		</div>
 	</div>
+	<?php endif; ?>
 
 	<!-- Inventory Value -->
+	<?php if (in_array('inventory_value', $dashboardWidgets, true)): ?>
 	<div class="bg-white rounded-lg shadow-sm border p-4 sm:p-6 relative border-gray-200">
-		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-			<div class="flex-1">
-				<div class="flex items-center justify-between mb-2">
-					<h3 class="text-sm font-medium text-gray-600">Inventory Value</h3>
-					<?php echo $chip('success', false); ?>
-				</div>
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+		<div class="flex-1">
+			<div class="flex items-center justify-between mb-2">
+				<h3 class="text-sm font-medium text-gray-600">Inventory Value</h3>
+				<?php echo $chip('success', false); ?>
+			</div>
+			<?php if ($canViewCosts): ?>
 				<div class="text-3xl font-black tracking-tight text-gray-800">₱<?php echo number_format($inventoryValue, 2); ?></div>
 				<p class="text-sm text-gray-600 mb-3">estimated replacement value</p>
 				<a href="<?php echo htmlspecialchars($baseUrl); ?>/inventory#inventory-low-stock" class="text-sm font-semibold text-green-700 hover:text-green-800">See stock ledger →</a>
-			</div>
-			<div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center shrink-0">
-				<i data-lucide="dollar-sign" class="w-6 h-6 text-green-600"></i>
-			</div>
+			<?php else: ?>
+				<div class="text-lg font-semibold text-gray-500">Hidden</div>
+				<p class="text-sm text-gray-500 mb-3">Your role cannot view valuation data.</p>
+			<?php endif; ?>
+		</div>
+		<div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center shrink-0">
+			<i data-lucide="dollar-sign" class="w-6 h-6 text-green-600"></i>
 		</div>
 	</div>
+	<?php endif; ?>
+</div>
 </div>
 
 <!-- Overview Chart -->

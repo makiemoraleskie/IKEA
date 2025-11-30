@@ -2,6 +2,8 @@
 $baseUrl = defined('BASE_URL') ? BASE_URL : '';
 $categoriesList = $categoriesList ?? [];
 $usageStatuses = $usageStatuses ?? ['used' => 'Used', 'expired' => 'Expired', 'transferred' => 'Transferred'];
+$sectionsEnabled = $sectionsEnabled ?? ['purchase' => true, 'consumption' => true];
+$canViewCosts = $canViewCosts ?? true;
 $purchaseFilters = array_merge([
 	'date_from' => '',
 	'date_to' => '',
@@ -30,6 +32,7 @@ $consumptionFilters = array_merge([
 </div>
 
 <section id="purchaseReportSection" class="space-y-8">
+<?php if (!empty($sectionsEnabled['purchase'])): ?>
 <!-- Summary Cards -->
 <?php if (!empty($purchases)): ?>
 <?php 
@@ -54,6 +57,7 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 	</div>
 	
 	<!-- Total Cost -->
+	<?php if ($canViewCosts): ?>
 	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
 		<div class="flex items-center justify-between">
 			<div>
@@ -65,6 +69,20 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 			</div>
 		</div>
 	</div>
+	<?php else: ?>
+	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+		<div class="flex items-center justify-between">
+			<div>
+				<p class="text-sm font-medium text-gray-600">Total Cost</p>
+				<p class="text-2xl font-bold text-gray-500">Hidden</p>
+				<p class="text-xs text-gray-500 mt-1">Your role does not include cost visibility.</p>
+			</div>
+			<div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+				<i data-lucide="shield" class="w-6 h-6 text-gray-500"></i>
+			</div>
+		</div>
+	</div>
+	<?php endif; ?>
 	
 	<!-- Unique Suppliers -->
 	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -250,9 +268,94 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 	</div>
 </div>
 
-<?php $consumption = $consumption ?? []; ?>
+<?php else: ?>
+	<div class="bg-white rounded-xl border border-dashed border-gray-300 p-6 text-sm text-gray-600">
+		Purchase reporting is currently disabled by an administrator.
+	</div>
+<?php endif; ?>
+
+<?php if (!empty($sectionsEnabled['consumption'])): ?>
+	<!-- Consumption Filters Section -->
+	<div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8 overflow-hidden print-hidden">
+		<div class="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b">
+			<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+				<i data-lucide="activity" class="w-5 h-5 text-emerald-600"></i>
+				Consumption Filters
+			</h2>
+			<p class="text-sm text-gray-600 mt-1">Filter ingredient consumption totals.</p>
+		</div>
+		<form method="get" id="consumptionFiltersForm" class="p-6 space-y-6">
+			<?php foreach (['date_from','date_to','supplier','item_id','category','payment_status'] as $key): ?>
+				<input type="hidden" name="p_<?php echo $key; ?>" value="<?php echo htmlspecialchars($purchaseFilters[$key] ?? ''); ?>">
+			<?php endforeach; ?>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="space-y-2">
+					<label class="block text-sm font-medium text-gray-700">From Date</label>
+					<input type="date" name="c_date_from" value="<?php echo htmlspecialchars($consumptionFilters['date_from']); ?>" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors" />
+				</div>
+				<div class="space-y-2">
+					<label class="block text-sm font-medium text-gray-700">To Date</label>
+					<input type="date" name="c_date_to" value="<?php echo htmlspecialchars($consumptionFilters['date_to']); ?>" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors" />
+				</div>
+				<div class="space-y-2">
+					<label class="block text-sm font-medium text-gray-700">Category</label>
+					<select name="c_category" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors">
+						<option value="">All Categories</option>
+						<?php foreach ($categoriesList as $category): ?>
+							<option value="<?php echo htmlspecialchars($category); ?>" <?php echo ($consumptionFilters['category'] === $category) ? 'selected' : ''; ?>>
+								<?php echo htmlspecialchars($category); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+				<div class="space-y-2">
+					<label class="block text-sm font-medium text-gray-700">Usage Status</label>
+					<select name="c_usage_status" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors">
+						<option value="">All Statuses</option>
+						<?php foreach ($usageStatuses as $value => $label): ?>
+							<option value="<?php echo htmlspecialchars($value); ?>" <?php echo ($consumptionFilters['usage_status'] === $value) ? 'selected' : ''; ?>>
+								<?php echo htmlspecialchars($label); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+			</div>
+			<div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+				<button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 text-white px-4 py-3 rounded-lg hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors">
+					<i data-lucide="search" class="w-4 h-4"></i>
+					Apply Filters
+				</button>
+				<div class="w-full">
+					<label class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">Export As</label>
+					<div class="relative">
+						<select id="consumptionExportSelect" class="w-full appearance-none border border-gray-300 rounded-lg px-4 py-3 pr-10 bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm font-medium text-gray-700">
+							<option value="" selected disabled>Select format</option>
+							<option value="pdf">PDF</option>
+							<option value="excel">Excel (.xls)</option>
+							<option value="csv">CSV</option>
+						</select>
+						<span class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-500">
+							<i data-lucide="chevron-down" class="w-4 h-4"></i>
+						</span>
+					</div>
+				</div>
+				<button type="button" id="consumptionPrintBtn" class="w-full inline-flex items-center justify-center gap-2 bg-slate-700 text-white px-4 py-3 rounded-lg hover:bg-slate-800 focus:ring-2 focus:ring-slate-600 focus:ring-offset-2 transition-colors">
+					<i data-lucide="printer" class="w-4 h-4"></i>
+					Print Consumption
+				</button>
+			</div>
+		</form>
+	</div>
+<?php else: ?>
+	<div class="bg-white rounded-xl border border-dashed border-gray-300 p-6 text-sm text-gray-600">
+		Consumption reporting is currently disabled by an administrator.
+	</div>
+<?php endif; ?>
 </section>
 
+<?php $consumption = $consumption ?? []; ?>
+
+<?php if (!empty($sectionsEnabled['consumption'])): ?>
 <!-- Ingredient Consumption Report -->
 <div id="consumptionReportSection" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
 	<div class="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -326,8 +429,10 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 		</table>
 	</div>
 </div>
+<?php endif; ?>
 
 <!-- Reports Content -->
+<?php if (!empty($sectionsEnabled['purchase'])): ?>
 <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
 	<!-- Purchases Table -->
 	<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -354,7 +459,9 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 						<th class="text-left px-6 py-3 font-medium text-gray-700">Item</th>
 						<th class="text-left px-6 py-3 font-medium text-gray-700">Supplier</th>
 						<th class="text-left px-6 py-3 font-medium text-gray-700">Quantity</th>
+						<?php if ($canViewCosts): ?>
 						<th class="text-left px-6 py-3 font-medium text-gray-700">Cost</th>
+						<?php endif; ?>
 					</tr>
 				</thead>
 				<tbody class="divide-y divide-gray-200">
@@ -387,11 +494,13 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 							<span class="font-semibold text-gray-900"><?php echo htmlspecialchars($p['quantity']); ?></span>
 						</td>
 						
+						<?php if ($canViewCosts): ?>
 						<td class="px-6 py-4">
 							<div class="flex items-center gap-1">
 								<span class="text-lg font-bold text-gray-900">₱<?php echo number_format((float)$p['cost'], 2); ?></span>
 							</div>
 						</td>
+						<?php endif; ?>
 					</tr>
 					<?php endforeach; ?>
 				</tbody>
@@ -408,6 +517,7 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 	</div>
 	
 	<!-- Daily Spend Chart -->
+	<?php if ($canViewCosts): ?>
 	<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 		<div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b">
 			<div class="flex items-center justify-between">
@@ -438,7 +548,12 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 			<?php endif; ?>
 		</div>
 	</div>
-</div>
+	<?php else: ?>
+	<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex items-center justify-center p-6 text-sm text-gray-600">
+		Spending charts are hidden for roles without cost visibility.
+	</div>
+	<?php endif; ?>
+<?php endif; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -509,6 +624,7 @@ setupExport('consumptionExportSelect', 'consumption');
 setupPrint('purchasePrintBtn', 'purchaseReportSection', 'Purchase Report');
 setupPrint('consumptionPrintBtn', 'consumptionReportSection', 'Ingredient Consumption');
 
+<?php if ($canViewCosts): ?>
 const daily = <?php echo json_encode($daily, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
 const labels = daily.map(x => x.d);
 const data = daily.map(x => Number(x.total));
@@ -561,6 +677,7 @@ if (ctx2 && daily.length > 0) {
 		}
 	});
 }
+<?php endif; ?>
 </script>
 
 

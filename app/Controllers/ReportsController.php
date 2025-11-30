@@ -7,8 +7,23 @@ class ReportsController extends BaseController
 	{
 		Auth::requireRole(['Owner','Manager']);
 		$ingredients = $this->getIngredients();
-		$purchaseData = $this->buildSectionData('purchase');
-		$consumptionData = $this->buildSectionData('consumption');
+		$enabledSections = Settings::reportSectionsEnabled();
+		$includePurchase = in_array('purchase', $enabledSections, true);
+		$includeConsumption = in_array('consumption', $enabledSections, true);
+
+		$purchaseData = $includePurchase ? $this->buildSectionData('purchase') : [
+			'section' => 'purchase',
+			'filters' => $this->buildPurchaseFilters(),
+			'purchases' => [],
+			'daily' => [],
+			'show_costs' => Settings::costVisibleForRole(Auth::role()),
+		];
+		$consumptionData = $includeConsumption ? $this->buildSectionData('consumption') : [
+			'section' => 'consumption',
+			'filters' => $this->buildConsumptionFilters(),
+			'consumption' => [],
+			'show_costs' => false,
+		];
 
 		$this->render('reports/index.php', [
 			'ingredients' => $ingredients,
@@ -19,6 +34,11 @@ class ReportsController extends BaseController
 			'purchases' => $purchaseData['purchases'] ?? [],
 			'daily' => $purchaseData['daily'] ?? [],
 			'consumption' => $consumptionData['consumption'] ?? [],
+			'canViewCosts' => Settings::costVisibleForRole(Auth::role()),
+			'sectionsEnabled' => [
+				'purchase' => $includePurchase,
+				'consumption' => $includeConsumption,
+			],
 		]);
 	}
 
@@ -26,6 +46,11 @@ class ReportsController extends BaseController
 	{
 		Auth::requireRole(['Owner','Manager']);
 		$section = $this->resolveSection();
+		if (!in_array($section, Settings::reportSectionsEnabled(), true)) {
+			http_response_code(403);
+			echo 'This report section is disabled.';
+			return;
+		}
 		$data = $this->buildSectionData($section);
 
 		if (class_exists('Dompdf\\Dompdf')) {
@@ -46,6 +71,11 @@ class ReportsController extends BaseController
 	{
 		Auth::requireRole(['Owner','Manager']);
 		$section = $this->resolveSection();
+		if (!in_array($section, Settings::reportSectionsEnabled(), true)) {
+			http_response_code(403);
+			echo 'This report section is disabled.';
+			return;
+		}
 		$data = $this->buildSectionData($section);
 		header('Content-Type: application/vnd.ms-excel; charset=utf-8');
 		header('Content-Disposition: attachment; filename="' . $section . '-report-' . date('Ymd_His') . '.xls"');
@@ -57,6 +87,11 @@ class ReportsController extends BaseController
 	{
 		Auth::requireRole(['Owner','Manager']);
 		$section = $this->resolveSection();
+		if (!in_array($section, Settings::reportSectionsEnabled(), true)) {
+			http_response_code(403);
+			echo 'This report section is disabled.';
+			return;
+		}
 		$data = $this->buildSectionData($section);
 		header('Content-Type: text/csv; charset=utf-8');
 		header('Content-Disposition: attachment; filename="' . $section . '-report-' . date('Ymd_His') . '.csv"');
@@ -67,6 +102,7 @@ class ReportsController extends BaseController
 	private function buildSectionData(string $section): array
 	{
 		$model = new Reports();
+		$showCosts = Settings::costVisibleForRole(Auth::role());
 		if ($section === 'consumption') {
 			$filters = $this->buildConsumptionFilters();
 			$consumption = $model->getIngredientConsumption($filters);
@@ -74,6 +110,7 @@ class ReportsController extends BaseController
 				'section' => 'consumption',
 				'filters' => $filters,
 				'consumption' => $consumption,
+				'show_costs' => $showCosts,
 			];
 		}
 
@@ -83,6 +120,7 @@ class ReportsController extends BaseController
 			'filters' => $filters,
 			'purchases' => $model->getPurchases($filters),
 			'daily' => $model->getDailyTotals($filters),
+			'show_costs' => $showCosts,
 		];
 	}
 
@@ -91,8 +129,13 @@ class ReportsController extends BaseController
 		$paymentRaw = $_GET['p_payment_status'] ?? null;
 		$paymentStatus = $paymentRaw !== null ? trim((string)$paymentRaw) : 'Paid';
 		$itemId = isset($_GET['p_item_id']) && $_GET['p_item_id'] !== '' ? (int)$_GET['p_item_id'] : null;
+		$dateFrom = trim((string)($_GET['p_date_from'] ?? ''));
+		$archiveDays = Settings::archiveDays();
+		if ($dateFrom === '' && $archiveDays > 0) {
+			$dateFrom = date('Y-m-d', strtotime('-' . $archiveDays . ' days'));
+		}
 		return [
-			'date_from' => trim((string)($_GET['p_date_from'] ?? '')),
+			'date_from' => $dateFrom,
 			'date_to' => trim((string)($_GET['p_date_to'] ?? '')),
 			'supplier' => trim((string)($_GET['p_supplier'] ?? '')),
 			'item_id' => $itemId,
@@ -148,6 +191,7 @@ class ReportsController extends BaseController
 		$filters = $data['filters'];
 		$purchases = $data['purchases'] ?? [];
 		$consumption = $data['consumption'] ?? [];
+		$showCosts = !empty($data['show_costs']);
 		ob_start();
 		if ($section === 'consumption') {
 			?>
@@ -181,13 +225,15 @@ class ReportsController extends BaseController
 		} else {
 			?>
 			<table border="1" cellpadding="4" cellspacing="0">
-				<tr><th colspan="5">Purchases Report</th></tr>
+				<tr><th colspan="<?php echo $showCosts ? 5 : 4; ?>">Purchases Report</th></tr>
 				<tr>
 					<th>Date</th>
 					<th>Item</th>
 					<th>Supplier</th>
 					<th>Quantity</th>
+					<?php if ($showCosts): ?>
 					<th>Cost</th>
+					<?php endif; ?>
 				</tr>
 				<?php foreach ($purchases as $row): ?>
 					<tr>
@@ -195,7 +241,9 @@ class ReportsController extends BaseController
 						<td><?php echo htmlspecialchars($row['item_name']); ?></td>
 						<td><?php echo htmlspecialchars($row['supplier']); ?></td>
 						<td><?php echo number_format((float)$row['quantity'], 2); ?></td>
+						<?php if ($showCosts): ?>
 						<td><?php echo number_format((float)$row['cost'], 2); ?></td>
+						<?php endif; ?>
 					</tr>
 				<?php endforeach; ?>
 			</table>
@@ -209,6 +257,7 @@ class ReportsController extends BaseController
 		$section = $data['section'] ?? 'purchase';
 		$purchases = $data['purchases'] ?? [];
 		$consumption = $data['consumption'] ?? [];
+		$showCosts = !empty($data['show_costs']);
 		$handle = fopen('php://output', 'w');
 		if ($section === 'consumption') {
 			fputcsv($handle, ['Ingredient Consumption']);
@@ -231,15 +280,22 @@ class ReportsController extends BaseController
 			}
 		} else {
 			fputcsv($handle, ['Purchases Report']);
-			fputcsv($handle, ['Date', 'Item', 'Supplier', 'Quantity', 'Cost']);
+			$headers = ['Date', 'Item', 'Supplier', 'Quantity'];
+			if ($showCosts) {
+				$headers[] = 'Cost';
+			}
+			fputcsv($handle, $headers);
 			foreach ($purchases as $row) {
-				fputcsv($handle, [
+				$line = [
 					$row['date_purchased'],
 					$row['item_name'],
 					$row['supplier'],
 					number_format((float)$row['quantity'], 2),
-					number_format((float)$row['cost'], 2),
-				]);
+				];
+				if ($showCosts) {
+					$line[] = number_format((float)$row['cost'], 2);
+				}
+				fputcsv($handle, $line);
 			}
 		}
 		fclose($handle);
@@ -251,6 +307,7 @@ class ReportsController extends BaseController
 		$filters = $data['filters'];
 		$purchases = $data['purchases'] ?? [];
 		$consumption = $data['consumption'] ?? [];
+		$showCosts = !empty($data['show_costs']);
 		ob_start();
 		include BASE_PATH . '/resources/views/reports/pdf.php';
 		return ob_get_clean();
@@ -264,6 +321,7 @@ class ReportsController extends BaseController
 		$filters = $data['filters'];
 		$purchases = $data['purchases'] ?? [];
 		$consumption = $data['consumption'] ?? [];
+		$showCosts = !empty($data['show_costs']);
 
 		$builder->addHeading('IKEA Commissary Report (' . ucfirst($section) . ')', 18);
 		$builder->addLine('Generated on: ' . date('M j, Y g:i A'));
@@ -311,18 +369,27 @@ class ReportsController extends BaseController
 			if (!empty($purchases)) {
 				$rows = [];
 				foreach ($purchases as $row) {
-					$rows[] = [
+					$currentRow = [
 						date('M j', strtotime((string)$row['date_purchased'])),
 						$row['item_name'] ?? '',
 						$row['supplier'] ?? '',
 						number_format((float)$row['quantity'], 2),
-						'₱' . number_format((float)$row['cost'], 2),
 					];
+					if ($showCosts) {
+						$currentRow[] = '₱' . number_format((float)$row['cost'], 2);
+					}
+					$rows[] = $currentRow;
+				}
+				$headers = ['Date', 'Item', 'Supplier', 'Qty'];
+				$widths = [70, 160, 150, 70];
+				if ($showCosts) {
+					$headers[] = 'Cost';
+					$widths[] = 70;
 				}
 				$builder->addTable(
-					['Date', 'Item', 'Supplier', 'Qty', 'Cost'],
+					$headers,
 					$rows,
-					[70, 160, 150, 70, 70]
+					$widths
 				);
 			} else {
 				$builder->addLine('No purchases match the selected filters.');

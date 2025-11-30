@@ -35,6 +35,13 @@ class AuthController extends BaseController
 			return;
 		}
 
+		$security = new UserSecurity();
+		$meta = $security->get((int)$user['id']);
+		if (($meta['status'] ?? 'active') !== 'active') {
+			$this->render('auth/login.php', ['error' => 'This account is disabled. Please contact an administrator.']);
+			return;
+		}
+
 		Auth::login($user);
 		$logger = new AuditLog();
 		$logger->log((int)$user['id'], 'login', 'auth', ['email' => $email]);

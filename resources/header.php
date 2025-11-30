@@ -1,10 +1,15 @@
 <?php
 declare(strict_types=1);
-$appTitle = 'IKEA Commissary System';
+$companyName = Settings::companyName();
+$companyTagline = Settings::companyTagline();
+$appTitle = $companyName . ' Console';
 $user = Auth::user();
 $baseUrl = defined('BASE_URL') ? BASE_URL : '';
 $notifications = [];
 $notificationCount = 0;
+$logoOverride = Settings::logoPath();
+$defaultLogo = BASE_URL . '/resources/views/logo/540473678_1357706066360607_6728109697986200356_n (1).jpg';
+$activeTheme = $_SESSION['user_theme'] ?? Settings::themeDefault();
 
 if ($user) {
 	$feedBuilder = new NotificationFeed();
@@ -25,8 +30,36 @@ if ($user) {
 	<script>
 		// Tailwind config placeholder if needed
 	</script>
+	<script>
+		(function(){
+			var storedTheme = '<?php echo $activeTheme; ?>';
+			if (storedTheme !== 'system') {
+				return;
+			}
+			var mediaQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+			var apply = function(isDark) {
+				if (document.body) {
+					document.body.setAttribute('data-theme', isDark ? 'dark' : 'light');
+				} else {
+					document.documentElement.dataset.pendingTheme = isDark ? 'dark' : 'light';
+				}
+			};
+			var isDark = mediaQuery ? mediaQuery.matches : false;
+			apply(isDark);
+			if (mediaQuery && mediaQuery.addEventListener) {
+				mediaQuery.addEventListener('change', function(e){ apply(e.matches); });
+			} else if (mediaQuery && mediaQuery.addListener) {
+				mediaQuery.addListener(function(e){ apply(e.matches); });
+			}
+			window.addEventListener('DOMContentLoaded', function(){
+				if (document.documentElement.dataset.pendingTheme) {
+					document.body.setAttribute('data-theme', document.documentElement.dataset.pendingTheme);
+				}
+			});
+		})();
+	</script>
 </head>
-<body class="min-h-screen theme-body text-gray-800 antialiased">
+<body class="min-h-screen theme-body text-gray-800 antialiased" data-theme="<?php echo htmlspecialchars($activeTheme); ?>">
 	<?php if ($user): ?>
 	<div class="min-h-screen md:flex theme-shell">
 		<!-- Sidebar -->
@@ -36,7 +69,7 @@ if ($user) {
 			<!-- Logo -->
 			<div class="p-6 border-b flex items-center justify-between">
 				<div class="flex items-center gap-3">
-					<img src="<?php echo htmlspecialchars(BASE_URL . '/resources/views/logo/540473678_1357706066360607_6728109697986200356_n (1).jpg'); ?>" alt="IKEA logo" class="w-10 h-10 object-cover rounded-xl border border-white/60 shadow-sm">
+					<img src="<?php echo htmlspecialchars($logoOverride ?: $defaultLogo); ?>" alt="<?php echo htmlspecialchars($companyName); ?> logo" class="w-10 h-10 object-cover rounded-xl border border-white/60 shadow-sm bg-white">
 				</div>
 				<button type="button" id="sidebarClose" class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none" aria-label="Close navigation">
 					<i data-lucide="x" class="w-5 h-5"></i>
@@ -69,9 +102,7 @@ if ($user) {
 					if (in_array($role, ['Owner','Manager'], true)) {
 						$navItems[] = ['url' => '/reports', 'label' => 'Reports', 'icon' => 'trending-up'];
 						$navItems[] = ['url' => '/audit', 'label' => 'Audit Logs', 'icon' => 'clock'];
-					}
-					if ($role === 'Owner') {
-						$navItems[] = ['url' => '/users', 'label' => 'Users', 'icon' => 'users'];
+						$navItems[] = ['url' => '/admin/settings', 'label' => 'Admin Settings', 'icon' => 'settings'];
 					}
 				}
 				
@@ -123,6 +154,9 @@ if ($user) {
 								<i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></i>
 							</div>
 						</div>
+						<button type="button" id="themeSwitcher" data-theme="<?php echo htmlspecialchars($activeTheme); ?>" data-csrf="<?php echo htmlspecialchars(Csrf::token()); ?>" class="inline-flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 focus:outline-none" aria-label="Toggle theme">
+							<i data-lucide="<?php echo $activeTheme === 'dark' ? 'moon' : 'sun'; ?>" class="w-5 h-5"></i>
+						</button>
 						<div class="relative" id="notificationWrapper">
 							<button type="button" id="notificationButton" aria-haspopup="true" aria-expanded="false" class="relative focus:outline-none rounded-full p-2 border <?php echo $notificationCount ? 'border-red-200 text-red-700 bg-red-50 animate-bounce' : 'border-gray-200 text-gray-600 hover:bg-gray-50'; ?>">
 								<i data-lucide="bell" class="w-5 h-5"></i>
@@ -249,6 +283,37 @@ if ($user) {
 					if (!sidebar.contains(e.target) && !toggle.contains(e.target) && !sidebar.classList.contains('-translate-x-full')){
 						closeSidebar();
 					}
+				});
+			})();
+			(function(){
+				const btn = document.getElementById('themeSwitcher');
+				if (!btn) return;
+				const themes = ['light','dark','system'];
+				const updateIcon = (theme) => {
+					const icon = btn.querySelector('i');
+					if (icon) {
+						icon.setAttribute('data-lucide', theme === 'dark' ? 'moon' : 'sun');
+						if (window.lucide) {
+							window.lucide.createIcons();
+						}
+					}
+				};
+				btn.addEventListener('click', ()=>{
+					const current = btn.getAttribute('data-theme') || 'system';
+					const index = themes.indexOf(current);
+					const nextTheme = themes[(index + 1) % themes.length];
+					btn.setAttribute('data-theme', nextTheme);
+					document.body.setAttribute('data-theme', nextTheme);
+					updateIcon(nextTheme);
+
+					const formData = new FormData();
+					formData.append('csrf_token', btn.getAttribute('data-csrf') || '');
+					formData.append('theme', nextTheme);
+					fetch('<?php echo htmlspecialchars($baseUrl); ?>/account/theme', {
+						method: 'POST',
+						body: formData,
+						credentials: 'same-origin'
+					}).catch(()=>{ /* ignore network errors for toggle */ });
 				});
 			})();
 			</script>
