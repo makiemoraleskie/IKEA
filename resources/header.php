@@ -7,96 +7,8 @@ $notifications = [];
 $notificationCount = 0;
 
 if ($user) {
-	$ingredientModel = new Ingredient();
-	$ingredients = $ingredientModel->all();
-	$lowStockItems = array_values(array_filter($ingredients, function ($ing) {
-		return (float)($ing['quantity'] ?? 0) <= (float)($ing['reorder_level'] ?? 0);
-	}));
-	if (!empty($lowStockItems)) {
-		$names = array_map(fn($i) => $i['name'], array_slice($lowStockItems, 0, 3));
-		$notifications[] = [
-			'icon' => 'alert-triangle',
-			'title' => 'Low stock alert',
-			'description' => implode(', ', $names) . (count($lowStockItems) > 3 ? ' +' . (count($lowStockItems) - 3) . ' more' : '') . ' need replenishment.',
-			'link' => $baseUrl . '/inventory?focus=low-stock#inventory-low-stock',
-			'accent' => 'text-red-700 bg-red-50',
-		];
-	}
-
-	$requestModel = new RequestModel();
-	$pendingBatchCount = $requestModel->countBatchesByStatus('Pending');
-	if ($pendingBatchCount > 0) {
-		$notifications[] = [
-			'icon' => 'clipboard-list',
-			'title' => 'Requests awaiting approval',
-			'description' => $pendingBatchCount . ' batch' . ($pendingBatchCount > 1 ? 'es' : '') . ' need review.',
-			'link' => $baseUrl . '/requests?status=pending#requests-history',
-			'accent' => 'text-amber-700 bg-amber-50',
-		];
-	}
-
-	$purchaseModel = new Purchase();
-	$pendingPayments = $purchaseModel->countByPaymentStatus('Pending');
-	if ($pendingPayments > 0) {
-		$notifications[] = [
-			'icon' => 'credit-card',
-			'title' => 'Pending payments',
-			'description' => $pendingPayments . ' purchase' . ($pendingPayments > 1 ? 's' : '') . ' await settlement.',
-			'link' => $baseUrl . '/purchases?payment=Pending#recent-purchases',
-			'accent' => 'text-rose-700 bg-rose-50',
-		];
-	}
-
-	$deliveryModel = new Delivery();
-	$partialDeliveries = $deliveryModel->countDeliveriesByStatus('Partial');
-	if ($partialDeliveries > 0) {
-		$notifications[] = [
-			'icon' => 'truck',
-			'title' => 'Partial deliveries',
-			'description' => $partialDeliveries . ' delivery' . ($partialDeliveries > 1 ? 'ies' : 'y') . ' still have remaining items.',
-			'link' => $baseUrl . '/deliveries?status=partial#recent-deliveries',
-			'accent' => 'text-purple-700 bg-purple-50',
-		];
-	}
-
-	$awaitingDeliveries = $deliveryModel->getPendingCount();
-	if ($awaitingDeliveries > 0) {
-		$notifications[] = [
-			'icon' => 'package',
-			'title' => 'Awaiting deliveries',
-			'description' => $awaitingDeliveries . ' batch' . ($awaitingDeliveries > 1 ? 'es' : '') . ' have not arrived.',
-			'link' => $baseUrl . '/deliveries?status=awaiting#awaiting-deliveries',
-			'accent' => 'text-blue-700 bg-blue-50',
-		];
-	}
-
-	// Personal notifications
-	$notificationModel = new Notification();
-	$userNotifications = $notificationModel->listLatest((int)($user['id'] ?? 0), 8);
-	foreach ($userNotifications as $note) {
-		$accentMap = [
-			'success' => 'text-green-700 bg-green-50 border border-green-200',
-			'warning' => 'text-amber-700 bg-amber-50 border border-amber-200',
-			'danger' => 'text-red-700 bg-red-50 border border-red-200',
-			'info' => 'text-indigo-700 bg-indigo-50 border border-indigo-200',
-		];
-		$iconMap = [
-			'success' => 'check-circle',
-			'warning' => 'alert-triangle',
-			'danger' => 'alert-octagon',
-			'info' => 'bell-ring',
-		];
-		$level = $note['level'] ?? 'info';
-		$notifications[] = [
-			'icon' => $iconMap[$level] ?? 'bell-ring',
-			'title' => ucfirst($level),
-			'description' => trim((string)($note['message'] ?? '')),
-			'link' => !empty($note['link']) ? (str_starts_with($note['link'], 'http') ? $note['link'] : $baseUrl . $note['link']) : '',
-			'accent' => $accentMap[$level] ?? $accentMap['info'],
-			'created_at' => $note['created_at'] ?? null,
-		];
-	}
-
+	$feedBuilder = new NotificationFeed();
+	$notifications = $feedBuilder->compose($user, (int)($user['id'] ?? 0), $baseUrl, 8, true);
 	$notificationCount = count($notifications);
 }
 ?>
@@ -238,8 +150,19 @@ if ($user) {
 														<i data-lucide="<?php echo htmlspecialchars($note['icon']); ?>" class="w-4 h-4"></i>
 													</span>
 													<div class="flex-1">
-														<p class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($note['title']); ?></p>
-														<p class="text-xs text-gray-600 mt-1"><?php echo htmlspecialchars($note['description'] ?: 'No description provided.'); ?></p>
+														<p class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($note['title'] ?? 'Notification'); ?></p>
+														<p class="text-xs text-gray-600 mt-1">
+															<?php
+															$bodyText = trim((string)($note['body'] ?? ''));
+															if ($bodyText === '' && isset($note['description'])) {
+																$bodyText = trim((string)$note['description']);
+															}
+															if ($bodyText === '' && isset($note['message'])) {
+																$bodyText = trim((string)$note['message']);
+															}
+															echo htmlspecialchars($bodyText !== '' ? $bodyText : 'No additional details available.');
+															?>
+														</p>
 														<?php if (!empty($note['created_at'])): ?>
 															<p class="text-[11px] text-gray-400 mt-1"><?php echo htmlspecialchars(date('M j, g:i A', strtotime($note['created_at']))); ?></p>
 														<?php endif; ?>

@@ -39,14 +39,19 @@
 	</div>
 	<div class="divide-y divide-gray-100">
 		<?php if (!empty($notifications)): ?>
-			<?php foreach ($notifications as $note): 
-				$level = $note['level'] ?? 'info';
-				$messageText = trim((string)($note['message'] ?? ''));
-				if ($messageText === '' && !empty($note['details'])) {
-					$messageText = trim((string)$note['details']);
+			<?php foreach ($notifications as $note):
+				$level = strtolower(trim((string)($note['level'] ?? 'info')));
+				$title = trim((string)($note['title'] ?? ''));
+				$body = trim((string)($note['body'] ?? ''));
+				if ($body === '' && isset($note['message'])) {
+					$body = trim((string)$note['message']);
 				}
-				$linkTarget = trim((string)($note['link'] ?? ''));
+				if ($body === '' && isset($note['description'])) {
+					$body = trim((string)$note['description']);
+				}
 				$createdAt = !empty($note['created_at']) ? (string)$note['created_at'] : null;
+				$linkTarget = trim((string)($note['link'] ?? ''));
+				$typeLabel = $note['type'] ?? '';
 				$accentMap = [
 					'success' => 'text-green-700 bg-green-50 border border-green-200',
 					'warning' => 'text-amber-700 bg-amber-50 border border-amber-200',
@@ -59,18 +64,28 @@
 					'danger' => 'alert-octagon',
 					'info' => 'bell-ring',
 				];
+				$icon = $note['icon'] ?? ($iconMap[$level] ?? $iconMap['info']);
+				$accent = $note['accent'] ?? ($accentMap[$level] ?? $accentMap['info']);
+				if ($title === '') {
+					$title = ucfirst($level);
+				}
 			?>
 			<div class="flex items-start gap-4 px-6 py-4">
-				<span class="inline-flex items-center justify-center w-10 h-10 rounded-full <?php echo $accentMap[$level] ?? $accentMap['info']; ?>">
-					<i data-lucide="<?php echo $iconMap[$level] ?? $iconMap['info']; ?>" class="w-4 h-4"></i>
+				<span class="inline-flex items-center justify-center w-10 h-10 rounded-full <?php echo htmlspecialchars($accent); ?>">
+					<i data-lucide="<?php echo htmlspecialchars($icon); ?>" class="w-4 h-4"></i>
 				</span>
 				<div class="flex-1">
-					<p class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars(ucfirst($level)); ?></p>
-					<p class="text-sm text-gray-600 mt-1"><?php echo htmlspecialchars($messageText !== '' ? $messageText : 'No description provided.'); ?></p>
+					<div class="flex items-center gap-3">
+						<p class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($title); ?></p>
+						<?php if ($typeLabel !== ''): ?>
+							<span class="inline-flex items-center text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500"><?php echo htmlspecialchars(strtoupper($typeLabel)); ?></span>
+						<?php endif; ?>
+					</div>
+					<p class="text-sm text-gray-600 mt-1"><?php echo htmlspecialchars($body !== '' ? $body : 'No additional details available.'); ?></p>
 					<p class="text-xs text-gray-400 mt-1"><?php echo htmlspecialchars($createdAt ? date('M j, Y g:i A', strtotime($createdAt)) : date('M j, Y g:i A')); ?></p>
 					<?php if ($linkTarget !== ''): ?>
 					<a href="<?php echo htmlspecialchars($linkTarget); ?>" class="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 mt-2">
-						View related page
+						Open related page
 						<i data-lucide="arrow-up-right" class="w-3 h-3"></i>
 					</a>
 					<?php endif; ?>
