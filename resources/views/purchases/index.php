@@ -107,40 +107,38 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
             <!-- Left: Add item panel -->
             <section class="border rounded-lg p-4">
                 <div class="mb-3"><span class="text-xs uppercase tracking-wide text-gray-500">Step 1</span><div class="font-medium">Add purchase items</div></div>
-                <div class="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
-                    <!-- Search -->
-                    <div class="md:col-span-3 relative">
-                        <label class="block text-sm font-medium text-gray-700">Search ingredient</label>
-                        <input id="ingSearch" class="w-full border rounded-lg px-4 py-3" placeholder="Type to search..." autocomplete="off" />
-                        <input type="hidden" id="ingIdHidden" />
-                        <div id="ingResults" class="absolute z-10 mt-1 w-full bg-white border rounded shadow-sm max-h-56 overflow-auto hidden"></div>
-                    </div>
-                    <!-- Or select -->
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+                    <!-- Ingredient -->
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700">Or select</label>
-                        <select id="ingSelect" class="w-full border rounded-lg px-4 py-3">
-                            <option value="">Select from list</option>
-                            <?php foreach ($ingredients as $ing): ?>
-                                <option value="<?php echo (int)$ing['id']; ?>" data-unit="<?php echo htmlspecialchars($ing['unit']); ?>" data-dispunit="<?php echo htmlspecialchars($ing['display_unit'] ?? ''); ?>" data-dispfactor="<?php echo htmlspecialchars($ing['display_factor'] ?? 1); ?>"><?php echo htmlspecialchars($ing['name']); ?></option>
-                            <?php endforeach; ?>
-                        </select>
+                        <label class="block text-sm font-medium text-gray-700">Ingredient</label>
+                        <input id="ingInput" type="text" class="w-full border rounded-lg px-4 py-3" placeholder="Enter ingredient name" />
+                        <input type="hidden" id="ingIdHidden" />
                     </div>
                     <!-- Qty -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Qty</label>
-                        <input id="qtyInput" type="number" step="0.01" min="0.01" class="w-full border rounded-lg px-4 py-3" />
+                        <input id="qtyInput" type="number" step="0.01" min="0.01" class="w-full border rounded-lg px-4 py-3" placeholder="0.01" />
                     </div>
                     <!-- Unit -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Unit</label>
-                        <select id="unitSelect" class="w-full border rounded-lg px-3 py-3"></select>
+                        <select id="unitSelect" class="w-full border rounded-lg px-4 py-3">
+                            <option value="">Select unit</option>
+                            <option value="g">g</option>
+                            <option value="kg">kg</option>
+                            <option value="ml">ml</option>
+                            <option value="L">L</option>
+                            <option value="pcs">pcs</option>
+                            <option value="sack">sack</option>
+                            <option value="box">box</option>
+                        </select>
                     </div>
                     <!-- Cost -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Cost</label>
                         <input id="costInput" type="number" step="0.01" min="0" class="w-full border rounded-lg px-4 py-3" placeholder="0.00" />
                     </div>
-                    <div class="md:col-span-6 flex justify-end">
+                    <div class="md:col-span-5 flex justify-end">
                         <button type="button" id="addRowBtn" class="inline-flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-lg">
                             <i data-lucide="plus" class="w-4 h-4"></i>
                             Add to list
@@ -319,16 +317,35 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                     </td>
                     <td class="px-6 py-4">
                         <?php
-                        // show in friendly unit if consistent; fall back to base
+                        // Use purchase_unit and purchase_quantity if available (show as entered, no conversion)
                         $first = $g['items'][0];
-                        $baseUnit = $first['unit'];
-                        $dispUnit = $first['display_unit'] ?: ($baseUnit==='g'?'kg':($baseUnit==='ml'?'L':$baseUnit));
-                        $dispFactor = (float)($first['display_factor'] ?: ($dispUnit!==$baseUnit?1000:1));
-                        $qtyShow = $dispFactor>0 ? $g['quantity_sum']/$dispFactor : $g['quantity_sum'];
+                        $purchaseUnit = trim((string)($first['purchase_unit'] ?? ''));
+                        $purchaseQtySum = 0;
+                        $allSameUnit = true;
+                        foreach ($g['items'] as $it) {
+                            $pu = trim((string)($it['purchase_unit'] ?? ''));
+                            $pq = (float)($it['purchase_quantity'] ?? 0);
+                            if ($pu !== '' && $pq > 0) {
+                                if ($purchaseUnit === '') $purchaseUnit = $pu;
+                                if ($pu !== $purchaseUnit) $allSameUnit = false;
+                                $purchaseQtySum += $pq;
+                            }
+                        }
+                        if ($purchaseUnit !== '' && $purchaseQtySum > 0 && $allSameUnit) {
+                            $qtyShow = $purchaseQtySum;
+                            $unitShow = $purchaseUnit;
+                        } else {
+                            // Fallback for old records without purchase_unit
+                            $baseUnit = $first['unit'];
+                            $dispUnit = $first['display_unit'] ?: ($baseUnit==='g'?'kg':($baseUnit==='ml'?'L':$baseUnit));
+                            $dispFactor = (float)($first['display_factor'] ?: ($dispUnit!==$baseUnit?1000:1));
+                            $qtyShow = $dispFactor>0 ? $g['quantity_sum']/$dispFactor : $g['quantity_sum'];
+                            $unitShow = $dispUnit;
+                        }
                         ?>
                         <div class="flex items-center gap-2">
                             <span class="font-semibold text-gray-900"><?php echo number_format($qtyShow,2); ?></span>
-                            <span class="text-gray-500 text-sm"><?php echo htmlspecialchars($dispUnit); ?></span>
+                            <span class="text-gray-500 text-sm"><?php echo htmlspecialchars($unitShow); ?></span>
                         </div>
                     </td>
                     <td class="px-6 py-4">
@@ -382,10 +399,17 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                         </div>
                     </td>
                     <td class="px-6 py-4">
-                        <a href="<?php echo htmlspecialchars($baseUrl); ?>/deliveries" class="inline-flex items-center gap-1 px-3 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
-                            <i data-lucide="truck" class="w-3 h-3"></i>
-                            Deliveries
-                        </a>
+                        <?php if (Auth::role() !== 'Purchaser'): ?>
+                            <a href="<?php echo htmlspecialchars($baseUrl); ?>/deliveries" class="inline-flex items-center gap-1 px-3 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+                                <i data-lucide="truck" class="w-3 h-3"></i>
+                                Deliveries
+                            </a>
+                        <?php else: ?>
+                            <span class="inline-flex items-center gap-1 px-3 py-2 bg-gray-300 text-gray-500 text-sm rounded-lg cursor-not-allowed" title="Not available for Purchaser role">
+                                <i data-lucide="truck" class="w-3 h-3"></i>
+                                Deliveries
+                            </span>
+                        <?php endif; ?>
                     </td>
                 </tr>
                 <!-- Hidden modal content for this group -->
@@ -422,15 +446,40 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                                 <tbody>
                                     <?php foreach ($g['items'] as $p): ?>
                                         <?php 
-                                            $baseUnit = $p['unit'];
-                                            $dispUnit = $p['display_unit'] ?: ($baseUnit==='g'?'kg':($baseUnit==='ml'?'L':$baseUnit));
-                                            $dispFactor = (float)($p['display_factor'] ?: ($dispUnit!==$baseUnit?1000:1));
-                                            $qtyShow = $dispFactor>0 ? (float)$p['quantity']/$dispFactor : (float)$p['quantity'];
+                                            // Use purchase_unit and purchase_quantity if available (show as entered, no conversion)
+                                            $purchaseUnit = trim((string)($p['purchase_unit'] ?? ''));
+                                            $purchaseQty = (float)($p['purchase_quantity'] ?? 0);
+                                            
+                                            // Extract item name and unit from purchase_unit
+                                            // Format: "itemName|unit" when using placeholder, or just "unit" if ingredient exists
+                                            $itemNameToShow = $p['item_name'];
+                                            $unitToShow = '';
+                                            
+                                            if ($purchaseUnit !== '' && $purchaseQty > 0) {
+                                                $qtyShow = $purchaseQty;
+                                                // Check if purchase_unit contains item name in format "itemName|unit"
+                                                if (strpos($purchaseUnit, '|') !== false) {
+                                                    // purchase_unit contains item name and unit: "itemName|unit"
+                                                    list($itemNameToShow, $unitToShow) = explode('|', $purchaseUnit, 2);
+                                                    $itemNameToShow = trim($itemNameToShow);
+                                                    $unitToShow = trim($unitToShow);
+                                                } else {
+                                                    // purchase_unit is just the unit (ingredient exists)
+                                                    $unitToShow = $purchaseUnit;
+                                                }
+                                            } else {
+                                                // Fallback for old records without purchase_unit
+                                                $baseUnit = $p['unit'];
+                                                $dispUnit = $p['display_unit'] ?: ($baseUnit==='g'?'kg':($baseUnit==='ml'?'L':$baseUnit));
+                                                $dispFactor = (float)($p['display_factor'] ?: ($dispUnit!==$baseUnit?1000:1));
+                                                $qtyShow = $dispFactor>0 ? (float)$p['quantity']/$dispFactor : (float)$p['quantity'];
+                                                $unitToShow = $dispUnit;
+                                            }
                                         ?>
                                         <tr class="border-t">
-                                            <td class="px-4 py-2"><?php echo htmlspecialchars($p['item_name']); ?></td>
+                                            <td class="px-4 py-2"><?php echo htmlspecialchars($itemNameToShow); ?></td>
                                             <td class="px-4 py-2"><?php echo number_format($qtyShow,2); ?></td>
-                                            <td class="px-4 py-2"><?php echo htmlspecialchars($dispUnit); ?></td>
+                                            <td class="px-4 py-2"><?php echo htmlspecialchars($unitToShow); ?></td>
                                             <td class="px-4 py-2">₱<?php echo number_format((float)$p['cost'],2); ?></td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -546,10 +595,8 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
 <script>
 (function(){
 const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=>(int)$i['id'],'name'=>$i['name'],'unit'=>$i['unit'],'display_unit'=>$i['display_unit'] ?? '', 'display_factor'=>(float)($i['display_factor'] ?? 1)]; }, $ingredients), JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
-  const search = document.getElementById('ingSearch');
-  const results = document.getElementById('ingResults');
   const hiddenId = document.getElementById('ingIdHidden');
-  const select = document.getElementById('ingSelect');
+  const ingInput = document.getElementById('ingInput');
   const qty = document.getElementById('qtyInput');
   const unitSel = document.getElementById('unitSelect');
   const cost = document.getElementById('costInput');
@@ -642,39 +689,6 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   }
 
   setRecordBtnReady(false);
-
-  function renderResults(items){
-    if (!items.length){ results.classList.add('hidden'); results.innerHTML=''; return; }
-    results.innerHTML = items.map(i => `<button type="button" data-id="${i.id}" class="w-full text-left px-3 py-2 hover:bg-gray-100">${i.name} <span class=\"text-xs text-gray-500\">(${i.unit})</span></button>`).join('');
-    results.classList.remove('hidden');
-  }
-
-  search.addEventListener('input', ()=>{
-    const q = search.value.trim().toLowerCase();
-    if (!q){ hiddenId.value=''; results.classList.add('hidden'); return; }
-    const matches = INGREDIENTS.filter(i => i.name.toLowerCase().includes(q)).slice(0, 20);
-    renderResults(matches);
-  });
-  results.addEventListener('click', (e)=>{
-    const btn = e.target.closest('button[data-id]');
-    if (!btn) return;
-    const id = parseInt(btn.getAttribute('data-id'), 10);
-    const item = INGREDIENTS.find(x => x.id === id);
-    if (!item) return;
-    hiddenId.value = String(item.id);
-    search.value = item.name;
-    configureUnits(item.unit);
-    results.classList.add('hidden');
-  });
-  document.addEventListener('click', (e)=>{ if (!results.contains(e.target) && e.target !== search){ results.classList.add('hidden'); } });
-
-  function configureUnits(baseUnit){
-    unitSel.innerHTML = '';
-    const add=(v,t)=>{ const o=document.createElement('option'); o.value=v; o.textContent=t; unitSel.appendChild(o); };
-    if (baseUnit === 'g'){ add('g','g'); add('kg','kg'); }
-    else if (baseUnit === 'ml'){ add('ml','ml'); add('L','L'); }
-    else { add(baseUnit || '', baseUnit || ''); }
-  }
   function applyPaymentFilter(value){
     if (!purchaseRows.length) { return; }
     const normalized = value && value !== 'all' ? value.toLowerCase() : 'all';
@@ -758,15 +772,6 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     receiptDropzone?.classList.add('border-purple-400','bg-purple-50');
     setRecordBtnReady(true);
   }
-  select.addEventListener('change', ()=>{
-    hiddenId.value = '';
-    const opt = select.selectedOptions[0];
-    const baseUnit = opt ? (opt.getAttribute('data-unit') || '') : '';
-    search.value = opt ? (opt.textContent || '') : '';
-    configureUnits(baseUnit);
-  });
-  // initial
-  configureUnits('');
   if (receiptInput){
     receiptInput.addEventListener('change', ()=>{
       const file = receiptInput.files && receiptInput.files[0] ? receiptInput.files[0] : null;
@@ -870,7 +875,12 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
       const itemId = parseInt(tr.getAttribute('data-id')||'0',10) || 0;
       const qty = parseFloat(tr.querySelector('input[name="quantity[]"]').value || '0') || 0;
       const cost = parseFloat(tr.querySelector('input[name="row_cost[]"]').value || '0') || 0;
-      if (itemId>0 && qty>0) items.push({ item_id:itemId, quantity:qty, cost:cost });
+      const name = tr.querySelector('td:first-child')?.textContent?.trim() || '';
+      const unit = tr.querySelector('td:nth-child(3)')?.textContent?.trim() || '';
+      // Get original quantity (displayed quantity before conversion)
+      const qtyDisp = tr.querySelector('.qtyDisp');
+      const originalQty = qtyDisp ? parseFloat(qtyDisp.textContent || '0') : qty;
+      if (qty>0) items.push({ item_id:itemId, quantity:qty, cost:cost, name:name, unit:unit, original_quantity:originalQty });
     });
     if (itemsJson) itemsJson.value = JSON.stringify(items);
   }
@@ -899,17 +909,23 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   }
   syncPaymentStatus();
 
-  function addRow(itemId, name, baseUnit, baseQty, displayUnit, displayFactor, rowCost){
-    // Merge by itemId
-    const existing = listBody.querySelector(`tr[data-id="${itemId}"]`);
+  function addRow(itemId, name, baseUnit, baseQty, displayUnit, factor, rowCost, originalQty){
+    // originalQty is the quantity as entered (before conversion)
+    const displayQty = originalQty !== undefined ? originalQty : (baseQty / (factor || 1));
+    
+    // Merge by itemId and name (only if both match and itemId > 0)
+    const existing = itemId > 0 ? listBody.querySelector(`tr[data-id="${itemId}"]`) : null;
     if (existing){
       const qHidden = existing.querySelector('input[name="quantity[]"]');
       const cHidden = existing.querySelector('input[name="row_cost[]"]');
+      const origQtyHidden = existing.querySelector('input[name="original_quantity[]"]');
       const newBase = (parseFloat(qHidden.value||'0') + baseQty);
       qHidden.value = newBase;
-      // update display qty using factor (prefer provided)
-      const factor = parseFloat(existing.getAttribute('data-factor')||'1');
-      existing.querySelector('.qtyDisp').textContent = (newBase / (factor||1)).toFixed(2);
+      // Update original quantity sum
+      const newOrigQty = (parseFloat(origQtyHidden?.value||'0') + displayQty);
+      if (origQtyHidden) origQtyHidden.value = newOrigQty;
+      // update display qty (show original quantity, not converted)
+      existing.querySelector('.qtyDisp').textContent = newOrigQty.toFixed(2);
       // sum cost
       const newCost = (parseFloat(cHidden.value||'0') + rowCost);
       cHidden.value = newCost.toFixed(2);
@@ -919,11 +935,12 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     }
     const tr = document.createElement('tr');
     tr.setAttribute('data-id', String(itemId));
-    tr.setAttribute('data-factor', String(displayFactor||1));
+    tr.setAttribute('data-name', name);
+    tr.setAttribute('data-factor', String(factor||1));
     tr.innerHTML = `
       <td class="px-4 py-2">${name}<input type="hidden" name="item_id[]" value="${itemId}"></td>
-      <td class="px-4 py-2 qtyDisp">${(baseQty/(displayFactor||1)).toFixed(2)}<input type="hidden" name="quantity[]" value="${baseQty}"></td>
-      <td class="px-4 py-2">${displayUnit||baseUnit}</td>
+      <td class="px-4 py-2 qtyDisp">${displayQty.toFixed(2)}<input type="hidden" name="quantity[]" value="${baseQty}"><input type="hidden" name="original_quantity[]" value="${displayQty}"></td>
+      <td class="px-4 py-2">${displayUnit||baseUnit}<input type="hidden" name="unit[]" value="${displayUnit||baseUnit}"></td>
       <td class="px-4 py-2">₱ <span class="costDisp">${rowCost.toFixed(2)}</span><input type="hidden" name="row_cost[]" value="${rowCost.toFixed(2)}"></td>
       <td class="px-4 py-2"><button type="button" class="removeRow text-red-600">Remove</button></td>
     `;
@@ -932,27 +949,80 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   }
 
   addBtn.addEventListener('click', ()=>{
-    let itemId = parseInt(hiddenId.value || '0', 10);
-    let name = search.value || '';
-    if (!itemId){
-      const selId = parseInt(select.value || '0', 10);
-      if (selId){ itemId = selId; name = select.selectedOptions[0]?.textContent || name; }
+    const ingredientName = ingInput.value.trim();
+    if (!ingredientName) {
+      alert('Please enter an ingredient name');
+      return;
     }
+    
     const quantity = parseFloat(qty.value || '0');
+    const selectedUnit = unitSel.value.trim();
     const rowCost = parseFloat(cost.value || '0');
-    if (!itemId || !quantity || quantity <= 0 || isNaN(rowCost)) return;
-    const ingr = INGREDIENTS.find(x=>x.id===itemId);
-    const baseUnit = ingr?.unit || '';
-    const dispUnit = ingr?.display_unit || '';
-    const dispFactor = parseFloat(String(ingr?.display_factor || '1')) || 1;
-    const selUnit = unitSel.value || baseUnit;
+    
+    if (!quantity || quantity <= 0) {
+      alert('Please enter a valid quantity');
+      return;
+    }
+    if (!selectedUnit) {
+      alert('Please enter or select a unit');
+      return;
+    }
+    if (isNaN(rowCost) || rowCost < 0) {
+      alert('Please enter a valid cost');
+      return;
+    }
+    
+    // Try to find matching ingredient by name (case-insensitive)
+    let itemId = parseInt(hiddenId.value || '0', 10);
+    let ingr = null;
+    let baseUnit = '';
+    let dispUnit = '';
+    let dispFactor = 1;
+    
+    // If no ID from hidden field, try to find by name
+    if (!itemId) {
+      const nameLower = ingredientName.toLowerCase();
+      ingr = INGREDIENTS.find(x => x.name.toLowerCase() === nameLower);
+      if (ingr) {
+        itemId = ingr.id;
+      }
+    } else {
+      ingr = INGREDIENTS.find(x=>x.id===itemId);
+    }
+    
+    // If ingredient found, use its unit info; otherwise use the entered unit as base
+    if (ingr) {
+      baseUnit = ingr.unit || selectedUnit;
+      dispUnit = ingr.display_unit || '';
+      dispFactor = parseFloat(String(ingr.display_factor || '1')) || 1;
+    } else {
+      // New ingredient - use entered unit as base unit
+      baseUnit = selectedUnit;
+    }
+    
+    // Calculate conversion factor
     let factor = 1;
-    if (dispUnit && selUnit === dispUnit) factor = dispFactor; else if ((baseUnit==='g' && selUnit==='kg')||(baseUnit==='ml'&& selUnit==='L')) factor=1000;
+    if (ingr) {
+      if (dispUnit && selectedUnit === dispUnit) {
+        factor = dispFactor;
+      } else if ((baseUnit === 'g' && selectedUnit === 'kg') || (baseUnit === 'ml' && selectedUnit === 'L')) {
+        factor = 1000;
+      } else if ((baseUnit === 'kg' && selectedUnit === 'g') || (baseUnit === 'L' && selectedUnit === 'ml')) {
+        factor = 0.001;
+      }
+    }
+    
     const baseQty = quantity * factor;
-    const showUnit = selUnit || baseUnit;
-    addRow(itemId, name, baseUnit, baseQty, showUnit, factor, rowCost);
+    // Store ingredient name and ID (0 if not found - backend will create it)
+    // Pass original quantity (before conversion) for display
+    addRow(itemId || 0, ingredientName, baseUnit, baseQty, selectedUnit, factor, rowCost, quantity);
+    
     // clear inputs
-    qty.value=''; cost.value=''; hiddenId.value=''; search.value=''; select.value=''; unitSel.innerHTML='';
+    qty.value = '';
+    cost.value = '';
+    ingInput.value = '';
+    unitSel.value = '';
+    hiddenId.value = '';
   });
 
   listBody.addEventListener('click', (e)=>{

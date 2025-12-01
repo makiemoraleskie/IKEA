@@ -26,7 +26,27 @@ class Ingredient extends BaseModel
 	public function all(): array
 	{
 		$this->ensureSupplierFields();
-		$sql = 'SELECT id, name, category, unit, display_unit, display_factor, quantity, reorder_level, preferred_supplier, restock_quantity FROM ingredients ORDER BY name ASC';
+		// Check if in_inventory column exists
+		$columns = $this->db->query('SHOW COLUMNS FROM ingredients')->fetchAll(PDO::FETCH_COLUMN);
+		$hasInInventoryColumn = in_array('in_inventory', $columns, true);
+		
+		if ($hasInInventoryColumn) {
+			// Use in_inventory column if it exists - only show ingredients marked as in inventory
+			$sql = 'SELECT id, name, category, unit, display_unit, display_factor, quantity, reorder_level, preferred_supplier, restock_quantity 
+				FROM ingredients 
+				WHERE in_inventory = 1 
+				ORDER BY name ASC';
+		} else {
+			// Fallback: Only show ingredients that have been delivered at least once OR have quantity > 0
+			// This prevents ingredients created during purchase (quantity = 0, no delivery) from appearing in inventory
+			// until delivery is confirmed. Ingredients manually created in inventory will have quantity > 0 and will show.
+			$sql = 'SELECT DISTINCT i.id, i.name, i.category, i.unit, i.display_unit, i.display_factor, i.quantity, i.reorder_level, i.preferred_supplier, i.restock_quantity 
+				FROM ingredients i
+				LEFT JOIN purchases p ON p.item_id = i.id
+				LEFT JOIN deliveries d ON d.purchase_id = p.id
+				WHERE i.quantity > 0 OR d.id IS NOT NULL
+				ORDER BY i.name ASC';
+		}
 		return $this->db->query($sql)->fetchAll();
 	}
 
@@ -40,19 +60,55 @@ class Ingredient extends BaseModel
 		return $row ?: null;
 	}
 
-	public function updateQuantity(int $id, float $newQuantity): void
-	{
-		$sql = 'UPDATE ingredients SET quantity = ? WHERE id = ?';
-		$stmt = $this->db->prepare($sql);
-		$stmt->execute([$newQuantity, $id]);
-	}
-
-	public function create(string $name, string $unit, float $reorderLevel, ?string $displayUnit = null, float $displayFactor = 1.0, ?string $preferredSupplier = null, float $restockQuantity = 0.0, ?string $category = null): int
+	public function findByName(string $name): ?array
 	{
 		$this->ensureSupplierFields();
-		$sql = 'INSERT INTO ingredients (name, category, unit, display_unit, display_factor, quantity, reorder_level, preferred_supplier, restock_quantity) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?)';
+		$sql = 'SELECT id, name, category, unit, display_unit, display_factor, quantity, reorder_level, preferred_supplier, restock_quantity FROM ingredients WHERE LOWER(name) = LOWER(?) LIMIT 1';
 		$stmt = $this->db->prepare($sql);
-		$stmt->execute([$name, $category ?? '', $unit, $displayUnit, $displayFactor, $reorderLevel, $preferredSupplier ?? '', $restockQuantity]);
+		$stmt->execute([trim($name)]);
+		$row = $stmt->fetch();
+		return $row ?: null;
+	}
+
+	public function updateQuantity(int $id, float $newQuantity): void
+	{
+		$this->ensureSupplierFields();
+		// Check if in_inventory column exists
+		$columns = $this->db->query('SHOW COLUMNS FROM ingredients')->fetchAll(PDO::FETCH_COLUMN);
+		$hasInInventoryColumn = in_array('in_inventory', $columns, true);
+		
+		if ($hasInInventoryColumn) {
+			// When updating quantity (during delivery), also mark ingredient as "in inventory"
+			$sql = 'UPDATE ingredients SET quantity = ?, in_inventory = 1 WHERE id = ?';
+		} else {
+			$sql = 'UPDATE ingredients SET quantity = ? WHERE id = ?';
+		}
+		$stmt = $this->db->prepare($sql);
+		if ($hasInInventoryColumn) {
+			$stmt->execute([$newQuantity, $id]);
+		} else {
+			$stmt->execute([$newQuantity, $id]);
+		}
+	}
+
+	public function create(string $name, string $unit, float $reorderLevel, ?string $displayUnit = null, float $displayFactor = 1.0, ?string $preferredSupplier = null, float $restockQuantity = 0.0, ?string $category = null, bool $inInventory = false): int
+	{
+		$this->ensureSupplierFields();
+		// Check if in_inventory column exists
+		$columns = $this->db->query('SHOW COLUMNS FROM ingredients')->fetchAll(PDO::FETCH_COLUMN);
+		$hasInInventoryColumn = in_array('in_inventory', $columns, true);
+		
+		if ($hasInInventoryColumn) {
+			// in_inventory = 0 means ingredient exists but hasn't been delivered yet (won't show in inventory list)
+			// in_inventory = 1 means ingredient has been delivered at least once (will show in inventory list)
+			$sql = 'INSERT INTO ingredients (name, category, unit, display_unit, display_factor, quantity, reorder_level, preferred_supplier, restock_quantity, in_inventory) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?, ?)';
+			$stmt = $this->db->prepare($sql);
+			$stmt->execute([$name, $category ?? '', $unit, $displayUnit, $displayFactor, $reorderLevel, $preferredSupplier ?? '', $restockQuantity, $inInventory ? 1 : 0]);
+		} else {
+			$sql = 'INSERT INTO ingredients (name, category, unit, display_unit, display_factor, quantity, reorder_level, preferred_supplier, restock_quantity) VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?)';
+			$stmt = $this->db->prepare($sql);
+			$stmt->execute([$name, $category ?? '', $unit, $displayUnit, $displayFactor, $reorderLevel, $preferredSupplier ?? '', $restockQuantity]);
+		}
 		return (int)$this->db->lastInsertId();
 	}
 

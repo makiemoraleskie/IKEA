@@ -52,7 +52,8 @@ class InventoryController extends BaseController
 		$restockQuantity = (float)($_POST['restock_quantity'] ?? 0);
 		if ($name === '' || $unit === '') { $this->redirect('/inventory'); }
 		$model = new Ingredient();
-		$id = $model->create($name, $unit, $reorder, $displayUnit, $displayFactor > 0 ? $displayFactor : 1, $supplier, $restockQuantity, $category);
+		// When creating ingredient manually in inventory, mark it as in_inventory = true
+		$id = $model->create($name, $unit, $reorder, $displayUnit, $displayFactor > 0 ? $displayFactor : 1, $supplier, $restockQuantity, $category, true);
 		$logger = new AuditLog();
 		$logger->log(Auth::id() ?? 0, 'create', 'ingredients', ['ingredient_id' => $id, 'name' => $name]);
 		$this->redirect('/inventory');
