@@ -1,10 +1,10 @@
 <?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
-<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mt-4 mb-6">
+<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6 sm:mb-8">
 	<div>
-		<h1 class="text-3xl font-bold text-gray-900">User Management</h1>
-		<p class="text-gray-600 mt-1">Create and manage commissary accounts</p>
+		<h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">User Management</h1>
+		<p class="text-sm sm:text-base text-gray-600 mt-1">Create and manage commissary accounts</p>
 	</div>
-	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-[#008000] bg-[#008000]/10 rounded-xl hover:bg-[#008000]/20 border border-[#008000]/20 transition-colors">
 		<i data-lucide="arrow-left" class="w-4 h-4"></i>
 		Back to Dashboard
 	</a>
@@ -17,35 +17,42 @@
 	</div>
 <?php endif; ?>
 
-<div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-4 sm:p-6 mb-6">
-	<div class="flex flex-col gap-1 mb-4">
-		<h2 class="text-xl font-semibold text-gray-900">Create User</h2>
-		<p class="text-sm text-gray-600">Invite a teammate with appropriate access level</p>
+<div class="bg-white border-2 border-gray-200/80 rounded-xl shadow-sm p-4 sm:p-6 mb-6 sm:mb-8 overflow-hidden">
+	<div class="bg-gradient-to-r from-[#008000]/10 via-[#00A86B]/5 to-[#008000]/10 px-4 sm:px-6 py-4 -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 mb-6 border-b border-gray-200/60">
+		<div class="flex items-center gap-3">
+			<div class="w-10 h-10 bg-[#008000]/20 rounded-xl flex items-center justify-center border border-[#008000]/30">
+				<i data-lucide="user-plus" class="w-5 h-5 text-[#008000]"></i>
+			</div>
+			<div>
+				<h2 class="text-xl sm:text-2xl font-bold text-gray-900">Create User</h2>
+				<p class="text-xs sm:text-sm text-gray-600 mt-0.5">Invite a teammate with appropriate access level</p>
+			</div>
+		</div>
 	</div>
 	<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/users" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
 		<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 		<div>
-			<label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-			<input name="name" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
+			<label class="block text-sm font-medium text-gray-700 mb-1.5">Name</label>
+			<input name="name" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors" required />
 		</div>
 		<div>
-			<label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-			<input type="email" name="email" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
+			<label class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+			<input type="email" name="email" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors" required />
 		</div>
 		<div>
-			<label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
-			<select name="role" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+			<label class="block text-sm font-medium text-gray-700 mb-1.5">Role</label>
+			<select name="role" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors">
 				<?php foreach ($roles as $r): ?>
 					<option value="<?php echo htmlspecialchars($r); ?>"><?php echo htmlspecialchars($r); ?></option>
 				<?php endforeach; ?>
 			</select>
 		</div>
 		<div>
-			<label class="block text-sm font-medium text-gray-700 mb-1">Password (min 8 chars)</label>
-			<input type="password" name="password" minlength="8" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
+			<label class="block text-sm font-medium text-gray-700 mb-1.5">Password (min 8 chars)</label>
+			<input type="password" name="password" minlength="8" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors" required />
 		</div>
 		<div class="md:col-span-4">
-			<button class="w-full inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+			<button class="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#008000] via-[#00A86B] to-[#008000] text-white px-6 py-3 rounded-xl hover:shadow-lg hover:shadow-[#008000]/30 focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all font-semibold">
 				<i data-lucide="user-plus" class="w-4 h-4"></i>
 				Create user
 			</button>
@@ -53,51 +60,79 @@
 	</form>
 </div>
 
-<div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-	<div class="px-4 sm:px-6 py-4 border-b flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-		<div>
-			<h2 class="text-xl font-semibold text-gray-900">Users</h2>
-			<p class="text-sm text-gray-600">Existing accounts and quick resets</p>
+<div class="bg-white border-2 border-gray-200/80 rounded-xl shadow-sm overflow-hidden">
+	<div class="bg-gradient-to-r from-[#008000]/10 via-[#00A86B]/5 to-[#008000]/10 px-4 sm:px-6 py-4 border-b border-gray-200/60 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+		<div class="flex items-center gap-3">
+			<div class="w-10 h-10 bg-[#008000]/20 rounded-xl flex items-center justify-center border border-[#008000]/30">
+				<i data-lucide="users" class="w-5 h-5 text-[#008000]"></i>
+			</div>
+			<div>
+				<h2 class="text-xl sm:text-2xl font-bold text-gray-900">Users</h2>
+				<p class="text-xs sm:text-sm text-gray-600 mt-0.5">Existing accounts and quick resets</p>
+			</div>
 		</div>
-		<span class="text-sm text-gray-500"><?php echo count($users); ?> total</span>
+		<span class="text-xs sm:text-sm text-gray-600 font-semibold"><?php echo count($users); ?> total</span>
 	</div>
 	<div class="overflow-x-auto">
-		<table class="min-w-full text-sm min-w-[680px]">
+		<table class="w-full text-sm min-w-[700px]">
 			<thead class="bg-gray-50">
 				<tr>
-					<th class="text-left px-4 py-2">ID</th>
-					<th class="text-left px-4 py-2">Name</th>
-					<th class="text-left px-4 py-2">Email</th>
-					<th class="text-left px-4 py-2">Role</th>
-					<th class="text-left px-4 py-2">Created</th>
-					<th class="text-left px-4 py-2">Actions</th>
+					<th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-700">ID</th>
+					<th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-700">Name</th>
+					<th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-700">Email</th>
+					<th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-700">Role</th>
+					<th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-700">Created</th>
+					<th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-700">Actions</th>
 				</tr>
 			</thead>
-			<tbody>
+			<tbody class="divide-y divide-gray-200">
 				<?php foreach ($users as $u): ?>
-				<tr class="border-t">
-					<td class="px-4 py-2"><?php echo (int)$u['id']; ?></td>
-					<td class="px-4 py-2"><?php echo htmlspecialchars($u['name']); ?></td>
-					<td class="px-4 py-2"><?php echo htmlspecialchars($u['email']); ?></td>
-					<td class="px-4 py-2"><?php echo htmlspecialchars($u['role']); ?></td>
-					<td class="px-4 py-2"><?php echo htmlspecialchars($u['created_at']); ?></td>
-					<td class="px-4 py-2">
+				<tr class="hover:bg-gray-50 transition-colors">
+					<td class="px-4 sm:px-6 py-4">
+						<div class="w-8 h-8 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
+							<span class="text-xs font-semibold text-[#008000]"><?php echo (int)$u['id']; ?></span>
+						</div>
+					</td>
+					<td class="px-4 sm:px-6 py-4">
+						<div class="flex items-center gap-2">
+							<div class="w-8 h-8 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
+								<span class="text-xs font-semibold text-[#008000]"><?php echo strtoupper(substr($u['name'], 0, 2)); ?></span>
+							</div>
+							<span class="font-medium text-gray-900"><?php echo htmlspecialchars($u['name']); ?></span>
+						</div>
+					</td>
+					<td class="px-4 sm:px-6 py-4">
+						<span class="text-gray-600"><?php echo htmlspecialchars($u['email']); ?></span>
+					</td>
+					<td class="px-4 sm:px-6 py-4">
+						<span class="inline-flex items-center gap-1 px-2 py-1 bg-[#008000]/10 text-[#008000] rounded-lg text-xs font-semibold border border-[#008000]/20">
+							<i data-lucide="shield" class="w-3 h-3"></i>
+							<?php echo htmlspecialchars($u['role']); ?>
+						</span>
+					</td>
+					<td class="px-4 sm:px-6 py-4">
+						<div class="flex items-center gap-2">
+							<i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+							<span class="text-gray-600 text-xs"><?php echo htmlspecialchars($u['created_at']); ?></span>
+						</div>
+					</td>
+					<td class="px-4 sm:px-6 py-4">
 						<div class="flex flex-col gap-2">
 							<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/users/reset-password" class="flex gap-2 items-center">
 								<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 								<input type="hidden" name="id" value="<?php echo (int)$u['id']; ?>">
-								<input type="password" name="password" minlength="8" placeholder="New Password" class="border rounded px-2 py-1 flex-1" required />
-								<button class="px-3 py-1.5 rounded bg-slate-800 text-white text-xs">Reset</button>
+								<input type="password" name="password" minlength="8" placeholder="New Password" class="border-2 border-gray-300 rounded-lg px-3 py-2 flex-1 text-sm focus:ring-2 focus:ring-[#008000] focus:border-[#008000]" required />
+								<button class="px-3 py-2 rounded-lg bg-gray-700 text-white text-xs font-semibold hover:bg-gray-800 transition-colors">Reset</button>
 							</form>
 							<div class="flex flex-wrap gap-2">
-								<button type="button" class="flex-1 inline-flex items-center justify-center gap-1 rounded border border-indigo-200 text-indigo-700 px-3 py-1.5 text-xs font-semibold hover:bg-indigo-50 editToggle" data-target="edit-<?php echo (int)$u['id']; ?>">
+								<button type="button" class="flex-1 inline-flex items-center justify-center gap-1 rounded-lg border-2 border-[#008000] text-[#008000] px-3 py-1.5 text-xs font-semibold hover:bg-[#008000]/10 editToggle" data-target="edit-<?php echo (int)$u['id']; ?>">
 									<i data-lucide="pencil" class="w-3 h-3"></i>
 									Edit
 								</button>
 								<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/users/delete" class="flex-1 deleteUserForm">
 									<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 									<input type="hidden" name="id" value="<?php echo (int)$u['id']; ?>">
-									<button class="w-full inline-flex items-center justify-center gap-1 rounded border border-red-200 text-red-700 px-3 py-1.5 text-xs font-semibold hover:bg-red-50">
+									<button class="w-full inline-flex items-center justify-center gap-1 rounded-lg border-2 border-red-300 text-red-700 px-3 py-1.5 text-xs font-semibold hover:bg-red-50 transition-colors">
 										<i data-lucide="trash-2" class="w-3 h-3"></i>
 										Delete
 									</button>
@@ -106,33 +141,33 @@
 						</div>
 					</td>
 				</tr>
-				<tr id="edit-<?php echo (int)$u['id']; ?>" class="hidden bg-slate-50/70 border-t">
-					<td colspan="6" class="px-4 py-4">
+				<tr id="edit-<?php echo (int)$u['id']; ?>" class="hidden bg-gray-50/50 border-t">
+					<td colspan="6" class="px-4 sm:px-6 py-4">
 						<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/users/update" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
 							<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 							<input type="hidden" name="id" value="<?php echo (int)$u['id']; ?>">
 							<div>
-								<label class="block text-xs font-semibold text-gray-600 mb-1">Name</label>
-								<input name="name" value="<?php echo htmlspecialchars($u['name']); ?>" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+								<label class="block text-xs font-semibold text-gray-700 mb-1.5">Name</label>
+								<input name="name" value="<?php echo htmlspecialchars($u['name']); ?>" class="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors" required>
 							</div>
 							<div>
-								<label class="block text-xs font-semibold text-gray-600 mb-1">Email</label>
-								<input type="email" name="email" value="<?php echo htmlspecialchars($u['email']); ?>" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+								<label class="block text-xs font-semibold text-gray-700 mb-1.5">Email</label>
+								<input type="email" name="email" value="<?php echo htmlspecialchars($u['email']); ?>" class="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors" required>
 							</div>
 							<div>
-								<label class="block text-xs font-semibold text-gray-600 mb-1">Role</label>
-								<select name="role" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+								<label class="block text-xs font-semibold text-gray-700 mb-1.5">Role</label>
+								<select name="role" class="w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors">
 									<?php foreach ($roles as $r): ?>
 										<option value="<?php echo htmlspecialchars($r); ?>" <?php echo $u['role'] === $r ? 'selected' : ''; ?>><?php echo htmlspecialchars($r); ?></option>
 									<?php endforeach; ?>
 								</select>
 							</div>
 							<div class="flex gap-2">
-								<button class="flex-1 inline-flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+								<button class="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#008000] via-[#00A86B] to-[#008000] text-white px-4 py-2 rounded-xl hover:shadow-lg hover:shadow-[#008000]/30 focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all font-semibold">
 									<i data-lucide="check" class="w-4 h-4"></i>
 									Save
 								</button>
-								<button type="button" class="flex-1 inline-flex items-center justify-center gap-2 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 closeEdit" data-target="edit-<?php echo (int)$u['id']; ?>">
+								<button type="button" class="flex-1 inline-flex items-center justify-center gap-2 border-2 border-gray-300 text-gray-700 px-4 py-2 rounded-xl hover:bg-gray-50 closeEdit font-medium" data-target="edit-<?php echo (int)$u['id']; ?>">
 									<i data-lucide="x" class="w-4 h-4"></i>
 									Cancel
 								</button>

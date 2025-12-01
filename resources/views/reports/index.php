@@ -1,11 +1,11 @@
 <?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
 <!-- Page Header -->
-<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
+<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6 sm:mb-8">
 	<div>
-		<h1 class="text-3xl font-bold text-gray-900">Purchase Reports</h1>
-		<p class="text-gray-600 mt-1">Analyze and export purchase data</p>
+		<h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">Purchase Reports</h1>
+		<p class="text-sm sm:text-base text-gray-600 mt-1">Analyze and export purchase data</p>
 	</div>
-	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-[#008000] bg-[#008000]/10 rounded-xl hover:bg-[#008000]/20 border border-[#008000]/20 transition-colors">
 		<i data-lucide="arrow-left" class="w-4 h-4"></i>
 		Back to Dashboard
 	</a>
@@ -20,55 +20,55 @@ $totalCost = array_sum(array_column($purchases, 'cost'));
 $uniqueSuppliers = count(array_unique(array_column($purchases, 'supplier')));
 $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 ?>
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6 sm:mb-8">
 	<!-- Total Purchases -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+	<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 p-5 sm:p-6">
 		<div class="flex items-center justify-between">
 			<div>
-				<p class="text-sm font-medium text-gray-600">Total Purchases</p>
-				<p class="text-2xl font-bold text-gray-900"><?php echo $totalPurchases; ?></p>
+				<p class="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Total Purchases</p>
+				<p class="text-3xl sm:text-4xl font-black text-gray-900 mt-1"><?php echo $totalPurchases; ?></p>
 			</div>
-			<div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-				<i data-lucide="shopping-cart" class="w-6 h-6 text-blue-600"></i>
+			<div class="w-12 h-12 sm:w-14 sm:h-14 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
+				<i data-lucide="shopping-cart" class="w-6 h-6 sm:w-7 sm:h-7 text-[#008000]"></i>
 			</div>
 		</div>
 	</div>
 	
 	<!-- Total Cost -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+	<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 p-5 sm:p-6">
 		<div class="flex items-center justify-between">
 			<div>
-				<p class="text-sm font-medium text-gray-600">Total Cost</p>
-				<p class="text-2xl font-bold text-green-600">₱<?php echo number_format($totalCost, 2); ?></p>
+				<p class="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Total Cost</p>
+				<p class="text-3xl sm:text-4xl font-black text-[#008000] mt-1">₱<?php echo number_format($totalCost, 2); ?></p>
 			</div>
-			<div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-				<i data-lucide="dollar-sign" class="w-6 h-6 text-green-600"></i>
+			<div class="w-12 h-12 sm:w-14 sm:h-14 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
+				<span class="text-lg sm:text-xl font-bold text-[#008000]">₱</span>
 			</div>
 		</div>
 	</div>
 	
 	<!-- Unique Suppliers -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+	<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 p-5 sm:p-6">
 		<div class="flex items-center justify-between">
 			<div>
-				<p class="text-sm font-medium text-gray-600">Suppliers</p>
-				<p class="text-2xl font-bold text-purple-600"><?php echo $uniqueSuppliers; ?></p>
+				<p class="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Suppliers</p>
+				<p class="text-3xl sm:text-4xl font-black text-[#008000] mt-1"><?php echo $uniqueSuppliers; ?></p>
 			</div>
-			<div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-				<i data-lucide="truck" class="w-6 h-6 text-purple-600"></i>
+			<div class="w-12 h-12 sm:w-14 sm:h-14 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
+				<i data-lucide="truck" class="w-6 h-6 sm:w-7 sm:h-7 text-[#008000]"></i>
 			</div>
 		</div>
 	</div>
 	
 	<!-- Unique Items -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+	<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 p-5 sm:p-6">
 		<div class="flex items-center justify-between">
 			<div>
-				<p class="text-sm font-medium text-gray-600">Items Purchased</p>
-				<p class="text-2xl font-bold text-orange-600"><?php echo $uniqueItems; ?></p>
+				<p class="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Items Purchased</p>
+				<p class="text-3xl sm:text-4xl font-black text-[#008000] mt-1"><?php echo $uniqueItems; ?></p>
 			</div>
-			<div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-				<i data-lucide="package" class="w-6 h-6 text-orange-600"></i>
+			<div class="w-12 h-12 sm:w-14 sm:h-14 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
+				<i data-lucide="package" class="w-6 h-6 sm:w-7 sm:h-7 text-[#008000]"></i>
 			</div>
 		</div>
 	</div>
@@ -76,13 +76,17 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 <?php endif; ?>
 
 <!-- Filters Section -->
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
-	<div class="bg-gradient-to-r from-indigo-50 to-blue-50 px-6 py-4 border-b">
-		<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-			<i data-lucide="filter" class="w-5 h-5 text-indigo-600"></i>
-			Report Filters
-		</h2>
-		<p class="text-sm text-gray-600 mt-1">Customize your report data and export options</p>
+<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 mb-6 sm:mb-8 overflow-hidden">
+	<div class="bg-gradient-to-r from-[#008000]/10 via-[#00A86B]/5 to-[#008000]/10 px-4 sm:px-6 py-4 border-b border-gray-200/60">
+		<div class="flex items-center gap-3">
+			<div class="w-10 h-10 bg-[#008000]/20 rounded-xl flex items-center justify-center border border-[#008000]/30">
+				<i data-lucide="filter" class="w-5 h-5 text-[#008000]"></i>
+			</div>
+			<div>
+				<h2 class="text-xl sm:text-2xl font-bold text-gray-900">Report Filters</h2>
+				<p class="text-xs sm:text-sm text-gray-600 mt-0.5">Customize your report data and export options</p>
+			</div>
+		</div>
 	</div>
 	
 	<form method="get" class="p-6">
@@ -90,25 +94,25 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 			<!-- Date From -->
 			<div class="space-y-2">
 				<label class="block text-sm font-medium text-gray-700">From Date</label>
-				<input type="date" name="date_from" value="<?php echo htmlspecialchars($filters['date_from'] ?? ''); ?>" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+				<input type="date" name="date_from" value="<?php echo htmlspecialchars($filters['date_from'] ?? ''); ?>" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors" />
 			</div>
 			
 			<!-- Date To -->
 			<div class="space-y-2">
 				<label class="block text-sm font-medium text-gray-700">To Date</label>
-				<input type="date" name="date_to" value="<?php echo htmlspecialchars($filters['date_to'] ?? ''); ?>" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+				<input type="date" name="date_to" value="<?php echo htmlspecialchars($filters['date_to'] ?? ''); ?>" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors" />
 			</div>
 			
 			<!-- Supplier -->
 			<div class="space-y-2">
 				<label class="block text-sm font-medium text-gray-700">Supplier</label>
-				<input name="supplier" value="<?php echo htmlspecialchars($filters['supplier'] ?? ''); ?>" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" placeholder="Filter by supplier" />
+				<input name="supplier" value="<?php echo htmlspecialchars($filters['supplier'] ?? ''); ?>" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors" placeholder="Filter by supplier" />
 			</div>
 			
 			<!-- Item -->
 			<div class="space-y-2">
 				<label class="block text-sm font-medium text-gray-700">Item</label>
-				<select name="item_id" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+				<select name="item_id" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors">
 					<option value="">All Items</option>
 					<?php foreach ($ingredients as $ing): ?>
 						<option value="<?php echo (int)$ing['id']; ?>" <?php echo ((int)($filters['item_id'] ?? 0) === (int)$ing['id'])?'selected':''; ?>><?php echo htmlspecialchars($ing['name']); ?></option>
@@ -119,7 +123,7 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 			<!-- Payment Status -->
 			<div class="space-y-2">
 				<label class="block text-sm font-medium text-gray-700">Payment Status</label>
-				<select name="payment_status" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+				<select name="payment_status" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors">
 					<option value="">All</option>
 					<option value="Paid" <?php echo (($filters['payment_status'] ?? '') === 'Paid') ? 'selected' : ''; ?>>Paid</option>
 					<option value="Pending" <?php echo (($filters['payment_status'] ?? '') === 'Pending') ? 'selected' : ''; ?>>Pending</option>
@@ -130,15 +134,15 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 			<div class="space-y-2">
 				<label class="block text-sm font-medium text-gray-700">Actions</label>
 				<div class="space-y-2">
-					<button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
+					<button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#008000] via-[#00A86B] to-[#008000] text-white px-4 py-3 rounded-xl hover:shadow-lg hover:shadow-[#008000]/30 focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all font-semibold">
 						<i data-lucide="search" class="w-4 h-4"></i>
 						Apply Filters
 					</button>
-					<a href="<?php echo htmlspecialchars($baseUrl); ?>/reports/pdf?<?php echo http_build_query($filters); ?>" target="_blank" class="w-full inline-flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+					<a href="<?php echo htmlspecialchars($baseUrl); ?>/reports/pdf?<?php echo http_build_query($filters); ?>" target="_blank" class="w-full inline-flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-3 rounded-xl hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors font-semibold">
 						<i data-lucide="file-text" class="w-4 h-4"></i>
 						Export PDF
 					</a>
-					<button type="button" id="printReportBtn" class="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 text-white px-4 py-3 rounded-lg hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors">
+					<button type="button" id="printReportBtn" class="w-full inline-flex items-center justify-center gap-2 bg-gray-700 text-white px-4 py-3 rounded-xl hover:bg-gray-800 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors font-semibold">
 						<i data-lucide="printer" class="w-4 h-4"></i>
 						Print Report
 					</button>
@@ -149,20 +153,22 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 </div>
 
 <!-- Reports Content -->
-<div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+<div class="space-y-6 sm:space-y-8">
 	<!-- Purchases Table -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-		<div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b">
+	<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 overflow-hidden">
+		<div class="bg-gradient-to-r from-[#008000]/10 via-[#00A86B]/5 to-[#008000]/10 px-4 sm:px-6 py-4 border-b border-gray-200/60">
 			<div class="flex items-center justify-between">
-				<div>
-					<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-						<i data-lucide="clipboard-list" class="w-5 h-5 text-gray-600"></i>
-						Purchase Details
-					</h2>
-					<p class="text-sm text-gray-600 mt-1">Detailed purchase transaction data</p>
+				<div class="flex items-center gap-3">
+					<div class="w-10 h-10 bg-[#008000]/20 rounded-xl flex items-center justify-center border border-[#008000]/30">
+						<i data-lucide="clipboard-list" class="w-5 h-5 text-[#008000]"></i>
+					</div>
+					<div>
+						<h2 class="text-xl sm:text-2xl font-bold text-gray-900">Purchase Details</h2>
+						<p class="text-xs sm:text-sm text-gray-600 mt-0.5">Detailed purchase transaction data</p>
+					</div>
 				</div>
-				<div class="text-sm text-gray-600">
-					<span class="font-medium"><?php echo count($purchases); ?></span> transactions
+				<div class="text-xs sm:text-sm text-gray-600">
+					<span class="font-semibold"><?php echo count($purchases); ?></span> transactions
 				</div>
 			</div>
 		</div>
@@ -190,8 +196,8 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 						
 						<td class="px-6 py-4">
 							<div class="flex items-center gap-3">
-								<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-									<i data-lucide="package" class="w-4 h-4 text-blue-600"></i>
+								<div class="w-8 h-8 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
+									<i data-lucide="package" class="w-4 h-4 text-[#008000]"></i>
 								</div>
 								<span class="font-medium text-gray-900"><?php echo htmlspecialchars($p['item_name']); ?></span>
 							</div>
@@ -229,18 +235,20 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 	</div>
 	
 	<!-- Daily Spend Chart -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-		<div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b">
+	<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 overflow-hidden">
+		<div class="bg-gradient-to-r from-[#008000]/10 via-[#00A86B]/5 to-[#008000]/10 px-4 sm:px-6 py-4 border-b border-gray-200/60">
 			<div class="flex items-center justify-between">
-				<div>
-					<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-						<i data-lucide="trending-up" class="w-5 h-5 text-gray-600"></i>
-						Daily Spending Trend
-					</h2>
-					<p class="text-sm text-gray-600 mt-1">Visualize spending patterns over time</p>
+				<div class="flex items-center gap-3">
+					<div class="w-10 h-10 bg-[#008000]/20 rounded-xl flex items-center justify-center border border-[#008000]/30">
+						<i data-lucide="trending-up" class="w-5 h-5 text-[#008000]"></i>
+					</div>
+					<div>
+						<h2 class="text-xl sm:text-2xl font-bold text-gray-900">Daily Spending Trend</h2>
+						<p class="text-xs sm:text-sm text-gray-600 mt-0.5">Visualize spending patterns over time</p>
+					</div>
 				</div>
-				<div class="text-sm text-gray-600">
-					<span class="font-medium"><?php echo count($daily); ?></span> days
+				<div class="text-xs sm:text-sm text-gray-600">
+					<span class="font-semibold"><?php echo count($daily); ?></span> days
 				</div>
 			</div>
 		</div>
@@ -279,11 +287,11 @@ if (ctx2 && daily.length > 0) {
 				label: 'Daily Spending', 
 				data, 
 				fill: true,
-				backgroundColor: 'rgba(59, 130, 246, 0.1)',
-				borderColor: 'rgb(59, 130, 246)', 
+				backgroundColor: 'rgba(0, 128, 0, 0.1)',
+				borderColor: 'rgb(0, 128, 0)', 
 				borderWidth: 2,
 				tension: 0.4,
-				pointBackgroundColor: 'rgb(59, 130, 246)',
+				pointBackgroundColor: 'rgb(0, 128, 0)',
 				pointBorderColor: '#fff',
 				pointBorderWidth: 2,
 				pointRadius: 4

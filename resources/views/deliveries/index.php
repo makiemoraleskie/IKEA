@@ -1,11 +1,14 @@
-<?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
+<?php 
+$baseUrl = defined('BASE_URL') ? BASE_URL : '';
+$deliveredTotals = $deliveredTotals ?? [];
+?>
 <!-- Page Header -->
-<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
+<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6 sm:mb-8">
 	<div>
-		<h1 class="text-3xl font-bold text-gray-900">Delivery Management</h1>
-		<p class="text-gray-600 mt-1">Record and track ingredient deliveries</p>
+		<h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">Delivery Management</h1>
+		<p class="text-sm sm:text-base text-gray-600 mt-1">Record and track ingredient deliveries</p>
 	</div>
-	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-[#008000] bg-[#008000]/10 rounded-xl hover:bg-[#008000]/20 border border-[#008000]/20 transition-colors">
 		<i data-lucide="arrow-left" class="w-4 h-4"></i>
 		Back to Dashboard
 	</a>
@@ -28,40 +31,40 @@ foreach ($deliveries as $d) {
 ?>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 	<!-- Total Deliveries -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+	<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 p-5 sm:p-6">
 		<div class="flex items-center justify-between">
 			<div>
-				<p class="text-sm font-medium text-gray-600">Total Deliveries</p>
-				<p class="text-2xl font-bold text-gray-900"><?php echo $totalDeliveries; ?></p>
+				<p class="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Total Deliveries</p>
+				<p class="text-3xl sm:text-4xl font-black text-gray-900 mt-1"><?php echo $totalDeliveries; ?></p>
 			</div>
-			<div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-				<i data-lucide="truck" class="w-6 h-6 text-blue-600"></i>
+			<div class="w-12 h-12 sm:w-14 sm:h-14 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
+				<i data-lucide="truck" class="w-6 h-6 sm:w-7 sm:h-7 text-[#008000]"></i>
 			</div>
 		</div>
 	</div>
 	
 	<!-- Complete Deliveries -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+	<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 p-5 sm:p-6">
 		<div class="flex items-center justify-between">
 			<div>
-				<p class="text-sm font-medium text-gray-600">Complete Deliveries</p>
-				<p class="text-2xl font-bold text-green-600"><?php echo $completeDeliveries; ?></p>
+				<p class="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Complete Deliveries</p>
+				<p class="text-3xl sm:text-4xl font-black text-[#008000] mt-1"><?php echo $completeDeliveries; ?></p>
 			</div>
-			<div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-				<i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+			<div class="w-12 h-12 sm:w-14 sm:h-14 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
+				<i data-lucide="check-circle" class="w-6 h-6 sm:w-7 sm:h-7 text-[#008000]"></i>
 			</div>
 		</div>
 	</div>
 	
 	<!-- Partial Deliveries -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+	<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 p-5 sm:p-6">
 		<div class="flex items-center justify-between">
 			<div>
-				<p class="text-sm font-medium text-gray-600">Partial Deliveries</p>
-				<p class="text-2xl font-bold text-yellow-600"><?php echo $partialDeliveries; ?></p>
+				<p class="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Partial Deliveries</p>
+				<p class="text-3xl sm:text-4xl font-black text-amber-600 mt-1"><?php echo $partialDeliveries; ?></p>
 			</div>
-			<div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-				<i data-lucide="clock" class="w-6 h-6 text-yellow-600"></i>
+			<div class="w-12 h-12 sm:w-14 sm:h-14 bg-amber-50 rounded-xl flex items-center justify-center border border-amber-200">
+				<i data-lucide="clock" class="w-6 h-6 sm:w-7 sm:h-7 text-amber-600"></i>
 			</div>
 		</div>
 	</div>
@@ -69,13 +72,17 @@ foreach ($deliveries as $d) {
 <?php endif; ?>
 
 <!-- Record Delivery Form -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
-	<div class="bg-gradient-to-r from-orange-50 to-red-50 px-4 sm:px-6 py-4 border-b">
-		<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-			<i data-lucide="package-check" class="w-5 h-5 text-orange-600"></i>
-			Record New Delivery
-		</h2>
-		<p class="text-sm text-gray-600 mt-1">Record a delivery for an existing purchase</p>
+<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 mb-6 sm:mb-8 overflow-hidden">
+	<div class="bg-gradient-to-r from-[#008000]/10 via-[#00A86B]/5 to-[#008000]/10 px-4 sm:px-6 py-4 border-b border-gray-200/60">
+		<div class="flex items-center gap-3">
+			<div class="w-10 h-10 bg-[#008000]/20 rounded-xl flex items-center justify-center border border-[#008000]/30">
+				<i data-lucide="package-check" class="w-5 h-5 text-[#008000]"></i>
+			</div>
+			<div>
+				<h2 class="text-xl sm:text-2xl font-bold text-gray-900">Record New Delivery</h2>
+				<p class="text-xs sm:text-sm text-gray-600 mt-0.5">Record a delivery for an existing purchase</p>
+			</div>
+		</div>
 	</div>
 	
     <form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/deliveries" class="p-4 sm:p-6" id="deliveriesForm">
@@ -88,7 +95,7 @@ foreach ($deliveries as $d) {
                 <label class="block text-sm font-medium text-gray-700">Select Purchase Batch</label>
                 <div class="grid gap-3 lg:grid-cols-2">
                     <div class="space-y-1">
-                        <input id="batchSearchInput" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors" placeholder="Search supplier, purchaser, or batch ID..." list="batchSearchOptions">
+                        <input id="batchSearchInput" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors" placeholder="Search supplier, purchaser, or batch ID..." list="batchSearchOptions">
                         <datalist id="batchSearchOptions">
                             <?php foreach (($purchaseGroups ?? []) as $g): 
                                 $label = '#' . htmlspecialchars($g['group_id']) . ' — ' . htmlspecialchars($g['supplier']) . ' — ' . htmlspecialchars($g['purchaser_name']);
@@ -98,7 +105,7 @@ foreach ($deliveries as $d) {
                         </datalist>
                     </div>
                     <div class="space-y-1">
-                        <select id="batchSelect" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors">
+                        <select id="batchSelect" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors">
                             <option value="">Choose a batch</option>
                             <?php foreach (($purchaseGroups ?? []) as $g): ?>
                                 <option value="<?php echo htmlspecialchars($g['group_id']); ?>"><?php echo '#'.htmlspecialchars($g['group_id']).' — '.htmlspecialchars($g['supplier']).' — '.htmlspecialchars($g['purchaser_name']); ?></option>
@@ -107,9 +114,9 @@ foreach ($deliveries as $d) {
                     </div>
                 </div>
                 <p class="text-xs text-gray-500" id="batchMeta">After selecting a batch, set per-item received quantities below.</p>
-                <div id="batchHighlight" class="hidden rounded-xl border border-orange-100 bg-orange-50 px-4 py-3 text-sm text-orange-800 space-y-1">
-                    <div class="font-semibold text-orange-900" id="batchMetaSupplier"></div>
-                    <div class="flex flex-wrap gap-3 text-xs text-orange-700">
+                <div id="batchHighlight" class="hidden rounded-xl border-2 border-[#008000]/20 bg-[#008000]/10 px-4 py-3 text-sm text-[#008000] space-y-1">
+                    <div class="font-semibold text-[#008000]" id="batchMetaSupplier"></div>
+                    <div class="flex flex-wrap gap-3 text-xs text-[#008000]/80">
                         <span id="batchMetaPurchaser"></span>
                         <span id="batchMetaDate"></span>
                     </div>
@@ -128,7 +135,7 @@ foreach ($deliveries as $d) {
 			
 			<div class="space-y-2">
 				<label class="block text-sm font-medium text-gray-700">Delivery Status</label>
-				<div class="border border-dashed border-orange-200 bg-orange-50 text-sm text-orange-800 rounded-lg px-4 py-3">
+				<div class="border-2 border-dashed border-[#008000]/30 bg-[#008000]/5 text-sm text-[#008000] rounded-lg px-4 py-3">
 					Status is now auto-calculated when you click <strong class="font-semibold">Record Delivery</strong>. If <em>Receive Now</em> matches the <em>Remaining</em> quantity, the delivery will be marked as <span class="font-semibold">Complete Delivery</span>; otherwise it will be recorded as <span class="font-semibold">Partial Delivery</span>.
 				</div>
 			</div>
@@ -152,7 +159,7 @@ foreach ($deliveries as $d) {
         </div>
 
         <div class="mt-6 flex justify-end">
-			<button type="submit" class="inline-flex items-center gap-2 bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors">
+			<button type="submit" class="inline-flex items-center gap-2 bg-gradient-to-r from-[#008000] via-[#00A86B] to-[#008000] text-white px-6 py-3 rounded-xl hover:shadow-lg hover:shadow-[#008000]/30 focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all font-semibold">
 				<i data-lucide="package-check" class="w-4 h-4"></i>
 				Record Delivery
 			</button>
@@ -161,16 +168,18 @@ foreach ($deliveries as $d) {
 </div>
 
 <?php if (!empty($awaitingPurchases)): ?>
-<div id="awaiting-deliveries" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-8">
-    <div class="bg-gradient-to-r from-orange-50 to-amber-50 px-4 sm:px-6 py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div>
-            <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                <i data-lucide="truck" class="w-5 h-5 text-orange-600"></i>
-                Awaiting Deliveries
-            </h2>
-            <p class="text-sm text-gray-600 mt-1">Open purchase batches that still need to be delivered</p>
+<div id="awaiting-deliveries" class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 overflow-hidden mb-6 sm:mb-8">
+    <div class="bg-gradient-to-r from-[#008000]/10 via-[#00A86B]/5 to-[#008000]/10 px-4 sm:px-6 py-4 border-b border-gray-200/60 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-[#008000]/20 rounded-xl flex items-center justify-center border border-[#008000]/30">
+                <i data-lucide="truck" class="w-5 h-5 text-[#008000]"></i>
+            </div>
+            <div>
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Awaiting Deliveries</h2>
+                <p class="text-xs sm:text-sm text-gray-600 mt-0.5">Open purchase batches that still need to be delivered</p>
+            </div>
         </div>
-        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800 border border-orange-200">
+        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold bg-amber-50 text-amber-700 border-2 border-amber-200">
             <i data-lucide="alert-triangle" class="w-4 h-4"></i>
             <?php echo count($awaitingPurchases); ?> outstanding
         </span>
@@ -194,7 +203,7 @@ foreach ($deliveries as $d) {
                     $batchTs = substr((string)($pending['date_purchased'] ?? ''),0,19);
                     $batchId = substr(sha1(($pending['purchaser_id']??'').'|'.($pending['supplier']??'').'|'.($pending['payment_status']??'').'|'.($pending['receipt_url']??'').'|'.$batchTs),0,10);
                 ?>
-                <tr class="hover:bg-orange-50 transition-colors">
+                <tr class="hover:bg-[#008000]/5 transition-colors">
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
@@ -219,7 +228,7 @@ foreach ($deliveries as $d) {
                     <td class="px-6 py-4"><?php echo number_format((float)$pending['quantity'], 2); ?> <?php echo htmlspecialchars($pending['unit']); ?></td>
                     <td class="px-6 py-4 text-gray-600"><?php echo number_format((float)$pending['delivered_quantity'], 2); ?> <?php echo htmlspecialchars($pending['unit']); ?></td>
                     <td class="px-6 py-4">
-                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800 border border-orange-200">
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border-2 border-amber-200">
                             <i data-lucide="alert-triangle" class="w-3 h-3"></i>
                             <?php echo number_format($remaining, 2); ?> <?php echo htmlspecialchars($pending['unit']); ?>
                         </span>
@@ -227,7 +236,7 @@ foreach ($deliveries as $d) {
                     <td class="px-6 py-4">
                         <button
                             type="button"
-                            class="inline-flex items-center gap-1 px-3 py-2 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors"
+                            class="inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-[#008000] to-[#00A86B] text-white text-sm rounded-xl hover:shadow-md hover:shadow-[#008000]/30 focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all font-semibold"
                             data-quick-receive
                             data-purchase-id="<?php echo (int)$pending['id']; ?>"
                             data-batch-label="<?php echo htmlspecialchars('#' . $batchId); ?>"
@@ -295,10 +304,10 @@ foreach ($deliveries as $d) {
             <div>
                 <p class="text-sm font-medium text-gray-700 mb-2">Delivery type</p>
                 <div class="flex flex-wrap gap-3">
-                    <button type="button" class="px-4 py-2 text-sm font-semibold rounded-xl border border-orange-200 bg-orange-600 text-white focus:ring-2 focus:ring-orange-500" data-quick-status="complete">
+                    <button type="button" class="px-4 py-2 text-sm font-semibold rounded-xl border-2 border-[#008000] bg-gradient-to-r from-[#008000] to-[#00A86B] text-white focus:ring-2 focus:ring-[#008000]" data-quick-status="complete">
                         Complete delivery
                     </button>
-                    <button type="button" class="px-4 py-2 text-sm font-semibold rounded-xl border border-gray-200 text-gray-700 hover:border-gray-300 focus:ring-2 focus:ring-orange-500" data-quick-status="partial">
+                    <button type="button" class="px-4 py-2 text-sm font-semibold rounded-xl border-2 border-gray-200 text-gray-700 hover:border-gray-300 focus:ring-2 focus:ring-[#008000]" data-quick-status="partial">
                         Partial delivery
                     </button>
                 </div>
@@ -316,7 +325,7 @@ foreach ($deliveries as $d) {
         </div>
         <div class="px-6 py-4 bg-gray-50 border-t flex items-center justify-between gap-3">
             <button type="button" class="text-sm font-semibold text-gray-600 hover:text-gray-800" data-quick-cancel>Cancel</button>
-            <button type="button" id="quickConfirmBtn" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-600 text-white text-sm font-semibold hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
+            <button type="button" id="quickConfirmBtn" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#008000] via-[#00A86B] to-[#008000] text-white text-sm font-semibold hover:shadow-lg hover:shadow-[#008000]/30 focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all">
                 <i data-lucide="package-check" class="w-4 h-4"></i>
                 Confirm & Record
             </button>
@@ -325,15 +334,17 @@ foreach ($deliveries as $d) {
 </div>
 
 <!-- Recent Deliveries Table -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-	<div class="bg-gradient-to-r from-gray-50 to-gray-100 px-4 sm:px-6 py-4 border-b">
+<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 overflow-hidden">
+	<div class="bg-gradient-to-r from-[#008000]/10 via-[#00A86B]/5 to-[#008000]/10 px-4 sm:px-6 py-4 border-b border-gray-200/60">
 		<div class="flex items-center justify-between">
-			<div>
-				<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-					<i data-lucide="clipboard-list" class="w-5 h-5 text-gray-600"></i>
-					Recent Deliveries
-				</h2>
-				<p class="text-sm text-gray-600 mt-1">View and track all delivery records</p>
+			<div class="flex items-center gap-3">
+				<div class="w-10 h-10 bg-[#008000]/20 rounded-xl flex items-center justify-center border border-[#008000]/30">
+					<i data-lucide="clipboard-list" class="w-5 h-5 text-[#008000]"></i>
+				</div>
+				<div>
+					<h2 class="text-xl sm:text-2xl font-bold text-gray-900">Recent Deliveries</h2>
+					<p class="text-xs sm:text-sm text-gray-600 mt-0.5">View and track all delivery records</p>
+				</div>
 			</div>
 			<div class="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
 				<div class="flex items-center gap-4">
@@ -349,7 +360,7 @@ foreach ($deliveries as $d) {
 				</div>
 				<div class="flex items-center gap-2 text-sm text-gray-600">
 					<label for="deliveryStatusFilter" class="whitespace-nowrap">Filter status:</label>
-					<select id="deliveryStatusFilter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+					<select id="deliveryStatusFilter" class="border-2 border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#008000] focus:border-[#008000]">
 						<option value="all">All deliveries</option>
 						<option value="complete">Complete only</option>
 						<option value="partial">Partial only</option>
@@ -376,8 +387,8 @@ foreach ($deliveries as $d) {
 				<tr class="hover:bg-gray-50 transition-colors" data-delivery-status="<?php echo strtolower($d['delivery_status']); ?>">
 					<td class="px-6 py-4">
 						<div class="flex items-center gap-2">
-							<div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-								<span class="text-xs font-semibold text-orange-600">#<?php echo (int)$d['id']; ?></span>
+							<div class="w-8 h-8 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
+								<span class="text-xs font-semibold text-[#008000]">#<?php echo (int)$d['id']; ?></span>
 							</div>
 						</div>
 					</td>
@@ -442,7 +453,7 @@ foreach ($deliveries as $d) {
 			<i data-lucide="truck" class="w-16 h-16 mb-4 text-gray-300"></i>
 			<h3 class="text-lg font-medium text-gray-900 mb-2">No Deliveries Found</h3>
 			<p class="text-sm text-gray-600 mb-4">Start by recording your first delivery</p>
-			<button onclick="document.querySelector('form').scrollIntoView({behavior: 'smooth'})" class="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
+			<button onclick="document.querySelector('form').scrollIntoView({behavior: 'smooth'})" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#008000] via-[#00A86B] to-[#008000] text-white rounded-xl hover:shadow-lg hover:shadow-[#008000]/30 transition-all font-semibold">
 				<i data-lucide="plus" class="w-4 h-4"></i>
 				Record First Delivery
 			</button>
@@ -533,9 +544,12 @@ foreach ($deliveries as $d) {
     quickStatus = status === 'partial' ? 'partial' : 'complete';
     quickStatusButtons.forEach(btn => {
       const active = btn.dataset.quickStatus === quickStatus;
-      btn.classList.toggle('bg-orange-600', active);
+      btn.classList.toggle('bg-gradient-to-r', active);
+      btn.classList.toggle('from-[#008000]', active);
+      btn.classList.toggle('via-[#00A86B]', active);
+      btn.classList.toggle('to-[#008000]', active);
       btn.classList.toggle('text-white', active);
-      btn.classList.toggle('border-orange-200', active);
+      btn.classList.toggle('border-[#008000]', active);
       btn.classList.toggle('border-gray-200', !active);
       btn.classList.toggle('text-gray-700', !active);
     });
@@ -840,9 +854,9 @@ foreach ($deliveries as $d) {
     if (statusParam === 'awaiting'){
       const awaiting = document.getElementById('awaiting-deliveries');
       if (awaiting){
-        awaiting.classList.add('ring-2','ring-orange-200','ring-offset-2');
+        awaiting.classList.add('ring-2','ring-[#008000]/30','ring-offset-2');
         awaiting.scrollIntoView({behavior:'smooth'});
-        setTimeout(()=> awaiting.classList.remove('ring-2','ring-offset-2','ring-orange-200'), 2000);
+        setTimeout(()=> awaiting.classList.remove('ring-2','ring-offset-2','ring-[#008000]/30'), 2000);
       }
     }
   } else {

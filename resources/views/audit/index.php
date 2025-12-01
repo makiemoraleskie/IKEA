@@ -16,16 +16,16 @@ $currentQuery = http_build_query(array_filter($_GET ?? [], fn($value) => $value 
 .custom-scroll::-webkit-scrollbar-track{background:rgba(226,232,240,0.4)}
 </style>
 <!-- Page Header -->
-<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
+<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6 sm:mb-8">
 	<div>
-		<h1 class="text-3xl font-bold text-gray-900">Audit Logs</h1>
-		<p class="text-gray-600 mt-1">Track and monitor system activities across modules</p>
-		<div class="mt-2 inline-flex items-center gap-2 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold px-3 py-1">
+		<h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">Audit Logs</h1>
+		<p class="text-sm sm:text-base text-gray-600 mt-1">Track and monitor system activities across modules</p>
+		<div class="mt-2 inline-flex items-center gap-2 rounded-full bg-[#008000]/10 text-[#008000] text-xs font-semibold px-3 py-1 border border-[#008000]/20">
 			<i data-lucide="calendar" class="w-3 h-3"></i>
 			<span><?php echo htmlspecialchars($activeDateLabel); ?></span>
 		</div>
 	</div>
-	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-[#008000] bg-[#008000]/10 rounded-xl hover:bg-[#008000]/20 border border-[#008000]/20 transition-colors">
 		<i data-lucide="arrow-left" class="w-4 h-4"></i>
 		Back to Dashboard
 	</a>
@@ -82,55 +82,55 @@ foreach ($logs as $log) {
 	}
 }
 ?>
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-6 sm:mb-8">
 	<!-- Total Logs -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+	<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 p-5 sm:p-6">
 		<div class="flex items-center justify-between">
 			<div>
-				<p class="text-sm font-medium text-gray-600">Total Logs</p>
-				<p class="text-2xl font-bold text-gray-900"><?php echo $totalLogs; ?></p>
+				<p class="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Total Logs</p>
+				<p class="text-3xl sm:text-4xl font-black text-gray-900 mt-1"><?php echo $totalLogs; ?></p>
 			</div>
-			<div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-				<i data-lucide="file-text" class="w-6 h-6 text-gray-600"></i>
+			<div class="w-12 h-12 sm:w-14 sm:h-14 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
+				<i data-lucide="file-text" class="w-6 h-6 sm:w-7 sm:h-7 text-[#008000]"></i>
 			</div>
 		</div>
 	</div>
 	
 	<!-- Today's Logs -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+	<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 p-5 sm:p-6">
 		<div class="flex items-center justify-between">
 			<div>
-				<p class="text-sm font-medium text-gray-600">Today's Activity</p>
-				<p class="text-2xl font-bold text-blue-600"><?php echo $todayLogs; ?></p>
+				<p class="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Today's Activity</p>
+				<p class="text-3xl sm:text-4xl font-black text-[#008000] mt-1"><?php echo $todayLogs; ?></p>
 			</div>
-			<div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-				<i data-lucide="calendar" class="w-6 h-6 text-blue-600"></i>
+			<div class="w-12 h-12 sm:w-14 sm:h-14 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
+				<i data-lucide="calendar" class="w-6 h-6 sm:w-7 sm:h-7 text-[#008000]"></i>
 			</div>
 		</div>
 	</div>
 	
 	<!-- Active Users -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+	<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 p-5 sm:p-6">
 		<div class="flex items-center justify-between">
 			<div>
-				<p class="text-sm font-medium text-gray-600">Active Users</p>
-				<p class="text-2xl font-bold text-green-600"><?php echo $uniqueUsers; ?></p>
+				<p class="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Active Users</p>
+				<p class="text-3xl sm:text-4xl font-black text-[#008000] mt-1"><?php echo $uniqueUsers; ?></p>
 			</div>
-			<div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-				<i data-lucide="users" class="w-6 h-6 text-green-600"></i>
+			<div class="w-12 h-12 sm:w-14 sm:h-14 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
+				<i data-lucide="users" class="w-6 h-6 sm:w-7 sm:h-7 text-[#008000]"></i>
 			</div>
 		</div>
 	</div>
 	
 	<!-- Modules Tracked -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+	<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 p-5 sm:p-6">
 		<div class="flex items-center justify-between">
 			<div>
-				<p class="text-sm font-medium text-gray-600">Modules Tracked</p>
-				<p class="text-2xl font-bold text-purple-600"><?php echo $uniqueModules; ?></p>
+				<p class="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Modules Tracked</p>
+				<p class="text-3xl sm:text-4xl font-black text-[#008000] mt-1"><?php echo $uniqueModules; ?></p>
 			</div>
-			<div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-				<i data-lucide="layers" class="w-6 h-6 text-purple-600"></i>
+			<div class="w-12 h-12 sm:w-14 sm:h-14 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
+				<i data-lucide="layers" class="w-6 h-6 sm:w-7 sm:h-7 text-[#008000]"></i>
 			</div>
 		</div>
 	</div>
@@ -138,63 +138,112 @@ foreach ($logs as $log) {
 <?php endif; ?>
 
 <?php if (!empty($timeline)): ?>
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
-	<div class="bg-gradient-to-r from-indigo-50 to-slate-50 px-4 sm:px-6 py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-		<div>
-			<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-				<i data-lucide="activity" class="w-5 h-5 text-indigo-600"></i>
-				Recent Activity Timeline
-			</h2>
-			<p class="text-sm text-gray-600 mt-1">Latest <?php echo count($timeline); ?> actions across all modules.</p>
+<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 mb-6 sm:mb-8 overflow-hidden">
+	<div class="bg-gradient-to-r from-[#008000]/10 via-[#00A86B]/5 to-[#008000]/10 px-4 sm:px-6 py-4 border-b border-gray-200/60 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+		<div class="flex items-center gap-3">
+			<div class="w-10 h-10 bg-[#008000]/20 rounded-xl flex items-center justify-center border border-[#008000]/30">
+				<i data-lucide="activity" class="w-5 h-5 text-[#008000]"></i>
+			</div>
+			<div>
+				<h2 class="text-xl sm:text-2xl font-bold text-gray-900">Recent Activity Timeline</h2>
+				<p class="text-xs sm:text-sm text-gray-600 mt-0.5">Latest <?php echo count($timeline); ?> actions across all modules.</p>
+			</div>
 		</div>
-		<span class="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 border border-indigo-200">
-			<i data-lucide="clock-3" class="w-3 h-3"></i>
-			Updated <?php echo htmlspecialchars(date('M j, Y g:i A')); ?>
-		</span>
-		<div class="text-xs text-gray-500 bg-white/70 border border-gray-200 rounded-full px-3 py-1 inline-flex items-center gap-2">
-			<i data-lucide="calendar" class="w-3 h-3"></i>
-			<?php echo htmlspecialchars($activeDateLabel); ?>
+		<div class="flex flex-wrap items-center gap-2">
+			<span class="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full bg-[#008000]/10 text-[#008000] border border-[#008000]/20">
+				<i data-lucide="clock-3" class="w-3 h-3"></i>
+				Updated <?php echo htmlspecialchars(date('M j, Y g:i A')); ?>
+			</span>
+			<div class="text-xs text-gray-600 bg-white/80 border-2 border-gray-200 rounded-full px-3 py-1 inline-flex items-center gap-2">
+				<i data-lucide="calendar" class="w-3 h-3"></i>
+				<?php echo htmlspecialchars($activeDateLabel); ?>
+			</div>
 		</div>
 	</div>
-	<div class="max-h-[26rem] overflow-y-auto custom-scroll pr-2">
-	<ol class="relative border-l border-gray-200 p-6 space-y-6">
-		<?php foreach ($timeline as $entry): 
-			$action = strtolower((string)$entry['action']);
-			$timelineColor = match(true) {
-				in_array($action, ['delete','remove']) => 'bg-red-500',
-				in_array($action, ['update','edit','modify']) => 'bg-amber-500',
-				in_array($action, ['create','add','insert']) => 'bg-green-500',
-				default => 'bg-blue-500',
-			};
-			$sentence = $formatDetailSentence($entry['details'] ?? '');
-		?>
-		<li class="pl-6">
-			<span class="absolute -left-1.5 mt-1 w-3 h-3 rounded-full <?php echo $timelineColor; ?>"></span>
-			<div class="flex flex-col gap-1">
-				<div class="flex flex-wrap items-center justify-between gap-2">
-					<p class="font-semibold text-gray-900"><?php echo htmlspecialchars($entry['action']); ?> on <?php echo htmlspecialchars($entry['module']); ?></p>
-					<span class="text-xs text-gray-500 font-mono"><?php echo htmlspecialchars(date('M j, Y g:i A', strtotime((string)$entry['timestamp']))); ?></span>
-				</div>
-				<p class="text-sm text-gray-600">By <?php echo htmlspecialchars($entry['user_name'] ?? (string)($entry['user_id'] ?? 'System')); ?></p>
-				<?php if (!empty($sentence)): ?>
-				<p class="text-xs text-gray-500">Details: <?php echo htmlspecialchars($sentence); ?></p>
-				<?php endif; ?>
-			</div>
-		</li>
-		<?php endforeach; ?>
-	</ol>
+	<div class="overflow-x-auto">
+		<div class="max-h-[26rem] overflow-y-auto custom-scroll">
+			<table class="w-full text-sm min-w-[600px]">
+				<thead class="bg-gray-50 sticky top-0">
+					<tr>
+						<th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-700">Action</th>
+						<th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-700">Module</th>
+						<th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-700">User</th>
+						<th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-700">Timestamp</th>
+						<th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-700">Details</th>
+					</tr>
+				</thead>
+				<tbody class="divide-y divide-gray-200">
+					<?php foreach ($timeline as $entry): 
+						$action = strtolower((string)$entry['action']);
+						$actionClass = match(true) {
+							in_array($action, ['delete','remove']) => 'bg-red-100 text-red-800 border-red-200',
+							in_array($action, ['update','edit','modify']) => 'bg-amber-100 text-amber-800 border-amber-200',
+							in_array($action, ['create','add','insert']) => 'bg-[#008000]/10 text-[#008000] border-[#008000]/20',
+							default => 'bg-blue-100 text-blue-800 border-blue-200',
+						};
+						$actionIcon = match(true) {
+							in_array($action, ['create','add','insert']) => 'plus',
+							in_array($action, ['update','edit','modify']) => 'edit',
+							in_array($action, ['delete','remove']) => 'trash-2',
+							default => 'activity',
+						};
+						$sentence = $formatDetailSentence($entry['details'] ?? '');
+					?>
+					<tr class="hover:bg-gray-50 transition-colors">
+						<td class="px-4 sm:px-6 py-4">
+							<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold border <?php echo $actionClass; ?>">
+								<i data-lucide="<?php echo $actionIcon; ?>" class="w-3 h-3"></i>
+								<?php echo htmlspecialchars($entry['action']); ?>
+							</span>
+						</td>
+						<td class="px-4 sm:px-6 py-4">
+							<span class="inline-flex items-center gap-1 px-2 py-1 bg-[#008000]/10 text-[#008000] rounded-lg text-xs font-semibold border border-[#008000]/20">
+								<i data-lucide="layers" class="w-3 h-3"></i>
+								<?php echo htmlspecialchars($entry['module']); ?>
+							</span>
+						</td>
+						<td class="px-4 sm:px-6 py-4">
+							<div class="flex items-center gap-2">
+								<div class="w-8 h-8 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
+									<span class="text-xs font-semibold text-[#008000]"><?php echo strtoupper(substr($entry['user_name'] ?? 'U', 0, 2)); ?></span>
+								</div>
+								<span class="font-medium text-gray-900 text-xs sm:text-sm"><?php echo htmlspecialchars($entry['user_name'] ?? (string)($entry['user_id'] ?? 'System')); ?></span>
+							</div>
+						</td>
+						<td class="px-4 sm:px-6 py-4">
+							<div class="flex items-center gap-2">
+								<i data-lucide="clock" class="w-4 h-4 text-gray-400"></i>
+								<span class="text-gray-600 font-mono text-xs"><?php echo htmlspecialchars(date('M j, Y g:i A', strtotime((string)$entry['timestamp']))); ?></span>
+							</div>
+						</td>
+						<td class="px-4 sm:px-6 py-4">
+							<?php if (!empty($sentence)): ?>
+								<p class="text-xs text-gray-600 max-w-xs truncate" title="<?php echo htmlspecialchars($sentence); ?>"><?php echo htmlspecialchars($sentence); ?></p>
+							<?php else: ?>
+								<span class="text-gray-400 text-xs">No details</span>
+							<?php endif; ?>
+						</td>
+					</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
 	</div>
 </div>
 <?php endif; ?>
 
 <!-- Filters Section -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
-	<div class="bg-gradient-to-r from-slate-50 to-gray-50 px-4 sm:px-6 py-4 border-b">
-		<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-			<i data-lucide="filter" class="w-5 h-5 text-slate-600"></i>
-			Audit Filters
-		</h2>
-		<p class="text-sm text-gray-600 mt-1">Filter audit logs by user, module, and date range</p>
+<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 mb-6 sm:mb-8 overflow-hidden">
+	<div class="bg-gradient-to-r from-[#008000]/10 via-[#00A86B]/5 to-[#008000]/10 px-4 sm:px-6 py-4 border-b border-gray-200/60">
+		<div class="flex items-center gap-3">
+			<div class="w-10 h-10 bg-[#008000]/20 rounded-xl flex items-center justify-center border border-[#008000]/30">
+				<i data-lucide="filter" class="w-5 h-5 text-[#008000]"></i>
+			</div>
+			<div>
+				<h2 class="text-xl sm:text-2xl font-bold text-gray-900">Audit Filters</h2>
+				<p class="text-xs sm:text-sm text-gray-600 mt-0.5">Filter audit logs by user, module, and date range</p>
+			</div>
+		</div>
 	</div>
 	
 	<form method="get" class="p-4 sm:p-6 space-y-6">
@@ -202,7 +251,7 @@ foreach ($logs as $log) {
 			<!-- User -->
 			<div class="space-y-2 xl:col-span-2">
 				<label class="block text-sm font-medium text-gray-700">User</label>
-				<select name="user_id" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors">
+				<select name="user_id" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors">
 					<option value="">All users</option>
 					<?php foreach ($users as $user): ?>
 						<option value="<?php echo (int)$user['id']; ?>" <?php echo ((int)($filters['user_id'] ?? 0) === (int)$user['id']) ? 'selected' : ''; ?>>
@@ -215,7 +264,7 @@ foreach ($logs as $log) {
 			<!-- Module -->
 			<div class="space-y-2 xl:col-span-2">
 				<label class="block text-sm font-medium text-gray-700">Module</label>
-				<select name="module" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors">
+				<select name="module" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors">
 					<option value="">All modules</option>
 					<?php foreach ($modules as $moduleName): ?>
 						<option value="<?php echo htmlspecialchars($moduleName); ?>" <?php echo ($filters['module'] ?? '') === $moduleName ? 'selected' : ''; ?>>
@@ -228,25 +277,25 @@ foreach ($logs as $log) {
 			<!-- Date From -->
 			<div class="space-y-2">
 				<label class="block text-sm font-medium text-gray-700">From Date</label>
-				<input type="date" name="date_from" value="<?php echo htmlspecialchars($filters['date_from'] ?? ''); ?>" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors" />
+				<input type="date" name="date_from" value="<?php echo htmlspecialchars($filters['date_from'] ?? ''); ?>" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors" />
 			</div>
 			
 			<!-- Date To -->
 			<div class="space-y-2">
 				<label class="block text-sm font-medium text-gray-700">To Date</label>
-				<input type="date" name="date_to" value="<?php echo htmlspecialchars($filters['date_to'] ?? ''); ?>" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors" />
+				<input type="date" name="date_to" value="<?php echo htmlspecialchars($filters['date_to'] ?? ''); ?>" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors" />
 			</div>
 			
 			<!-- Keyword -->
 			<div class="space-y-2">
 				<label class="block text-sm font-medium text-gray-700">Keyword</label>
-				<input type="text" name="q" value="<?php echo htmlspecialchars($filters['search'] ?? ''); ?>" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors" placeholder="Search action or details" />
+				<input type="text" name="q" value="<?php echo htmlspecialchars($filters['search'] ?? ''); ?>" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors" placeholder="Search action or details" />
 			</div>
 			
 			<!-- Limit -->
 			<div class="space-y-2">
 				<label class="block text-sm font-medium text-gray-700">Show entries</label>
-				<select name="limit" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors">
+				<select name="limit" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors">
 					<?php foreach ([50,100,200,500] as $lim): ?>
 						<option value="<?php echo $lim; ?>" <?php echo ((int)($filters['limit'] ?? 200) === $lim) ? 'selected' : ''; ?>><?php echo $lim; ?></option>
 					<?php endforeach; ?>
@@ -254,11 +303,11 @@ foreach ($logs as $log) {
 			</div>
 		</div>
 		<div class="flex flex-wrap items-center gap-3">
-			<button type="submit" class="inline-flex items-center justify-center gap-2 bg-slate-600 text-white px-5 py-3 rounded-lg hover:bg-slate-700 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-colors">
+			<button type="submit" class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#008000] via-[#00A86B] to-[#008000] text-white px-5 py-3 rounded-xl hover:shadow-lg hover:shadow-[#008000]/30 focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all font-semibold">
 				<i data-lucide="search" class="w-4 h-4"></i>
 				Apply Filters
 			</button>
-			<a href="<?php echo htmlspecialchars($baseUrl); ?>/audit" class="inline-flex items-center gap-2 px-4 py-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">
+			<a href="<?php echo htmlspecialchars($baseUrl); ?>/audit" class="inline-flex items-center gap-2 px-4 py-3 rounded-xl border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-medium">
 				<i data-lucide="rotate-ccw" class="w-4 h-4"></i>
 				Reset
 			</a>
@@ -274,7 +323,7 @@ foreach ($logs as $log) {
 			<?php foreach (['user_id','module','date_from','date_to','search','limit'] as $key): ?>
 				<input type="hidden" name="current[<?php echo $key; ?>]" value="<?php echo htmlspecialchars($filters[$key] ?? ''); ?>">
 			<?php endforeach; ?>
-			<select name="scope" class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-slate-500 focus:border-slate-500">
+			<select name="scope" class="border-2 border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-[#008000] focus:border-[#008000]">
 				<option value="filtered">Only logs matching current filters</option>
 				<option value="all">All audit logs</option>
 			</select>
@@ -287,28 +336,30 @@ foreach ($logs as $log) {
 </div>
 
 <!-- Audit Logs Table -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-	<div class="bg-gradient-to-r from-gray-50 to-gray-100 px-4 sm:px-6 py-4 border-b">
+<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 overflow-hidden">
+	<div class="bg-gradient-to-r from-[#008000]/10 via-[#00A86B]/5 to-[#008000]/10 px-4 sm:px-6 py-4 border-b border-gray-200/60">
 		<div class="flex items-center justify-between">
-			<div>
-				<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-					<i data-lucide="shield-check" class="w-5 h-5 text-gray-600"></i>
-					Audit Logs
-				</h2>
-				<p class="text-sm text-gray-600 mt-1">System activity and user action tracking</p>
+			<div class="flex items-center gap-3">
+				<div class="w-10 h-10 bg-[#008000]/20 rounded-xl flex items-center justify-center border border-[#008000]/30">
+					<i data-lucide="shield-check" class="w-5 h-5 text-[#008000]"></i>
+				</div>
+				<div>
+					<h2 class="text-xl sm:text-2xl font-bold text-gray-900">Audit Logs</h2>
+					<p class="text-xs sm:text-sm text-gray-600 mt-0.5">System activity and user action tracking</p>
+				</div>
 			</div>
-			<div class="flex items-center gap-4">
-				<div class="text-sm text-gray-600">
-					<span class="font-medium"><?php echo count($logs); ?></span> total entries
+			<div class="flex flex-wrap items-center gap-3">
+				<div class="text-xs sm:text-sm text-gray-600">
+					<span class="font-semibold"><?php echo count($logs); ?></span> total entries
 				</div>
 				<?php if (isset($todayLogs) && $todayLogs > 0): ?>
-					<div class="flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+					<div class="flex items-center gap-2 px-3 py-1 bg-[#008000]/10 text-[#008000] rounded-full text-xs sm:text-sm font-semibold border border-[#008000]/20">
 						<i data-lucide="activity" class="w-4 h-4"></i>
 						<?php echo $todayLogs; ?> today
 					</div>
 				<?php endif; ?>
 				<?php if ($limitReached): ?>
-					<div class="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-3 py-1">
+					<div class="text-xs text-amber-700 bg-amber-50 border-2 border-amber-200 rounded-full px-3 py-1">
 						Showing first <?php echo count($logs); ?> results. Refine filters for more.
 					</div>
 				<?php endif; ?>
@@ -340,15 +391,15 @@ foreach ($logs as $log) {
 					
 					<td class="px-6 py-4">
 						<div class="flex items-center gap-2">
-							<div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-								<span class="text-xs font-medium text-gray-600"><?php echo strtoupper(substr($log['user_name'] ?? 'U', 0, 2)); ?></span>
+							<div class="w-8 h-8 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
+								<span class="text-xs font-semibold text-[#008000]"><?php echo strtoupper(substr($log['user_name'] ?? 'U', 0, 2)); ?></span>
 							</div>
 							<span class="font-medium text-gray-900"><?php echo htmlspecialchars($log['user_name'] ?? (string)($log['user_id'] ?? '')); ?></span>
 						</div>
 					</td>
 					
 					<td class="px-6 py-4">
-						<span class="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-medium">
+						<span class="inline-flex items-center gap-1 px-2 py-1 bg-[#008000]/10 text-[#008000] rounded-lg text-xs font-semibold border border-[#008000]/20">
 							<i data-lucide="layers" class="w-3 h-3"></i>
 							<?php echo htmlspecialchars($log['module']); ?>
 						</span>
@@ -416,7 +467,7 @@ foreach ($logs as $log) {
 									</div>
 								<?php endif; ?>
 								<div class="flex flex-wrap items-center gap-2 text-xs">
-									<button type="button" class="detailToggle inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800" data-target="<?php echo $detailsBlockId; ?>">
+									<button type="button" class="detailToggle inline-flex items-center gap-1 text-[#008000] hover:text-[#006a00] font-medium" data-target="<?php echo $detailsBlockId; ?>">
 										<i data-lucide="eye" class="w-3 h-3"></i>
 										View raw
 									</button>
