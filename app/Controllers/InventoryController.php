@@ -36,7 +36,7 @@ class InventoryController extends BaseController
 
 	public function store(): void
 	{
-		Auth::requireRole(['Owner','Manager']);
+		Auth::requireRole(['Owner','Manager','Stock Handler']);
 		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
 			http_response_code(400);
 			echo 'Invalid CSRF token';
@@ -60,7 +60,7 @@ class InventoryController extends BaseController
 
 	public function updateMeta(): void
 	{
-		Auth::requireRole(['Owner','Manager']);
+		Auth::requireRole(['Owner','Manager','Stock Handler']);
 		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
 			http_response_code(400);
 			echo 'Invalid CSRF token';
@@ -79,7 +79,7 @@ class InventoryController extends BaseController
 
     public function deleteIngredient(): void
     {
-        Auth::requireRole(['Owner','Manager']);
+        Auth::requireRole(['Owner','Manager','Stock Handler']);
         if (!Csrf::verify($_POST['csrf_token'] ?? null)) { http_response_code(400); echo 'Invalid CSRF token'; return; }
         $id = (int)($_POST['id'] ?? 0);
         if ($id <= 0) { $this->redirect('/inventory'); }
@@ -135,7 +135,7 @@ class InventoryController extends BaseController
 
 	public function storeSet(): void
 	{
-		Auth::requireRole(['Owner','Manager']);
+		Auth::requireRole(['Owner','Manager','Stock Handler']);
 		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
 			http_response_code(400);
 			echo 'Invalid CSRF token';
@@ -210,7 +210,7 @@ class InventoryController extends BaseController
 
 	public function deleteSet(): void
 	{
-		Auth::requireRole(['Owner','Manager']);
+		Auth::requireRole(['Owner','Manager','Stock Handler']);
 		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
 			http_response_code(400);
 			echo 'Invalid CSRF token';

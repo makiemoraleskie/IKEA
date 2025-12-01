@@ -5,7 +5,7 @@ class PurchaseController extends BaseController
 {
 	public function index(): void
 	{
-		Auth::requireRole(['Purchaser','Manager','Owner']);
+		Auth::requireRole(['Purchaser','Manager','Owner','Stock Handler']);
 		$ingredientModel = new Ingredient();
 		$ingredients = $ingredientModel->all();
         $purchaseModel = new Purchase();
@@ -70,7 +70,7 @@ class PurchaseController extends BaseController
 
 	public function store(): void
 	{
-		Auth::requireRole(['Purchaser','Manager','Owner']);
+		Auth::requireRole(['Purchaser','Manager','Owner','Stock Handler']);
 		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
 			http_response_code(400);
 			echo 'Invalid CSRF token';
@@ -211,7 +211,7 @@ class PurchaseController extends BaseController
 
 	public function markPaid(): void
 	{
-		Auth::requireRole(['Purchaser','Manager','Owner']);
+		Auth::requireRole(['Purchaser','Manager','Owner','Stock Handler']);
 		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
 			http_response_code(400);
 			echo 'Invalid CSRF token';

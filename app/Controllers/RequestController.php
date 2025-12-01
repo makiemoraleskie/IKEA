@@ -128,7 +128,7 @@ class RequestController extends BaseController
 
 	public function approve(): void
 	{
-		Auth::requireRole(['Owner','Manager']);
+		Auth::requireRole(['Owner','Manager','Stock Handler']);
 		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
 			http_response_code(400);
 			echo 'Invalid CSRF token';
@@ -168,7 +168,7 @@ class RequestController extends BaseController
 
 	public function distribute(): void
 	{
-		Auth::requireRole(['Owner','Manager']);
+		Auth::requireRole(['Owner','Manager','Stock Handler']);
 		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
 			http_response_code(400);
 			echo 'Invalid CSRF token';
@@ -181,7 +181,7 @@ class RequestController extends BaseController
 
 	public function prepare(): void
 	{
-		Auth::requireRole(['Owner','Manager']);
+		Auth::requireRole(['Owner','Manager','Stock Handler']);
 		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
 			http_response_code(400);
 			echo 'Invalid CSRF token';
@@ -234,7 +234,7 @@ class RequestController extends BaseController
 
 	public function reject(): void
 	{
-		Auth::requireRole(['Owner','Manager']);
+		Auth::requireRole(['Owner','Manager','Stock Handler']);
 		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
 			http_response_code(400);
 			echo 'Invalid CSRF token';

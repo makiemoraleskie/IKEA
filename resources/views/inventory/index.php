@@ -2,8 +2,8 @@
 $baseUrl = defined('BASE_URL') ? BASE_URL : '';
 $ingredientSets = $ingredientSets ?? [];
 $lowStockGroups = $lowStockGroups ?? [];
-$canManageSets = in_array(Auth::role(), ['Owner','Manager'], true);
-$canManageInventory = in_array(Auth::role(), ['Owner','Manager'], true);
+$canManageSets = in_array(Auth::role(), ['Owner','Manager','Stock Handler'], true);
+$canManageInventory = in_array(Auth::role(), ['Owner','Manager','Stock Handler'], true);
 $supplierFilterOptions = [];
 if (!empty($lowStockGroups)) {
 	foreach ($lowStockGroups as $group) {
@@ -388,7 +388,7 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
 <!-- Add Ingredient Form -->
-<?php if (in_array(Auth::role(), ['Owner','Manager'], true)): ?>
+<?php if (in_array(Auth::role(), ['Owner','Manager','Stock Handler'], true)): ?>
 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
 	<div class="bg-gradient-to-r from-green-50 to-emerald-50 px-4 sm:px-6 py-4 border-b">
 		<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
@@ -791,7 +791,7 @@ document.addEventListener('DOMContentLoaded', function(){
 			<i data-lucide="package-x" class="w-16 h-16 mb-4 text-gray-300"></i>
 			<h3 class="text-lg font-medium text-gray-900 mb-2">No Ingredients Found</h3>
 			<p class="text-sm text-gray-600 mb-4">Start by adding your first ingredient to the inventory</p>
-			<?php if (in_array(Auth::role(), ['Owner','Manager'], true)): ?>
+			<?php if (in_array(Auth::role(), ['Owner','Manager','Stock Handler'], true)): ?>
 				<button onclick="document.querySelector('form').scrollIntoView({behavior: 'smooth'})" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
 					<i data-lucide="plus" class="w-4 h-4"></i>
 					Add First Ingredient

@@ -124,7 +124,7 @@ $ingredientStockMap = $ingredientStock ?? [];
 				</ul>
 				<div class="flex flex-wrap items-center gap-3">
 					<?php $metaItems = htmlspecialchars(json_encode($prepItems, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES), ENT_QUOTES, 'UTF-8'); ?>
-					<?php if (in_array(Auth::role(), ['Owner','Manager'], true)): ?>
+					<?php if (in_array(Auth::role(), ['Owner','Manager','Stock Handler'], true)): ?>
 						<button type="button"
 							class="prepareBatchBtn inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50"
 							data-batch="<?php echo (int)$batch['id']; ?>"
@@ -234,7 +234,7 @@ $ingredientStockMap = $ingredientStock ?? [];
 						</div>
 					</td>
 					<td class="px-6 py-4">
-						<?php if (in_array(Auth::role(), ['Owner','Manager'], true) && $b['status'] === 'Pending'): ?>
+						<?php if (in_array(Auth::role(), ['Owner','Manager','Stock Handler'], true) && $b['status'] === 'Pending'): ?>
 							<div class="flex gap-2">
 								<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests/approve">
 									<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">

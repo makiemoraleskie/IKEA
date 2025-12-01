@@ -113,7 +113,7 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 <?php endif; ?>
 
 <!-- Filters Section -->
-<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+<div class="mb-8 no-print">
 	<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 		<div class="bg-gradient-to-r from-indigo-50 to-blue-50 px-6 py-4 border-b">
 			<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
@@ -196,76 +196,6 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 			</div>
 		</form>
 	</div>
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-		<div class="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b">
-			<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-				<i data-lucide="activity" class="w-5 h-5 text-emerald-600"></i>
-				Consumption Filters
-			</h2>
-			<p class="text-sm text-gray-600 mt-1">Filter ingredient consumption totals.</p>
-		</div>
-		<form method="get" id="consumptionFiltersForm" class="p-6 space-y-6">
-			<?php foreach (['date_from','date_to','supplier','item_id','category','payment_status'] as $key): ?>
-				<input type="hidden" name="p_<?php echo $key; ?>" value="<?php echo htmlspecialchars($purchaseFilters[$key] ?? ''); ?>">
-			<?php endforeach; ?>
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<div class="space-y-2">
-					<label class="block text-sm font-medium text-gray-700">From Date</label>
-					<input type="date" name="c_date_from" value="<?php echo htmlspecialchars($consumptionFilters['date_from']); ?>" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors" />
-				</div>
-				<div class="space-y-2">
-					<label class="block text-sm font-medium text-gray-700">To Date</label>
-					<input type="date" name="c_date_to" value="<?php echo htmlspecialchars($consumptionFilters['date_to']); ?>" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors" />
-				</div>
-				<div class="space-y-2">
-					<label class="block text-sm font-medium text-gray-700">Category</label>
-					<select name="c_category" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors">
-						<option value="">All Categories</option>
-						<?php foreach ($categoriesList as $category): ?>
-							<option value="<?php echo htmlspecialchars($category); ?>" <?php echo ($consumptionFilters['category'] === $category) ? 'selected' : ''; ?>>
-								<?php echo htmlspecialchars($category); ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
-				</div>
-				<div class="space-y-2">
-					<label class="block text-sm font-medium text-gray-700">Usage Status</label>
-					<select name="c_usage_status" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors">
-						<option value="">All Statuses</option>
-						<?php foreach ($usageStatuses as $value => $label): ?>
-							<option value="<?php echo htmlspecialchars($value); ?>" <?php echo ($consumptionFilters['usage_status'] === $value) ? 'selected' : ''; ?>>
-								<?php echo htmlspecialchars($label); ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
-				</div>
-			</div>
-			<div class="flex flex-col gap-3 lg:flex-row lg:items-center">
-				<button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 text-white px-4 py-3 rounded-lg hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors">
-					<i data-lucide="search" class="w-4 h-4"></i>
-					Apply Filters
-				</button>
-				<div class="w-full">
-					<label class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">Export As</label>
-					<div class="relative">
-						<select id="consumptionExportSelect" class="w-full appearance-none border border-gray-300 rounded-lg px-4 py-3 pr-10 bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm font-medium text-gray-700">
-							<option value="" selected disabled>Select format</option>
-							<option value="pdf">PDF</option>
-							<option value="excel">Excel (.xls)</option>
-							<option value="csv">CSV</option>
-						</select>
-						<span class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-500">
-							<i data-lucide="chevron-down" class="w-4 h-4"></i>
-						</span>
-					</div>
-				</div>
-				<button type="button" id="consumptionPrintBtn" class="w-full inline-flex items-center justify-center gap-2 bg-slate-700 text-white px-4 py-3 rounded-lg hover:bg-slate-800 focus:ring-2 focus:ring-slate-600 focus:ring-offset-2 transition-colors">
-					<i data-lucide="printer" class="w-4 h-4"></i>
-					Print Consumption
-				</button>
-			</div>
-		</form>
-	</div>
 </div>
 
 <?php else: ?>
@@ -276,7 +206,7 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 
 <?php if (!empty($sectionsEnabled['consumption'])): ?>
 	<!-- Consumption Filters Section -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8 overflow-hidden print-hidden">
+	<div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8 overflow-hidden no-print">
 		<div class="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b">
 			<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
 				<i data-lucide="activity" class="w-5 h-5 text-emerald-600"></i>
@@ -350,6 +280,90 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 	<div class="bg-white rounded-xl border border-dashed border-gray-300 p-6 text-sm text-gray-600">
 		Consumption reporting is currently disabled by an administrator.
 	</div>
+<?php endif; ?>
+
+<!-- Purchase Details Table -->
+<?php if (!empty($sectionsEnabled['purchase'])): ?>
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mt-8">
+	<div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b">
+		<div class="flex items-center justify-between">
+			<div>
+				<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+					<i data-lucide="clipboard-list" class="w-5 h-5 text-gray-600"></i>
+					Purchase Details
+				</h2>
+				<p class="text-sm text-gray-600 mt-1">Detailed purchase transaction data</p>
+			</div>
+			<div class="text-sm text-gray-600">
+				<span class="font-medium"><?php echo count($purchases); ?></span> transactions
+			</div>
+		</div>
+	</div>
+	
+	<div class="overflow-x-auto">
+		<table class="w-full text-sm">
+			<thead class="bg-gray-50">
+				<tr>
+					<th class="text-left px-6 py-3 font-medium text-gray-700">Date</th>
+					<th class="text-left px-6 py-3 font-medium text-gray-700">Item</th>
+					<th class="text-left px-6 py-3 font-medium text-gray-700">Supplier</th>
+					<th class="text-left px-6 py-3 font-medium text-gray-700">Quantity</th>
+					<?php if ($canViewCosts): ?>
+					<th class="text-left px-6 py-3 font-medium text-gray-700">Cost</th>
+					<?php endif; ?>
+				</tr>
+			</thead>
+			<tbody class="divide-y divide-gray-200">
+				<?php foreach ($purchases as $p): ?>
+				<tr class="hover:bg-gray-50 transition-colors">
+					<td class="px-6 py-4">
+						<div class="flex items-center gap-2">
+							<i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+							<span class="text-gray-600"><?php echo htmlspecialchars($p['date_purchased']); ?></span>
+						</div>
+					</td>
+					
+					<td class="px-6 py-4">
+						<div class="flex items-center gap-3">
+							<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+								<i data-lucide="package" class="w-4 h-4 text-blue-600"></i>
+							</div>
+							<span class="font-medium text-gray-900"><?php echo htmlspecialchars($p['item_name']); ?></span>
+						</div>
+					</td>
+					
+					<td class="px-6 py-4">
+						<span class="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-medium">
+							<i data-lucide="truck" class="w-3 h-3"></i>
+							<?php echo htmlspecialchars($p['supplier']); ?>
+						</span>
+					</td>
+					
+					<td class="px-6 py-4">
+						<span class="font-semibold text-gray-900"><?php echo htmlspecialchars($p['quantity']); ?></span>
+					</td>
+					
+					<?php if ($canViewCosts): ?>
+					<td class="px-6 py-4">
+						<div class="flex items-center gap-1">
+							<span class="text-lg font-bold text-gray-900">₱<?php echo number_format((float)$p['cost'], 2); ?></span>
+						</div>
+					</td>
+					<?php endif; ?>
+				</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
+		
+		<?php if (empty($purchases)): ?>
+		<div class="flex flex-col items-center justify-center py-12 text-gray-500">
+			<i data-lucide="clipboard-x" class="w-16 h-16 mb-4 text-gray-300"></i>
+			<h3 class="text-lg font-medium text-gray-900 mb-2">No Data Found</h3>
+			<p class="text-sm text-gray-600 mb-4">Try adjusting your filters to see purchase data</p>
+		</div>
+		<?php endif; ?>
+	</div>
+</div>
 <?php endif; ?>
 </section>
 
@@ -434,91 +448,9 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 <!-- Reports Content -->
 <?php if (!empty($sectionsEnabled['purchase'])): ?>
 <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
-	<!-- Purchases Table -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-		<div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b">
-			<div class="flex items-center justify-between">
-				<div>
-					<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-						<i data-lucide="clipboard-list" class="w-5 h-5 text-gray-600"></i>
-						Purchase Details
-					</h2>
-					<p class="text-sm text-gray-600 mt-1">Detailed purchase transaction data</p>
-				</div>
-				<div class="text-sm text-gray-600">
-					<span class="font-medium"><?php echo count($purchases); ?></span> transactions
-				</div>
-			</div>
-		</div>
-		
-		<div class="overflow-x-auto">
-			<table class="w-full text-sm">
-				<thead class="bg-gray-50">
-					<tr>
-						<th class="text-left px-6 py-3 font-medium text-gray-700">Date</th>
-						<th class="text-left px-6 py-3 font-medium text-gray-700">Item</th>
-						<th class="text-left px-6 py-3 font-medium text-gray-700">Supplier</th>
-						<th class="text-left px-6 py-3 font-medium text-gray-700">Quantity</th>
-						<?php if ($canViewCosts): ?>
-						<th class="text-left px-6 py-3 font-medium text-gray-700">Cost</th>
-						<?php endif; ?>
-					</tr>
-				</thead>
-				<tbody class="divide-y divide-gray-200">
-					<?php foreach ($purchases as $p): ?>
-					<tr class="hover:bg-gray-50 transition-colors">
-						<td class="px-6 py-4">
-							<div class="flex items-center gap-2">
-								<i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
-								<span class="text-gray-600"><?php echo htmlspecialchars($p['date_purchased']); ?></span>
-							</div>
-						</td>
-						
-						<td class="px-6 py-4">
-							<div class="flex items-center gap-3">
-								<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-									<i data-lucide="package" class="w-4 h-4 text-blue-600"></i>
-								</div>
-								<span class="font-medium text-gray-900"><?php echo htmlspecialchars($p['item_name']); ?></span>
-							</div>
-						</td>
-						
-						<td class="px-6 py-4">
-							<span class="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-medium">
-								<i data-lucide="truck" class="w-3 h-3"></i>
-								<?php echo htmlspecialchars($p['supplier']); ?>
-							</span>
-						</td>
-						
-						<td class="px-6 py-4">
-							<span class="font-semibold text-gray-900"><?php echo htmlspecialchars($p['quantity']); ?></span>
-						</td>
-						
-						<?php if ($canViewCosts): ?>
-						<td class="px-6 py-4">
-							<div class="flex items-center gap-1">
-								<span class="text-lg font-bold text-gray-900">₱<?php echo number_format((float)$p['cost'], 2); ?></span>
-							</div>
-						</td>
-						<?php endif; ?>
-					</tr>
-					<?php endforeach; ?>
-				</tbody>
-			</table>
-			
-			<?php if (empty($purchases)): ?>
-			<div class="flex flex-col items-center justify-center py-12 text-gray-500">
-				<i data-lucide="clipboard-x" class="w-16 h-16 mb-4 text-gray-300"></i>
-				<h3 class="text-lg font-medium text-gray-900 mb-2">No Data Found</h3>
-				<p class="text-sm text-gray-600 mb-4">Try adjusting your filters to see purchase data</p>
-			</div>
-			<?php endif; ?>
-		</div>
-	</div>
-	
 	<!-- Daily Spend Chart -->
 	<?php if ($canViewCosts): ?>
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+	<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden no-print">
 		<div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b">
 			<div class="flex items-center justify-between">
 				<div>
@@ -604,18 +536,87 @@ const setupPrint = (buttonId, sectionId, title) => {
 	button.addEventListener('click', () => {
 		const win = window.open('', '_blank', 'width=900,height=700');
 		if (!win) { return; }
+		
+		// Clone the section to avoid modifying the original
+		const clone = section.cloneNode(true);
+		
+		// Remove all elements with no-print class
+		const noPrintElements = clone.querySelectorAll('.no-print');
+		noPrintElements.forEach(el => el.remove());
+		
+		// Remove forms, buttons, and interactive elements
+		const forms = clone.querySelectorAll('form');
+		forms.forEach(form => {
+			const parent = form.closest('.bg-white.rounded-xl, .grid');
+			if (parent) parent.remove();
+		});
+		
+		// Remove charts
+		const charts = clone.querySelectorAll('canvas');
+		charts.forEach(canvas => {
+			const parent = canvas.closest('.bg-white.rounded-xl');
+			if (parent) parent.remove();
+		});
+		
+		// Remove icons (lucide icons won't render in print)
+		const icons = clone.querySelectorAll('[data-lucide], i[class*="lucide"]');
+		icons.forEach(icon => icon.remove());
+		
+		// Clean up summary cards styling
+		const summaryGrids = clone.querySelectorAll('.grid.grid-cols-1');
+		summaryGrids.forEach(grid => {
+			if (grid.querySelector('.text-2xl')) {
+				grid.style.display = 'flex';
+				grid.style.gap = '12px';
+				grid.style.marginBottom = '20px';
+				grid.style.flexWrap = 'wrap';
+			}
+		});
+		
+		// Get the cleaned HTML
+		const content = clone.innerHTML;
+		
 		win.document.write(`<html><head><title>${title}</title>
 			<style>
-				body { font-family: Arial, sans-serif; padding: 24px; color: #1f2937; }
-				h1 { font-size: 20px; margin-bottom: 16px; }
-				table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
-				th, td { border: 1px solid #e5e7eb; padding: 8px 10px; text-align: left; }
-				th { background: #f3f4f6; }
+				@page { margin: 1.5cm; }
+				body { font-family: Arial, sans-serif; padding: 20px; color: #1f2937; font-size: 12px; line-height: 1.5; }
+				h1 { font-size: 24px; margin: 0 0 8px 0; color: #1d4ed8; font-weight: bold; }
+				h2 { font-size: 18px; margin: 20px 0 10px 0; color: #374151; font-weight: 600; }
+				.grid { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+				.bg-white { background: white !important; border: 1px solid #e5e7eb !important; border-radius: 8px !important; padding: 16px !important; margin-bottom: 12px; }
+				.bg-white .flex { display: flex; align-items: center; }
+				table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 11px; }
+				th, td { border: 1px solid #e5e7eb; padding: 10px 12px; text-align: left; }
+				th { background: #f3f4f6 !important; font-weight: 600; font-size: 11px; }
+				.text-2xl { font-size: 20px !important; font-weight: bold; }
+				.text-sm { font-size: 11px !important; }
+				.text-lg { font-size: 14px !important; }
+				.text-gray-600 { color: #4b5563 !important; }
+				.text-gray-900 { color: #111827 !important; }
+				.text-green-600 { color: #059669 !important; }
+				.text-purple-600 { color: #9333ea !important; }
+				.text-orange-600 { color: #ea580c !important; }
+				.text-blue-600 { color: #2563eb !important; }
+				.rounded-xl { border-radius: 8px !important; }
+				.shadow-sm { box-shadow: none !important; }
+				.overflow-x-auto { overflow: visible !important; }
+				.no-print { display: none !important; }
+				@media print {
+					body { padding: 10px; }
+					.bg-white { page-break-inside: avoid; margin-bottom: 10px; }
+					table { page-break-inside: auto; }
+					tr { page-break-inside: avoid; page-break-after: auto; }
+					thead { display: table-header-group; }
+				}
 			</style>
-		</head><body><h1>${title}</h1>${section.innerHTML}</body></html>`);
+		</head><body>
+			<h1>${title}</h1>
+			<p style="font-size: 11px; color: #6b7280; margin-bottom: 20px;">Generated on ${new Date().toLocaleString()}</p>
+			${content}
+		</body></html>`);
 		win.document.close();
 		win.focus();
-		win.print();
+		setTimeout(() => win.print(), 250);
 	});
 };
 
