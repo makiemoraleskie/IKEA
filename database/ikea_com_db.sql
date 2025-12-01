@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 28, 2025 at 06:08 AM
+-- Generation Time: Dec 01, 2025 at 05:13 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -286,7 +286,170 @@ INSERT INTO `audit_log` (`id`, `user_id`, `action`, `module`, `timestamp`, `deta
 (243, 3, 'login', 'auth', '2025-11-28 12:18:16', '{\"email\":\"makiemorales2@gmail.com\"}'),
 (244, 3, 'logout', 'auth', '2025-11-28 12:36:08', '[]'),
 (245, 3, 'login', 'auth', '2025-11-28 12:52:31', '{\"email\":\"makiemorales2@gmail.com\"}'),
-(246, 3, 'logout', 'auth', '2025-11-28 13:04:15', '[]');
+(246, 3, 'logout', 'auth', '2025-11-28 13:04:15', '[]'),
+(247, 3, 'login', 'auth', '2025-11-29 22:47:38', '{\"email\":\"makiemorales2@gmail.com\"}'),
+(248, 3, 'create', 'ingredients', '2025-11-29 22:56:48', '{\"ingredient_id\":7,\"name\":\"brown sugar\"}'),
+(249, 3, 'create', 'ingredients', '2025-11-29 22:58:03', '{\"ingredient_id\":8,\"name\":\"white sugar\"}'),
+(250, 3, 'login', 'auth', '2025-11-30 08:02:43', '{\"email\":\"makiemorales2@gmail.com\"}'),
+(251, 3, 'create', 'purchases', '2025-11-30 15:38:10', '{\"purchase_id\":49,\"item_id\":7,\"quantity\":50000,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0}'),
+(252, 3, 'create', 'purchases', '2025-11-30 15:38:10', '{\"purchase_id\":50,\"item_id\":7,\"quantity\":50000,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0}'),
+(253, 3, 'create', 'purchases', '2025-11-30 15:39:15', '{\"purchase_id\":51,\"item_id\":8,\"quantity\":50000,\"cost\":2900,\"payment_type\":\"Card\",\"base_amount\":0}'),
+(254, 3, 'create', 'purchases', '2025-11-30 15:40:15', '{\"purchase_id\":52,\"item_id\":7,\"quantity\":50000,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0}'),
+(255, 3, 'create', 'purchases', '2025-11-30 15:40:49', '{\"purchase_id\":53,\"item_id\":8,\"quantity\":50000,\"cost\":2900,\"payment_type\":\"Card\",\"base_amount\":0}'),
+(256, 3, 'create', 'deliveries', '2025-11-30 15:41:15', '{\"delivery_id\":16,\"purchase_id\":53,\"quantity_received\":50000}'),
+(257, 3, 'create', 'deliveries', '2025-11-30 15:41:19', '{\"delivery_id\":17,\"purchase_id\":52,\"quantity_received\":50000}'),
+(258, 3, 'create', 'requests', '2025-11-30 17:37:52', '{\"batch_id\":30,\"summary\":\"balbacua\\r\\nset pack to pack\\r\\n2x rim\"}'),
+(259, 3, 'approve', 'requests', '2025-11-30 17:38:35', '{\"batch_id\":30,\"next_stage\":\"To Prepare\"}'),
+(260, 3, 'prepare', 'requests', '2025-11-30 17:39:52', '{\"batch_id\":30,\"items\":2}'),
+(261, 3, 'distribute', 'requests', '2025-11-30 17:39:52', '{\"batch_id\":30}'),
+(262, 3, 'create', 'requests', '2025-11-30 22:08:54', '{\"batch_id\":31,\"summary\":\"talong\\r\\nokra\\r\\nmani\",\"requester_name\":\"loren\"}'),
+(263, 3, 'logout', 'auth', '2025-11-30 23:28:02', '[]'),
+(264, 3, 'login', 'auth', '2025-11-30 23:28:21', '{\"email\":\"makiemorales2@gmail.com\"}'),
+(265, 3, 'logout', 'auth', '2025-11-30 23:28:45', '[]'),
+(266, 7, 'login', 'auth', '2025-11-30 23:29:05', '{\"email\":\"kitchen@demo.local\"}'),
+(267, 7, 'logout', 'auth', '2025-11-30 23:29:23', '[]'),
+(268, 3, 'login', 'auth', '2025-11-30 23:30:40', '{\"email\":\"makiemorales2@gmail.com\"}'),
+(269, 3, 'logout', 'auth', '2025-11-30 23:32:45', '[]'),
+(270, 3, 'login', 'auth', '2025-12-01 08:41:32', '{\"email\":\"makiemorales2@gmail.com\"}'),
+(271, 3, 'logout', 'auth', '2025-12-01 08:41:41', '[]'),
+(272, 3, 'login', 'auth', '2025-12-01 08:41:48', '{\"email\":\"makiemorales2@gmail.com\"}'),
+(273, 3, 'create', 'requests', '2025-12-01 09:43:22', '{\"batch_id\":32,\"summary\":\"set balba\\r\\n2 pack spag\\r\\n5killo flour\",\"requester_name\":\"loren\"}'),
+(274, 3, 'logout', 'auth', '2025-12-01 09:43:52', '[]'),
+(275, 5, 'login', 'auth', '2025-12-01 09:44:08', '{\"email\":\"stock@demo.local\"}'),
+(276, 5, 'logout', 'auth', '2025-12-01 09:45:01', '[]'),
+(277, 3, 'login', 'auth', '2025-12-01 09:45:06', '{\"email\":\"makiemorales2@gmail.com\"}'),
+(278, 3, 'logout', 'auth', '2025-12-01 09:48:15', '[]'),
+(279, 7, 'login', 'auth', '2025-12-01 09:48:28', '{\"email\":\"kitchen@demo.local\"}'),
+(280, 7, 'logout', 'auth', '2025-12-01 09:48:59', '[]'),
+(281, 5, 'login', 'auth', '2025-12-01 09:49:09', '{\"email\":\"stock@demo.local\"}'),
+(282, 5, 'approve', 'requests', '2025-12-01 09:50:33', '{\"batch_id\":32,\"next_stage\":\"To Prepare\"}'),
+(283, 5, 'logout', 'auth', '2025-12-01 09:50:47', '[]'),
+(284, 7, 'login', 'auth', '2025-12-01 09:50:59', '{\"email\":\"kitchen@demo.local\"}'),
+(285, 7, 'create', 'requests', '2025-12-01 09:51:35', '{\"batch_id\":33,\"summary\":\"2xdono\\r\\n3x\\r\\n10x\",\"requester_name\":\"makie\"}'),
+(286, 7, 'logout', 'auth', '2025-12-01 09:54:17', '[]'),
+(287, 3, 'login', 'auth', '2025-12-01 09:54:25', '{\"email\":\"makiemorales2@gmail.com\"}'),
+(288, 3, 'logout', 'auth', '2025-12-01 09:54:29', '[]'),
+(289, 5, 'login', 'auth', '2025-12-01 09:54:44', '{\"email\":\"stock@demo.local\"}'),
+(290, 5, 'approve', 'requests', '2025-12-01 09:56:14', '{\"batch_id\":33,\"next_stage\":\"To Prepare\"}'),
+(291, 5, 'logout', 'auth', '2025-12-01 09:57:03', '[]'),
+(292, 7, 'login', 'auth', '2025-12-01 09:57:14', '{\"email\":\"kitchen@demo.local\"}'),
+(293, 7, 'logout', 'auth', '2025-12-01 09:57:31', '[]'),
+(294, 5, 'login', 'auth', '2025-12-01 09:59:24', '{\"email\":\"stock@demo.local\"}'),
+(295, 5, 'logout', 'auth', '2025-12-01 10:00:34', '[]'),
+(296, 3, 'login', 'auth', '2025-12-01 10:00:41', '{\"email\":\"makiemorales2@gmail.com\"}'),
+(297, 3, 'logout', 'auth', '2025-12-01 10:21:56', '[]'),
+(298, 5, 'login', 'auth', '2025-12-01 10:22:01', '{\"email\":\"stock@demo.local\"}'),
+(299, 5, 'prepare', 'requests', '2025-12-01 10:22:37', '{\"batch_id\":33,\"items\":2}'),
+(300, 5, 'distribute', 'requests', '2025-12-01 10:22:37', '{\"batch_id\":33}'),
+(301, 3, 'login', 'auth', '2025-12-01 10:27:05', '{\"email\":\"makiemorales2@gmail.com\"}'),
+(302, 3, 'logout', 'auth', '2025-12-01 10:32:40', '[]'),
+(303, 5, 'login', 'auth', '2025-12-01 10:32:50', '{\"email\":\"stock@demo.local\"}'),
+(304, 5, 'logout', 'auth', '2025-12-01 10:34:01', '[]'),
+(305, 7, 'login', 'auth', '2025-12-01 10:36:12', '{\"email\":\"kitchen@demo.local\"}'),
+(306, 5, 'login', 'auth', '2025-12-01 10:40:35', '{\"email\":\"stock@demo.local\"}'),
+(307, 7, 'logout', 'auth', '2025-12-01 10:42:18', '[]'),
+(308, 5, 'login', 'auth', '2025-12-01 10:42:26', '{\"email\":\"stock@demo.local\"}'),
+(309, 7, 'login', 'auth', '2025-12-01 11:17:03', '{\"email\":\"kitchen@demo.local\"}'),
+(310, 7, 'create', 'requests', '2025-12-01 11:17:43', '{\"batch_id\":34,\"summary\":\"2 set pack of jetpack\\r\\n2 set balaba\\r\\n5 kg flour\",\"requester_name\":\"loren\"}'),
+(311, 5, 'login', 'auth', '2025-12-01 11:18:40', '{\"email\":\"stock@demo.local\"}'),
+(312, 5, 'approve', 'requests', '2025-12-01 11:20:32', '{\"batch_id\":34,\"next_stage\":\"To Prepare\"}'),
+(313, 5, 'prepare', 'requests', '2025-12-01 11:26:01', '{\"batch_id\":34,\"items\":2}'),
+(314, 5, 'logout', 'auth', '2025-12-01 11:45:37', '[]'),
+(315, 6, 'login', 'auth', '2025-12-01 11:45:48', '{\"email\":\"purchaser@demo.local\"}'),
+(316, 6, 'create', 'purchases', '2025-12-01 11:48:03', '{\"purchase_id\":54,\"item_id\":7,\"quantity\":50000,\"cost\":2800,\"payment_type\":\"Cash\",\"base_amount\":6000}'),
+(317, 6, 'create', 'purchases', '2025-12-01 11:48:03', '{\"purchase_id\":55,\"item_id\":8,\"quantity\":50000,\"cost\":2900,\"payment_type\":\"Cash\",\"base_amount\":6000}'),
+(318, 7, 'logout', 'auth', '2025-12-01 11:49:57', '[]'),
+(319, 3, 'login', 'auth', '2025-12-01 11:50:02', '{\"email\":\"makiemorales2@gmail.com\"}'),
+(320, 6, 'logout', 'auth', '2025-12-01 12:01:26', '[]'),
+(321, 5, 'login', 'auth', '2025-12-01 12:01:40', '{\"email\":\"stock@demo.local\"}'),
+(322, 5, 'create', 'deliveries', '2025-12-01 12:04:49', '{\"delivery_id\":18,\"purchase_id\":54,\"quantity_received\":50000}'),
+(323, 5, 'create', 'deliveries', '2025-12-01 12:04:49', '{\"delivery_id\":19,\"purchase_id\":55,\"quantity_received\":50000}'),
+(324, 5, 'create', 'ingredients', '2025-12-01 12:21:50', '{\"ingredient_id\":9,\"name\":\"flour\"}'),
+(325, 5, 'prepare', 'requests', '2025-12-01 12:25:30', '{\"batch_id\":34,\"items\":2}'),
+(326, 5, 'distribute', 'requests', '2025-12-01 12:25:30', '{\"batch_id\":34}'),
+(327, 3, 'logout', 'auth', '2025-12-01 12:25:37', '[]'),
+(328, 7, 'login', 'auth', '2025-12-01 12:25:51', '{\"email\":\"kitchen@demo.local\"}'),
+(329, 7, 'logout', 'auth', '2025-12-01 12:27:10', '[]'),
+(330, 5, 'create', 'ingredients', '2025-12-01 12:48:12', '{\"ingredient_id\":10,\"name\":\"nature spring\"}'),
+(331, 5, 'create', 'purchases', '2025-12-01 12:48:42', '{\"purchase_id\":56,\"item_id\":10,\"quantity\":24,\"cost\":400,\"payment_type\":\"Card\",\"base_amount\":0}'),
+(332, 5, 'create', 'ingredients', '2025-12-01 13:04:54', '{\"ingredient_id\":11,\"name\":\"Nature Spring (L)\"}'),
+(333, 5, 'logout', 'auth', '2025-12-01 13:31:00', '[]'),
+(334, 5, 'login', 'auth', '2025-12-01 13:32:17', '{\"email\":\"stock@demo.local\"}'),
+(335, 5, 'create', 'ingredients', '2025-12-01 13:33:55', '{\"ingredient_id\":12,\"name\":\"sugar\",\"unit\":\"sack\",\"auto_created\":true}'),
+(336, 5, 'create', 'purchases', '2025-12-01 13:33:55', '{\"purchase_id\":57,\"item_id\":12,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0}'),
+(337, 5, 'create', 'ingredients', '2025-12-01 13:33:55', '{\"ingredient_id\":13,\"name\":\"white sugar\",\"unit\":\"sack\",\"auto_created\":true}'),
+(338, 5, 'create', 'purchases', '2025-12-01 13:33:55', '{\"purchase_id\":58,\"item_id\":13,\"quantity\":1,\"cost\":2900,\"payment_type\":\"Card\",\"base_amount\":0}'),
+(339, 5, 'create', 'ingredients', '2025-12-01 13:33:55', '{\"ingredient_id\":14,\"name\":\"flour\",\"unit\":\"kg\",\"auto_created\":true}'),
+(340, 5, 'create', 'purchases', '2025-12-01 13:33:55', '{\"purchase_id\":59,\"item_id\":14,\"quantity\":25,\"cost\":1200,\"payment_type\":\"Card\",\"base_amount\":0}'),
+(341, 6, 'login', 'auth', '2025-12-01 13:35:12', '{\"email\":\"purchaser@demo.local\"}'),
+(342, 5, 'create', 'ingredients', '2025-12-01 13:53:45', '{\"ingredient_id\":15,\"name\":\"brown sugar\"}'),
+(343, 5, 'create', 'purchases', '2025-12-01 14:02:54', '{\"purchase_id\":60,\"item_id\":15,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0}'),
+(344, 5, 'create', 'purchases', '2025-12-01 14:15:01', '{\"purchase_id\":61,\"item_id\":15,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"sack\",\"purchase_quantity\":1}'),
+(345, 5, 'create', 'purchases', '2025-12-01 14:25:39', '{\"purchase_id\":62,\"item_id\":15,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"sack\",\"purchase_quantity\":1}'),
+(346, 6, 'create', 'purchases', '2025-12-01 14:32:05', '{\"purchase_id\":63,\"item_id\":15,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"sack\",\"purchase_quantity\":1}'),
+(347, 5, 'create', 'deliveries', '2025-12-01 14:40:11', '{\"delivery_id\":20,\"purchase_id\":63,\"quantity_received\":1}'),
+(348, 5, 'create', 'deliveries', '2025-12-01 14:48:30', '{\"delivery_id\":21,\"purchase_id\":63,\"quantity_received\":1}'),
+(349, 5, 'create', 'deliveries', '2025-12-01 15:05:13', '{\"delivery_id\":22,\"purchase_id\":63,\"quantity_received\":50000}'),
+(350, 5, 'create', 'ingredients', '2025-12-01 15:10:38', '{\"ingredient_id\":16,\"name\":\"brown sugar\",\"unit\":\"sack\",\"auto_created\":true}'),
+(351, 5, 'create', 'purchases', '2025-12-01 15:10:38', '{\"purchase_id\":64,\"item_id\":16,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"sack\",\"purchase_quantity\":1}'),
+(352, 6, 'logout', 'auth', '2025-12-01 15:17:32', '[]'),
+(353, 7, 'login', 'auth', '2025-12-01 15:17:52', '{\"email\":\"kitchen@demo.local\"}'),
+(354, 7, 'create', 'requests', '2025-12-01 15:18:42', '{\"batch_id\":35,\"summary\":\"2 set pack of jetpack\\r\\n2 set balba\\r\\n5 kg flour\",\"requester_name\":\"loren\"}'),
+(355, 5, 'approve', 'requests', '2025-12-01 15:19:18', '{\"batch_id\":35,\"next_stage\":\"To Prepare\"}'),
+(356, 5, 'create', 'deliveries', '2025-12-01 15:30:10', '{\"delivery_id\":23,\"purchase_id\":64,\"quantity_received\":50000}'),
+(357, 5, 'create', 'ingredients', '2025-12-01 16:02:33', '{\"ingredient_id\":17,\"name\":\"magic sarap (L)\"}'),
+(358, 5, 'create', 'ingredients', '2025-12-01 16:07:06', '{\"ingredient_id\":18,\"name\":\"sugar\",\"unit\":\"sack\",\"auto_created\":true}'),
+(359, 5, 'create', 'purchases', '2025-12-01 16:07:06', '{\"purchase_id\":65,\"item_id\":18,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"sack\",\"purchase_quantity\":1}'),
+(360, 5, 'create', 'ingredients', '2025-12-01 16:11:32', '{\"ingredient_id\":19,\"name\":\"brown sugar\"}'),
+(361, 5, 'create', 'purchases', '2025-12-01 16:15:08', '{\"purchase_id\":66,\"item_id\":19,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"sack\",\"purchase_quantity\":1}'),
+(362, 5, 'create', 'deliveries', '2025-12-01 16:16:02', '{\"delivery_id\":24,\"purchase_id\":66,\"quantity_received\":50000}'),
+(363, 7, 'logout', 'auth', '2025-12-01 16:30:28', '[]'),
+(364, 5, 'login', 'auth', '2025-12-01 16:30:56', '{\"email\":\"stock@demo.local\"}'),
+(365, 5, 'create', 'ingredients', '2025-12-01 16:48:18', '{\"ingredient_id\":20,\"name\":\"lebrown sugar\",\"unit\":\"sack\",\"auto_created\":true}'),
+(366, 5, 'create', 'purchases', '2025-12-01 16:48:18', '{\"purchase_id\":67,\"item_id\":20,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"sack\",\"purchase_quantity\":1}'),
+(367, 5, 'create', 'ingredients', '2025-12-01 17:38:20', '{\"ingredient_id\":21,\"name\":\"lobrawn\",\"unit\":\"sack\",\"auto_created\":true}'),
+(368, 5, 'create', 'purchases', '2025-12-01 17:38:20', '{\"purchase_id\":68,\"item_id\":21,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"sack\",\"purchase_quantity\":1}'),
+(369, 5, 'create', 'ingredients', '2025-12-01 18:07:15', '{\"ingredient_id\":22,\"name\":\"brown sugar\"}'),
+(370, 5, 'create', 'ingredients', '2025-12-01 18:07:43', '{\"ingredient_id\":23,\"name\":\"lebrown sugar\",\"unit\":\"sack\",\"auto_created\":true}'),
+(371, 5, 'create', 'purchases', '2025-12-01 18:07:43', '{\"purchase_id\":69,\"item_id\":23,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"sack\",\"purchase_quantity\":1}'),
+(372, 5, 'create', 'purchases', '2025-12-01 19:20:55', '{\"purchase_id\":70,\"item_id\":22,\"quantity\":50000,\"auto_created_for_restock\":true}'),
+(373, 5, 'create', 'deliveries', '2025-12-01 19:20:55', '{\"delivery_id\":25,\"purchase_id\":70,\"quantity_received\":50000}'),
+(374, 5, 'create', 'ingredients', '2025-12-01 19:23:09', '{\"ingredient_id\":24,\"name\":\"lebrown\",\"unit\":\"sack\",\"auto_created\":true}'),
+(375, 5, 'create', 'purchases', '2025-12-01 19:23:09', '{\"purchase_id\":71,\"item_id\":24,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"sack\",\"purchase_quantity\":1}'),
+(376, 5, 'create', 'deliveries', '2025-12-01 19:23:57', '{\"delivery_id\":26,\"purchase_id\":71,\"quantity_received\":50}'),
+(377, 5, 'create', 'ingredients', '2025-12-01 19:30:49', '{\"ingredient_id\":25,\"name\":\"loray sugar\",\"unit\":\"sack\",\"auto_created\":true}'),
+(378, 5, 'create', 'purchases', '2025-12-01 19:30:49', '{\"purchase_id\":72,\"item_id\":25,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"sack\",\"purchase_quantity\":1}'),
+(379, 5, 'create', 'ingredients', '2025-12-01 19:38:14', '{\"ingredient_id\":26,\"name\":\"Brown sugar\"}'),
+(380, 5, 'create', 'ingredients', '2025-12-01 19:38:54', '{\"ingredient_id\":27,\"name\":\"brawn sogar\",\"unit\":\"sack\",\"auto_created\":true}'),
+(381, 5, 'create', 'purchases', '2025-12-01 19:38:54', '{\"purchase_id\":73,\"item_id\":27,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"sack\",\"purchase_quantity\":1}'),
+(382, 5, 'create', 'ingredients', '2025-12-01 19:54:27', '{\"ingredient_id\":28,\"name\":\"brawn sogar\",\"unit\":\"sack\",\"auto_created\":true}'),
+(383, 5, 'create', 'purchases', '2025-12-01 19:54:27', '{\"purchase_id\":74,\"item_id\":28,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"sack\",\"purchase_quantity\":1}'),
+(384, 5, 'create', 'ingredients', '2025-12-01 20:01:23', '{\"ingredient_id\":29,\"name\":\"Brown Sugar\"}'),
+(385, 5, 'create', 'ingredients', '2025-12-01 20:04:06', '{\"ingredient_id\":30,\"name\":\"brawn sogar\",\"unit\":\"sack\",\"auto_created\":true}'),
+(386, 5, 'create', 'purchases', '2025-12-01 20:04:06', '{\"purchase_id\":75,\"item_id\":30,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"sack\",\"purchase_quantity\":1}'),
+(387, 5, 'create', 'ingredients', '2025-12-01 20:12:53', '{\"ingredient_id\":31,\"name\":\"brown sugar\"}'),
+(388, 5, 'create', 'ingredients', '2025-12-01 20:13:20', '{\"ingredient_id\":32,\"name\":\"lownhasd\",\"unit\":\"sack\",\"auto_created\":true}'),
+(389, 5, 'create', 'purchases', '2025-12-01 20:13:20', '{\"purchase_id\":76,\"item_id\":32,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"sack\",\"purchase_quantity\":1}'),
+(390, 5, 'create', 'ingredients', '2025-12-01 20:20:00', '{\"ingredient_id\":33,\"name\":\"asdasdasd\",\"unit\":\"sack\",\"auto_created\":true}'),
+(391, 5, 'create', 'purchases', '2025-12-01 20:20:00', '{\"purchase_id\":77,\"item_id\":33,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"sack\",\"purchase_quantity\":1}'),
+(392, 5, 'create', 'ingredients', '2025-12-01 21:13:56', '{\"ingredient_id\":34,\"name\":\"Brown Sugar\"}'),
+(393, 5, 'create', 'ingredients', '2025-12-01 21:14:20', '{\"ingredient_id\":35,\"name\":\"asdasd\",\"unit\":\"sack\",\"auto_created\":true}'),
+(394, 5, 'create', 'purchases', '2025-12-01 21:14:20', '{\"purchase_id\":78,\"item_id\":35,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"sack\",\"purchase_quantity\":1}'),
+(395, 5, 'create', 'ingredients', '2025-12-01 22:22:37', '{\"ingredient_id\":36,\"name\":\"asdasd\",\"unit\":\"sack\",\"auto_created\":true,\"in_inventory\":false}'),
+(396, 5, 'create', 'purchases', '2025-12-01 22:22:37', '{\"purchase_id\":79,\"item_id\":36,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"sack\",\"purchase_quantity\":1}'),
+(397, 5, 'create', 'purchases', '2025-12-01 22:23:08', '{\"purchase_id\":80,\"item_id\":34,\"quantity\":50000,\"auto_created_for_restock\":true}'),
+(398, 5, 'create', 'deliveries', '2025-12-01 22:23:08', '{\"delivery_id\":27,\"purchase_id\":80,\"quantity_received\":50000}'),
+(399, 5, 'create', 'ingredients', '2025-12-01 22:28:23', '{\"ingredient_id\":37,\"name\":\"balow\",\"unit\":\"sack\",\"auto_created\":true,\"in_inventory\":false}'),
+(400, 5, 'create', 'purchases', '2025-12-01 22:28:23', '{\"purchase_id\":81,\"item_id\":37,\"quantity\":1,\"cost\":2900,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"sack\",\"purchase_quantity\":1}'),
+(401, 5, 'create', 'purchases', '2025-12-01 22:35:26', '{\"purchase_id\":82,\"item_id\":38,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"asdasd\",\"purchase_quantity\":1}'),
+(402, 5, 'create', 'purchases', '2025-12-01 22:55:29', '{\"purchase_id\":83,\"item_id\":38,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"asdasdsadasdsad\",\"purchase_quantity\":1}'),
+(403, 5, 'create', 'purchases', '2025-12-01 22:56:47', '{\"purchase_id\":84,\"item_id\":34,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"asdasdasdsa2222\",\"purchase_quantity\":1}'),
+(404, 5, 'create', 'purchases', '2025-12-01 23:19:50', '{\"purchase_id\":85,\"item_id\":34,\"quantity\":1,\"cost\":2400,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"asdasd (asdasd (sack))\",\"purchase_quantity\":1}'),
+(405, 5, 'create', 'purchases', '2025-12-01 23:25:38', '{\"purchase_id\":86,\"item_id\":34,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"dsfsdf|dsfsdf (sack)\",\"purchase_quantity\":1}'),
+(406, 5, 'create', 'purchases', '2025-12-01 23:31:48', '{\"purchase_id\":87,\"item_id\":34,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"asdasd|sack\",\"purchase_quantity\":1}'),
+(407, 5, 'create', 'deliveries', '2025-12-01 23:59:04', '{\"delivery_id\":28,\"purchase_id\":87,\"quantity_received\":50000}'),
+(408, 5, 'logout', 'auth', '2025-12-02 00:08:56', '[]'),
+(409, 3, 'login', 'auth', '2025-12-02 00:09:07', '{\"email\":\"makiemorales2@gmail.com\"}');
 
 -- --------------------------------------------------------
 
@@ -304,6 +467,13 @@ CREATE TABLE `deliveries` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `deliveries`
+--
+
+INSERT INTO `deliveries` (`id`, `purchase_id`, `quantity_received`, `delivery_status`, `date_received`, `created_at`, `updated_at`) VALUES
+(28, 87, 50000.0000, 'Complete', '2025-12-01 23:59:04', '2025-12-01 15:59:04', '2025-12-01 15:59:04');
+
 -- --------------------------------------------------------
 
 --
@@ -313,14 +483,25 @@ CREATE TABLE `deliveries` (
 CREATE TABLE `ingredients` (
   `id` int(10) UNSIGNED NOT NULL,
   `name` varchar(160) NOT NULL,
+  `category` varchar(120) NOT NULL DEFAULT '',
   `unit` varchar(32) NOT NULL,
   `display_unit` varchar(32) DEFAULT NULL,
   `display_factor` decimal(16,4) NOT NULL DEFAULT 1.0000,
   `quantity` decimal(16,4) NOT NULL DEFAULT 0.0000,
   `reorder_level` decimal(16,4) NOT NULL DEFAULT 0.0000,
+  `preferred_supplier` varchar(160) NOT NULL DEFAULT '',
+  `restock_quantity` decimal(16,4) NOT NULL DEFAULT 0.0000,
+  `in_inventory` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `ingredients`
+--
+
+INSERT INTO `ingredients` (`id`, `name`, `category`, `unit`, `display_unit`, `display_factor`, `quantity`, `reorder_level`, `preferred_supplier`, `restock_quantity`, `in_inventory`, `created_at`, `updated_at`) VALUES
+(34, 'Brown Sugar', '', 'g', NULL, 1000.0000, 100000.0000, 10000.0000, '', 0.0000, 1, '2025-12-01 13:13:56', '2025-12-01 15:59:04');
 
 -- --------------------------------------------------------
 
@@ -365,6 +546,13 @@ CREATE TABLE `notifications` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `notifications`
+--
+
+INSERT INTO `notifications` (`id`, `user_id`, `message`, `link`, `level`, `read_at`, `created_at`) VALUES
+(12, 7, 'Your request #35 has been approved by Stock Handler Demo. Please wait while it is being prepared.', '/requests?batch=35', 'info', NULL, '2025-12-01 07:19:18');
+
 -- --------------------------------------------------------
 
 --
@@ -377,6 +565,8 @@ CREATE TABLE `purchases` (
   `item_id` int(10) UNSIGNED NOT NULL,
   `supplier` varchar(160) NOT NULL,
   `quantity` decimal(16,4) NOT NULL,
+  `purchase_unit` varchar(20) NOT NULL DEFAULT '',
+  `purchase_quantity` decimal(16,4) NOT NULL DEFAULT 0.0000,
   `cost` decimal(16,2) NOT NULL,
   `receipt_url` varchar(255) DEFAULT NULL,
   `payment_status` enum('Paid','Pending') NOT NULL DEFAULT 'Pending',
@@ -387,6 +577,13 @@ CREATE TABLE `purchases` (
   `cash_base_amount` decimal(16,2) DEFAULT NULL,
   `paid_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `purchases`
+--
+
+INSERT INTO `purchases` (`id`, `purchaser_id`, `item_id`, `supplier`, `quantity`, `purchase_unit`, `purchase_quantity`, `cost`, `receipt_url`, `payment_status`, `date_purchased`, `created_at`, `updated_at`, `payment_type`, `cash_base_amount`, `paid_at`) VALUES
+(87, 5, 34, 'simion', 1.0000, 'asdasd|sack', 1.0000, 2800.00, '/public/uploads/8331708be018b2da.jpg', 'Paid', '2025-12-01 23:31:48', '2025-12-01 15:31:48', '2025-12-01 15:31:48', 'Card', 0.00, '2025-12-01 16:31:48');
 
 -- --------------------------------------------------------
 
@@ -420,8 +617,18 @@ CREATE TABLE `request_batches` (
   `date_requested` datetime NOT NULL DEFAULT current_timestamp(),
   `date_approved` datetime DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `custom_requester` varchar(160) NOT NULL DEFAULT '',
+  `custom_ingredients` text DEFAULT NULL,
+  `custom_request_date` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `request_batches`
+--
+
+INSERT INTO `request_batches` (`id`, `staff_id`, `status`, `date_requested`, `date_approved`, `created_at`, `updated_at`, `custom_requester`, `custom_ingredients`, `custom_request_date`) VALUES
+(35, 7, 'To Prepare', '2025-12-01 15:18:42', '2025-12-01 15:19:18', '2025-12-01 07:18:42', '2025-12-01 07:19:18', 'loren', '2 set pack of jetpack\r\n2 set balba\r\n5 kg flour', '2025-12-02');
 
 -- --------------------------------------------------------
 
@@ -436,6 +643,33 @@ CREATE TABLE `request_item_sets` (
   `set_name` varchar(160) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `settings`
+--
+
+CREATE TABLE `settings` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `setting_key` varchar(160) NOT NULL,
+  `setting_value` longtext DEFAULT NULL,
+  `updated_by` int(10) UNSIGNED DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `settings`
+--
+
+INSERT INTO `settings` (`id`, `setting_key`, `setting_value`, `updated_by`, `created_at`, `updated_at`) VALUES
+(1, 'security.cost_hidden_roles', '[\"Kitchen Staff\"]', 3, '2025-11-30 15:26:07', '2025-11-30 15:26:07'),
+(2, 'security.permissions', '{\"Owner\":{\"view_costs\":false,\"view_receipts\":false,\"manage_reports\":false,\"access_backups\":true},\"Manager\":{\"view_costs\":false,\"view_receipts\":false,\"manage_reports\":false,\"access_backups\":true},\"Purchaser\":{\"view_costs\":false,\"view_receipts\":false,\"manage_reports\":false,\"access_backups\":false},\"Stock Handler\":{\"view_costs\":false,\"view_receipts\":false,\"manage_reports\":false,\"access_backups\":false},\"Kitchen Staff\":{\"view_costs\":false,\"view_receipts\":false,\"manage_reports\":false,\"access_backups\":false}}', 3, '2025-11-30 15:26:07', '2025-11-30 15:26:28'),
+(5, 'display.company_name', 'IKEA Commissary System', 3, '2025-11-30 15:27:47', '2025-11-30 15:27:47'),
+(6, 'display.company_tagline', 'Operations Console', 3, '2025-11-30 15:27:47', '2025-11-30 15:27:47'),
+(7, 'display.theme_default', 'system', 3, '2025-11-30 15:27:47', '2025-11-30 15:27:47'),
+(8, 'display.dashboard_widgets', '{\"Owner\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\",\"inventory_value\"],\"Manager\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\",\"inventory_value\"],\"Purchaser\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\"],\"Stock Handler\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\",\"inventory_value\"],\"Kitchen Staff\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\"],\"default\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\",\"inventory_value\"]}', 3, '2025-11-30 15:27:47', '2025-11-30 15:27:47');
 
 -- --------------------------------------------------------
 
@@ -463,6 +697,32 @@ INSERT INTO `users` (`id`, `name`, `role`, `email`, `password_hash`, `created_at
 (5, 'Stock Handler Demo', 'Stock Handler', 'stock@demo.local', '$2y$10$D0S5CYq5CHy/h0u0zrYORelBP0FRYyc9rKx6MLF4J3IGt.nvnJAa2', '2025-10-17 16:44:12', '2025-10-17 16:46:47'),
 (6, 'Purchaser Demo', 'Purchaser', 'purchaser@demo.local', '$2y$10$D0S5CYq5CHy/h0u0zrYORelBP0FRYyc9rKx6MLF4J3IGt.nvnJAa2', '2025-10-17 16:44:12', '2025-10-17 16:46:43'),
 (7, 'Kitchen Staff Demo', 'Kitchen Staff', 'kitchen@demo.local', '$2y$10$D0S5CYq5CHy/h0u0zrYORelBP0FRYyc9rKx6MLF4J3IGt.nvnJAa2', '2025-10-17 16:44:12', '2025-10-17 16:46:37');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_security`
+--
+
+CREATE TABLE `user_security` (
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `session_token` varchar(64) DEFAULT NULL,
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
+  `theme` varchar(16) NOT NULL DEFAULT 'system',
+  `dashboard_widgets` text DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `user_security`
+--
+
+INSERT INTO `user_security` (`user_id`, `session_token`, `status`, `theme`, `dashboard_widgets`, `updated_at`, `created_at`) VALUES
+(3, '0ad1eaa0f56ded7043e647908e15a4a8fdbe4320abd9ffeec1ad6640e2a5231c', 'active', 'light', NULL, '2025-12-01 16:09:07', '2025-11-30 15:28:02'),
+(5, NULL, 'active', 'light', NULL, '2025-12-01 16:08:56', '2025-12-01 01:44:08'),
+(6, NULL, 'active', 'light', NULL, '2025-12-01 07:17:32', '2025-12-01 03:45:48'),
+(7, NULL, 'active', 'light', NULL, '2025-12-01 08:30:28', '2025-11-30 15:29:05');
 
 --
 -- Indexes for dumped tables
@@ -553,11 +813,26 @@ ALTER TABLE `request_item_sets`
   ADD KEY `idx_request_item_sets_name` (`set_name`);
 
 --
+-- Indexes for table `settings`
+--
+ALTER TABLE `settings`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `setting_key` (`setting_key`),
+  ADD KEY `idx_setting_key` (`setting_key`),
+  ADD KEY `fk_settings_user` (`updated_by`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uniq_email` (`email`);
+
+--
+-- Indexes for table `user_security`
+--
+ALTER TABLE `user_security`
+  ADD PRIMARY KEY (`user_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -567,19 +842,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=247;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=410;
 
 --
 -- AUTO_INCREMENT for table `deliveries`
 --
 ALTER TABLE `deliveries`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `ingredients`
 --
 ALTER TABLE `ingredients`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT for table `ingredient_sets`
@@ -597,31 +872,37 @@ ALTER TABLE `ingredient_set_items`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `purchases`
 --
 ALTER TABLE `purchases`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
 
 --
 -- AUTO_INCREMENT for table `requests`
 --
 ALTER TABLE `requests`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
 
 --
 -- AUTO_INCREMENT for table `request_batches`
 --
 ALTER TABLE `request_batches`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT for table `request_item_sets`
 --
 ALTER TABLE `request_item_sets`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+
+--
+-- AUTO_INCREMENT for table `settings`
+--
+ALTER TABLE `settings`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -690,6 +971,18 @@ ALTER TABLE `request_batches`
 --
 ALTER TABLE `request_item_sets`
   ADD CONSTRAINT `fk_request_item_set_request` FOREIGN KEY (`request_id`) REFERENCES `requests` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `settings`
+--
+ALTER TABLE `settings`
+  ADD CONSTRAINT `fk_settings_user` FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `user_security`
+--
+ALTER TABLE `user_security`
+  ADD CONSTRAINT `fk_user_security_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
