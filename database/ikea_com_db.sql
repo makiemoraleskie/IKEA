@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 01, 2025 at 05:13 PM
+-- Generation Time: Dec 02, 2025 at 09:41 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -449,7 +449,364 @@ INSERT INTO `audit_log` (`id`, `user_id`, `action`, `module`, `timestamp`, `deta
 (406, 5, 'create', 'purchases', '2025-12-01 23:31:48', '{\"purchase_id\":87,\"item_id\":34,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"asdasd|sack\",\"purchase_quantity\":1}'),
 (407, 5, 'create', 'deliveries', '2025-12-01 23:59:04', '{\"delivery_id\":28,\"purchase_id\":87,\"quantity_received\":50000}'),
 (408, 5, 'logout', 'auth', '2025-12-02 00:08:56', '[]'),
-(409, 3, 'login', 'auth', '2025-12-02 00:09:07', '{\"email\":\"makiemorales2@gmail.com\"}');
+(409, 3, 'login', 'auth', '2025-12-02 00:09:07', '{\"email\":\"makiemorales2@gmail.com\"}'),
+(410, 5, 'login', 'auth', '2025-12-02 08:03:45', '{\"email\":\"stock@demo.local\"}'),
+(411, 3, 'login', 'auth', '2025-12-02 08:04:58', '{\"email\":\"makiemorales2@gmail.com\"}'),
+(412, 5, 'create', 'purchases', '2025-12-02 08:23:23', '{\"purchase_id\":88,\"item_id\":34,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"B sugar|sack\",\"purchase_quantity\":1}'),
+(413, 5, 'create', 'deliveries', '2025-12-02 08:24:36', '{\"delivery_id\":29,\"purchase_id\":88,\"quantity_received\":50000}'),
+(414, 3, 'logout', 'auth', '2025-12-02 09:56:02', '[]'),
+(415, 7, 'login', 'auth', '2025-12-02 09:56:11', '{\"email\":\"kitchen@demo.local\"}'),
+(416, 7, 'create', 'requests', '2025-12-02 09:56:52', '{\"batch_id\":36,\"summary\":\"chats2x\\r\\nshoot2x\",\"requester_name\":\"makie\"}'),
+(417, 5, 'reject', 'requests', '2025-12-02 09:57:24', '{\"batch_id\":36}'),
+(418, 7, 'create', 'requests', '2025-12-02 10:01:05', '{\"batch_id\":37,\"summary\":\"asdasdasds\",\"requester_name\":\"asdasd\"}'),
+(419, 5, 'reject', 'requests', '2025-12-02 10:01:13', '{\"batch_id\":37}'),
+(420, 7, 'create', 'requests', '2025-12-02 10:06:14', '{\"batch_id\":38,\"summary\":\"asdasd\",\"requester_name\":\"asdasdasd\"}'),
+(421, 7, 'update', 'requests', '2025-12-02 10:06:50', '{\"batch_id\":38,\"summary\":\"asdasdasd\",\"requester_name\":\"2343243\"}'),
+(422, 7, 'update', 'requests', '2025-12-02 10:07:18', '{\"batch_id\":38,\"summary\":\"11111\",\"requester_name\":\"2dfgdfgdfgllalpo\"}'),
+(423, 5, 'prepare', 'requests', '2025-12-02 10:08:36', '{\"batch_id\":35,\"items\":1}'),
+(424, 5, 'distribute', 'requests', '2025-12-02 10:08:36', '{\"batch_id\":35}'),
+(425, 5, 'approve', 'requests', '2025-12-02 10:09:23', '{\"batch_id\":38,\"next_stage\":\"To Prepare\"}'),
+(426, 5, 'prepare', 'requests', '2025-12-02 10:09:36', '{\"batch_id\":38,\"items\":1}'),
+(427, 5, 'distribute', 'requests', '2025-12-02 10:09:36', '{\"batch_id\":38}'),
+(428, 7, 'create', 'requests', '2025-12-02 10:21:38', '{\"batch_id\":39,\"summary\":\"5 kg sugar\",\"requester_name\":\"makie\"}'),
+(429, 5, 'approve', 'requests', '2025-12-02 10:22:15', '{\"batch_id\":39,\"next_stage\":\"To Prepare\"}'),
+(430, 5, 'prepare', 'requests', '2025-12-02 10:22:45', '{\"batch_id\":39,\"items\":1}'),
+(431, 5, 'prepare', 'requests', '2025-12-02 10:23:32', '{\"batch_id\":39,\"items\":1}');
+INSERT INTO `audit_log` (`id`, `user_id`, `action`, `module`, `timestamp`, `details`) VALUES
+(432, 5, 'create', 'purchases', '2025-12-02 10:24:17', '{\"purchase_id\":89,\"item_id\":34,\"quantity\":1,\"cost\":2800,\"payment_type\":\"Card\",\"base_amount\":0,\"purchase_unit\":\"B Sugar|sack\",\"purchase_quantity\":1}'),
+(433, 5, 'create', 'deliveries', '2025-12-02 10:25:06', '{\"delivery_id\":30,\"purchase_id\":89,\"quantity_received\":50000}'),
+(434, 5, 'prepare', 'requests', '2025-12-02 10:26:32', '{\"batch_id\":39,\"items\":1}'),
+(435, 5, 'distribute', 'requests', '2025-12-02 10:26:32', '{\"batch_id\":39}'),
+(436, 7, 'create', 'requests', '2025-12-02 10:26:49', '{\"batch_id\":40,\"summary\":\"asdasdsa\",\"requester_name\":\"loren\"}'),
+(437, 5, 'approve', 'requests', '2025-12-02 10:27:45', '{\"batch_id\":40,\"next_stage\":\"To Prepare\"}'),
+(438, 5, 'prepare', 'requests', '2025-12-02 10:27:58', '{\"batch_id\":40,\"items\":1}'),
+(439, 5, 'distribute', 'requests', '2025-12-02 10:27:58', '{\"batch_id\":40}'),
+(440, 7, 'create', 'requests', '2025-12-02 10:32:02', '{\"batch_id\":41,\"summary\":\"sadasd\",\"requester_name\":\"sadasd\"}'),
+(441, 5, 'approve', 'requests', '2025-12-02 10:32:06', '{\"batch_id\":41,\"next_stage\":\"To Prepare\"}'),
+(442, 5, 'prepare', 'requests', '2025-12-02 10:33:40', '{\"batch_id\":41,\"items\":1}'),
+(443, 5, 'distribute', 'requests', '2025-12-02 10:33:40', '{\"batch_id\":41}'),
+(444, 7, 'create', 'requests', '2025-12-02 10:34:50', '{\"batch_id\":42,\"summary\":\"asdasd\",\"requester_name\":\"asdasd\"}'),
+(445, 5, 'approve', 'requests', '2025-12-02 10:34:55', '{\"batch_id\":42,\"next_stage\":\"To Prepare\"}'),
+(446, 5, 'prepare', 'requests', '2025-12-02 10:35:08', '{\"batch_id\":42,\"items\":1}'),
+(447, 5, 'distribute', 'requests', '2025-12-02 10:35:08', '{\"batch_id\":42}'),
+(448, 7, 'create', 'requests', '2025-12-02 10:38:59', '{\"batch_id\":43,\"summary\":\"asdasdsa\",\"requester_name\":\"asdsad\"}'),
+(449, 5, 'approve', 'requests', '2025-12-02 10:39:05', '{\"batch_id\":43,\"next_stage\":\"To Prepare\"}'),
+(450, 5, 'prepare', 'requests', '2025-12-02 10:39:53', '{\"batch_id\":43,\"items\":1}'),
+(451, 5, 'distribute', 'requests', '2025-12-02 10:39:53', '{\"batch_id\":43}'),
+(452, 7, 'create', 'requests', '2025-12-02 10:40:09', '{\"batch_id\":44,\"summary\":\"asdsad\",\"requester_name\":\"asdasd\"}'),
+(453, 5, 'approve', 'requests', '2025-12-02 10:40:13', '{\"batch_id\":44,\"next_stage\":\"To Prepare\"}'),
+(454, 5, 'prepare', 'requests', '2025-12-02 10:40:41', '{\"batch_id\":44,\"items\":1}'),
+(455, 5, 'distribute', 'requests', '2025-12-02 10:40:41', '{\"batch_id\":44}'),
+(456, 7, 'create', 'requests', '2025-12-02 10:48:18', '{\"batch_id\":45,\"summary\":\"asdasd\",\"requester_name\":\"asdasd\"}'),
+(457, 5, 'approve', 'requests', '2025-12-02 10:48:29', '{\"batch_id\":45,\"next_stage\":\"To Prepare\"}'),
+(458, 5, 'prepare', 'requests', '2025-12-02 10:48:46', '{\"batch_id\":45,\"items\":1}'),
+(459, 5, 'distribute', 'requests', '2025-12-02 10:48:46', '{\"batch_id\":45}'),
+(460, 7, 'create', 'requests', '2025-12-02 10:49:00', '{\"batch_id\":46,\"summary\":\"asdasd\",\"requester_name\":\"asdasd\"}'),
+(461, 5, 'approve', 'requests', '2025-12-02 10:49:04', '{\"batch_id\":46,\"next_stage\":\"To Prepare\"}'),
+(462, 5, 'prepare', 'requests', '2025-12-02 10:49:32', '{\"batch_id\":46,\"items\":1}'),
+(463, 5, 'distribute', 'requests', '2025-12-02 10:49:32', '{\"batch_id\":46}'),
+(464, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":39,\"name\":\"Mushroom Gravy\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(465, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":40,\"name\":\"Mushroom Cream\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(466, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":41,\"name\":\"Tomato Paste (S)\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(467, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":42,\"name\":\"Tomato Sauce (115g)\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(468, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":43,\"name\":\"Tomato Sauce (250g)\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(469, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":44,\"name\":\"Ginisa Mix (250g)\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(470, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":45,\"name\":\"Adobo Mix (50g)\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(471, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":46,\"name\":\"Palabok Mix\",\"quantity\":6,\"source\":\"csv_import\"}'),
+(472, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":47,\"name\":\"Condense (Alaska/Cow Bell)\",\"quantity\":301,\"source\":\"csv_import\"}'),
+(473, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":48,\"name\":\"Mineral Water\",\"quantity\":21,\"source\":\"csv_import\"}'),
+(474, 5, 'update', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":34,\"name\":\"Brown Sugar\",\"quantity\":4,\"source\":\"csv_import\"}'),
+(475, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":49,\"name\":\"White Sugar\",\"quantity\":37,\"source\":\"csv_import\"}'),
+(476, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":50,\"name\":\"Pilit\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(477, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":51,\"name\":\"Asado Mix\",\"quantity\":27,\"source\":\"csv_import\"}'),
+(478, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":52,\"name\":\"Nacho Chips\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(479, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":53,\"name\":\"Sausage\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(480, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":54,\"name\":\"Chiffon Mix\",\"quantity\":3,\"source\":\"csv_import\"}'),
+(481, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":55,\"name\":\"Spaghetti Spice Mix\",\"quantity\":2,\"source\":\"csv_import\"}'),
+(482, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":56,\"name\":\"Brownies\",\"quantity\":9,\"source\":\"csv_import\"}'),
+(483, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":57,\"name\":\"16 oz. Cup\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(484, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":58,\"name\":\"Ice Cream\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(485, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":59,\"name\":\"Choco Flour\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(486, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":60,\"name\":\"Magnolia Gold\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(487, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":61,\"name\":\"Vana Blanca\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(488, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":62,\"name\":\"All-Purpose Flour\",\"quantity\":9,\"source\":\"csv_import\"}'),
+(489, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":63,\"name\":\"Hersheys\",\"quantity\":13,\"source\":\"csv_import\"}'),
+(490, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":64,\"name\":\"Cake Flour\",\"quantity\":10,\"source\":\"csv_import\"}'),
+(491, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":65,\"name\":\"Iland\",\"quantity\":10,\"source\":\"csv_import\"}'),
+(492, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":66,\"name\":\"Bravo Buttercream\",\"quantity\":39,\"source\":\"csv_import\"}'),
+(493, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":67,\"name\":\"Cream Cheese\",\"quantity\":9,\"source\":\"csv_import\"}'),
+(494, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":68,\"name\":\"Pleasure Gold\",\"quantity\":13,\"source\":\"csv_import\"}'),
+(495, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":69,\"name\":\"Bunge\",\"quantity\":6,\"source\":\"csv_import\"}'),
+(496, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":70,\"name\":\"Egg\",\"quantity\":468,\"source\":\"csv_import\"}'),
+(497, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":71,\"name\":\"Mascobado\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(498, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":72,\"name\":\"Dari Crème\",\"quantity\":96,\"source\":\"csv_import\"}'),
+(499, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":73,\"name\":\"Ube Flavor\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(500, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":74,\"name\":\"Chocolate Flavorade\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(501, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":75,\"name\":\"Blue Berry\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(502, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":76,\"name\":\"Rufina\",\"quantity\":3,\"source\":\"csv_import\"}'),
+(503, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":77,\"name\":\"Cream Corn\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(504, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":78,\"name\":\"Mixed Mushroom\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(505, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":79,\"name\":\"Cream Mushroom\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(506, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":80,\"name\":\"Parmesan Cheese\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(507, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":81,\"name\":\"Parsley\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(508, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":82,\"name\":\"Basil Leaves\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(509, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":83,\"name\":\"Hot Sauce\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(510, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":84,\"name\":\"Grbanzos\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(511, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":85,\"name\":\"Gulaman Flavor\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(512, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":86,\"name\":\"Hoisin\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(513, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":87,\"name\":\"Food Color Red\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(514, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":88,\"name\":\"Cherries\",\"quantity\":2,\"source\":\"csv_import\"}'),
+(515, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":89,\"name\":\"Ginamus\",\"quantity\":7,\"source\":\"csv_import\"}'),
+(516, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":90,\"name\":\"Whole Corn\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(517, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":91,\"name\":\"Mongo Beans\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(518, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":92,\"name\":\"Magnolia Fresh Milk\",\"quantity\":2,\"source\":\"csv_import\"}'),
+(519, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":93,\"name\":\"Mango Jam Small\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(520, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":94,\"name\":\"Fruita Mango Jam BIG\",\"quantity\":7,\"source\":\"csv_import\"}'),
+(521, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":95,\"name\":\"Rice\",\"quantity\":26,\"source\":\"csv_import\"}'),
+(522, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":96,\"name\":\"Berylis\",\"quantity\":2,\"source\":\"csv_import\"}'),
+(523, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":97,\"name\":\"Bihon\",\"quantity\":11,\"source\":\"csv_import\"}'),
+(524, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":98,\"name\":\"Royal\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(525, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":99,\"name\":\"Sprite\",\"quantity\":12,\"source\":\"csv_import\"}'),
+(526, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":100,\"name\":\"Coke\",\"quantity\":156,\"source\":\"csv_import\"}'),
+(527, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":101,\"name\":\"Spag Box\",\"quantity\":6,\"source\":\"csv_import\"}'),
+(528, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":102,\"name\":\"Mami Noodles\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(529, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":103,\"name\":\"Ketchup\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(530, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":104,\"name\":\"Tuyo\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(531, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":105,\"name\":\"Knorr Seasoning\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(532, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":106,\"name\":\"Large Bag\",\"quantity\":6,\"source\":\"csv_import\"}'),
+(533, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":107,\"name\":\"Fork Wood\",\"quantity\":20,\"source\":\"csv_import\"}'),
+(534, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":108,\"name\":\"Shortening\",\"quantity\":2,\"source\":\"csv_import\"}'),
+(535, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":109,\"name\":\"Whipping Cream\",\"quantity\":4,\"source\":\"csv_import\"}'),
+(536, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":110,\"name\":\"Chicken Cubes\",\"quantity\":17,\"source\":\"csv_import\"}'),
+(537, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":111,\"name\":\"Beef Cubes\",\"quantity\":24,\"source\":\"csv_import\"}'),
+(538, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":112,\"name\":\"Spoon Wood\",\"quantity\":3,\"source\":\"csv_import\"}'),
+(539, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":113,\"name\":\"Take out container\",\"quantity\":6,\"source\":\"csv_import\"}'),
+(540, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":114,\"name\":\"Gulaman (Yellow)\",\"quantity\":16,\"source\":\"csv_import\"}'),
+(541, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":115,\"name\":\"Gulaman (Red)\",\"quantity\":10,\"source\":\"csv_import\"}'),
+(542, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":116,\"name\":\"Gulaman (White)\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(543, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":117,\"name\":\"Gulaman (Green)\",\"quantity\":20,\"source\":\"csv_import\"}'),
+(544, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":118,\"name\":\"Gloves\",\"quantity\":2,\"source\":\"csv_import\"}'),
+(545, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":119,\"name\":\"White Chocolate\",\"quantity\":7,\"source\":\"csv_import\"}'),
+(546, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":120,\"name\":\"Dark Chocolate\",\"quantity\":5,\"source\":\"csv_import\"}'),
+(547, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":121,\"name\":\"Grahams (200g)\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(548, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":122,\"name\":\"Premium boxes\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(549, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":123,\"name\":\"1/2 Boxes\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(550, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":124,\"name\":\"1/4 Boxes\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(551, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":125,\"name\":\"Mini Boxes\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(552, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":126,\"name\":\"Board 11\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(553, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":127,\"name\":\"Cake Board 8\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(554, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":128,\"name\":\"menudo mix\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(555, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":129,\"name\":\"spag noodles\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(556, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":130,\"name\":\"tropicana\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(557, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":131,\"name\":\"surf powder\",\"quantity\":7,\"source\":\"csv_import\"}'),
+(558, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":132,\"name\":\"cheese slice\",\"quantity\":2,\"source\":\"csv_import\"}'),
+(559, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":133,\"name\":\"smart diswashing\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(560, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":134,\"name\":\"ice tea\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(561, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":135,\"name\":\"cont.sa kakanin\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(562, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":136,\"name\":\"beef feet for balbacua\",\"quantity\":30,\"source\":\"csv_import\"}'),
+(563, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":137,\"name\":\"brown bag #35\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(564, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":138,\"name\":\"brown bag#20\",\"quantity\":3,\"source\":\"csv_import\"}'),
+(565, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":139,\"name\":\"burger plastic\",\"quantity\":8,\"source\":\"csv_import\"}'),
+(566, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":140,\"name\":\"Glacin\",\"quantity\":3,\"source\":\"csv_import\"}'),
+(567, 5, 'create', 'ingredients', '2025-12-02 13:34:25', '{\"ingredient_id\":141,\"name\":\"Fondant big\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(568, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":142,\"name\":\"Fondant small\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(569, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":143,\"name\":\"Liver spread\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(570, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":144,\"name\":\"Lunga\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(571, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":145,\"name\":\"crushed graham\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(572, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":146,\"name\":\"Brown bag#16\",\"quantity\":3,\"source\":\"csv_import\"}'),
+(573, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":147,\"name\":\"Brown bag # 4\",\"quantity\":2,\"source\":\"csv_import\"}'),
+(574, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":148,\"name\":\"brown bag # 5\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(575, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":149,\"name\":\"Brown bag # 3\",\"quantity\":3,\"source\":\"csv_import\"}'),
+(576, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":150,\"name\":\"Brown bag # 2\",\"quantity\":2,\"source\":\"csv_import\"}'),
+(577, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":151,\"name\":\"Brown bag # 1\",\"quantity\":3,\"source\":\"csv_import\"}'),
+(578, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":152,\"name\":\"bar cheeze\",\"quantity\":39,\"source\":\"csv_import\"}'),
+(579, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":153,\"name\":\"Vanilla\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(580, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":154,\"name\":\"3x16 plastic\",\"quantity\":3,\"source\":\"csv_import\"}'),
+(581, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":155,\"name\":\"Roll bag\",\"quantity\":15,\"source\":\"csv_import\"}'),
+(582, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":156,\"name\":\"gelatin\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(583, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":157,\"name\":\"EVAP\",\"quantity\":26,\"source\":\"csv_import\"}'),
+(584, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":158,\"name\":\"acord\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(585, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":159,\"name\":\"cassava starch\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(586, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":160,\"name\":\"Glutinous rice 500grms\",\"quantity\":6,\"source\":\"csv_import\"}'),
+(587, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":161,\"name\":\"Rice flour 500grms\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(588, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":162,\"name\":\"All purpose cream\",\"quantity\":18,\"source\":\"csv_import\"}'),
+(589, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":163,\"name\":\"Birch tree 1.4kg\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(590, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":164,\"name\":\"Presto biscuit\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(591, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":165,\"name\":\"spaghetti sauce 1kg.\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(592, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":166,\"name\":\"tomato sauce 1kgn\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(593, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":167,\"name\":\"Calumet 1kg.\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(594, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":168,\"name\":\"Nescafe 185g.\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(595, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":169,\"name\":\"tuna\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(596, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":170,\"name\":\"peanut butter s.\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(597, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":171,\"name\":\"peanut butter big\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(598, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":172,\"name\":\"mantica\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(599, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":173,\"name\":\"rice for lugaw\",\"quantity\":9,\"source\":\"csv_import\"}'),
+(600, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":174,\"name\":\"bakers Best\",\"quantity\":96,\"source\":\"csv_import\"}'),
+(601, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":175,\"name\":\"PATA slice\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(602, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":176,\"name\":\"sipao 5kl.Dough\",\"quantity\":18,\"source\":\"csv_import\"}'),
+(603, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":177,\"name\":\"burger 5kl Dough\",\"quantity\":9,\"source\":\"csv_import\"}'),
+(604, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":178,\"name\":\"chicken back bone\",\"quantity\":6,\"source\":\"csv_import\"}'),
+(605, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":179,\"name\":\"shrimp cubes\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(606, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":180,\"name\":\"kaong red\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(607, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":181,\"name\":\"peaches\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(608, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":182,\"name\":\"taco seasoning\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(609, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":183,\"name\":\"board #4\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(610, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":184,\"name\":\"shrimp powder\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(611, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":185,\"name\":\"whippit\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(612, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":186,\"name\":\"red velvet\",\"quantity\":30,\"source\":\"csv_import\"}'),
+(613, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":187,\"name\":\"pasas\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(614, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":188,\"name\":\"casheu\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(615, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":189,\"name\":\"cream and tar2x\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(616, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":190,\"name\":\"aluminum foil\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(617, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":191,\"name\":\"mayonnaise\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(618, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":192,\"name\":\"bread crumbs\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(619, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":193,\"name\":\"pickles\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(620, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":194,\"name\":\"strawberry jam\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(621, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":195,\"name\":\"Ube Alaska Condense\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(622, 5, 'update', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":61,\"name\":\"vana Blanca\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(623, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":196,\"name\":\"beef tapa\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(624, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":197,\"name\":\"corn starch\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(625, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":198,\"name\":\"salad cup\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(626, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":199,\"name\":\"cake drum # 14\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(627, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":200,\"name\":\"cake drum #12\",\"quantity\":150,\"source\":\"csv_import\"}'),
+(628, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":201,\"name\":\"clear pack roll\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(629, 5, 'update', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":157,\"name\":\"EVAP\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(630, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":202,\"name\":\"Condense\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(631, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":203,\"name\":\"clear cup 22 oz\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(632, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":204,\"name\":\"beryl\'s Choco cocoa\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(633, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":205,\"name\":\"chocolate bar white\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(634, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":206,\"name\":\"chocolate bar dark\",\"quantity\":8,\"source\":\"csv_import\"}'),
+(635, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":207,\"name\":\"chocolate red bar\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(636, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":208,\"name\":\"precut tissue\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(637, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":209,\"name\":\"whole mushroom big\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(638, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":210,\"name\":\"straw for shake\",\"quantity\":10,\"source\":\"csv_import\"}'),
+(639, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":211,\"name\":\"bombay\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(640, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":212,\"name\":\"ahos\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(641, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":213,\"name\":\"patatas\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(642, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":214,\"name\":\"sambo container\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(643, 5, 'update', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":104,\"name\":\"tuyo\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(644, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":215,\"name\":\"suka\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(645, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":216,\"name\":\"mocha flavor\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(646, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":217,\"name\":\"cookies & cream\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(647, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":218,\"name\":\"asin\",\"quantity\":2,\"source\":\"csv_import\"}'),
+(648, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":219,\"name\":\"paminta  liso\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(649, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":220,\"name\":\"coffeemate  tbsp\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(650, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":221,\"name\":\"ice tea tbsp\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(651, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":222,\"name\":\"candl stick\",\"quantity\":70,\"source\":\"csv_import\"}'),
+(652, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":223,\"name\":\"anchor butter\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(653, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":224,\"name\":\"kare2x mix\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(654, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":225,\"name\":\"rice use taas ( am.)\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(655, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":226,\"name\":\"rice use taas (pm.)\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(656, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":227,\"name\":\"tomato sauce\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(657, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":228,\"name\":\"bravo evap\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(658, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":229,\"name\":\"bravo condense\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(659, 5, 'update', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":153,\"name\":\"vanilla\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(660, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":230,\"name\":\"black beans\",\"quantity\":3,\"source\":\"csv_import\"}'),
+(661, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":231,\"name\":\"creamyvit\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(662, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":232,\"name\":\"betsin\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(663, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":233,\"name\":\"cling wrap\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(664, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":234,\"name\":\"white paper\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(665, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":235,\"name\":\"maling\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(666, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":236,\"name\":\"dry peas\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(667, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":237,\"name\":\"halo2x take out  cup\",\"quantity\":595,\"source\":\"csv_import\"}'),
+(668, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":238,\"name\":\"mango. flavor\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(669, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":239,\"name\":\"yeast\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(670, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":240,\"name\":\"cling wrap roll\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(671, 5, 'update', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":234,\"name\":\"white paper\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(672, 5, 'update', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":235,\"name\":\"maling\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(673, 5, 'update', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":236,\"name\":\"dry peas\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(674, 5, 'update', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":237,\"name\":\"halo2x take out  cup\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(675, 5, 'update', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":238,\"name\":\"mango. flavor\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(676, 5, 'update', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":239,\"name\":\"yeast\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(677, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":241,\"name\":\"Bensdorp\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(678, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":242,\"name\":\"crushed oreo\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(679, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":243,\"name\":\"16 oz baso\",\"quantity\":750,\"source\":\"csv_import\"}'),
+(680, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":244,\"name\":\"12oz baso\",\"quantity\":700,\"source\":\"csv_import\"}'),
+(681, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":245,\"name\":\"brisket\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(682, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":246,\"name\":\"coffeemate\",\"quantity\":85,\"source\":\"csv_import\"}'),
+(683, 5, 'update', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":162,\"name\":\"all purpose cream\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(684, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":247,\"name\":\"bilbao\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(685, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":248,\"name\":\"pork belly humba\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(686, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":249,\"name\":\"pork adobo cut\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(687, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":250,\"name\":\"chlorine\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(688, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":251,\"name\":\"Batchoy powder\",\"quantity\":6,\"source\":\"csv_import\"}'),
+(689, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":252,\"name\":\"pamenta liso\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(690, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":253,\"name\":\"manggo\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(691, 5, 'update', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":105,\"name\":\"knorr seasoning\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(692, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":254,\"name\":\"Desiccated coconut\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(693, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":255,\"name\":\"Ground beef\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(694, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":256,\"name\":\"chix breast\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(695, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":257,\"name\":\"brown bag #5\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(696, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":258,\"name\":\"slice container  for cake\'s slice\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(697, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":259,\"name\":\"Fruit cocktail\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(698, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":260,\"name\":\"buko pandan\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(699, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":261,\"name\":\"ground pork\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(700, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":262,\"name\":\"Tylose\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(701, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":263,\"name\":\"chicken Quarter\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(702, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":264,\"name\":\"sorbate\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(703, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":265,\"name\":\"spoons sa halo2x t.o\",\"quantity\":5,\"source\":\"csv_import\"}'),
+(704, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":266,\"name\":\"pork menudo\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(705, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":267,\"name\":\"palabok meat  1 1/2\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(706, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":268,\"name\":\"fresh lumpia meat (400g )\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(707, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":269,\"name\":\"empanada meat\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(708, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":270,\"name\":\"assorted meals plastic (6x8\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(709, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":271,\"name\":\"balbacua plastic (6x10\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(710, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":272,\"name\":\"chicharon tindahan\",\"quantity\":20,\"source\":\"csv_import\"}'),
+(711, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":273,\"name\":\"lihia\",\"quantity\":4,\"source\":\"csv_import\"}'),
+(712, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":274,\"name\":\"chicharon palabok\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(713, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":275,\"name\":\"oxtripe\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(714, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":276,\"name\":\"nangka\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(715, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":277,\"name\":\"Luncheon meat (Ellen)\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(716, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":278,\"name\":\"walnuts\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(717, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":279,\"name\":\"siopao meat\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(718, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":280,\"name\":\"canto\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(719, 5, 'create', 'ingredients', '2025-12-02 13:34:26', '{\"ingredient_id\":281,\"name\":\"paint sa baka\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(720, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":282,\"name\":\"1.50  coke\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(721, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":283,\"name\":\"chix thigh\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(722, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":284,\"name\":\"hamburger mix\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(723, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":285,\"name\":\"pork meat for burger\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(724, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":286,\"name\":\"Pasta Alfredo\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(725, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":287,\"name\":\"Flower icing\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(726, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":288,\"name\":\"turmeric\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(727, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":289,\"name\":\"Nata de Coco green\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(728, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":290,\"name\":\"Nata de coco red\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(729, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":291,\"name\":\"Beef powder( 50grms)\",\"quantity\":5,\"source\":\"csv_import\"}'),
+(730, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":292,\"name\":\"acord  100grms\",\"quantity\":5,\"source\":\"csv_import\"}'),
+(731, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":293,\"name\":\"Burger mix 1kl\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(732, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":294,\"name\":\"Ganador\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(733, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":295,\"name\":\"plastic sa sauce (8x12\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(734, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":296,\"name\":\"calibot cocoa\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(735, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":297,\"name\":\"birthday topper\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(736, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":298,\"name\":\"taco shell\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(737, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":299,\"name\":\"nacho cheese sauce 3.01kg.\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(738, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":300,\"name\":\"Mc 500 container\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(739, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":301,\"name\":\"t.o plastic double\",\"quantity\":10,\"source\":\"csv_import\"}'),
+(740, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":302,\"name\":\"t.o plastic single\",\"quantity\":7,\"source\":\"csv_import\"}'),
+(741, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":303,\"name\":\"toot pick\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(742, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":304,\"name\":\"board ( 14x14)\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(743, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":305,\"name\":\"dawel. wood\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(744, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":306,\"name\":\"dragees assorted colors\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(745, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":307,\"name\":\"ribbon\",\"quantity\":2,\"source\":\"csv_import\"}'),
+(746, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":308,\"name\":\"cup cake wrapper\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(747, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":309,\"name\":\"ofsitin container\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(748, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":310,\"name\":\"board 12\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(749, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":311,\"name\":\"coke in can 24\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(750, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":312,\"name\":\"sprite in can 24\",\"quantity\":4,\"source\":\"csv_import\"}'),
+(751, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":313,\"name\":\"royal in can 24\",\"quantity\":6,\"source\":\"csv_import\"}'),
+(752, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":314,\"name\":\"pineapple juice\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(753, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":315,\"name\":\"lady choice\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(754, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":316,\"name\":\"gulaman black\",\"quantity\":4,\"source\":\"csv_import\"}'),
+(755, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":317,\"name\":\"Hershey\'s\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(756, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":318,\"name\":\"bulaklaksaging\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(757, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":319,\"name\":\"banana flavor\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(758, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":320,\"name\":\"ube paste\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(759, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":321,\"name\":\"mc 750\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(760, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":322,\"name\":\"Paprika\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(761, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":323,\"name\":\"accord\",\"quantity\":1,\"source\":\"csv_import\"}'),
+(762, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":324,\"name\":\"butter milk 1/2 klg\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(763, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":325,\"name\":\"white chips 1/2\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(764, 5, 'create', 'ingredients', '2025-12-02 13:34:27', '{\"ingredient_id\":326,\"name\":\"chocolate chips 1/2\",\"quantity\":0,\"source\":\"csv_import\"}'),
+(765, 7, 'login', 'auth', '2025-12-02 14:18:16', '{\"email\":\"kitchen@demo.local\"}');
 
 -- --------------------------------------------------------
 
@@ -466,13 +823,6 @@ CREATE TABLE `deliveries` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `deliveries`
---
-
-INSERT INTO `deliveries` (`id`, `purchase_id`, `quantity_received`, `delivery_status`, `date_received`, `created_at`, `updated_at`) VALUES
-(28, 87, 50000.0000, 'Complete', '2025-12-01 23:59:04', '2025-12-01 15:59:04', '2025-12-01 15:59:04');
 
 -- --------------------------------------------------------
 
@@ -495,13 +845,6 @@ CREATE TABLE `ingredients` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `ingredients`
---
-
-INSERT INTO `ingredients` (`id`, `name`, `category`, `unit`, `display_unit`, `display_factor`, `quantity`, `reorder_level`, `preferred_supplier`, `restock_quantity`, `in_inventory`, `created_at`, `updated_at`) VALUES
-(34, 'Brown Sugar', '', 'g', NULL, 1000.0000, 100000.0000, 10000.0000, '', 0.0000, 1, '2025-12-01 13:13:56', '2025-12-01 15:59:04');
 
 -- --------------------------------------------------------
 
@@ -551,7 +894,17 @@ CREATE TABLE `notifications` (
 --
 
 INSERT INTO `notifications` (`id`, `user_id`, `message`, `link`, `level`, `read_at`, `created_at`) VALUES
-(12, 7, 'Your request #35 has been approved by Stock Handler Demo. Please wait while it is being prepared.', '/requests?batch=35', 'info', NULL, '2025-12-01 07:19:18');
+(22, 7, 'Your request #41 is ready for pickup.', '/requests?status=distributed#requests-history', 'success', NULL, '2025-12-02 02:33:40'),
+(23, 7, 'Your request #42 has been approved by Stock Handler Demo. Please wait while it is being prepared.', '/requests?batch=42', 'info', NULL, '2025-12-02 02:34:55'),
+(24, 7, 'Your request #42 is ready for pickup.', '/requests?status=distributed#requests-history', 'success', NULL, '2025-12-02 02:35:08'),
+(25, 7, 'Your request #43 has been approved by Stock Handler Demo. Please wait while it is being prepared.', '/requests?batch=43', 'info', NULL, '2025-12-02 02:39:05'),
+(26, 7, 'Your request #43 is ready for pickup.', '/requests?status=distributed#requests-history', 'success', NULL, '2025-12-02 02:39:53'),
+(27, 7, 'Your request #44 has been approved by Stock Handler Demo. Please wait while it is being prepared.', '/requests?batch=44', 'info', NULL, '2025-12-02 02:40:13'),
+(28, 7, 'Your request #44 is ready for pickup.', '/requests?status=distributed#requests-history', 'success', NULL, '2025-12-02 02:40:41'),
+(29, 7, 'Your request #45 has been approved by Stock Handler Demo. Please wait while it is being prepared.', '/requests?batch=45', 'info', NULL, '2025-12-02 02:48:29'),
+(30, 7, 'Your request #45 is ready for pickup.', '/requests?status=distributed#requests-history', 'success', NULL, '2025-12-02 02:48:46'),
+(31, 7, 'Your request #46 has been approved by Stock Handler Demo. Please wait while it is being prepared.', '/requests?batch=46', 'info', NULL, '2025-12-02 02:49:04'),
+(32, 7, 'Your request #46 is ready for pickup.', '/requests?status=distributed#requests-history', 'success', NULL, '2025-12-02 02:49:32');
 
 -- --------------------------------------------------------
 
@@ -577,13 +930,6 @@ CREATE TABLE `purchases` (
   `cash_base_amount` decimal(16,2) DEFAULT NULL,
   `paid_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `purchases`
---
-
-INSERT INTO `purchases` (`id`, `purchaser_id`, `item_id`, `supplier`, `quantity`, `purchase_unit`, `purchase_quantity`, `cost`, `receipt_url`, `payment_status`, `date_purchased`, `created_at`, `updated_at`, `payment_type`, `cash_base_amount`, `paid_at`) VALUES
-(87, 5, 34, 'simion', 1.0000, 'asdasd|sack', 1.0000, 2800.00, '/public/uploads/8331708be018b2da.jpg', 'Paid', '2025-12-01 23:31:48', '2025-12-01 15:31:48', '2025-12-01 15:31:48', 'Card', 0.00, '2025-12-01 16:31:48');
 
 -- --------------------------------------------------------
 
@@ -622,13 +968,6 @@ CREATE TABLE `request_batches` (
   `custom_ingredients` text DEFAULT NULL,
   `custom_request_date` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `request_batches`
---
-
-INSERT INTO `request_batches` (`id`, `staff_id`, `status`, `date_requested`, `date_approved`, `created_at`, `updated_at`, `custom_requester`, `custom_ingredients`, `custom_request_date`) VALUES
-(35, 7, 'To Prepare', '2025-12-01 15:18:42', '2025-12-01 15:19:18', '2025-12-01 07:18:42', '2025-12-01 07:19:18', 'loren', '2 set pack of jetpack\r\n2 set balba\r\n5 kg flour', '2025-12-02');
 
 -- --------------------------------------------------------
 
@@ -669,7 +1008,8 @@ INSERT INTO `settings` (`id`, `setting_key`, `setting_value`, `updated_by`, `cre
 (5, 'display.company_name', 'IKEA Commissary System', 3, '2025-11-30 15:27:47', '2025-11-30 15:27:47'),
 (6, 'display.company_tagline', 'Operations Console', 3, '2025-11-30 15:27:47', '2025-11-30 15:27:47'),
 (7, 'display.theme_default', 'system', 3, '2025-11-30 15:27:47', '2025-11-30 15:27:47'),
-(8, 'display.dashboard_widgets', '{\"Owner\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\",\"inventory_value\"],\"Manager\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\",\"inventory_value\"],\"Purchaser\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\"],\"Stock Handler\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\",\"inventory_value\"],\"Kitchen Staff\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\"],\"default\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\",\"inventory_value\"]}', 3, '2025-11-30 15:27:47', '2025-11-30 15:27:47');
+(8, 'display.dashboard_widgets', '{\"Owner\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\",\"inventory_value\"],\"Manager\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\",\"inventory_value\"],\"Purchaser\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\"],\"Stock Handler\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\",\"inventory_value\"],\"Kitchen Staff\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\"],\"default\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\",\"inventory_value\"]}', 3, '2025-11-30 15:27:47', '2025-11-30 15:27:47'),
+(13, 'features.ingredient_sets_enabled', '0', 3, '2025-12-02 01:53:04', '2025-12-02 01:53:35');
 
 -- --------------------------------------------------------
 
@@ -719,10 +1059,10 @@ CREATE TABLE `user_security` (
 --
 
 INSERT INTO `user_security` (`user_id`, `session_token`, `status`, `theme`, `dashboard_widgets`, `updated_at`, `created_at`) VALUES
-(3, '0ad1eaa0f56ded7043e647908e15a4a8fdbe4320abd9ffeec1ad6640e2a5231c', 'active', 'light', NULL, '2025-12-01 16:09:07', '2025-11-30 15:28:02'),
-(5, NULL, 'active', 'light', NULL, '2025-12-01 16:08:56', '2025-12-01 01:44:08'),
+(3, NULL, 'active', 'light', NULL, '2025-12-02 01:56:02', '2025-11-30 15:28:02'),
+(5, '335c8452cb9ef93d58bbef9444af4cab7d255931fbca1b6d5ea985f7d8eea532', 'active', 'light', NULL, '2025-12-02 08:04:54', '2025-12-01 01:44:08'),
 (6, NULL, 'active', 'light', NULL, '2025-12-01 07:17:32', '2025-12-01 03:45:48'),
-(7, NULL, 'active', 'light', NULL, '2025-12-01 08:30:28', '2025-11-30 15:29:05');
+(7, 'fdc9a17b83510b61ff4924085340d06426064db8754defb15fd02a623fe8dc1b', 'active', 'light', NULL, '2025-12-02 06:18:16', '2025-11-30 15:29:05');
 
 --
 -- Indexes for dumped tables
@@ -842,19 +1182,19 @@ ALTER TABLE `user_security`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=410;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=766;
 
 --
 -- AUTO_INCREMENT for table `deliveries`
 --
 ALTER TABLE `deliveries`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `ingredients`
 --
 ALTER TABLE `ingredients`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=327;
 
 --
 -- AUTO_INCREMENT for table `ingredient_sets`
@@ -872,25 +1212,25 @@ ALTER TABLE `ingredient_set_items`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT for table `purchases`
 --
 ALTER TABLE `purchases`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=90;
 
 --
 -- AUTO_INCREMENT for table `requests`
 --
 ALTER TABLE `requests`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
 
 --
 -- AUTO_INCREMENT for table `request_batches`
 --
 ALTER TABLE `request_batches`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
 
 --
 -- AUTO_INCREMENT for table `request_item_sets`
@@ -902,7 +1242,7 @@ ALTER TABLE `request_item_sets`
 -- AUTO_INCREMENT for table `settings`
 --
 ALTER TABLE `settings`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `users`
