@@ -498,22 +498,31 @@ $ingredientStockMap = $ingredientStock ?? [];
 					<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 						<div class="space-y-1">
 							<label class="text-sm font-medium text-gray-700">Ingredient</label>
-							<select id="prepareIngredientSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-								<option value="">Choose ingredient</option>
-								<?php foreach ($ingredients as $ing): ?>
-									<option value="<?php echo (int)$ing['id']; ?>" data-unit="<?php echo htmlspecialchars($ing['unit']); ?>"><?php echo htmlspecialchars($ing['name']); ?></option>
-								<?php endforeach; ?>
-							</select>
+							<div class="relative">
+								<div class="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
+									<i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
+								</div>
+								<input 
+									type="text" 
+									id="prepareIngredientSearch" 
+									placeholder="Search ingredients..." 
+									class="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+									autocomplete="off"
+								>
+								<select id="prepareIngredientSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" style="display: none;">
+									<option value="">Choose ingredient</option>
+									<?php foreach ($ingredients as $ing): ?>
+										<option value="<?php echo (int)$ing['id']; ?>" data-unit="<?php echo htmlspecialchars($ing['unit']); ?>" data-name="<?php echo htmlspecialchars(strtolower($ing['name'])); ?>"><?php echo htmlspecialchars($ing['name']); ?></option>
+									<?php endforeach; ?>
+								</select>
+								<div id="prepareIngredientDropdown" class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden">
+									<!-- Options will be populated here -->
+								</div>
+							</div>
 						</div>
 						<div class="space-y-1">
 							<label class="text-sm font-medium text-gray-700">Quantity</label>
 							<input type="number" step="0.01" min="0.01" id="prepareQuantityInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="0.00">
-						</div>
-						<div class="space-y-1">
-							<label class="text-sm font-medium text-gray-700">Unit</label>
-							<select id="prepareUnitSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-								<option value="">Base unit</option>
-							</select>
 						</div>
 						<div class="space-y-1">
 							<label class="text-sm font-medium text-gray-700">Unit</label>
@@ -656,6 +665,8 @@ $ingredientStockMap = $ingredientStock ?? [];
 		const closeBtn = modal.querySelector('.prepareModalClose');
 		const form = document.getElementById('prepareModalForm');
 		const ingredientSelect = document.getElementById('prepareIngredientSelect');
+		const ingredientSearch = document.getElementById('prepareIngredientSearch');
+		const ingredientDropdown = document.getElementById('prepareIngredientDropdown');
 		const quantityInput = document.getElementById('prepareQuantityInput');
 		const unitSelect = document.getElementById('prepareUnitSelect');
 		const addBtn = document.getElementById('prepareAddItemBtn');
@@ -666,6 +677,110 @@ $ingredientStockMap = $ingredientStock ?? [];
 		const batchIdInput = document.getElementById('prepareModalBatchId');
 		const errorBox = document.getElementById('prepareBuilderError');
 		let items = [];
+		
+		// Build ingredient options array from select
+		const ingredientOptions = [];
+		if (ingredientSelect) {
+			Array.from(ingredientSelect.options).forEach(option => {
+				if (option.value) {
+					ingredientOptions.push({
+						id: option.value,
+						name: option.textContent,
+						unit: option.getAttribute('data-unit') || '',
+						nameLower: (option.getAttribute('data-name') || option.textContent.toLowerCase())
+					});
+				}
+			});
+		}
+		
+		// Filter and render dropdown options
+		function filterIngredients(searchTerm) {
+			if (!ingredientDropdown) return;
+			const term = (searchTerm || '').toLowerCase().trim();
+			const filtered = term === '' 
+				? ingredientOptions 
+				: ingredientOptions.filter(opt => opt.nameLower.includes(term));
+			
+			if (filtered.length === 0) {
+				ingredientDropdown.innerHTML = '<div class="px-4 py-3 text-sm text-gray-500 text-center">No ingredients found</div>';
+				ingredientDropdown.classList.remove('hidden');
+				return;
+			}
+			
+			ingredientDropdown.innerHTML = filtered.map(opt => `
+				<button 
+					type="button" 
+					class="w-full text-left px-4 py-2 hover:bg-indigo-50 focus:bg-indigo-50 focus:outline-none transition-colors"
+					data-id="${opt.id}"
+					data-unit="${opt.unit}"
+				>
+					<div class="font-medium text-gray-900">${opt.name}</div>
+					<div class="text-xs text-gray-500">${opt.unit}</div>
+				</button>
+			`).join('');
+			
+			// Add click handlers
+			ingredientDropdown.querySelectorAll('button').forEach(btn => {
+				btn.addEventListener('click', () => {
+					const id = btn.getAttribute('data-id');
+					const unit = btn.getAttribute('data-unit');
+					const name = btn.querySelector('.font-medium').textContent;
+					
+					// Update hidden select
+					if (ingredientSelect) {
+						ingredientSelect.value = id;
+					}
+					
+					// Update search input to show selected name
+					if (ingredientSearch) {
+						ingredientSearch.value = name;
+					}
+					
+					// Hide dropdown
+					ingredientDropdown.classList.add('hidden');
+					
+					// Trigger change event on select to update units
+					if (ingredientSelect) {
+						ingredientSelect.dispatchEvent(new Event('change'));
+					}
+				});
+			});
+			
+			ingredientDropdown.classList.remove('hidden');
+		}
+		
+		// Search input handlers
+		if (ingredientSearch && ingredientDropdown) {
+			ingredientSearch.addEventListener('input', (e) => {
+				filterIngredients(e.target.value);
+			});
+			
+			ingredientSearch.addEventListener('focus', () => {
+				if (ingredientSearch.value.trim() === '') {
+					filterIngredients('');
+				} else {
+					filterIngredients(ingredientSearch.value);
+				}
+			});
+			
+			ingredientSearch.addEventListener('keydown', (e) => {
+				if (e.key === 'Escape') {
+					ingredientDropdown.classList.add('hidden');
+					ingredientSearch.blur();
+				} else if (e.key === 'ArrowDown') {
+					e.preventDefault();
+					const firstBtn = ingredientDropdown.querySelector('button');
+					if (firstBtn) firstBtn.focus();
+				}
+			});
+			
+			// Close dropdown when clicking outside
+			document.addEventListener('click', (e) => {
+				if (!ingredientSearch.contains(e.target) && !ingredientDropdown.contains(e.target)) {
+					ingredientDropdown.classList.add('hidden');
+				}
+			});
+		}
 
 		function openModal(button){
 			items = [];
@@ -693,6 +808,9 @@ $ingredientStockMap = $ingredientStock ?? [];
 			modal.classList.add('flex');
 			document.body.classList.add('overflow-hidden');
 			configurePrepareUnits('');
+			// Clear search when opening modal
+			if (ingredientSearch) ingredientSearch.value = '';
+			if (ingredientDropdown) ingredientDropdown.classList.add('hidden');
 		}
 
 		function closeModal(){
@@ -702,7 +820,9 @@ $ingredientStockMap = $ingredientStock ?? [];
 			items = [];
 			renderItems();
 			quantityInput.value = '';
-			ingredientSelect.value = '';
+			if (ingredientSelect) ingredientSelect.value = '';
+			if (ingredientSearch) ingredientSearch.value = '';
+			if (ingredientDropdown) ingredientDropdown.classList.add('hidden');
 			errorBox.classList.add('hidden');
 		}
 
@@ -812,7 +932,9 @@ $ingredientStockMap = $ingredientStock ?? [];
 					quantity: baseQuantity,
 				});
 			}
-			ingredientSelect.value = '';
+			if (ingredientSelect) ingredientSelect.value = '';
+			if (ingredientSearch) ingredientSearch.value = '';
+			if (ingredientDropdown) ingredientDropdown.classList.add('hidden');
 			quantityInput.value = '';
 			configurePrepareUnits('');
 			clearBuilderError();
