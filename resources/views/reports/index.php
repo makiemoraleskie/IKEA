@@ -1,14 +1,16 @@
 <?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
 <!-- Page Header -->
-<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6 sm:mb-8">
-	<div>
-		<h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">Purchase Reports</h1>
-		<p class="text-sm sm:text-base text-gray-600 mt-1">Analyze and export purchase data</p>
+<div class="bg-white rounded-xl shadow-md border-2 border-gray-200/80 p-3 sm:p-4 mb-4 md:mb-6 relative overflow-hidden">
+	<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+		<div>
+			<h1 class="text-2xl font-bold text-gray-900 tracking-tight">Purchase Reports</h1>
+			<p class="text-sm sm:text-base text-gray-600 mt-1 font-medium">Analyze and export purchase data</p>
+		</div>
+		<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-[#008000] bg-[#008000]/10 rounded-xl hover:bg-[#008000]/20 border border-[#008000]/20 transition-colors">
+			<i data-lucide="arrow-left" class="w-4 h-4"></i>
+			Back to Dashboard
+		</a>
 	</div>
-	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-[#008000] bg-[#008000]/10 rounded-xl hover:bg-[#008000]/20 border border-[#008000]/20 transition-colors">
-		<i data-lucide="arrow-left" class="w-4 h-4"></i>
-		Back to Dashboard
-	</a>
 </div>
 
 <!-- Summary Cards -->

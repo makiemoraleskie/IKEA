@@ -1,13 +1,15 @@
 <?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
-<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
-	<div>
-		<h1 class="text-3xl font-bold text-gray-900">Notifications</h1>
-		<p class="text-gray-600 mt-1">Review all recent updates and alerts</p>
+<div class="bg-white rounded-xl shadow-md border-2 border-gray-200/80 p-3 sm:p-4 mb-4 md:mb-6 relative overflow-hidden">
+	<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+		<div>
+			<h1 class="text-2xl font-bold text-gray-900 tracking-tight">Notifications</h1>
+			<p class="text-sm sm:text-base text-gray-600 mt-1 font-medium">Review all recent updates and alerts</p>
+		</div>
+		<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-[#008000] bg-[#008000]/10 rounded-xl hover:bg-[#008000]/20 border border-[#008000]/20 transition-all duration-200 shadow-sm hover:shadow-md">
+			<i data-lucide="arrow-left" class="w-4 h-4"></i>
+			Back to Dashboard
+		</a>
 	</div>
-	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-		<i data-lucide="arrow-left" class="w-4 h-4"></i>
-		Back to Dashboard
-	</a>
 </div>
 
 <?php if (!empty($flash)): ?>

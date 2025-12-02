@@ -133,7 +133,7 @@ if ($user) {
 			
 			<div class="relative z-10 flex flex-col h-full">
 				<!-- Logo Section - Enhanced -->
-				<div class="p-6 sm:p-8 border-b border-gray-200">
+				<div class="p-6 sm:p-8">
 					<div class="flex items-center justify-between">
 						<div class="flex items-center gap-3">
 							<div class="relative">
@@ -187,9 +187,14 @@ if ($user) {
 						$activeClasses = $isActive 
 							? 'bg-gradient-to-r from-[#008000]/10 via-[#008000]/5 to-transparent text-[#008000] font-semibold border-l-4 border-[#008000] shadow-sm' 
 							: 'text-gray-700 hover:bg-gradient-to-r hover:from-gray-100/50 hover:via-gray-50/30 hover:to-transparent hover:text-[#008000]';
+						$isPurchases = $item['url'] === '/purchases';
 					?>
 						<a href="<?php echo htmlspecialchars($baseUrl . $item['url']); ?>" class="sidebar-link flex items-center gap-3 px-4 py-3.5 mx-2 rounded-xl transition-all duration-200 mb-1 <?php echo $activeClasses; ?>">
-							<i data-lucide="<?php echo $item['icon']; ?>" class="w-5 h-5 flex-shrink-0"></i>
+							<?php if ($isPurchases): ?>
+								<span class="w-5 h-5 flex-shrink-0 flex items-center justify-center text-lg font-bold">₱</span>
+							<?php else: ?>
+								<i data-lucide="<?php echo $item['icon']; ?>" class="w-5 h-5 flex-shrink-0"></i>
+							<?php endif; ?>
 							<span class="text-sm font-medium"><?php echo $item['label']; ?></span>
 							<?php if ($isActive): ?>
 								<div class="ml-auto w-2 h-2 rounded-full bg-[#008000] animate-pulse"></div>
@@ -198,43 +203,25 @@ if ($user) {
 					<?php endforeach; ?>
 				</nav>
 				
-				<!-- User Info Section - Enhanced -->
-				<div class="mt-auto p-5 sm:p-6 border-t border-gray-200">
-					<div class="mb-4 flex items-center gap-3">
-						<i data-lucide="user" class="w-5 h-5 text-gray-600 flex-shrink-0"></i>
-						<div class="flex-1 min-w-0">
-							<div class="text-sm font-bold text-gray-800 truncate"><?php echo htmlspecialchars($user['name'] ?? 'User'); ?></div>
-							<div class="text-xs text-gray-500 font-medium truncate"><?php echo htmlspecialchars($user['role'] ?? 'User'); ?></div>
-						</div>
-					</div>
-					<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/logout">
-						<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
-						<button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all duration-200 border border-transparent hover:border-red-200">
-							<i data-lucide="log-out" class="w-4 h-4"></i>
-							<span>Logout</span>
-						</button>
-					</form>
-				</div>
 			</div>
 		</div>
 		
 		<!-- Main Content -->
 		<div class="flex-1 flex flex-col md:h-full md:overflow-hidden w-full md:w-auto min-w-0 relative z-0">
 			<!-- Top Header -->
-			<header class="bg-white border-b theme-header md:sticky md:top-0 z-20">
-				<div class="mx-auto flex w-full max-w-7xl flex-col gap-3 sm:gap-4 px-4 py-2 sm:py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8 xl:px-10">
-					<h1 class="text-2xl font-bold text-gray-800 truncate"><?php echo $pageTitle ?? 'Dashboard'; ?></h1>
-					<div class="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto">
-						<div class="flex items-center justify-between gap-3 w-full sm:w-auto">
-							<button id="sidebarToggle" class="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 focus:outline-none" aria-label="Toggle navigation">
-								<i data-lucide="menu" class="w-5 h-5"></i>
-							</button>
-							<div class="relative flex-1">
-								<input type="text" placeholder="Search..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-								<i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-							</div>
+			<header class="bg-white border-b theme-header z-20" style="position: relative !important;">
+				<div class="mx-auto flex w-full max-w-7xl flex-col gap-3 sm:gap-4 px-4 py-3 sm:py-6 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8 xl:px-10">
+					<div class="flex items-center gap-4">
+						<button id="sidebarToggle" class="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 focus:outline-none" aria-label="Toggle navigation">
+							<i data-lucide="menu" class="w-5 h-5"></i>
+						</button>
+						<div class="flex items-center gap-3">
+							<h1 class="text-2xl font-bold text-gray-800 truncate"><?php echo $pageTitle ?? 'Dashboard'; ?></h1>
 						</div>
-						<div class="relative" id="notificationWrapper">
+					</div>
+					<div class="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto">
+						<div class="flex items-center gap-3">
+							<div class="relative" id="notificationWrapper">
 							<button type="button" id="notificationButton" aria-haspopup="true" aria-expanded="false" class="relative focus:outline-none rounded-full p-2 border <?php echo $notificationCount ? 'border-red-200 text-red-700 bg-red-50 animate-bounce' : 'border-gray-200 text-gray-600 hover:bg-gray-50'; ?>">
 								<i data-lucide="bell" class="w-5 h-5"></i>
 								<?php if ($notificationCount > 0): ?>
@@ -293,8 +280,30 @@ if ($user) {
 								<?php endif; ?>
 							</div>
 						</div>
-						<div class="text-sm text-gray-500 text-center sm:text-left">
-							Last updated: <?php echo date('m/d/Y, g:i:s A'); ?>
+						<!-- User Profile Dropdown -->
+						<div class="relative" id="userProfileDropdown">
+							<button type="button" id="userProfileButton" aria-haspopup="true" aria-expanded="false" class="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 focus:outline-none transition-colors">
+								<div class="flex items-center gap-2">
+									<i data-lucide="user" class="w-5 h-5 text-gray-600"></i>
+									<div class="text-left hidden sm:block">
+										<div class="text-sm font-bold text-gray-800"><?php echo htmlspecialchars($user['name'] ?? 'User'); ?></div>
+										<div class="text-xs text-gray-500"><?php echo htmlspecialchars($user['role'] ?? 'User'); ?></div>
+									</div>
+								</div>
+								<i data-lucide="chevron-down" class="w-4 h-4 text-gray-400"></i>
+							</button>
+							<div id="userProfileMenu" class="hidden absolute right-0 mt-2 w-48 border border-gray-200 rounded-xl shadow-xl z-50">
+								<div class="px-4 py-3 border-b border-gray-200 sm:hidden">
+									<div class="text-sm font-bold text-gray-800"><?php echo htmlspecialchars($user['name'] ?? 'User'); ?></div>
+									<div class="text-xs text-gray-500"><?php echo htmlspecialchars($user['role'] ?? 'User'); ?></div>
+								</div>
+								<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/logout" class="p-2">
+									<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+									<button type="submit" class="w-full text-left px-3 py-2 text-sm text-red-600 hover:text-red-700 transition-colors">
+										Logout
+									</button>
+								</form>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -398,10 +407,51 @@ if ($user) {
 					}
 				});
 			})();
+			(function(){
+				const userBtn = document.getElementById('userProfileButton');
+				const userMenu = document.getElementById('userProfileMenu');
+				if (!userBtn || !userMenu) return;
+				
+				function closeUserMenu() {
+					userMenu.classList.add('hidden');
+					userBtn.setAttribute('aria-expanded', 'false');
+					const chevron = userBtn.querySelector('i[data-lucide="chevron-down"]');
+					if (chevron) {
+						chevron.setAttribute('data-lucide', 'chevron-down');
+						if (typeof lucide !== 'undefined') {
+							lucide.createIcons();
+						}
+					}
+				}
+				
+				userBtn.addEventListener('click', (event) => {
+					event.stopPropagation();
+					const isOpen = userBtn.getAttribute('aria-expanded') === 'true';
+					if (isOpen) {
+						closeUserMenu();
+					} else {
+						userMenu.classList.remove('hidden');
+						userBtn.setAttribute('aria-expanded', 'true');
+						const chevron = userBtn.querySelector('i[data-lucide="chevron-down"]');
+						if (chevron) {
+							chevron.setAttribute('data-lucide', 'chevron-up');
+							if (typeof lucide !== 'undefined') {
+								lucide.createIcons();
+							}
+						}
+					}
+				});
+				
+				document.addEventListener('click', (event) => {
+					if (!userMenu.contains(event.target) && !userBtn.contains(event.target)) {
+						closeUserMenu();
+					}
+				});
+			})();
 			</script>
 			
 			<!-- Main Content Area -->
-			<main class="flex-1 overflow-y-auto relative bg-[#E8F5E8]">
+			<main class="flex-1 overflow-y-auto relative bg-gray-100">
 				<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 pt-2 sm:pt-4 md:pt-6 pb-6 space-y-4 sm:space-y-6 md:space-y-8 relative z-10">
 	<?php else: ?>
 	<main class="max-w-7xl mx-auto p-4">

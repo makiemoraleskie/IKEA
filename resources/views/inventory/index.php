@@ -5,15 +5,17 @@ $canManageSets = in_array(Auth::role(), ['Owner','Manager'], true);
 $canManageInventory = in_array(Auth::role(), ['Owner','Manager'], true);
 ?>
 <!-- Page Header - Enhanced -->
-<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-10">
-	<div class="space-y-2">
-		<h1 class="text-4xl font-bold text-gray-900 tracking-tight">Inventory Management</h1>
-		<p class="text-base text-gray-600 font-medium">Track and manage ingredient stock levels efficiently</p>
+<div class="bg-white rounded-xl shadow-md border-2 border-gray-200/80 p-3 sm:p-4 mb-4 md:mb-6 relative overflow-hidden">
+	<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+		<div class="space-y-2">
+			<h1 class="text-2xl font-bold text-gray-900 tracking-tight">Inventory Management</h1>
+			<p class="text-sm sm:text-base text-gray-600 font-medium">Track and manage ingredient stock levels efficiently</p>
+		</div>
+		<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2.5 px-5 py-3 text-xs font-bold text-[#008000] bg-[#008000]/10 rounded-xl hover:bg-[#008000]/20 border border-[#008000]/20 transition-all duration-200 shadow-sm hover:shadow-md">
+			<i data-lucide="arrow-left" class="w-4 h-4"></i>
+			Back to Dashboard
+		</a>
 	</div>
-	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2.5 px-5 py-3 text-sm font-bold text-[#008000] bg-gradient-to-r from-[#008000]/10 to-[#008000]/5 border-2 border-gray-300 rounded-xl hover:bg-gradient-to-r hover:from-[#008000]/15 hover:to-[#008000]/10 hover:border-gray-400 transition-all duration-200 shadow-sm hover:shadow-md">
-		<i data-lucide="arrow-left" class="w-4 h-4"></i>
-		Back to Dashboard
-	</a>
 </div>
 
 <?php if (!empty($flash)): ?>
@@ -221,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function(){
 	
 	<div class="relative z-10">
 		<!-- Header Section -->
-		<div class="bg-gradient-to-r from-[#008000]/10 via-[#008000]/5 to-[#FCBBE9]/5 px-6 sm:px-8 py-6 border-b-2 border-gray-200/60">
+		<div class="bg-gradient-to-r from-[#008000]/10 via-[#008000]/5 to-[#008000]/5 px-6 sm:px-8 py-6 border-b-2 border-gray-200/60">
 			<div class="flex items-center gap-4">
 				<div class="w-14 h-14 bg-gradient-to-br from-[#008000] to-[#00A86B] rounded-2xl flex items-center justify-center shadow-lg">
 					<i data-lucide="plus-circle" class="w-7 h-7 text-white"></i>

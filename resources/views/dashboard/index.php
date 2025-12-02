@@ -1,5 +1,5 @@
 <!-- Welcome Banner - Enhanced -->
-<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 p-3 sm:p-4 mb-4 md:mb-6 relative overflow-hidden">
+<div class="bg-white rounded-xl shadow-md border-2 border-gray-200/80 p-3 sm:p-4 mb-4 md:mb-6 relative overflow-hidden">
 	
 	<!-- Upper right section - absolutely positioned -->
 	<div class="absolute top-3 right-3 sm:top-4 sm:right-4 z-20">
@@ -54,7 +54,7 @@ $cardCopy = [
 <!-- Dashboard Cards - Enhanced -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-8">
 	<!-- Low Stock Items -->
-	<div class="group bg-white rounded-xl shadow-sm border-2 relative overflow-hidden <?php echo $lowStock ? 'border-red-300/80 ring-2 ring-red-200/50 bg-red-50/50' : 'border-gray-200/80'; ?>">
+	<div class="group bg-white rounded-xl shadow-md border-2 relative overflow-hidden <?php echo $lowStock ? 'border-red-300/80 ring-2 ring-red-200/50 bg-red-50/50' : 'border-gray-200/80'; ?>">
 		<div class="p-4 sm:p-5 relative z-10">
 		<div class="absolute top-3 right-3 w-9 h-9 sm:w-10 sm:h-10 bg-red-50 rounded-lg flex items-center justify-center border border-red-200 z-20">
 			<i data-lucide="alert-triangle" class="w-4 h-4 sm:w-5 sm:h-5 text-red-600"></i>
@@ -77,7 +77,7 @@ $cardCopy = [
 	</div>
 
 	<!-- Pending Requests -->
-	<div class="group bg-white rounded-xl shadow-sm border-2 relative overflow-hidden <?php echo $pendingRequests ? 'border-red-300/80 ring-2 ring-red-200/50 bg-red-50/50' : 'border-gray-200/80'; ?>">
+	<div class="group bg-white rounded-xl shadow-md border-2 relative overflow-hidden <?php echo $pendingRequests ? 'border-red-300/80 ring-2 ring-red-200/50 bg-red-50/50' : 'border-gray-200/80'; ?>">
 		<div class="p-4 sm:p-5 relative z-10">
 			<div class="absolute top-3 right-3 w-9 h-9 sm:w-10 sm:h-10 bg-green-50 rounded-lg flex items-center justify-center border border-green-200 z-20">
 				<i data-lucide="inbox" class="w-4 h-4 sm:w-5 sm:h-5 text-green-600"></i>
@@ -100,7 +100,7 @@ $cardCopy = [
 	</div>
 
 	<!-- Pending Payments -->
-	<div class="group bg-white rounded-xl shadow-sm border-2 relative overflow-hidden <?php echo $pendingPayments ? 'border-red-300/80 ring-2 ring-red-200/50 bg-red-50/50' : 'border-gray-200/80'; ?>">
+	<div class="group bg-white rounded-xl shadow-md border-2 relative overflow-hidden <?php echo $pendingPayments ? 'border-red-300/80 ring-2 ring-red-200/50 bg-red-50/50' : 'border-gray-200/80'; ?>">
 		<div class="p-4 sm:p-5 relative z-10">
 			<div class="absolute top-3 right-3 w-9 h-9 sm:w-10 sm:h-10 bg-green-50 rounded-lg flex items-center justify-center border border-green-200 z-20">
 				<i data-lucide="credit-card" class="w-4 h-4 sm:w-5 sm:h-5 text-green-600"></i>
@@ -123,7 +123,7 @@ $cardCopy = [
 	</div>
 
 	<!-- Partial Deliveries -->
-	<div class="group bg-white rounded-xl shadow-sm border-2 relative overflow-hidden <?php echo $partialDeliveries ? 'border-red-300/80 ring-2 ring-red-200/50 bg-red-50/50' : 'border-gray-200/80'; ?>">
+	<div class="group bg-white rounded-xl shadow-md border-2 relative overflow-hidden <?php echo $partialDeliveries ? 'border-red-300/80 ring-2 ring-red-200/50 bg-red-50/50' : 'border-gray-200/80'; ?>">
 		<div class="p-4 sm:p-5 relative z-10">
 			<div class="absolute top-3 right-3 w-9 h-9 sm:w-10 sm:h-10 bg-green-50 rounded-lg flex items-center justify-center border border-green-200 z-20">
 				<i data-lucide="truck" class="w-4 h-4 sm:w-5 sm:h-5 text-green-600"></i>
@@ -146,7 +146,7 @@ $cardCopy = [
 	</div>
 
 	<!-- Pending Deliveries -->
-	<div class="group bg-white rounded-xl shadow-sm border-2 relative overflow-hidden <?php echo $pendingDeliveries ? 'border-green-300/80 ring-2 ring-green-200/50 bg-green-50/50' : 'border-gray-200/80'; ?>">
+	<div class="group bg-white rounded-xl shadow-md border-2 relative overflow-hidden <?php echo $pendingDeliveries ? 'border-green-300/80 ring-2 ring-green-200/50 bg-green-50/50' : 'border-gray-200/80'; ?>">
 		<div class="p-4 sm:p-5 relative z-10">
 			<div class="absolute top-3 right-3 w-9 h-9 sm:w-10 sm:h-10 bg-green-50 rounded-lg flex items-center justify-center border border-green-200 z-20">
 				<i data-lucide="package" class="w-4 h-4 sm:w-5 sm:h-5 text-green-600"></i>
@@ -169,7 +169,7 @@ $cardCopy = [
 	</div>
 
 	<!-- Inventory Value -->
-	<div class="group bg-white rounded-xl shadow-sm border-2 border-gray-200/80 relative overflow-hidden">
+	<div class="group bg-white rounded-xl shadow-md border-2 border-gray-200/80 relative overflow-hidden">
 		<div class="p-4 sm:p-5 relative z-10">
 			<div class="absolute top-3 right-3 w-9 h-9 sm:w-10 sm:h-10 bg-green-50 rounded-lg flex items-center justify-center border border-green-200 z-20">
 				<span class="text-sm sm:text-base font-bold text-[#008000]">₱</span>
@@ -204,7 +204,7 @@ $cardCopy = [
 				<span class="text-xs font-bold text-[#008000] uppercase tracking-wide">Live Data</span>
 			</div>
 		</div>
-		<div class="relative min-h-[18rem] sm:min-h-[20rem] lg:min-h-[24rem] bg-gray-50 rounded-xl p-6 border-2 border-gray-200/60">
+		<div class="relative min-h-[18rem] sm:min-h-[20rem] lg:min-h-[24rem] bg-gray-100 rounded-xl p-6 border-2 border-gray-200/60">
 			<canvas id="overviewChart" class="h-full w-full"></canvas>
 			<div id="chartFallback" class="absolute inset-0 flex flex-col items-center justify-center text-center text-gray-500 <?php echo $chartTotal > 0 ? 'hidden' : ''; ?>">
 				<svg class="w-16 h-16 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -236,8 +236,8 @@ if (chartCtx && Array.isArray(chartData.labels)) {
 		{
 			label: 'Deliveries',
 			data: chartData.deliveries ?? [],
-			backgroundColor: 'rgba(252, 187, 233, 0.7)',
-			borderColor: 'rgba(252, 187, 233, 1)',
+			backgroundColor: 'rgba(229, 231, 235, 0.7)',
+			borderColor: 'rgba(229, 231, 235, 1)',
 			borderWidth: 2,
 			borderRadius: 6,
 			barThickness: 'flex',

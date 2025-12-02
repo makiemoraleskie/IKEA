@@ -16,19 +16,21 @@ $currentQuery = http_build_query(array_filter($_GET ?? [], fn($value) => $value 
 .custom-scroll::-webkit-scrollbar-track{background:rgba(226,232,240,0.4)}
 </style>
 <!-- Page Header -->
-<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6 sm:mb-8">
-	<div>
-		<h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">Audit Logs</h1>
-		<p class="text-sm sm:text-base text-gray-600 mt-1">Track and monitor system activities across modules</p>
-		<div class="mt-2 inline-flex items-center gap-2 rounded-full bg-[#008000]/10 text-[#008000] text-xs font-semibold px-3 py-1 border border-[#008000]/20">
-			<i data-lucide="calendar" class="w-3 h-3"></i>
-			<span><?php echo htmlspecialchars($activeDateLabel); ?></span>
+<div class="bg-white rounded-xl shadow-md border-2 border-gray-200/80 p-3 sm:p-4 mb-4 md:mb-6 relative overflow-hidden">
+	<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+		<div>
+			<h1 class="text-2xl font-bold text-gray-900 tracking-tight">Audit Logs</h1>
+			<p class="text-sm sm:text-base text-gray-600 mt-1 font-medium">Track and monitor system activities across modules</p>
+			<div class="mt-2 inline-flex items-center gap-2 rounded-full bg-[#008000]/10 text-[#008000] text-xs font-semibold px-3 py-1 border border-[#008000]/20">
+				<i data-lucide="calendar" class="w-3 h-3"></i>
+				<span><?php echo htmlspecialchars($activeDateLabel); ?></span>
+			</div>
 		</div>
+		<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-[#008000] bg-[#008000]/10 rounded-xl hover:bg-[#008000]/20 border border-[#008000]/20 transition-colors">
+			<i data-lucide="arrow-left" class="w-4 h-4"></i>
+			Back to Dashboard
+		</a>
 	</div>
-	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-[#008000] bg-[#008000]/10 rounded-xl hover:bg-[#008000]/20 border border-[#008000]/20 transition-colors">
-		<i data-lucide="arrow-left" class="w-4 h-4"></i>
-		Back to Dashboard
-	</a>
 </div>
 
 <?php if (!empty($flash)): ?>
@@ -176,10 +178,10 @@ foreach ($logs as $log) {
 					<?php foreach ($timeline as $entry): 
 						$action = strtolower((string)$entry['action']);
 						$actionClass = match(true) {
-							in_array($action, ['delete','remove']) => 'bg-red-100 text-red-800 border-red-200',
-							in_array($action, ['update','edit','modify']) => 'bg-amber-100 text-amber-800 border-amber-200',
-							in_array($action, ['create','add','insert']) => 'bg-[#008000]/10 text-[#008000] border-[#008000]/20',
-							default => 'bg-blue-100 text-blue-800 border-blue-200',
+							in_array($action, ['delete','remove']) => 'text-red-800',
+							in_array($action, ['update','edit','modify']) => 'text-amber-800',
+							in_array($action, ['create','add','insert']) => 'text-[#008000]',
+							default => 'text-blue-800',
 						};
 						$actionIcon = match(true) {
 							in_array($action, ['create','add','insert']) => 'plus',
@@ -191,24 +193,18 @@ foreach ($logs as $log) {
 					?>
 					<tr class="hover:bg-gray-50 transition-colors">
 						<td class="px-4 sm:px-6 py-4">
-							<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold border <?php echo $actionClass; ?>">
+							<span class="inline-flex items-center gap-1 text-xs font-semibold <?php echo $actionClass; ?>">
 								<i data-lucide="<?php echo $actionIcon; ?>" class="w-3 h-3"></i>
 								<?php echo htmlspecialchars($entry['action']); ?>
 							</span>
 						</td>
 						<td class="px-4 sm:px-6 py-4">
-							<span class="inline-flex items-center gap-1 px-2 py-1 bg-[#008000]/10 text-[#008000] rounded-lg text-xs font-semibold border border-[#008000]/20">
-								<i data-lucide="layers" class="w-3 h-3"></i>
+							<span class="text-gray-900 text-xs font-semibold">
 								<?php echo htmlspecialchars($entry['module']); ?>
 							</span>
 						</td>
 						<td class="px-4 sm:px-6 py-4">
-							<div class="flex items-center gap-2">
-								<div class="w-8 h-8 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
-									<span class="text-xs font-semibold text-[#008000]"><?php echo strtoupper(substr($entry['user_name'] ?? 'U', 0, 2)); ?></span>
-								</div>
-								<span class="font-medium text-gray-900 text-xs sm:text-sm"><?php echo htmlspecialchars($entry['user_name'] ?? (string)($entry['user_id'] ?? 'System')); ?></span>
-							</div>
+							<span class="font-medium text-gray-900 text-xs sm:text-sm"><?php echo htmlspecialchars($entry['user_name'] ?? (string)($entry['user_id'] ?? 'System')); ?></span>
 						</td>
 						<td class="px-4 sm:px-6 py-4">
 							<div class="flex items-center gap-2">
@@ -390,17 +386,11 @@ foreach ($logs as $log) {
 					</td>
 					
 					<td class="px-6 py-4">
-						<div class="flex items-center gap-2">
-							<div class="w-8 h-8 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
-								<span class="text-xs font-semibold text-[#008000]"><?php echo strtoupper(substr($log['user_name'] ?? 'U', 0, 2)); ?></span>
-							</div>
-							<span class="font-medium text-gray-900"><?php echo htmlspecialchars($log['user_name'] ?? (string)($log['user_id'] ?? '')); ?></span>
-						</div>
+						<span class="font-medium text-gray-900"><?php echo htmlspecialchars($log['user_name'] ?? (string)($log['user_id'] ?? '')); ?></span>
 					</td>
 					
 					<td class="px-6 py-4">
-						<span class="inline-flex items-center gap-1 px-2 py-1 bg-[#008000]/10 text-[#008000] rounded-lg text-xs font-semibold border border-[#008000]/20">
-							<i data-lucide="layers" class="w-3 h-3"></i>
+						<span class="text-gray-900 text-xs font-semibold">
 							<?php echo htmlspecialchars($log['module']); ?>
 						</span>
 					</td>
@@ -408,11 +398,11 @@ foreach ($logs as $log) {
 					<td class="px-6 py-4">
 						<?php 
 						$actionClass = match(strtolower($log['action'])) {
-							'create', 'add', 'insert' => 'bg-green-100 text-green-800',
-							'update', 'edit', 'modify' => 'bg-yellow-100 text-yellow-800',
-							'delete', 'remove' => 'bg-red-100 text-red-800',
-							'login', 'logout' => 'bg-blue-100 text-blue-800',
-							default => 'bg-gray-100 text-gray-800'
+							'create', 'add', 'insert' => 'text-green-800',
+							'update', 'edit', 'modify' => 'text-yellow-800',
+							'delete', 'remove' => 'text-red-800',
+							'login', 'logout' => 'text-blue-800',
+							default => 'text-gray-800'
 						};
 						$actionIcon = match(strtolower($log['action'])) {
 							'create', 'add', 'insert' => 'plus',
@@ -422,7 +412,7 @@ foreach ($logs as $log) {
 							default => 'activity'
 						};
 						?>
-						<span class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium <?php echo $actionClass; ?>">
+						<span class="inline-flex items-center gap-1 text-xs font-medium <?php echo $actionClass; ?>">
 							<i data-lucide="<?php echo $actionIcon; ?>" class="w-3 h-3"></i>
 							<?php echo htmlspecialchars($log['action']); ?>
 						</span>

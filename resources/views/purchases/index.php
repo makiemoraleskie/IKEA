@@ -45,15 +45,17 @@
 	}
 </style>
 <!-- Page Header - Enhanced -->
-<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6 md:mb-10">
-	<div class="space-y-1 md:space-y-2">
-		<h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">Purchase Transactions</h1>
-		<p class="text-sm sm:text-base text-gray-600 font-medium">Record and manage ingredient purchases</p>
+<div class="bg-white rounded-xl shadow-md border-2 border-gray-200/80 p-3 sm:p-4 mb-4 md:mb-6 relative overflow-hidden">
+	<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+		<div class="space-y-1 md:space-y-2">
+			<h1 class="text-2xl font-bold text-gray-900 tracking-tight">Purchase Transactions</h1>
+			<p class="text-sm sm:text-base text-gray-600 font-medium">Record and manage ingredient purchases</p>
+		</div>
+		<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2.5 px-4 py-2.5 sm:px-5 sm:py-3 text-xs font-bold text-[#008000] bg-[#008000]/10 rounded-xl hover:bg-[#008000]/20 border border-[#008000]/20 transition-all duration-200 shadow-sm w-full sm:w-auto justify-center">
+			<i data-lucide="arrow-left" class="w-4 h-4"></i>
+			Back to Dashboard
+		</a>
 	</div>
-	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2.5 px-4 py-2.5 sm:px-5 sm:py-3 text-sm font-bold text-[#008000] bg-gradient-to-r from-[#008000]/10 to-[#008000]/5 border-2 border-gray-300 rounded-xl shadow-sm w-full sm:w-auto justify-center">
-		<i data-lucide="arrow-left" class="w-4 h-4"></i>
-		Back to Dashboard
-	</a>
 </div>
 
 <?php if (!empty($flash)): ?>

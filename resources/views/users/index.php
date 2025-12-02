@@ -1,13 +1,15 @@
 <?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
-<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6 sm:mb-8">
-	<div>
-		<h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">User Management</h1>
-		<p class="text-sm sm:text-base text-gray-600 mt-1">Create and manage commissary accounts</p>
+<div class="bg-white rounded-xl shadow-md border-2 border-gray-200/80 p-3 sm:p-4 mb-4 md:mb-6 relative overflow-hidden">
+	<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+		<div>
+			<h1 class="text-2xl font-bold text-gray-900 tracking-tight">User Management</h1>
+			<p class="text-sm sm:text-base text-gray-600 mt-1 font-medium">Create and manage commissary accounts</p>
+		</div>
+		<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-[#008000] bg-[#008000]/10 rounded-xl hover:bg-[#008000]/20 border border-[#008000]/20 transition-colors">
+			<i data-lucide="arrow-left" class="w-4 h-4"></i>
+			Back to Dashboard
+		</a>
 	</div>
-	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-[#008000] bg-[#008000]/10 rounded-xl hover:bg-[#008000]/20 border border-[#008000]/20 transition-colors">
-		<i data-lucide="arrow-left" class="w-4 h-4"></i>
-		Back to Dashboard
-	</a>
 </div>
 
 <?php if (!empty($flash)): ?>
@@ -77,7 +79,6 @@
 		<table class="w-full text-sm min-w-[700px]">
 			<thead class="bg-gray-50">
 				<tr>
-					<th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-700">ID</th>
 					<th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-700">Name</th>
 					<th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-700">Email</th>
 					<th class="text-left px-4 sm:px-6 py-3 font-medium text-gray-700">Role</th>
@@ -89,24 +90,13 @@
 				<?php foreach ($users as $u): ?>
 				<tr class="hover:bg-gray-50 transition-colors">
 					<td class="px-4 sm:px-6 py-4">
-						<div class="w-8 h-8 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
-							<span class="text-xs font-semibold text-[#008000]"><?php echo (int)$u['id']; ?></span>
-						</div>
-					</td>
-					<td class="px-4 sm:px-6 py-4">
-						<div class="flex items-center gap-2">
-							<div class="w-8 h-8 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
-								<span class="text-xs font-semibold text-[#008000]"><?php echo strtoupper(substr($u['name'], 0, 2)); ?></span>
-							</div>
-							<span class="font-medium text-gray-900"><?php echo htmlspecialchars($u['name']); ?></span>
-						</div>
+						<span class="font-medium text-gray-900"><?php echo htmlspecialchars($u['name']); ?></span>
 					</td>
 					<td class="px-4 sm:px-6 py-4">
 						<span class="text-gray-600"><?php echo htmlspecialchars($u['email']); ?></span>
 					</td>
 					<td class="px-4 sm:px-6 py-4">
-						<span class="inline-flex items-center gap-1 px-2 py-1 bg-[#008000]/10 text-[#008000] rounded-lg text-xs font-semibold border border-[#008000]/20">
-							<i data-lucide="shield" class="w-3 h-3"></i>
+						<span class="text-gray-900 text-xs font-semibold">
 							<?php echo htmlspecialchars($u['role']); ?>
 						</span>
 					</td>
@@ -142,7 +132,7 @@
 					</td>
 				</tr>
 				<tr id="edit-<?php echo (int)$u['id']; ?>" class="hidden bg-gray-50/50 border-t">
-					<td colspan="6" class="px-4 sm:px-6 py-4">
+					<td colspan="5" class="px-4 sm:px-6 py-4">
 						<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/users/update" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
 							<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 							<input type="hidden" name="id" value="<?php echo (int)$u['id']; ?>">

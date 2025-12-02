@@ -11,7 +11,7 @@ $logoPath = (defined('BASE_URL') ? BASE_URL : '') . '/resources/views/logo/54047
 		<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-[#FCBBE9]/10 via-transparent to-[#A8E6CF]/10 rounded-full blur-3xl"></div>
 	</div>
 
-	<div class="w-full max-w-6xl bg-white/80 backdrop-blur-xl border border-white/60 rounded-2xl shadow-xl shadow-pink-200/20 overflow-hidden animate-fade-in relative z-10">
+	<div class="w-full max-w-6xl bg-white/80 backdrop-blur-xl border border-white/60 rounded-2xl shadow-xl shadow-gray-200/20 overflow-hidden animate-fade-in relative z-10">
 		<div class="grid gap-0 lg:grid-cols-2 h-full">
 			<!-- Left Brand Section - Enhanced -->
 			<section class="relative hidden lg:flex flex-col justify-between bg-gradient-to-br from-[#FCBBE9] via-[#F5E6F0] to-[#A8E6CF] text-[#1d1b1e] p-8 lg:p-10 backdrop-blur-sm overflow-hidden">
