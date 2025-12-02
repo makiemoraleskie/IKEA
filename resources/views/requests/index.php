@@ -214,16 +214,28 @@ $ingredientStockMap = $ingredientStock ?? [];
 					<td class="px-6 py-4">
 						<p class="text-sm text-gray-700 whitespace-pre-line max-w-sm"><?php echo htmlspecialchars($b['custom_ingredients'] ?? '—'); ?></p>
                         <button type="button" class="mt-1 text-blue-600 hover:text-blue-700 text-xs underline viewBatchDetails" data-batch="<?php echo (int)$b['id']; ?>">View details</button>
-						<?php if (($b['status'] ?? '') === 'Distributed' && !empty($items)): ?>
+						<?php 
+						$batchRemainingStock = $batchRemainingStock ?? [];
+						$batchId = (int)$b['id'];
+						$shouldShowRemaining = ($b['status'] ?? '') === 'Distributed' && !empty($items) && isset($batchRemainingStock[$batchId]);
+						?>
+						<?php if ($shouldShowRemaining): ?>
 							<div class="mt-2 space-y-1 text-xs text-gray-500">
-								<?php foreach ($items as $it): $iid = (int)($it['item_id'] ?? 0); $remain = $ingredientStockMap[$iid] ?? null; ?>
+								<?php foreach ($items as $it): 
+									$iid = (int)($it['item_id'] ?? 0);
+									// Show remaining stock for this specific batch
+									if (isset($batchRemainingStock[$batchId][$iid])):
+										$remain = $batchRemainingStock[$batchId][$iid];
+								?>
 									<div class="flex items-center gap-2">
 										<i data-lucide="battery-charging" class="w-3 h-3 text-green-500"></i>
 										<span>Remaining <?php echo htmlspecialchars($it['item_name']); ?>:
-											<span class="font-semibold text-gray-900"><?php echo $remain !== null ? number_format((float)$remain, 2) . ' ' . htmlspecialchars($it['unit']) : '—'; ?></span>
+											<span class="font-semibold text-gray-900"><?php echo number_format((float)$remain, 2) . ' ' . htmlspecialchars($it['unit']); ?></span>
 										</span>
 									</div>
-								<?php endforeach; ?>
+								<?php 
+									endif;
+								endforeach; ?>
 							</div>
 						<?php endif; ?>
 					</td>
@@ -367,10 +379,28 @@ $ingredientStockMap = $ingredientStock ?? [];
 					<td class="px-6 py-4 text-sm text-gray-700 whitespace-pre-line max-w-sm"><?php echo htmlspecialchars($b['custom_ingredients'] ?? '—'); ?></td>
 					<td class="px-6 py-4 text-gray-600"><?php echo htmlspecialchars($b['date_requested']); ?></td>
 					<td class="px-6 py-4">
-						<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border bg-gray-100 text-gray-700 border-gray-200">
-							<i data-lucide="clock" class="w-3 h-3"></i>
-							<?php echo htmlspecialchars($b['status']); ?>
-						</span>
+						<div class="flex items-center gap-2">
+							<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border bg-gray-100 text-gray-700 border-gray-200">
+								<i data-lucide="clock" class="w-3 h-3"></i>
+								<?php echo htmlspecialchars($b['status']); ?>
+							</span>
+							<?php 
+							$userId = Auth::id() ?? 0;
+							$isRequester = ((int)($b['staff_id'] ?? 0) === $userId);
+							$isPending = ($b['status'] ?? '') === 'Pending';
+							if ($isRequester && $isPending): 
+							?>
+								<button type="button" 
+									class="editRequestBtn inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 border border-blue-200 transition-colors"
+									data-batch-id="<?php echo (int)$b['id']; ?>"
+									data-requester-name="<?php echo htmlspecialchars($b['custom_requester'] ?? ''); ?>"
+									data-ingredients-note="<?php echo htmlspecialchars($b['custom_ingredients'] ?? ''); ?>"
+									data-request-date="<?php echo htmlspecialchars($b['custom_request_date'] ?: substr((string)($b['date_requested'] ?? ''), 0, 10)); ?>">
+									<i data-lucide="edit" class="w-3 h-3"></i>
+									Edit
+								</button>
+							<?php endif; ?>
+						</div>
 					</td>
 				</tr>
 				<?php endforeach; ?>
@@ -387,6 +417,49 @@ $ingredientStockMap = $ingredientStock ?? [];
 
 <div id="requestSetToast" class="pointer-events-none fixed bottom-6 right-6 z-50 hidden">
 	<div id="requestSetToastInner" class="rounded-xl px-4 py-3 shadow-lg text-sm font-medium"></div>
+</div>
+
+<!-- Edit Request Modal -->
+<div id="editRequestModal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4">
+	<div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+		<div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 sm:px-6 py-4 border-b flex items-center justify-between">
+			<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+				<i data-lucide="edit" class="w-5 h-5 text-blue-600"></i>
+				Edit Request
+			</h2>
+			<button type="button" id="closeEditModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+				<i data-lucide="x" class="w-5 h-5"></i>
+			</button>
+		</div>
+		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests/update" class="p-4 sm:p-6 space-y-6">
+			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+			<input type="hidden" name="batch_id" id="editBatchId" value="">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div class="space-y-2">
+					<label class="block text-sm font-medium text-gray-700">Name</label>
+					<input name="requester_name" id="editRequesterName" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., malupiton" required>
+				</div>
+				<div class="space-y-2">
+					<label class="block text-sm font-medium text-gray-700">Date Needed</label>
+					<input type="date" name="request_date" id="editRequestDate" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+				</div>
+			</div>
+			<div class="space-y-2">
+				<label class="block text-sm font-medium text-gray-700">Ingredients / Notes</label>
+				<textarea name="ingredients_note" id="editIngredientsNote" rows="4" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="List ingredients, quantities, or any prep instructions" required></textarea>
+				<p class="text-xs text-gray-500">Detailed quantities will be captured later during the Prepare step.</p>
+			</div>
+			<div class="flex justify-end gap-3">
+				<button type="button" id="cancelEditModal" class="inline-flex items-center gap-2 px-6 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+					Cancel
+				</button>
+				<button type="submit" class="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+					<i data-lucide="save" class="w-4 h-4"></i>
+					Save Changes
+				</button>
+			</div>
+		</form>
+	</div>
 </div>
 
 <div id="prepareModal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4">
@@ -789,6 +862,62 @@ $ingredientStockMap = $ingredientStock ?? [];
 	}
 
 	initPrepareModal();
+})();
+
+// Edit Request Modal
+(function() {
+	const editModal = document.getElementById('editRequestModal');
+	const closeEditBtn = document.getElementById('closeEditModal');
+	const cancelEditBtn = document.getElementById('cancelEditModal');
+	const editBatchId = document.getElementById('editBatchId');
+	const editRequesterName = document.getElementById('editRequesterName');
+	const editIngredientsNote = document.getElementById('editIngredientsNote');
+	const editRequestDate = document.getElementById('editRequestDate');
+
+	function openEditModal(batchId, requesterName, ingredientsNote, requestDate) {
+		editBatchId.value = batchId;
+		editRequesterName.value = requesterName || '';
+		editIngredientsNote.value = ingredientsNote || '';
+		editRequestDate.value = requestDate || '';
+		editModal.classList.remove('hidden');
+		editModal.classList.add('flex');
+		if (typeof lucide !== 'undefined') {
+			lucide.createIcons();
+		}
+	}
+
+	function closeEditModal() {
+		editModal.classList.add('hidden');
+		editModal.classList.remove('flex');
+		editBatchId.value = '';
+		editRequesterName.value = '';
+		editIngredientsNote.value = '';
+		editRequestDate.value = '';
+	}
+
+	document.querySelectorAll('.editRequestBtn').forEach(btn => {
+		btn.addEventListener('click', () => {
+			const batchId = btn.getAttribute('data-batch-id');
+			const requesterName = btn.getAttribute('data-requester-name') || '';
+			const ingredientsNote = btn.getAttribute('data-ingredients-note') || '';
+			const requestDate = btn.getAttribute('data-request-date') || '';
+			openEditModal(batchId, requesterName, ingredientsNote, requestDate);
+		});
+	});
+
+	if (closeEditBtn) {
+		closeEditBtn.addEventListener('click', closeEditModal);
+	}
+	if (cancelEditBtn) {
+		cancelEditBtn.addEventListener('click', closeEditModal);
+	}
+	if (editModal) {
+		editModal.addEventListener('click', (event) => {
+			if (event.target === editModal) {
+				closeEditModal();
+			}
+		});
+	}
 })();
 </script>
 

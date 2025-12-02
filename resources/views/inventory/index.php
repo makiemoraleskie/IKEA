@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', function(){
 	<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory" class="p-4 sm:p-6">
 		<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 		
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-6">
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
 			<div class="space-y-2">
 				<label class="block text-sm font-medium text-gray-700">Ingredient Name</label>
 				<input name="name" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" placeholder="e.g., Flour, Sugar" required />
@@ -443,18 +443,6 @@ document.addEventListener('DOMContentLoaded', function(){
 				<input type="number" step="0.01" min="0" name="reorder_level" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" value="0" />
 				<p class="text-xs text-gray-500">Minimum stock level</p>
 			</div>
-
-			<div class="space-y-2">
-				<label class="block text-sm font-medium text-gray-700">Preferred Supplier</label>
-				<input name="preferred_supplier" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" placeholder="e.g., ABC Foods">
-				<p class="text-xs text-gray-500">Appears on auto-generated purchase list</p>
-			</div>
-
-			<div class="space-y-2">
-				<label class="block text-sm font-medium text-gray-700">Restock Quantity</label>
-				<input type="number" step="0.01" min="0" name="restock_quantity" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" value="0" />
-				<p class="text-xs text-gray-500">Recommended amount to purchase</p>
-			</div>
 		</div>
 		
 		<div class="mt-6 flex justify-end">
@@ -468,6 +456,15 @@ document.addEventListener('DOMContentLoaded', function(){
 <?php endif; ?>
 
 <!-- Ingredient Sets -->
+<?php 
+// Check if ingredient sets feature is enabled
+// The controller passes $ingredientSetsEnabled as a boolean
+// If not set, check setting directly (shouldn't happen, but safety check)
+if (!isset($ingredientSetsEnabled)) {
+	$ingredientSetsEnabled = (Settings::get('features.ingredient_sets_enabled', '1') === '1');
+}
+?>
+<?php if ($ingredientSetsEnabled === true): ?>
 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
 	<div class="bg-gradient-to-r from-indigo-50 to-blue-50 px-4 sm:px-6 py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 		<div>
@@ -477,7 +474,7 @@ document.addEventListener('DOMContentLoaded', function(){
 			</h2>
 			<p class="text-sm text-gray-600 mt-1">Combine multiple ingredients into a reusable set for kitchen requests.</p>
 		</div>
-		<span class="text-sm text-gray-500"><?php echo count($ingredientSets); ?> defined</span>
+		<span class="text-sm text-gray-500"><?php echo count($ingredientSets ?? []); ?> defined</span>
 	</div>
 	<div class="p-4 sm:p-6 <?php echo $canManageSets ? 'grid gap-6 lg:grid-cols-2' : ''; ?>">
 		<?php if ($canManageSets): ?>
@@ -639,6 +636,7 @@ document.addEventListener('DOMContentLoaded', function(){
 		</div>
 	</div>
 </div>
+<?php endif; ?>
 
 <!-- Inventory Table -->
 <div id="inventory-low-stock" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -716,21 +714,6 @@ document.addEventListener('DOMContentLoaded', function(){
 								<?php endif; ?>
 								<?php if (!empty($ing['preferred_supplier'])): ?>
 									<p class="text-xs text-gray-500 mt-1">Supplier: <?php echo htmlspecialchars($ing['preferred_supplier']); ?></p>
-								<?php endif; ?>
-								<?php if (!empty($ing['restock_quantity'])): ?>
-									<p class="text-xs text-gray-500">Restock qty: <?php echo number_format((float)$ing['restock_quantity'], 2); ?> <?php echo htmlspecialchars($ing['unit']); ?></p>
-								<?php endif; ?>
-								<?php if ($canManageInventory): ?>
-									<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/meta" class="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-600">
-										<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
-										<input type="hidden" name="id" value="<?php echo (int)$ing['id']; ?>">
-										<input name="preferred_supplier" value="<?php echo htmlspecialchars($ing['preferred_supplier'] ?? ''); ?>" placeholder="Supplier" class="border border-gray-200 rounded-lg px-2 py-1 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
-										<input type="number" step="0.01" min="0" name="restock_quantity" value="<?php echo htmlspecialchars($ing['restock_quantity'] ?? ''); ?>" placeholder="Restock" class="border border-gray-200 rounded-lg px-2 py-1 w-24 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
-										<button class="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors" type="submit">
-											<i data-lucide="save" class="w-3 h-3"></i>
-											Save
-										</button>
-									</form>
 								<?php endif; ?>
 							</div>
 						</div>

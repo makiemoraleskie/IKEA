@@ -26,6 +26,7 @@ return [
 		'/requests' => ['RequestController', 'store'],
 		'/requests/approve' => ['RequestController', 'approve'],
 		'/requests/reject' => ['RequestController', 'reject'],
+		'/requests/update' => ['RequestController', 'update'],
 		'/requests/distribute' => ['RequestController', 'distribute'],
 		'/requests/prepare' => ['RequestController', 'prepare'],
 		'/purchases' => ['PurchaseController', 'store'],

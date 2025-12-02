@@ -10,6 +10,7 @@ $companyTagline = $settings['companyTagline'] ?? '';
 $logoPath = $settings['logoPath'] ?? null;
 $themeDefault = $settings['themeDefault'] ?? 'system';
 $widgetSettings = $settings['dashboardWidgets'] ?? [];
+$ingredientSetsEnabled = $settings['ingredientSetsEnabled'] ?? true;
 $widgetsByRole = function (string $role) use ($widgetSettings, $dashboardWidgets) {
 	 if (isset($widgetSettings[$role])) {
 		 return $widgetSettings[$role];
@@ -298,6 +299,17 @@ $widgetsByRole = function (string $role) use ($widgetSettings, $dashboardWidgets
 								<option value="light" <?php echo $themeDefault === 'light' ? 'selected' : ''; ?>>Light</option>
 								<option value="dark" <?php echo $themeDefault === 'dark' ? 'selected' : ''; ?>>Dark</option>
 							</select>
+						</div>
+						<div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+							<div>
+								<label class="block text-sm font-semibold text-gray-700 mb-1">Ingredient Sets Feature</label>
+								<p class="text-xs text-gray-600">Enable or disable the ability to create and manage ingredient sets for kitchen requests.</p>
+							</div>
+							<label class="relative inline-flex items-center cursor-pointer">
+								<input type="hidden" name="ingredient_sets_enabled" value="0">
+								<input type="checkbox" name="ingredient_sets_enabled" value="1" class="sr-only peer" <?php echo $ingredientSetsEnabled ? 'checked' : ''; ?>>
+								<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+							</label>
 						</div>
 						<div>
 							<label class="block text-sm font-semibold text-gray-700 mb-2">Dashboard widgets per role</label>

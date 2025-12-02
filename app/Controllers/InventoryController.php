@@ -23,11 +23,24 @@ class InventoryController extends BaseController
 			$lowStockGroups[$key]['items'][] = $item;
 		}
 		$lowStockGroups = array_values($lowStockGroups);
-		$setModel = new IngredientSet();
-		$ingredientSets = $setModel->listWithComponents();
+		
+		// Check if ingredient sets feature is enabled
+		// Read setting - if not set, default to enabled ('1')
+		// If setting is '0', feature is disabled
+		// If setting is '1' or null, feature is enabled
+		$ingredientSetsSetting = Settings::get('features.ingredient_sets_enabled');
+		// Explicitly check: if setting exists and is '0', disable; otherwise enable
+		$ingredientSetsEnabled = ($ingredientSetsSetting !== '0');
+		$ingredientSets = [];
+		if ($ingredientSetsEnabled) {
+			$setModel = new IngredientSet();
+			$ingredientSets = $setModel->listWithComponents();
+		}
+		
 		$this->render('inventory/index.php', [
 			'ingredients' => $ingredients,
 			'ingredientSets' => $ingredientSets,
+			'ingredientSetsEnabled' => $ingredientSetsEnabled,
 			'lowStockGroups' => $lowStockGroups,
             'flash' => $_SESSION['flash_inventory'] ?? null,
 		]);

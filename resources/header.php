@@ -99,8 +99,10 @@ if ($user) {
 						['url' => '/purchases', 'label' => 'Purchases', 'icon' => 'receipt'],
 						['url' => '/deliveries', 'label' => 'Deliveries', 'icon' => 'truck'],
 					];
-					if (in_array($role, ['Owner','Manager'], true)) {
+					if (in_array($role, ['Owner','Manager','Stock Handler'], true)) {
 						$navItems[] = ['url' => '/reports', 'label' => 'Reports', 'icon' => 'trending-up'];
+					}
+					if (in_array($role, ['Owner','Manager'], true)) {
 						$navItems[] = ['url' => '/audit', 'label' => 'Audit Logs', 'icon' => 'clock'];
 						$navItems[] = ['url' => '/admin/settings', 'label' => 'Admin Settings', 'icon' => 'settings'];
 					}

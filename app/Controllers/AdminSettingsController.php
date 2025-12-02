@@ -38,6 +38,7 @@ class AdminSettingsController extends BaseController
 				'logoPath' => Settings::logoPath(),
 				'themeDefault' => Settings::themeDefault(),
 				'dashboardWidgets' => Settings::getJson('display.dashboard_widgets', []),
+				'ingredientSetsEnabled' => Settings::get('features.ingredient_sets_enabled', '1') === '1',
 			],
 			'flash' => $flash,
 		]);
@@ -103,6 +104,24 @@ class AdminSettingsController extends BaseController
 				if (!isset($widgetSettings['default'])) {
 					$widgetSettings['default'] = $this->dashboardWidgets;
 				}
+
+				// Handle ingredient sets toggle
+				// Hidden input sends '0', checkbox sends '1' when checked
+				// When checkbox is checked, PHP may send array ['0', '1'] or just '1'
+				// When checkbox is unchecked, POST will have '0' (from hidden input)
+				$ingredientSetsValue = $_POST['ingredient_sets_enabled'] ?? '0';
+				
+				// Handle array case (when both hidden and checkbox are present)
+				if (is_array($ingredientSetsValue)) {
+					// If '1' is in the array, checkbox was checked
+					$ingredientSetsEnabled = in_array('1', $ingredientSetsValue, true) ? '1' : '0';
+				} else {
+					// Single value - use it directly
+					$ingredientSetsEnabled = ($ingredientSetsValue === '1') ? '1' : '0';
+				}
+				
+				// Always save explicitly (either '1' or '0')
+				Settings::set('features.ingredient_sets_enabled', $ingredientSetsEnabled, $userId);
 
 				Settings::set('display.company_name', $name, $userId);
 				Settings::set('display.company_tagline', $tagline, $userId);

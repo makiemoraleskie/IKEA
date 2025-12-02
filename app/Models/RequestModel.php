@@ -168,6 +168,14 @@ class RequestModel extends BaseModel
 		$row = $stmt->fetch();
 		return $row ?: null;
 	}
+
+	public function updateBatch(int $batchId, string $requesterName, string $ingredientsNote, ?string $requestedDate = null): void
+	{
+		$this->ensureBatchMetadata();
+		$sql = 'UPDATE request_batches SET custom_requester = ?, custom_ingredients = ?, custom_request_date = ? WHERE id = ? AND status = "Pending"';
+		$stmt = $this->db->prepare($sql);
+		$stmt->execute([$requesterName, $ingredientsNote, $requestedDate ?: null, $batchId]);
+	}
 }
 
 

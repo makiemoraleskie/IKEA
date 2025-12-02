@@ -5,7 +5,7 @@ class ReportsController extends BaseController
 {
 	public function index(): void
 	{
-		Auth::requireRole(['Owner','Manager']);
+		Auth::requireRole(['Owner','Manager','Stock Handler']);
 		$ingredients = $this->getIngredients();
 		$enabledSections = Settings::reportSectionsEnabled();
 		$includePurchase = in_array('purchase', $enabledSections, true);
@@ -44,7 +44,7 @@ class ReportsController extends BaseController
 
 	public function pdf(): void
 	{
-		Auth::requireRole(['Owner','Manager']);
+		Auth::requireRole(['Owner','Manager','Stock Handler']);
 		$section = $this->resolveSection();
 		if (!in_array($section, Settings::reportSectionsEnabled(), true)) {
 			http_response_code(403);
@@ -69,7 +69,7 @@ class ReportsController extends BaseController
 
 	public function excel(): void
 	{
-		Auth::requireRole(['Owner','Manager']);
+		Auth::requireRole(['Owner','Manager','Stock Handler']);
 		$section = $this->resolveSection();
 		if (!in_array($section, Settings::reportSectionsEnabled(), true)) {
 			http_response_code(403);
@@ -85,7 +85,7 @@ class ReportsController extends BaseController
 
 	public function csv(): void
 	{
-		Auth::requireRole(['Owner','Manager']);
+		Auth::requireRole(['Owner','Manager','Stock Handler']);
 		$section = $this->resolveSection();
 		if (!in_array($section, Settings::reportSectionsEnabled(), true)) {
 			http_response_code(403);

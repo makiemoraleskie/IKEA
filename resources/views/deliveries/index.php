@@ -235,6 +235,7 @@ foreach ($deliveries as $d) {
 							<select id="deliveryUnitSelect" class="hidden w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
 								<option value="">Select unit</option>
 							</select>
+							<p id="deliveryUnitHelp" class="hidden text-xs text-gray-500 mt-1"></p>
 						</div>
 						<div class="space-y-1">
 							<label class="text-sm font-medium text-gray-700">Supplier</label>
@@ -1043,6 +1044,7 @@ foreach ($deliveries as $d) {
   const deliveryQuantityInput = document.getElementById('deliveryQuantityInput');
   const deliveryUnitInput = document.getElementById('deliveryUnitInput');
   const deliveryUnitSelect = document.getElementById('deliveryUnitSelect');
+  const deliveryUnitHelp = document.getElementById('deliveryUnitHelp');
   const deliverySupplierInput = document.getElementById('deliverySupplierInput');
   const deliveryAddItemBtn = document.getElementById('deliveryAddItemBtn');
   const deliveryItemsBody = document.getElementById('deliveryItemsBody');
@@ -1052,6 +1054,7 @@ foreach ($deliveries as $d) {
   const deliveryBuilderError = document.getElementById('deliveryBuilderError');
   let deliveryItems = [];
   let currentDeliveryGroup = null;
+  let lastSelectedUnit = ''; // Track last selected unit for conversion calculations
 
   function openDeliveryModal(groupId){
     if (!deliveryModal) {
@@ -1317,11 +1320,16 @@ foreach ($deliveries as $d) {
           deliveryUnitSelect.classList.add('hidden');
         }
         deliveryUnitInput.classList.remove('hidden');
+        if (deliveryUnitHelp) {
+          deliveryUnitHelp.classList.add('hidden');
+          deliveryUnitHelp.textContent = '';
+        }
         deliverySupplierInput.value = '';
         deliveryQuantityInput.readOnly = true;
         deliveryUnitInput.readOnly = true;
         if (deliveryUnitSelect) deliveryUnitSelect.disabled = true;
         deliverySupplierInput.readOnly = true;
+        lastSelectedUnit = '';
         return;
       }
       
@@ -1333,24 +1341,90 @@ foreach ($deliveries as $d) {
         return;
       }
       
-      // Check if base unit is grams - show dropdown with g and kg options
+      // Enhanced unit selection: support g/kg, ml/L, and custom display_unit
       const baseUnit = ingredient.unit || '';
+      const displayUnit = ingredient.display_unit || '';
+      const displayFactor = parseFloat(ingredient.display_factor || 1);
+      
+      // Check if we should show a dropdown for standard conversions or custom display_unit
+      let shouldShowDropdown = false;
+      let dropdownOptions = [];
+      let defaultUnit = baseUnit;
+      
+      // Standard conversions: g/kg
       if (baseUnit === 'g') {
-        // Show dropdown for grams/kg selection
+        shouldShowDropdown = true;
+        dropdownOptions = [
+          { value: 'g', label: 'g (grams)' },
+          { value: 'kg', label: 'kg (kilograms)' }
+        ];
+        defaultUnit = 'g';
+        lastSelectedUnit = 'g';
+      }
+      // Standard conversions: ml/L
+      else if (baseUnit === 'ml') {
+        shouldShowDropdown = true;
+        dropdownOptions = [
+          { value: 'ml', label: 'ml (milliliters)' },
+          { value: 'L', label: 'L (liters)' }
+        ];
+        defaultUnit = 'ml';
+        lastSelectedUnit = 'ml';
+      }
+      // Custom display_unit with conversion factor
+      else if (displayUnit && displayUnit !== baseUnit && displayFactor > 0 && displayFactor !== 1) {
+        shouldShowDropdown = true;
+        dropdownOptions = [
+          { value: baseUnit, label: `${baseUnit} (base unit)` },
+          { value: displayUnit, label: `${displayUnit} (${displayFactor}x)` }
+        ];
+        defaultUnit = displayUnit; // Default to display unit for better UX
+        lastSelectedUnit = displayUnit;
+      }
+      
+      if (shouldShowDropdown && dropdownOptions.length > 0) {
+        // Show dropdown
         if (deliveryUnitInput) deliveryUnitInput.classList.add('hidden');
         if (deliveryUnitSelect) {
           deliveryUnitSelect.classList.remove('hidden');
-          deliveryUnitSelect.innerHTML = '<option value="">Select unit</option><option value="g">g (grams)</option><option value="kg">kg (kilograms)</option>';
+          deliveryUnitSelect.innerHTML = '<option value="">Select unit</option>' + 
+            dropdownOptions.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('');
           deliveryUnitSelect.disabled = false;
-          deliveryUnitSelect.value = 'g'; // Default to grams
-          lastSelectedUnit = 'g'; // Initialize tracking variable
+          deliveryUnitSelect.value = defaultUnit;
+          lastSelectedUnit = defaultUnit;
+        }
+        // Show conversion help text
+        if (deliveryUnitHelp) {
+          let helpText = '';
+          if (baseUnit === 'g') {
+            helpText = '1 kg = 1000 g';
+          } else if (baseUnit === 'ml') {
+            helpText = '1 L = 1000 ml';
+          } else if (displayUnit && displayFactor > 1) {
+            helpText = `1 ${displayUnit} = ${displayFactor} ${baseUnit}`;
+          }
+          if (helpText) {
+            deliveryUnitHelp.textContent = helpText;
+            deliveryUnitHelp.classList.remove('hidden');
+          } else {
+            deliveryUnitHelp.classList.add('hidden');
+          }
         }
       } else {
         // Show regular input for other units
         if (deliveryUnitInput) deliveryUnitInput.classList.remove('hidden');
         if (deliveryUnitSelect) deliveryUnitSelect.classList.add('hidden');
-        const unitToShow = ingredient.display_unit || ingredient.unit || '';
+        const unitToShow = displayUnit || baseUnit || '';
         deliveryUnitInput.value = unitToShow;
+        // Hide help text for manual input
+        if (deliveryUnitHelp) {
+          if (displayUnit && displayUnit !== baseUnit && displayFactor > 1) {
+            deliveryUnitHelp.textContent = `Note: Enter quantity in ${unitToShow}. Conversion: 1 ${displayUnit} = ${displayFactor} ${baseUnit}`;
+            deliveryUnitHelp.classList.remove('hidden');
+          } else {
+            deliveryUnitHelp.classList.add('hidden');
+          }
+        }
       }
       
       // Auto-fill quantity if there's a matching purchase item in this batch
@@ -1362,11 +1436,27 @@ foreach ($deliveries as $d) {
           const remainingBase = Math.max(0, (item.quantity - item.delivered));
           let remainingDisplay = item.remaining_display !== undefined ? item.remaining_display : remainingBase;
           
-          // If base unit is grams and dropdown is shown, convert to kg if value is large
-          if (baseUnit === 'g' && deliveryUnitSelect && !deliveryUnitSelect.classList.contains('hidden')) {
-            const selectedUnit = deliveryUnitSelect.value || 'g';
-            if (selectedUnit === 'kg' && remainingDisplay >= 1000) {
-              remainingDisplay = remainingDisplay / 1000; // Convert grams to kg
+          // Convert quantity based on selected unit in dropdown
+          if (deliveryUnitSelect && !deliveryUnitSelect.classList.contains('hidden')) {
+            const selectedUnit = deliveryUnitSelect.value || defaultUnit;
+            
+            // g/kg conversion
+            if (baseUnit === 'g') {
+              if (selectedUnit === 'kg' && remainingDisplay >= 1000) {
+                remainingDisplay = remainingDisplay / 1000; // Convert grams to kg
+              }
+            }
+            // ml/L conversion
+            else if (baseUnit === 'ml') {
+              if (selectedUnit === 'L' && remainingDisplay >= 1000) {
+                remainingDisplay = remainingDisplay / 1000; // Convert ml to L
+              }
+            }
+            // Custom display_unit conversion
+            else if (displayUnit && displayFactor > 0) {
+              if (selectedUnit === displayUnit && remainingDisplay >= displayFactor) {
+                remainingDisplay = remainingDisplay / displayFactor; // Convert to display unit
+              }
             }
           }
           
@@ -1391,9 +1481,7 @@ foreach ($deliveries as $d) {
     });
   }
 
-  // Handle unit selection change for grams/kg conversion
-  // Store the last selected unit to track conversions
-  let lastSelectedUnit = 'g';
+  // Handle unit selection change for all conversion types (g/kg, ml/L, custom)
   if (deliveryUnitSelect) {
     deliveryUnitSelect.addEventListener('change', ()=>{
       const selectedOpt = deliveryItemSelect?.options[deliveryItemSelect?.selectedIndex];
@@ -1401,21 +1489,45 @@ foreach ($deliveries as $d) {
       
       const ingredientId_ = parseInt(selectedOpt.value, 10);
       const ingredient = INGREDIENT_LOOKUP[ingredientId_];
-      if (!ingredient || ingredient.unit !== 'g') return;
+      if (!ingredient) return;
       
+      const baseUnit = ingredient.unit || '';
+      const displayUnit = ingredient.display_unit || '';
+      const displayFactor = parseFloat(ingredient.display_factor || 1);
       const selectedUnit = deliveryUnitSelect.value;
       const currentQty = parseFloat(deliveryQuantityInput?.value || '0');
       
-      if (currentQty > 0) {
-        // Convert quantity based on unit selection change
-        if (lastSelectedUnit === 'g' && selectedUnit === 'kg') {
-          // Converting from grams to kg: divide by 1000
-          deliveryQuantityInput.value = (currentQty / 1000).toFixed(2);
-        } else if (lastSelectedUnit === 'kg' && selectedUnit === 'g') {
-          // Converting from kg to grams: multiply by 1000
-          deliveryQuantityInput.value = (currentQty * 1000).toFixed(2);
+      if (currentQty > 0 && lastSelectedUnit && lastSelectedUnit !== selectedUnit) {
+        let convertedQty = currentQty;
+        
+        // g/kg conversion
+        if (baseUnit === 'g') {
+          if (lastSelectedUnit === 'g' && selectedUnit === 'kg') {
+            convertedQty = currentQty / 1000; // Convert grams to kg
+          } else if (lastSelectedUnit === 'kg' && selectedUnit === 'g') {
+            convertedQty = currentQty * 1000; // Convert kg to grams
+          }
         }
+        // ml/L conversion
+        else if (baseUnit === 'ml') {
+          if (lastSelectedUnit === 'ml' && selectedUnit === 'L') {
+            convertedQty = currentQty / 1000; // Convert ml to L
+          } else if (lastSelectedUnit === 'L' && selectedUnit === 'ml') {
+            convertedQty = currentQty * 1000; // Convert L to ml
+          }
+        }
+        // Custom display_unit conversion
+        else if (displayUnit && displayFactor > 0) {
+          if (lastSelectedUnit === baseUnit && selectedUnit === displayUnit) {
+            convertedQty = currentQty / displayFactor; // Convert base to display unit
+          } else if (lastSelectedUnit === displayUnit && selectedUnit === baseUnit) {
+            convertedQty = currentQty * displayFactor; // Convert display to base unit
+          }
+        }
+        
+        deliveryQuantityInput.value = convertedQty.toFixed(2);
       }
+      
       lastSelectedUnit = selectedUnit;
     });
   }
@@ -1440,17 +1552,57 @@ foreach ($deliveries as $d) {
       let quantity = parseFloat(deliveryQuantityInput?.value || '0');
       let unit = '';
       
-      // Get unit from either dropdown (for grams) or input field
+      // Get unit from either dropdown (for conversions) or input field
       const baseUnit = ingredient.unit || '';
-      if (baseUnit === 'g' && deliveryUnitSelect && !deliveryUnitSelect.classList.contains('hidden')) {
+      const displayUnit = ingredient.display_unit || '';
+      const displayFactor = parseFloat(ingredient.display_factor || 1);
+      
+      // Check if dropdown is visible (means we have a conversion scenario)
+      if (deliveryUnitSelect && !deliveryUnitSelect.classList.contains('hidden')) {
         unit = (deliveryUnitSelect?.value || '').trim();
-        // Convert kg to grams: 1 kg = 1000 g
-        if (unit === 'kg') {
-          quantity = quantity * 1000; // Convert to grams
-          unit = 'g'; // Store as grams in base unit
+        
+        // g/kg conversion
+        if (baseUnit === 'g') {
+          if (unit === 'kg') {
+            quantity = quantity * 1000; // Convert kg to grams
+            unit = 'g'; // Store as grams in base unit
+          } else {
+            unit = 'g'; // Already in grams
+          }
+        }
+        // ml/L conversion
+        else if (baseUnit === 'ml') {
+          if (unit === 'L') {
+            quantity = quantity * 1000; // Convert L to ml
+            unit = 'ml'; // Store as ml in base unit
+          } else {
+            unit = 'ml'; // Already in ml
+          }
+        }
+        // Custom display_unit conversion
+        else if (displayUnit && displayFactor > 0) {
+          if (unit === displayUnit) {
+            quantity = quantity * displayFactor; // Convert display unit to base unit
+            unit = baseUnit; // Store in base unit
+          } else {
+            unit = baseUnit; // Already in base unit
+          }
         }
       } else {
+        // Manual input - use as-is (backend will handle conversion if needed)
         unit = (deliveryUnitInput?.value || '').trim();
+        
+        // Validate unit format (should not be empty and should be reasonable length)
+        if (!unit || unit.length > 32) {
+          showDeliveryError('Please enter a valid unit name (max 32 characters).');
+          return;
+        }
+        
+        // Warn if unit doesn't match expected display_unit (optional warning, not blocking)
+        if (displayUnit && unit !== displayUnit && unit !== baseUnit) {
+          // Allow it but show a note - backend will handle conversion
+          console.log(`Note: Unit "${unit}" may not match expected unit "${displayUnit}" or base unit "${baseUnit}". Backend will attempt conversion.`);
+        }
       }
       
       const supplier = (deliverySupplierInput?.value || '').trim();
@@ -1500,11 +1652,16 @@ foreach ($deliveries as $d) {
         deliveryUnitSelect.classList.add('hidden');
       }
       deliveryUnitInput.classList.remove('hidden');
+      if (deliveryUnitHelp) {
+        deliveryUnitHelp.classList.add('hidden');
+        deliveryUnitHelp.textContent = '';
+      }
       deliverySupplierInput.value = '';
       deliveryQuantityInput.readOnly = true;
       deliveryUnitInput.readOnly = true;
       if (deliveryUnitSelect) deliveryUnitSelect.disabled = true;
       deliverySupplierInput.readOnly = true;
+      lastSelectedUnit = '';
       
       renderDeliveryItems();
       clearDeliveryError();
