@@ -1,0 +1,9 @@
+{
+  "code-runner.runInTerminal": true,
+  "code-runner.fileDirectoryAsCwd": true,
+  "code-runner.executorMap": {
+    "php": "C:\\xampp\\php\\php.exe"
+  }
+}
+
+

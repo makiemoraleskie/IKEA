@@ -1,0 +1,179 @@
+:root {
+	--color-soft: #f5e6f0;
+	--color-soft-strong: #fcbbe9;
+	--color-accent: #008000;
+	--color-accent-dark: #006000;
+	--color-text: #1f1b20;
+}
+
+body.theme-body {
+	background: radial-gradient(circle at top, rgba(252, 187, 233, 0.35), transparent 55%), var(--color-soft);
+	color: var(--color-text);
+}
+
+.theme-shell {
+	background: transparent;
+}
+
+#sidebar.theme-sidebar {
+	background: linear-gradient(180deg, rgba(252, 187, 233, 0.92) 0%, rgba(245, 230, 240, 0.95) 55%, rgba(255, 255, 255, 0.95) 100%);
+	border-right: 1px solid #f2d5e6;
+	color: var(--color-text);
+}
+
+#sidebar.theme-sidebar .sidebar-link {
+	color: #3d2a3a;
+	border-right: 2px solid transparent;
+	border-radius: 0 18px 18px 0;
+	transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+	font-weight: 500;
+}
+
+#sidebar.theme-sidebar .sidebar-link:hover {
+	background-color: rgba(252, 187, 233, 0.35);
+	color: #0d3924;
+}
+
+#sidebar.theme-sidebar .sidebar-link.active {
+	background-color: rgba(0, 128, 0, 0.12);
+	color: #0d3924;
+	border-color: var(--color-accent);
+	box-shadow: inset 3px 0 0 var(--color-accent);
+}
+
+#sidebar.theme-sidebar .sidebar-user {
+	background: rgba(255, 255, 255, 0.85);
+	border-top: 1px solid #eed0e3 !important;
+}
+
+#sidebar.theme-sidebar .sidebar-user .text-gray-800,
+#sidebar.theme-sidebar .sidebar-user .text-gray-500 {
+	color: var(--color-text) !important;
+}
+
+.theme-header {
+	border-bottom: 1px solid #f2d5e6;
+	box-shadow: 0 10px 30px rgba(252, 187, 233, 0.25);
+}
+
+.theme-card {
+	background: #fff;
+	border: 1px solid rgba(0, 128, 0, 0.08);
+	box-shadow: 0 10px 25px rgba(0, 128, 0, 0.08);
+}
+
+.btn-theme {
+	background-color: var(--color-accent);
+	color: #fff;
+}
+
+.btn-theme:hover {
+	background-color: var(--color-accent-dark);
+}
+
+.bg-gray-50 {
+	background-color: #fdf6fb !important;
+}
+
+.border-gray-200 {
+	border-color: #f4d7e8 !important;
+}
+
+.text-blue-600,
+.text-blue-500,
+.text-blue-700 {
+	color: var(--color-accent) !important;
+}
+
+.bg-blue-600,
+.bg-blue-500,
+.bg-blue-700,
+.hover\:bg-blue-600:hover,
+.hover\:bg-blue-700:hover {
+	background-color: var(--color-accent) !important;
+}
+
+.border-blue-600,
+.border-blue-500,
+.border-blue-700 {
+	border-color: var(--color-accent) !important;
+}
+
+.bg-blue-50 {
+	background-color: rgba(252, 187, 233, 0.35) !important;
+}
+
+.focus\:ring-blue-500:focus,
+.focus\:ring-blue-600:focus {
+	--tw-ring-color: rgba(0, 128, 0, 0.35) !important;
+}
+
+.focus\:border-blue-500:focus,
+.focus\:border-blue-600:focus {
+	border-color: var(--color-accent) !important;
+}
+
+body[data-theme="dark"] {
+	background: linear-gradient(180deg, #0b1120 0%, #111827 45%, #0f172a 100%);
+	color: #f8fafc;
+}
+
+body[data-theme="dark"] .theme-shell {
+	background: transparent;
+}
+
+body[data-theme="dark"] .theme-sidebar {
+	background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.9) 60%, rgba(15, 23, 42, 0.85) 100%) !important;
+	border-right: 1px solid rgba(15, 23, 42, 0.8) !important;
+	color: #e2e8f0;
+}
+
+body[data-theme="dark"] .theme-sidebar .sidebar-link {
+	color: #cbd5f5;
+}
+
+body[data-theme="dark"] .theme-sidebar .sidebar-link.active {
+	background-color: rgba(99, 102, 241, 0.15);
+	color: #fff;
+	border-color: #6366f1;
+	box-shadow: inset 3px 0 0 #6366f1;
+}
+
+body[data-theme="dark"] .theme-header {
+	background: #0f172a;
+	border-bottom-color: rgba(255, 255, 255, 0.08);
+	box-shadow: 0 10px 25px rgba(15, 23, 42, 0.6);
+}
+
+body[data-theme="dark"] .bg-white {
+	background-color: #1f2937 !important;
+	color: #f9fafb !important;
+}
+
+body[data-theme="dark"] .border-gray-200,
+body[data-theme="dark"] .border-gray-300 {
+	border-color: rgba(148, 163, 184, 0.3) !important;
+}
+
+body[data-theme="dark"] .text-gray-900,
+body[data-theme="dark"] .text-gray-800 {
+	color: #f8fafc !important;
+}
+
+body[data-theme="dark"] .text-gray-600 {
+	color: #cbd5f5 !important;
+}
+
+body[data-theme="dark"] .bg-gray-50 {
+	background-color: rgba(30, 41, 59, 0.8) !important;
+}
+
+body[data-theme="dark"] .border-blue-500,
+body[data-theme="dark"] .border-blue-600 {
+	border-color: #6366f1 !important;
+}
+
+body[data-theme="dark"] .bg-blue-50 {
+	background-color: rgba(99, 102, 241, 0.18) !important;
+}
+
