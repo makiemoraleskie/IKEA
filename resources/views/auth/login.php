@@ -143,7 +143,7 @@ $logoPath = (defined('BASE_URL') ? BASE_URL : '') . '/resources/views/logo/54047
 
 					<button
 						type="submit"
-						class="w-full rounded-xl bg-gradient-to-b from-[#00A86B] to-[#008000] py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white shadow-md hover:opacity-90 hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-[#008000]/30 focus:ring-offset-2 focus:ring-offset-white"
+						class="w-full rounded-xl bg-gradient-to-b from-[#00A86B] to-[#008000] py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white shadow-md hover:opacity-90 hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-[#008000]/30 focus:ring-offset-2 focus:ring-offset-white relative overflow-hidden"
 					>
 						<span class="flex items-center justify-center gap-2">
 							<span>Continue</span>
@@ -273,12 +273,17 @@ $logoPath = (defined('BASE_URL') ? BASE_URL : '') . '/resources/views/logo/54047
 		filter: contrast(1.15) brightness(1.1) saturate(1.15);
 	}
 
-	/* Enhanced input focus effects */
-	input:focus {
+	/* Enhanced input focus effects - removed to prevent flickering */
+	/* input:focus {
 		transform: translateY(-1px);
-	}
+	} */
 
 	/* Button shimmer effect on hover */
+	button[type="submit"] {
+		position: relative;
+		overflow: hidden;
+	}
+
 	button[type="submit"]::before {
 		content: '';
 		position: absolute;
@@ -293,6 +298,7 @@ $logoPath = (defined('BASE_URL') ? BASE_URL : '') . '/resources/views/logo/54047
 			transparent
 		);
 		transition: left 0.5s;
+		pointer-events: none;
 	}
 
 	button[type="submit"]:hover::before {
@@ -358,13 +364,5 @@ $logoPath = (defined('BASE_URL') ? BASE_URL : '') . '/resources/views/logo/54047
 		}
 	});
 
-	// Add subtle input animation on focus
-	document.querySelectorAll('input').forEach(input => {
-		input.addEventListener('focus', function() {
-			this.parentElement.style.transform = 'scale(1.01)';
-		});
-		input.addEventListener('blur', function() {
-			this.parentElement.style.transform = 'scale(1)';
-		});
-	});
+	// Removed input animation to prevent flickering conflicts with CSS transforms
 </script>
