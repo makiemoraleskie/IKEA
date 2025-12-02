@@ -54,10 +54,17 @@ class NotificationFeed
 			$offset++;
 		};
 
-		$lowStock = $this->ingredientModel->getLowStockItems();
-		if (!empty($lowStock)) {
+		// Optimize: Use a count query instead of fetching all low stock items
+		// This is much faster when there are many low stock items
+		$lowStockCount = $this->ingredientModel->countLowStockItems();
+		if ($lowStockCount > 0) {
+			// Only fetch a few items for display if count is reasonable
+			$lowStock = $lowStockCount <= 10 
+				? $this->ingredientModel->getLowStockItems() 
+				: $this->ingredientModel->getLowStockItems(5); // Limit to 5 for performance
+			
 			$names = array_map(static fn($item) => $item['name'] ?? 'Item', array_slice($lowStock, 0, 3));
-			$extra = count($lowStock) > 3 ? ' +' . (count($lowStock) - 3) . ' more' : '';
+			$extra = $lowStockCount > 3 ? ' +' . ($lowStockCount - 3) . ' more' : '';
 			$append([
 				'id' => 'system:low-stock',
 				'title' => 'Low stock alert',

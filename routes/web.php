@@ -16,6 +16,7 @@ return [
 		'/notifications' => ['NotificationController', 'index'],
 		'/reports/pdf' => ['ReportsController', 'pdf'],
 		'/inventory' => ['InventoryController', 'index'],
+		'/inventory/import' => ['InventoryController', 'import'],
 		'/users' => ['UserController', 'index'],
 		'/admin/settings' => ['AdminSettingsController', 'index'],
 		'/account/security' => ['AccountController', 'security'],
@@ -34,6 +35,7 @@ return [
 		'/deliveries' => ['DeliveryController', 'store'],
 		// removed force-delete feature routes
 		'/inventory' => ['InventoryController', 'store'],
+		'/inventory/import' => ['InventoryController', 'import'],
 		'/inventory/meta' => ['InventoryController', 'updateMeta'],
 		'/inventory/set' => ['InventoryController', 'storeSet'],
 		'/inventory/set/delete' => ['InventoryController', 'deleteSet'],

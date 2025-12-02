@@ -43,6 +43,7 @@ class IngredientSet extends BaseModel
 	public function listWithComponents(): array
 	{
 		$this->ensureSchema();
+		// Optimized: Use INNER JOIN for ingredients to avoid NULL rows, and only fetch what we need
 		$sql = 'SELECT
 				s.id AS set_id,
 				s.name,
@@ -58,8 +59,8 @@ class IngredientSet extends BaseModel
 				i.reorder_level,
 				si.quantity AS component_quantity
 			FROM ingredient_sets s
-			LEFT JOIN ingredient_set_items si ON si.set_id = s.id
-			LEFT JOIN ingredients i ON i.id = si.ingredient_id
+			INNER JOIN ingredient_set_items si ON si.set_id = s.id
+			INNER JOIN ingredients i ON i.id = si.ingredient_id
 			ORDER BY s.name ASC, i.name ASC';
 		$stmt = $this->db->query($sql);
 		$rows = $stmt->fetchAll();

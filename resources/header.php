@@ -145,14 +145,60 @@ if ($user) {
 			<!-- Top Header -->
 			<header class="bg-white border-b theme-header">
 				<div class="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8 xl:px-10">
-					<h1 class="text-2xl font-bold text-gray-800 truncate"><?php echo $pageTitle ?? 'Dashboard'; ?></h1>
+					<div class="flex-1 min-w-0">
+						<?php
+						$currentPath = $_SERVER['REQUEST_URI'] ?? '/';
+						$breadcrumbs = [];
+						$breadcrumbs[] = ['label' => 'Dashboard', 'url' => $baseUrl . '/dashboard'];
+						
+						if (strpos($currentPath, '/inventory') !== false) {
+							$breadcrumbs[] = ['label' => 'Inventory', 'url' => $baseUrl . '/inventory'];
+							if (strpos($currentPath, '/import') !== false) {
+								$breadcrumbs[] = ['label' => 'Import', 'url' => ''];
+							}
+						} elseif (strpos($currentPath, '/requests') !== false) {
+							$breadcrumbs[] = ['label' => 'Requests', 'url' => $baseUrl . '/requests'];
+						} elseif (strpos($currentPath, '/purchases') !== false) {
+							$breadcrumbs[] = ['label' => 'Purchases', 'url' => $baseUrl . '/purchases'];
+						} elseif (strpos($currentPath, '/deliveries') !== false) {
+							$breadcrumbs[] = ['label' => 'Deliveries', 'url' => $baseUrl . '/deliveries'];
+						} elseif (strpos($currentPath, '/reports') !== false) {
+							$breadcrumbs[] = ['label' => 'Reports', 'url' => $baseUrl . '/reports'];
+						} elseif (strpos($currentPath, '/audit') !== false) {
+							$breadcrumbs[] = ['label' => 'Audit Logs', 'url' => $baseUrl . '/audit'];
+						} elseif (strpos($currentPath, '/admin/settings') !== false) {
+							$breadcrumbs[] = ['label' => 'Admin Settings', 'url' => $baseUrl . '/admin/settings'];
+						} elseif (strpos($currentPath, '/users') !== false) {
+							$breadcrumbs[] = ['label' => 'Users', 'url' => $baseUrl . '/users'];
+						} elseif (strpos($currentPath, '/notifications') !== false) {
+							$breadcrumbs[] = ['label' => 'Notifications', 'url' => $baseUrl . '/notifications'];
+						} elseif (strpos($currentPath, '/account') !== false) {
+							$breadcrumbs[] = ['label' => 'Account', 'url' => $baseUrl . '/account/security'];
+						}
+						?>
+						<nav class="flex items-center gap-2 text-sm text-gray-600 mb-1" aria-label="Breadcrumb">
+							<?php foreach ($breadcrumbs as $index => $crumb): ?>
+								<?php if ($index > 0): ?>
+									<i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+								<?php endif; ?>
+								<?php if (!empty($crumb['url']) && $index < count($breadcrumbs) - 1): ?>
+									<a href="<?php echo htmlspecialchars($crumb['url']); ?>" class="hover:text-gray-900 transition-colors">
+										<?php echo htmlspecialchars($crumb['label']); ?>
+									</a>
+								<?php else: ?>
+									<span class="text-gray-900 font-medium"><?php echo htmlspecialchars($crumb['label']); ?></span>
+								<?php endif; ?>
+							<?php endforeach; ?>
+						</nav>
+						<h1 class="text-2xl font-bold text-gray-800 truncate"><?php echo $pageTitle ?? 'Dashboard'; ?></h1>
+					</div>
 					<div class="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto">
 						<div class="flex items-center justify-between gap-3 w-full sm:w-auto">
 							<button id="sidebarToggle" class="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 focus:outline-none" aria-label="Toggle navigation">
 								<i data-lucide="menu" class="w-5 h-5"></i>
 							</button>
 							<div class="relative flex-1">
-								<input type="text" placeholder="Search..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+								<input type="text" id="globalSearchInput" placeholder="Search ingredients, requests, purchases..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
 								<i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></i>
 							</div>
 						</div>

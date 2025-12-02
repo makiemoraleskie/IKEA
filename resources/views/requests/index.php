@@ -256,7 +256,7 @@ $ingredientStockMap = $ingredientStock ?? [];
 										Approve
 									</button>
 								</form>
-								<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests/reject">
+								<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests/reject" data-confirm="Are you sure you want to reject request batch #<?php echo (int)$b['id']; ?>? The requester will be notified." data-confirm-type="warning">
 									<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 									<input type="hidden" name="batch_id" value="<?php echo (int)$b['id']; ?>">
 									<button class="inline-flex items-center gap-1 px-3 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">

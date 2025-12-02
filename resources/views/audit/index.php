@@ -546,13 +546,15 @@ foreach ($logs as $log) {
 	});
 })();
 
-document.getElementById('clearLogsForm')?.addEventListener('submit', function(e){
+document.getElementById('clearLogsForm')?.addEventListener('submit', async function(e){
+	e.preventDefault();
 	const scope = this.querySelector('select[name="scope"]')?.value || 'filtered';
 	const message = scope === 'all'
-		? 'This will delete every audit log in the system. Continue?'
-		: 'Delete the logs that match your current filters?';
-	if (!confirm(message)) {
-		e.preventDefault();
+		? 'This will delete every audit log in the system. This action cannot be undone.'
+		: 'Delete the logs that match your current filters? This action cannot be undone.';
+	const confirmed = await Confirm.show(message, 'Clear Audit Logs', 'Clear Logs', 'Cancel', 'danger');
+	if (confirmed) {
+		this.submit();
 	}
 });
 </script>

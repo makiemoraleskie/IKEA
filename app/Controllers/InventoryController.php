@@ -7,13 +7,17 @@ class InventoryController extends BaseController
 	{
 		Auth::requireRole(['Owner','Manager','Stock Handler']);
 		$ingredientModel = new Ingredient();
+		
+		// Fetch ingredients and low stock items in parallel (they're separate queries)
 		$ingredients = $ingredientModel->all();
 		$lowStockItems = $ingredientModel->getLowStockItems();
+		
+		// Group low stock items by supplier (optimized array operations)
 		$lowStockGroups = [];
 		foreach ($lowStockItems as $item) {
 			$rawSupplier = trim((string)($item['preferred_supplier'] ?? ''));
 			$displaySupplier = $rawSupplier !== '' ? $rawSupplier : 'Unassigned Supplier';
-			$key = function_exists('mb_strtolower') ? mb_strtolower($displaySupplier) : strtolower($displaySupplier);
+			$key = strtolower($displaySupplier); // mb_strtolower not needed for ASCII supplier names
 			if (!isset($lowStockGroups[$key])) {
 				$lowStockGroups[$key] = [
 					'label' => $displaySupplier,
@@ -24,12 +28,8 @@ class InventoryController extends BaseController
 		}
 		$lowStockGroups = array_values($lowStockGroups);
 		
-		// Check if ingredient sets feature is enabled
-		// Read setting - if not set, default to enabled ('1')
-		// If setting is '0', feature is disabled
-		// If setting is '1' or null, feature is enabled
+		// Check if ingredient sets feature is enabled (cache this check)
 		$ingredientSetsSetting = Settings::get('features.ingredient_sets_enabled');
-		// Explicitly check: if setting exists and is '0', disable; otherwise enable
 		$ingredientSetsEnabled = ($ingredientSetsSetting !== '0');
 		$ingredientSets = [];
 		if ($ingredientSetsEnabled) {
@@ -240,6 +240,219 @@ class InventoryController extends BaseController
 		$logger->log(Auth::id() ?? 0, 'delete', 'ingredient_sets', ['set_id' => $setId]);
 		$_SESSION['flash_inventory'] = ['type' => 'success', 'text' => 'Set deleted.'];
 		$this->redirect('/inventory');
+	}
+
+	public function import(): void
+	{
+		Auth::requireRole(['Owner','Manager','Stock Handler']);
+		
+		// Handle GET request - show import form
+		if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+			$this->render('inventory/import.php', [
+				'flash' => $_SESSION['flash_inventory_import'] ?? null,
+			]);
+			unset($_SESSION['flash_inventory_import']);
+			return;
+		}
+		
+		// Handle POST request - process CSV file
+		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
+			http_response_code(400);
+			echo 'Invalid CSRF token';
+			return;
+		}
+		
+		if (!isset($_FILES['csv_file']) || $_FILES['csv_file']['error'] !== UPLOAD_ERR_OK) {
+			$_SESSION['flash_inventory_import'] = ['type' => 'error', 'messages' => ['Please select a valid CSV file to upload.']];
+			$this->redirect('/inventory/import');
+			return;
+		}
+		
+		$file = $_FILES['csv_file'];
+		$tmpPath = $file['tmp_name'];
+		$fileName = $file['name'];
+		
+		// Validate file extension
+		$extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+		if ($extension !== 'csv') {
+			$_SESSION['flash_inventory_import'] = ['type' => 'error', 'messages' => ['Only CSV files are allowed.']];
+			$this->redirect('/inventory/import');
+			return;
+		}
+		
+		// Read and parse CSV
+		$handle = fopen($tmpPath, 'r');
+		if ($handle === false) {
+			$_SESSION['flash_inventory_import'] = ['type' => 'error', 'messages' => ['Failed to read the CSV file.']];
+			$this->redirect('/inventory/import');
+			return;
+		}
+		
+		// Skip first two rows (date row and header row)
+		fgetcsv($handle); // Row 1: dates
+		fgetcsv($handle); // Row 2: headers
+		
+		$ingredientModel = new Ingredient();
+		$logger = new AuditLog();
+		$userId = Auth::id() ?? 0;
+		
+		$stats = [
+			'created' => 0,
+			'updated' => 0,
+			'skipped' => 0,
+			'errors' => [],
+		];
+		
+		// Normalize unit names (case-insensitive mapping)
+		$normalizeUnit = function(string $unit): string {
+			$unit = trim($unit);
+			$lower = strtolower($unit);
+			
+			// Unit normalization map
+			$unitMap = [
+				'pack' => 'pack',
+				'packs' => 'pack',
+				'kg' => 'kg',
+				'kilogram' => 'kg',
+				'kilograms' => 'kg',
+				'kl' => 'kg',
+				'g' => 'g',
+				'gram' => 'g',
+				'grams' => 'g',
+				'can' => 'can',
+				'cans' => 'can',
+				'bot' => 'bot',
+				'bot.' => 'bot',
+				'bottle' => 'bot',
+				'bottles' => 'bot',
+				'pc' => 'pcs',
+				'pcs' => 'pcs',
+				'piece' => 'pcs',
+				'pieces' => 'pcs',
+				'gallon' => 'gallon',
+				'gallons' => 'gallon',
+				'box' => 'box',
+				'boxes' => 'box',
+				'bag' => 'bag',
+				'bags' => 'bag',
+				'l' => 'L',
+				'liter' => 'L',
+				'liters' => 'L',
+				'litre' => 'L',
+				'litres' => 'L',
+			];
+			
+			return $unitMap[$lower] ?? $unit;
+		};
+		
+		$rowNum = 2; // Track row number for error reporting
+		while (($row = fgetcsv($handle)) !== false) {
+			$rowNum++;
+			
+			// Skip empty rows
+			if (empty($row) || (count($row) < 2) || empty(trim($row[0] ?? ''))) {
+				$stats['skipped']++;
+				continue;
+			}
+			
+			$itemName = trim($row[0] ?? '');
+			$unit = trim($row[1] ?? '');
+			
+			if (empty($itemName) || empty($unit)) {
+				$stats['skipped']++;
+				continue;
+			}
+			
+			// Normalize unit
+			$unit = $normalizeUnit($unit);
+			
+			// Find the last REMAIN value (rightmost non-empty REMAIN column)
+			// Pattern: Item (0), Unit (1), [Date1: NEW STOCK (2), DEDUCTION (3), REMAIN (4)], [Date2: NEW STOCK (5), DEDUCTION (6), REMAIN (7)], ...
+			// REMAIN columns are at positions: 4, 7, 10, 13, ... (every 3rd column starting from position 4)
+			// Formula: position = 4 + (n * 3) where n >= 0
+			$lastRemain = null;
+			
+			// Start from the end and work backwards
+			// Check if position matches REMAIN pattern: (position - 4) % 3 == 0 and position >= 4
+			for ($i = count($row) - 1; $i >= 4; $i--) {
+				$offset = $i - 4;
+				// Check if this position is a REMAIN column (every 3rd column starting from 4)
+				if ($offset >= 0 && ($offset % 3) === 0) {
+					$remainValue = trim($row[$i] ?? '');
+					if ($remainValue !== '' && is_numeric($remainValue)) {
+						$lastRemain = (float)$remainValue;
+						break;
+					}
+				}
+			}
+			
+			// Default to 0 if no remain value found
+			$quantity = $lastRemain !== null ? $lastRemain : 0.0;
+			
+			// Check if ingredient already exists (case-insensitive)
+			$existing = $ingredientModel->findByName($itemName);
+			
+			try {
+				if ($existing) {
+					// Update existing ingredient
+					$ingredientModel->updateQuantity((int)$existing['id'], $quantity);
+					// Also update unit if different
+					if (strtolower($existing['unit']) !== strtolower($unit)) {
+						$db = Database::getConnection();
+						$stmt = $db->prepare('UPDATE ingredients SET unit = ? WHERE id = ?');
+						$stmt->execute([$unit, (int)$existing['id']]);
+					}
+					$stats['updated']++;
+					$logger->log($userId, 'update', 'ingredients', [
+						'ingredient_id' => (int)$existing['id'],
+						'name' => $itemName,
+						'quantity' => $quantity,
+						'source' => 'csv_import',
+					]);
+				} else {
+					// Create new ingredient
+					$id = $ingredientModel->create($itemName, $unit, 0.0, null, 1.0, null, 0.0, null, true);
+					$ingredientModel->updateQuantity($id, $quantity);
+					$stats['created']++;
+					$logger->log($userId, 'create', 'ingredients', [
+						'ingredient_id' => $id,
+						'name' => $itemName,
+						'quantity' => $quantity,
+						'source' => 'csv_import',
+					]);
+				}
+			} catch (Throwable $e) {
+				$stats['errors'][] = "Row $rowNum ({$itemName}): " . $e->getMessage();
+			}
+		}
+		
+		fclose($handle);
+		
+		// Prepare success message
+		$messages = [];
+		if ($stats['created'] > 0) {
+			$messages[] = "Created {$stats['created']} new ingredient(s).";
+		}
+		if ($stats['updated'] > 0) {
+			$messages[] = "Updated {$stats['updated']} existing ingredient(s).";
+		}
+		if ($stats['skipped'] > 0) {
+			$messages[] = "Skipped {$stats['skipped']} row(s).";
+		}
+		if (!empty($stats['errors'])) {
+			$messages = array_merge($messages, $stats['errors']);
+		}
+		
+		if (empty($messages)) {
+			$messages[] = 'No items were imported. Please check your CSV file format.';
+		}
+		
+		$_SESSION['flash_inventory_import'] = [
+			'type' => !empty($stats['errors']) ? 'error' : 'success',
+			'messages' => $messages,
+		];
+		
+		$this->redirect('/inventory/import');
 	}
 }
 

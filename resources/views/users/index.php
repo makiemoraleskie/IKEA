@@ -167,11 +167,8 @@
 		});
 	});
 	document.querySelectorAll('.deleteUserForm').forEach(form => {
-		form.addEventListener('submit', (event) => {
-			if (!confirm('Delete this user account? This action cannot be undone.')) {
-				event.preventDefault();
-			}
-		});
+		form.setAttribute('data-confirm', 'Are you sure you want to delete this user account? This action cannot be undone.');
+		form.setAttribute('data-confirm-type', 'danger');
 	});
 })();
 </script>
