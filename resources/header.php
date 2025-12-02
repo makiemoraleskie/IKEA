@@ -1,102 +1,36 @@
 <?php
 declare(strict_types=1);
-$appTitle = 'IKEA Commissary System';
+// Fallback for Settings class if not defined
+if (!class_exists('Settings')) {
+	class Settings {
+		public static function companyName(): string { return 'IKEA'; }
+		public static function companyTagline(): string { return 'Inventory Management'; }
+		public static function logoPath(): ?string { return null; }
+		public static function themeDefault(): string { return 'light'; }
+	}
+}
+$companyName = Settings::companyName();
+$companyTagline = Settings::companyTagline();
+$appTitle = $companyName . ' Console';
 $user = Auth::user();
 $baseUrl = defined('BASE_URL') ? BASE_URL : '';
 $notifications = [];
 $notificationCount = 0;
+$logoOverride = Settings::logoPath();
+$defaultLogo = BASE_URL . '/resources/views/logo/540473678_1357706066360607_6728109697986200356_n (1).jpg';
+$activeTheme = $_SESSION['user_theme'] ?? Settings::themeDefault();
 
 if ($user) {
-	$ingredientModel = new Ingredient();
-	$ingredients = $ingredientModel->all();
-	$lowStockItems = array_values(array_filter($ingredients, function ($ing) {
-		return (float)($ing['quantity'] ?? 0) <= (float)($ing['reorder_level'] ?? 0);
-	}));
-	if (!empty($lowStockItems)) {
-		$names = array_map(fn($i) => $i['name'], array_slice($lowStockItems, 0, 3));
-		$notifications[] = [
-			'icon' => 'alert-triangle',
-			'title' => 'Low stock alert',
-			'description' => implode(', ', $names) . (count($lowStockItems) > 3 ? ' +' . (count($lowStockItems) - 3) . ' more' : '') . ' need replenishment.',
-			'link' => $baseUrl . '/inventory?focus=low-stock#inventory-low-stock',
-			'accent' => 'text-red-700 bg-red-50',
-		];
+	// Fallback for NotificationFeed class if not defined
+	if (!class_exists('NotificationFeed')) {
+		class NotificationFeed {
+			public function compose(array $user, int $userId, string $baseUrl, int $limit, bool $unreadOnly): array {
+				return [];
+			}
+		}
 	}
-
-	$requestModel = new RequestModel();
-	$pendingBatchCount = $requestModel->countBatchesByStatus('Pending');
-	if ($pendingBatchCount > 0) {
-		$notifications[] = [
-			'icon' => 'clipboard-list',
-			'title' => 'Requests awaiting approval',
-			'description' => $pendingBatchCount . ' batch' . ($pendingBatchCount > 1 ? 'es' : '') . ' need review.',
-			'link' => $baseUrl . '/requests?status=pending#requests-history',
-			'accent' => 'text-amber-700 bg-amber-50',
-		];
-	}
-
-	$purchaseModel = new Purchase();
-	$pendingPayments = $purchaseModel->countByPaymentStatus('Pending');
-	if ($pendingPayments > 0) {
-		$notifications[] = [
-			'icon' => 'credit-card',
-			'title' => 'Pending payments',
-			'description' => $pendingPayments . ' purchase' . ($pendingPayments > 1 ? 's' : '') . ' await settlement.',
-			'link' => $baseUrl . '/purchases?payment=Pending#recent-purchases',
-			'accent' => 'text-rose-700 bg-rose-50',
-		];
-	}
-
-	$deliveryModel = new Delivery();
-	$partialDeliveries = $deliveryModel->countDeliveriesByStatus('Partial');
-	if ($partialDeliveries > 0) {
-		$notifications[] = [
-			'icon' => 'truck',
-			'title' => 'Partial deliveries',
-			'description' => $partialDeliveries . ' delivery' . ($partialDeliveries > 1 ? 'ies' : 'y') . ' still have remaining items.',
-			'link' => $baseUrl . '/deliveries?status=partial#recent-deliveries',
-			'accent' => 'text-purple-700 bg-purple-50',
-		];
-	}
-
-	$awaitingDeliveries = $deliveryModel->getPendingCount();
-	if ($awaitingDeliveries > 0) {
-		$notifications[] = [
-			'icon' => 'package',
-			'title' => 'Awaiting deliveries',
-			'description' => $awaitingDeliveries . ' batch' . ($awaitingDeliveries > 1 ? 'es' : '') . ' have not arrived.',
-			'link' => $baseUrl . '/deliveries?status=awaiting#awaiting-deliveries',
-			'accent' => 'text-blue-700 bg-blue-50',
-		];
-	}
-
-	// Personal notifications
-	$notificationModel = new Notification();
-	$userNotifications = $notificationModel->listLatest((int)($user['id'] ?? 0), 8);
-	foreach ($userNotifications as $note) {
-		$accentMap = [
-			'success' => 'text-green-700 bg-green-50 border border-green-200',
-			'warning' => 'text-amber-700 bg-amber-50 border border-amber-200',
-			'danger' => 'text-red-700 bg-red-50 border border-red-200',
-			'info' => 'text-indigo-700 bg-indigo-50 border border-indigo-200',
-		];
-		$iconMap = [
-			'success' => 'check-circle',
-			'warning' => 'alert-triangle',
-			'danger' => 'alert-octagon',
-			'info' => 'bell-ring',
-		];
-		$level = $note['level'] ?? 'info';
-		$notifications[] = [
-			'icon' => $iconMap[$level] ?? 'bell-ring',
-			'title' => ucfirst($level),
-			'description' => trim((string)($note['message'] ?? '')),
-			'link' => !empty($note['link']) ? (str_starts_with($note['link'], 'http') ? $note['link'] : $baseUrl . $note['link']) : '',
-			'accent' => $accentMap[$level] ?? $accentMap['info'],
-			'created_at' => $note['created_at'] ?? null,
-		];
-	}
-
+	$feedBuilder = new NotificationFeed();
+	$notifications = $feedBuilder->compose($user, (int)($user['id'] ?? 0), $baseUrl, 8, true);
 	$notificationCount = count($notifications);
 }
 ?>
@@ -116,8 +50,36 @@ if ($user) {
 	<script>
 		// Tailwind config placeholder if needed
 	</script>
+	<script>
+		(function(){
+			var storedTheme = '<?php echo $activeTheme; ?>';
+			if (storedTheme !== 'system') {
+				return;
+			}
+			var mediaQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+			var apply = function(isDark) {
+				if (document.body) {
+					document.body.setAttribute('data-theme', isDark ? 'dark' : 'light');
+				} else {
+					document.documentElement.dataset.pendingTheme = isDark ? 'dark' : 'light';
+				}
+			};
+			var isDark = mediaQuery ? mediaQuery.matches : false;
+			apply(isDark);
+			if (mediaQuery && mediaQuery.addEventListener) {
+				mediaQuery.addEventListener('change', function(e){ apply(e.matches); });
+			} else if (mediaQuery && mediaQuery.addListener) {
+				mediaQuery.addListener(function(e){ apply(e.matches); });
+			}
+			window.addEventListener('DOMContentLoaded', function(){
+				if (document.documentElement.dataset.pendingTheme) {
+					document.body.setAttribute('data-theme', document.documentElement.dataset.pendingTheme);
+				}
+			});
+		})();
+	</script>
 </head>
-<body class="min-h-screen theme-body text-gray-800 antialiased overflow-x-hidden">
+<body class="min-h-screen theme-body text-gray-800 antialiased overflow-x-hidden" data-theme="<?php echo htmlspecialchars($activeTheme); ?>">
 	<?php if ($user): ?>
 	<div class="min-h-screen md:flex theme-shell md:h-screen md:overflow-hidden">
 		<!-- Sidebar Backdrop (Mobile Only) -->
@@ -126,84 +88,63 @@ if ($user) {
 		<!-- Sidebar - Enhanced -->
 		<div
 			id="sidebar"
-			class="theme-sidebar fixed top-0 left-0 bottom-0 z-50 flex w-64 lg:w-72 flex-col bg-gradient-to-b from-white via-gray-50/30 to-white border-r-2 border-gray-200/60 shadow-xl transition-transform duration-300 ease-in-out transform -translate-x-full md:relative md:flex-shrink-0 md:translate-x-0 md:shadow-none md:z-auto md:transform-none overflow-hidden md:h-full">
-			<!-- Decorative background elements -->
-			<div class="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#FCBBE9]/5 to-transparent rounded-full blur-3xl -mr-24 -mt-24"></div>
-			<div class="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-[#A8E6CF]/5 to-transparent rounded-full blur-2xl -ml-20 -mb-20"></div>
-			
-			<div class="relative z-10 flex flex-col h-full">
-				<!-- Logo Section - Enhanced -->
-				<div class="p-6 sm:p-8">
-					<div class="flex items-center justify-between">
-						<div class="flex items-center gap-3">
-							<div class="relative">
-								<img src="<?php echo htmlspecialchars(BASE_URL . '/resources/views/logo/540473678_1357706066360607_6728109697986200356_n (1).jpg'); ?>" alt="IKEA logo" class="w-12 h-12 object-cover rounded-2xl border-2 border-white/80 shadow-lg transition-transform duration-300 hover:scale-110">
-							</div>
-							<div class="hidden lg:block">
-								<p class="text-xs font-normal text-gray-700 uppercase tracking-wider" style="font-family: 'Dancing Script', cursive;">ikea</p>
-								<p class="text-xs text-gray-400 font-medium">Commissary</p>
-							</div>
-						</div>
-						<button type="button" id="sidebarClose" class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200" aria-label="Close navigation">
-							<i data-lucide="x" class="w-5 h-5"></i>
-						</button>
+			class="theme-sidebar fixed inset-y-0 z-40 flex w-64 lg:w-72 flex-col shadow-lg transition-transform duration-300 -translate-x-full md:relative md:flex-shrink-0 md:translate-x-0 md:shadow-none">
+			<!-- Logo -->
+			<div class="p-6  flex items-center justify-between">
+				<div class="flex items-center gap-3">
+					<img src="<?php echo htmlspecialchars(BASE_URL . '/resources/views/logo/540473678_1357706066360607_6728109697986200356_n (1).jpg'); ?>" alt="IKEA logo" class="w-10 h-10 object-cover rounded-xl border border-white/60 shadow-sm">
+					<div class="flex flex-col">
+						<span class="text-lg font-bold text-gray-900 italic">ikea</span>
+						<span class="text-xs text-gray-600">commissary</span>
 					</div>
 				</div>
-				
-				<!-- Navigation - Enhanced -->
-				<nav class="px-3 py-4 flex-1 overflow-y-auto">
-					<?php 
-					$currentPage = $_SERVER['REQUEST_URI'] ?? '';
-					$role = $user['role'] ?? '';
-					if ($role === 'Kitchen Staff') {
-						$navItems = [
-							['url' => '/dashboard', 'label' => 'Dashboard', 'icon' => 'bar-chart-3'],
-							['url' => '/requests', 'label' => 'Requests', 'icon' => 'clipboard-list'],
-						];
-					} elseif ($role === 'Purchaser') {
-						$navItems = [
-							['url' => '/dashboard', 'label' => 'Dashboard', 'icon' => 'bar-chart-3'],
-							['url' => '/purchases', 'label' => 'Purchases', 'icon' => 'receipt'],
-						];
-					} else {
-						$navItems = [
-							['url' => '/dashboard', 'label' => 'Dashboard', 'icon' => 'bar-chart-3'],
-							['url' => '/requests', 'label' => 'Requests', 'icon' => 'clipboard-list'],
-							['url' => '/inventory', 'label' => 'Inventory', 'icon' => 'package'],
-							['url' => '/purchases', 'label' => 'Purchases', 'icon' => 'receipt'],
-							['url' => '/deliveries', 'label' => 'Deliveries', 'icon' => 'truck'],
-						];
-						if (in_array($role, ['Owner','Manager'], true)) {
-							$navItems[] = ['url' => '/reports', 'label' => 'Reports', 'icon' => 'trending-up'];
-							$navItems[] = ['url' => '/audit', 'label' => 'Audit Logs', 'icon' => 'clock'];
-						}
-						if ($role === 'Owner') {
-							$navItems[] = ['url' => '/users', 'label' => 'Users', 'icon' => 'users'];
-						}
-					}
-					
-					foreach ($navItems as $item): 
-						$isActive = strpos($currentPage, $item['url']) !== false;
-						$activeClasses = $isActive 
-							? 'bg-gradient-to-r from-[#008000]/10 via-[#008000]/5 to-transparent text-[#008000] font-semibold border-l-4 border-[#008000] shadow-sm' 
-							: 'text-gray-700 hover:bg-gradient-to-r hover:from-gray-100/50 hover:via-gray-50/30 hover:to-transparent hover:text-[#008000]';
-						$isPurchases = $item['url'] === '/purchases';
-					?>
-						<a href="<?php echo htmlspecialchars($baseUrl . $item['url']); ?>" class="sidebar-link flex items-center gap-3 px-4 py-3.5 mx-2 rounded-xl transition-all duration-200 mb-1 <?php echo $activeClasses; ?>">
-							<?php if ($isPurchases): ?>
-								<span class="w-5 h-5 flex-shrink-0 flex items-center justify-center text-lg font-bold">₱</span>
-							<?php else: ?>
-								<i data-lucide="<?php echo $item['icon']; ?>" class="w-5 h-5 flex-shrink-0"></i>
-							<?php endif; ?>
-							<span class="text-sm font-medium"><?php echo $item['label']; ?></span>
-							<?php if ($isActive): ?>
-								<div class="ml-auto w-2 h-2 rounded-full bg-[#008000] animate-pulse"></div>
-							<?php endif; ?>
-						</a>
-					<?php endforeach; ?>
-				</nav>
-				
+				<button type="button" id="sidebarClose" class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none" aria-label="Close navigation">
+					<i data-lucide="x" class="w-5 h-5"></i>
+				</button>
 			</div>
+			
+			<!-- Navigation -->
+			<nav class="mt-6">
+				<?php 
+				$currentPage = $_SERVER['REQUEST_URI'] ?? '';
+				$role = $user['role'] ?? '';
+				if ($role === 'Kitchen Staff') {
+					$navItems = [
+						['url' => '/dashboard', 'label' => 'Dashboard', 'icon' => 'bar-chart-3'],
+						['url' => '/requests', 'label' => 'Requests', 'icon' => 'clipboard-list'],
+					];
+				} elseif ($role === 'Purchaser') {
+					$navItems = [
+						['url' => '/dashboard', 'label' => 'Dashboard', 'icon' => 'bar-chart-3'],
+						['url' => '/purchases', 'label' => 'Purchases', 'icon' => 'receipt'],
+					];
+				} else {
+					$navItems = [
+						['url' => '/dashboard', 'label' => 'Dashboard', 'icon' => 'bar-chart-3'],
+						['url' => '/requests', 'label' => 'Requests', 'icon' => 'clipboard-list'],
+						['url' => '/inventory', 'label' => 'Inventory', 'icon' => 'package'],
+						['url' => '/purchases', 'label' => 'Purchases', 'icon' => 'receipt'],
+						['url' => '/deliveries', 'label' => 'Deliveries', 'icon' => 'truck'],
+					];
+					if (in_array($role, ['Owner','Manager'], true)) {
+						$navItems[] = ['url' => '/reports', 'label' => 'Reports', 'icon' => 'trending-up'];
+						$navItems[] = ['url' => '/audit', 'label' => 'Audit Logs', 'icon' => 'clock'];
+					}
+					if ($role === 'Owner') {
+						$navItems[] = ['url' => '/users', 'label' => 'Users', 'icon' => 'users'];
+					}
+				}
+				
+				foreach ($navItems as $item): 
+					$isActive = strpos($currentPage, $item['url']) !== false;
+					$classes = 'sidebar-link flex items-center gap-3 px-6 py-3 transition-colors duration-200' . ($isActive ? ' active' : '');
+				?>
+					<a href="<?php echo htmlspecialchars($baseUrl . $item['url']); ?>" class="<?php echo $classes; ?>">
+						<i data-lucide="<?php echo $item['icon']; ?>" class="w-5 h-5"></i>
+						<span class="text-sm font-medium"><?php echo $item['label']; ?></span>
+					</a>
+				<?php endforeach; ?>
+			</nav>
 		</div>
 		
 		<!-- Main Content -->
@@ -219,9 +160,8 @@ if ($user) {
 							<h1 class="text-2xl font-bold text-gray-800 truncate"><?php echo $pageTitle ?? 'Dashboard'; ?></h1>
 						</div>
 					</div>
-					<div class="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto">
-						<div class="flex items-center gap-3">
-							<div class="relative" id="notificationWrapper">
+					<div class="flex items-center gap-3">
+						<div class="relative" id="notificationWrapper">
 							<button type="button" id="notificationButton" aria-haspopup="true" aria-expanded="false" class="relative focus:outline-none rounded-full p-2 border <?php echo $notificationCount ? 'border-red-200 text-red-700 bg-red-50 animate-bounce' : 'border-gray-200 text-gray-600 hover:bg-gray-50'; ?>">
 								<i data-lucide="bell" class="w-5 h-5"></i>
 								<?php if ($notificationCount > 0): ?>
@@ -248,8 +188,19 @@ if ($user) {
 														<i data-lucide="<?php echo htmlspecialchars($note['icon']); ?>" class="w-4 h-4"></i>
 													</span>
 													<div class="flex-1">
-														<p class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($note['title']); ?></p>
-														<p class="text-xs text-gray-600 mt-1"><?php echo htmlspecialchars($note['description'] ?: 'No description provided.'); ?></p>
+														<p class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($note['title'] ?? 'Notification'); ?></p>
+														<p class="text-xs text-gray-600 mt-1">
+															<?php
+															$bodyText = trim((string)($note['body'] ?? ''));
+															if ($bodyText === '' && isset($note['description'])) {
+																$bodyText = trim((string)$note['description']);
+															}
+															if ($bodyText === '' && isset($note['message'])) {
+																$bodyText = trim((string)$note['message']);
+															}
+															echo htmlspecialchars($bodyText !== '' ? $bodyText : 'No additional details available.');
+															?>
+														</p>
 														<?php if (!empty($note['created_at'])): ?>
 															<p class="text-[11px] text-gray-400 mt-1"><?php echo htmlspecialchars(date('M j, g:i A', strtotime($note['created_at']))); ?></p>
 														<?php endif; ?>
@@ -446,6 +397,37 @@ if ($user) {
 					if (!userMenu.contains(event.target) && !userBtn.contains(event.target)) {
 						closeUserMenu();
 					}
+				});
+			})();
+			(function(){
+				const btn = document.getElementById('themeSwitcher');
+				if (!btn) return;
+				const themes = ['light','dark','system'];
+				const updateIcon = (theme) => {
+					const icon = btn.querySelector('i');
+					if (icon) {
+						icon.setAttribute('data-lucide', theme === 'dark' ? 'moon' : 'sun');
+						if (window.lucide) {
+							window.lucide.createIcons();
+						}
+					}
+				};
+				btn.addEventListener('click', ()=>{
+					const current = btn.getAttribute('data-theme') || 'system';
+					const index = themes.indexOf(current);
+					const nextTheme = themes[(index + 1) % themes.length];
+					btn.setAttribute('data-theme', nextTheme);
+					document.body.setAttribute('data-theme', nextTheme);
+					updateIcon(nextTheme);
+
+					const formData = new FormData();
+					formData.append('csrf_token', btn.getAttribute('data-csrf') || '');
+					formData.append('theme', nextTheme);
+					fetch('<?php echo htmlspecialchars($baseUrl); ?>/account/theme', {
+						method: 'POST',
+						body: formData,
+						credentials: 'same-origin'
+					}).catch(()=>{ /* ignore network errors for toggle */ });
 				});
 			})();
 			</script>

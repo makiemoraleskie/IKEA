@@ -54,7 +54,7 @@
 			<input type="password" name="password" minlength="8" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#008000] focus:border-[#008000] transition-colors" required />
 		</div>
 		<div class="md:col-span-4">
-			<button class="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#008000] via-[#00A86B] to-[#008000] text-white px-6 py-3 rounded-xl hover:shadow-lg hover:shadow-[#008000]/30 focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all font-semibold">
+			<button class="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-b from-[#00A86B] to-[#008000] text-white px-6 py-3 rounded-xl shadow-md hover:opacity-90 hover:shadow-lg focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all font-semibold">
 				<i data-lucide="user-plus" class="w-4 h-4"></i>
 				Create user
 			</button>
@@ -153,7 +153,7 @@
 								</select>
 							</div>
 							<div class="flex gap-2">
-								<button class="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#008000] via-[#00A86B] to-[#008000] text-white px-4 py-2 rounded-xl hover:shadow-lg hover:shadow-[#008000]/30 focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all font-semibold">
+								<button class="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-b from-[#00A86B] to-[#008000] text-white px-4 py-2 rounded-xl shadow-md hover:opacity-90 hover:shadow-lg focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all font-semibold">
 									<i data-lucide="check" class="w-4 h-4"></i>
 									Save
 								</button>

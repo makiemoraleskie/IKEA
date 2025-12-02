@@ -18,8 +18,10 @@
 	</div>
 </div>
 
-<?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
 <?php
+$baseUrl = defined('BASE_URL') ? BASE_URL : '';
+$canViewCosts = $canViewCosts ?? true;
+$dashboardWidgets = $dashboardWidgets ?? ['low_stock','pending_requests','pending_payments','partial_deliveries','pending_deliveries','inventory_value'];
 $lowStock = (int)($stats['lowStockCount'] ?? 0);
 $pendingRequests = (int)($stats['pendingRequests'] ?? 0);
 $pendingPayments = (int)($stats['pendingPayments'] ?? 0);
@@ -54,12 +56,9 @@ $cardCopy = [
 <!-- Dashboard Cards - Enhanced -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-8">
 	<!-- Low Stock Items -->
-	<div class="group bg-white rounded-xl shadow-md border-2 relative overflow-hidden <?php echo $lowStock ? 'border-red-300/80 ring-2 ring-red-200/50 bg-red-50/50' : 'border-gray-200/80'; ?>">
-		<div class="p-4 sm:p-5 relative z-10">
-		<div class="absolute top-3 right-3 w-9 h-9 sm:w-10 sm:h-10 bg-red-50 rounded-lg flex items-center justify-center border border-red-200 z-20">
-			<i data-lucide="alert-triangle" class="w-4 h-4 sm:w-5 sm:h-5 text-red-600"></i>
-		</div>
-			<div class="flex-1 pr-10 sm:pr-12">
+	<div class="bg-white rounded-lg shadow-md border p-4 sm:p-6 relative <?php echo $lowStock ? 'border-red-300 ring-2 ring-red-200 bg-red-50' : 'border-gray-200'; ?>">
+		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+			<div class="flex-1">
 				<div class="flex items-center justify-between mb-2">
 					<h3 class="text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Low Stock Items</h3>
 					<?php echo $chip('alert', $lowStock > 0); ?>
@@ -77,12 +76,9 @@ $cardCopy = [
 	</div>
 
 	<!-- Pending Requests -->
-	<div class="group bg-white rounded-xl shadow-md border-2 relative overflow-hidden <?php echo $pendingRequests ? 'border-red-300/80 ring-2 ring-red-200/50 bg-red-50/50' : 'border-gray-200/80'; ?>">
-		<div class="p-4 sm:p-5 relative z-10">
-			<div class="absolute top-3 right-3 w-9 h-9 sm:w-10 sm:h-10 bg-green-50 rounded-lg flex items-center justify-center border border-green-200 z-20">
-				<i data-lucide="inbox" class="w-4 h-4 sm:w-5 sm:h-5 text-green-600"></i>
-			</div>
-			<div class="flex-1 pr-10 sm:pr-12">
+	<div class="bg-white rounded-lg shadow-md border p-4 sm:p-6 relative <?php echo $pendingRequests ? 'border-amber-300 ring-2 ring-amber-200 bg-amber-50' : 'border-gray-200'; ?>">
+		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+			<div class="flex-1">
 				<div class="flex items-center justify-between mb-2">
 					<h3 class="text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Pending Requests</h3>
 					<?php echo $chip('warn', $pendingRequests > 0); ?>
@@ -100,12 +96,9 @@ $cardCopy = [
 	</div>
 
 	<!-- Pending Payments -->
-	<div class="group bg-white rounded-xl shadow-md border-2 relative overflow-hidden <?php echo $pendingPayments ? 'border-red-300/80 ring-2 ring-red-200/50 bg-red-50/50' : 'border-gray-200/80'; ?>">
-		<div class="p-4 sm:p-5 relative z-10">
-			<div class="absolute top-3 right-3 w-9 h-9 sm:w-10 sm:h-10 bg-green-50 rounded-lg flex items-center justify-center border border-green-200 z-20">
-				<i data-lucide="credit-card" class="w-4 h-4 sm:w-5 sm:h-5 text-green-600"></i>
-			</div>
-			<div class="flex-1 pr-10 sm:pr-12">
+	<div class="bg-white rounded-lg shadow-md border p-4 sm:p-6 relative <?php echo $pendingPayments ? 'border-rose-300 ring-2 ring-rose-200 bg-rose-50' : 'border-gray-200'; ?>">
+		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+			<div class="flex-1">
 				<div class="flex items-center justify-between mb-2">
 					<h3 class="text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Pending Payments</h3>
 					<?php echo $chip('rose', $pendingPayments > 0); ?>
@@ -123,12 +116,9 @@ $cardCopy = [
 	</div>
 
 	<!-- Partial Deliveries -->
-	<div class="group bg-white rounded-xl shadow-md border-2 relative overflow-hidden <?php echo $partialDeliveries ? 'border-red-300/80 ring-2 ring-red-200/50 bg-red-50/50' : 'border-gray-200/80'; ?>">
-		<div class="p-4 sm:p-5 relative z-10">
-			<div class="absolute top-3 right-3 w-9 h-9 sm:w-10 sm:h-10 bg-green-50 rounded-lg flex items-center justify-center border border-green-200 z-20">
-				<i data-lucide="truck" class="w-4 h-4 sm:w-5 sm:h-5 text-green-600"></i>
-			</div>
-			<div class="flex-1 pr-10 sm:pr-12">
+	<div class="bg-white rounded-lg shadow-md border p-4 sm:p-6 relative <?php echo $partialDeliveries ? 'border-purple-300 ring-2 ring-purple-200 bg-purple-50' : 'border-gray-200'; ?>">
+		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+			<div class="flex-1">
 				<div class="flex items-center justify-between mb-2">
 					<h3 class="text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Partial Deliveries</h3>
 					<?php echo $chip('violet', $partialDeliveries > 0); ?>
@@ -146,12 +136,9 @@ $cardCopy = [
 	</div>
 
 	<!-- Pending Deliveries -->
-	<div class="group bg-white rounded-xl shadow-md border-2 relative overflow-hidden <?php echo $pendingDeliveries ? 'border-green-300/80 ring-2 ring-green-200/50 bg-green-50/50' : 'border-gray-200/80'; ?>">
-		<div class="p-4 sm:p-5 relative z-10">
-			<div class="absolute top-3 right-3 w-9 h-9 sm:w-10 sm:h-10 bg-green-50 rounded-lg flex items-center justify-center border border-green-200 z-20">
-				<i data-lucide="package" class="w-4 h-4 sm:w-5 sm:h-5 text-green-600"></i>
-			</div>
-			<div class="flex-1 pr-10 sm:pr-12">
+	<div class="bg-white rounded-lg shadow-md border p-4 sm:p-6 relative <?php echo $pendingDeliveries ? 'border-blue-200 ring-2 ring-blue-100 bg-blue-50' : 'border-gray-200'; ?>">
+		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+			<div class="flex-1">
 				<div class="flex items-center justify-between mb-2">
 					<h3 class="text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Awaiting Deliveries</h3>
 					<?php echo $chip('info', $pendingDeliveries > 0); ?>
@@ -169,23 +156,19 @@ $cardCopy = [
 	</div>
 
 	<!-- Inventory Value -->
-	<div class="group bg-white rounded-xl shadow-md border-2 border-gray-200/80 relative overflow-hidden">
-		<div class="p-4 sm:p-5 relative z-10">
-			<div class="absolute top-3 right-3 w-9 h-9 sm:w-10 sm:h-10 bg-green-50 rounded-lg flex items-center justify-center border border-green-200 z-20">
-				<span class="text-sm sm:text-base font-bold text-[#008000]">₱</span>
-			</div>
-			<div class="flex-1 pr-10 sm:pr-12">
+	<div class="bg-white rounded-lg shadow-md border p-4 sm:p-6 relative border-gray-200">
+		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+			<div class="flex-1">
 				<div class="flex items-center justify-between mb-2">
-					<h3 class="text-xs sm:text-sm font-bold text-gray-700 uppercase tracking-wide">Inventory Value</h3>
+					<h3 class="text-sm font-medium text-gray-600">Inventory Value</h3>
+					<?php echo $chip('success', false); ?>
 				</div>
-				<div class="text-2xl sm:text-3xl font-black tracking-tight mb-2 text-gray-800">₱<?php echo number_format($inventoryValue, 2); ?></div>
-				<p class="text-xs text-gray-600 mb-2.5 leading-relaxed">estimated replacement value</p>
-				<a href="<?php echo htmlspecialchars($baseUrl); ?>/inventory#inventory-low-stock" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#008000] hover:text-[#006a00]">
-					See stock ledger
-					<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-					</svg>
-				</a>
+				<div class="text-3xl font-black tracking-tight text-gray-800">₱<?php echo number_format($inventoryValue, 2); ?></div>
+				<p class="text-sm text-gray-600 mb-3">estimated replacement value</p>
+				<a href="<?php echo htmlspecialchars($baseUrl); ?>/inventory#inventory-low-stock" class="text-sm font-semibold text-green-700 hover:text-green-800">See stock ledger →</a>
+			</div>
+			<div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center shrink-0">
+				<i data-lucide="dollar-sign" class="w-6 h-6 text-green-600"></i>
 			</div>
 		</div>
 	</div>

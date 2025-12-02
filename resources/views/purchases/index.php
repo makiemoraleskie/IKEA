@@ -81,7 +81,7 @@
 					<p class="text-xs sm:text-sm text-gray-600 mt-0.5 sm:mt-1 font-medium">Ingredients at or below their reorder levels, grouped by supplier.</p>
 				</div>
 			</div>
-			<button type="button" id="printLowStockList" class="inline-flex items-center justify-center gap-2.5 px-4 py-2.5 sm:px-5 sm:py-3 text-sm font-bold bg-gradient-to-r from-[#008000] to-[#00A86B] text-white rounded-xl shadow-md w-full sm:w-auto">
+			<button type="button" id="printLowStockList" class="inline-flex items-center justify-center gap-2.5 px-4 py-2.5 sm:px-5 sm:py-3 text-sm font-bold bg-gradient-to-b from-[#00A86B] to-[#008000] text-white rounded-xl shadow-md hover:opacity-90 hover:shadow-lg w-full sm:w-auto">
 				<i data-lucide="printer" class="w-4 h-4"></i>
 				Print Purchase List
 			</button>
@@ -273,7 +273,7 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
 							<input id="costInput" type="number" step="0.01" min="0" class="w-full border-2 border-gray-300 rounded-xl px-4 sm:px-5 py-3 sm:py-3.5 md:py-4 text-base sm:text-lg bg-gradient-to-br from-gray-50 to-white focus:border-gray-400 focus:ring-2 focus:ring-gray-200" placeholder="0.00" />
 						</div>
 						<div class="pt-2">
-							<button type="button" id="addRowBtn" class="inline-flex items-center gap-2.5 px-5 sm:px-6 md:px-8 py-3 sm:py-3.5 md:py-4 text-sm sm:text-base font-bold bg-gradient-to-r from-[#008000] to-[#00A86B] text-white rounded-xl shadow-md w-full sm:w-auto justify-center">
+							<button type="button" id="addRowBtn" class="inline-flex items-center gap-2.5 px-5 sm:px-6 md:px-8 py-3 sm:py-3.5 md:py-4 text-sm sm:text-base font-bold bg-gradient-to-b from-[#00A86B] to-[#008000] text-white rounded-xl shadow-md hover:opacity-90 hover:shadow-lg w-full sm:w-auto justify-center">
 								<i data-lucide="plus" class="w-5 h-5"></i>
 								Add to List
 							</button>
@@ -377,7 +377,7 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                     </div>
                 </div>
 				<div class="p-5 sm:p-6 md:p-7 border-t-2 border-gray-200/60 flex justify-end">
-					<button type="submit" id="recordPurchaseBtn" class="inline-flex items-center gap-2.5 px-6 sm:px-8 md:px-10 py-3.5 sm:py-4 md:py-4.5 text-base sm:text-lg font-bold bg-gradient-to-r from-[#008000] to-[#00A86B] text-white rounded-xl shadow-md disabled:opacity-60 disabled:cursor-not-allowed w-full sm:w-auto justify-center">
+					<button type="submit" id="recordPurchaseBtn" class="inline-flex items-center gap-2.5 px-6 sm:px-8 md:px-10 py-3.5 sm:py-4 md:py-4.5 text-base sm:text-lg font-bold bg-gradient-to-b from-[#00A86B] to-[#008000] text-white rounded-xl shadow-md hover:opacity-90 hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed w-full sm:w-auto justify-center">
 						<i data-lucide="shopping-cart" class="w-5 h-5 sm:w-6 sm:h-6"></i>
 						<span class="whitespace-nowrap">Record Purchase Batch</span>
 					</button>
@@ -514,7 +514,7 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                         </div>
                     </td>
 					<td class="px-4 sm:px-5 py-4">
-						<a href="<?php echo htmlspecialchars($baseUrl); ?>/deliveries" class="inline-flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-[#008000] to-[#00A86B] text-white text-xs sm:text-sm font-bold rounded-lg shadow-md hover:opacity-90 whitespace-nowrap">
+						<a href="<?php echo htmlspecialchars($baseUrl); ?>/deliveries" class="inline-flex items-center gap-1.5 px-3 py-2 bg-gradient-to-b from-[#00A86B] to-[#008000] text-white text-xs sm:text-sm font-bold rounded-lg shadow-md hover:opacity-90 hover:shadow-lg whitespace-nowrap">
 							<i data-lucide="truck" class="w-3.5 h-3.5"></i>
 							<span>Deliveries</span>
 						</a>

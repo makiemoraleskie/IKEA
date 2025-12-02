@@ -434,13 +434,12 @@ document.addEventListener('DOMContentLoaded', function(){
 				</button>
 				<button 
 					type="submit" 
-					class="group w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#008000] via-[#00A86B] to-[#008000] text-white font-bold text-base shadow-lg shadow-[#008000]/30 hover:shadow-xl hover:shadow-[#008000]/40 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-[#008000]/30 focus:ring-offset-2 transition-all duration-300 overflow-hidden relative"
+					class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl bg-gradient-to-b from-[#00A86B] to-[#008000] text-white font-bold text-base shadow-md hover:opacity-90 hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-[#008000]/30 focus:ring-offset-2 transition-all duration-300"
 				>
-					<span class="relative z-10 flex items-center gap-2.5">
+					<span class="flex items-center gap-2.5">
 						<i data-lucide="plus" class="w-5 h-5"></i>
 						Add Ingredient
 					</span>
-					<div class="absolute inset-0 bg-gradient-to-r from-[#006a00] via-[#008000] to-[#006a00] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 				</button>
 			</div>
 		</form>
@@ -538,7 +537,7 @@ document.addEventListener('DOMContentLoaded', function(){
 					</div>
 					<div class="flex items-center justify-between gap-3 flex-wrap">
 						<p class="text-xs text-gray-500 font-medium">Quantities are stored using each ingredient's base unit</p>
-						<button type="button" id="setAddIngredientBtn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#008000] to-[#00A86B] text-white rounded-xl font-bold text-sm shadow-md shadow-[#008000]/30 hover:shadow-lg hover:shadow-[#008000]/40 hover:-translate-y-0.5 transition-all duration-200">
+						<button type="button" id="setAddIngredientBtn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-b from-[#00A86B] to-[#008000] text-white rounded-xl font-bold text-sm shadow-md hover:opacity-90 hover:shadow-lg transition-all duration-200">
 							<i data-lucide="plus" class="w-4 h-4"></i>
 							Add to Set
 						</button>
@@ -576,12 +575,11 @@ document.addEventListener('DOMContentLoaded', function(){
 						<i data-lucide="x" class="w-4 h-4"></i>
 						Cancel Edit
 					</button>
-					<button type="submit" id="setBuilderSubmit" class="group inline-flex items-center gap-2.5 px-6 py-3 bg-gradient-to-r from-[#008000] via-[#00A86B] to-[#008000] text-white font-bold rounded-xl shadow-lg shadow-[#008000]/30 hover:shadow-xl hover:shadow-[#008000]/40 hover:-translate-y-0.5 transition-all duration-300 overflow-hidden relative">
-						<span class="relative z-10 flex items-center gap-2.5">
+					<button type="submit" id="setBuilderSubmit" class="inline-flex items-center gap-2.5 px-6 py-3 bg-gradient-to-b from-[#00A86B] to-[#008000] text-white font-bold rounded-xl shadow-md hover:opacity-90 hover:shadow-lg transition-all duration-300">
+						<span class="flex items-center gap-2.5">
 							<i data-lucide="check" class="w-4 h-4"></i>
 							<span id="setBuilderSubmitLabel">Save Set</span>
 						</span>
-						<div class="absolute inset-0 bg-gradient-to-r from-[#006a00] via-[#008000] to-[#006a00] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 					</button>
 				</div>
 			</form>

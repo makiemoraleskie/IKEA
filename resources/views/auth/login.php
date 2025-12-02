@@ -143,15 +143,14 @@ $logoPath = (defined('BASE_URL') ? BASE_URL : '') . '/resources/views/logo/54047
 
 					<button
 						type="submit"
-						class="group relative w-full rounded-xl bg-gradient-to-r from-[#008000] via-[#00A86B] to-[#008000] py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white shadow-lg shadow-[#008000]/30 transition-all duration-300 hover:shadow-xl hover:shadow-[#008000]/40 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-[#008000]/30 focus:ring-offset-2 focus:ring-offset-white overflow-hidden"
+						class="w-full rounded-xl bg-gradient-to-b from-[#00A86B] to-[#008000] py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white shadow-md hover:opacity-90 hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-[#008000]/30 focus:ring-offset-2 focus:ring-offset-white"
 					>
-						<span class="relative z-10 flex items-center justify-center gap-2">
+						<span class="flex items-center justify-center gap-2">
 							<span>Continue</span>
 							<svg class="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
 							</svg>
 						</span>
-						<div class="absolute inset-0 bg-gradient-to-r from-[#006a00] via-[#008000] to-[#006a00] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 					</button>
 				</form>
 

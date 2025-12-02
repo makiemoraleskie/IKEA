@@ -161,7 +161,7 @@ foreach ($deliveries as $d) {
         </div>
 
         <div class="mt-6 flex justify-end">
-			<button type="submit" class="inline-flex items-center gap-2 bg-gradient-to-r from-[#008000] via-[#00A86B] to-[#008000] text-white px-6 py-3 rounded-xl hover:shadow-lg hover:shadow-[#008000]/30 focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all font-semibold">
+			<button type="submit" class="inline-flex items-center gap-2 bg-gradient-to-b from-[#00A86B] to-[#008000] text-white px-6 py-3 rounded-xl shadow-md hover:opacity-90 hover:shadow-lg focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all font-semibold">
 				<i data-lucide="package-check" class="w-4 h-4"></i>
 				Record Delivery
 			</button>
@@ -238,7 +238,7 @@ foreach ($deliveries as $d) {
                     <td class="px-6 py-4">
                         <button
                             type="button"
-                            class="inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-[#008000] to-[#00A86B] text-white text-sm rounded-xl hover:shadow-md hover:shadow-[#008000]/30 focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all font-semibold"
+                            class="inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-b from-[#00A86B] to-[#008000] text-white text-sm rounded-xl shadow-md hover:opacity-90 hover:shadow-lg focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all font-semibold"
                             data-quick-receive
                             data-purchase-id="<?php echo (int)$pending['id']; ?>"
                             data-batch-label="<?php echo htmlspecialchars('#' . $batchId); ?>"
@@ -306,7 +306,7 @@ foreach ($deliveries as $d) {
             <div>
                 <p class="text-sm font-medium text-gray-700 mb-2">Delivery type</p>
                 <div class="flex flex-wrap gap-3">
-                    <button type="button" class="px-4 py-2 text-sm font-semibold rounded-xl border-2 border-[#008000] bg-gradient-to-r from-[#008000] to-[#00A86B] text-white focus:ring-2 focus:ring-[#008000]" data-quick-status="complete">
+                    <button type="button" class="px-4 py-2 text-sm font-semibold rounded-xl border-2 border-[#008000] bg-gradient-to-b from-[#00A86B] to-[#008000] text-white focus:ring-2 focus:ring-[#008000]" data-quick-status="complete">
                         Complete delivery
                     </button>
                     <button type="button" class="px-4 py-2 text-sm font-semibold rounded-xl border-2 border-gray-200 text-gray-700 hover:border-gray-300 focus:ring-2 focus:ring-[#008000]" data-quick-status="partial">
@@ -327,7 +327,7 @@ foreach ($deliveries as $d) {
         </div>
         <div class="px-6 py-4 bg-gray-50 border-t flex items-center justify-between gap-3">
             <button type="button" class="text-sm font-semibold text-gray-600 hover:text-gray-800" data-quick-cancel>Cancel</button>
-            <button type="button" id="quickConfirmBtn" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#008000] via-[#00A86B] to-[#008000] text-white text-sm font-semibold hover:shadow-lg hover:shadow-[#008000]/30 focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all">
+            <button type="button" id="quickConfirmBtn" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-b from-[#00A86B] to-[#008000] text-white text-sm font-semibold shadow-md hover:opacity-90 hover:shadow-lg focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all">
                 <i data-lucide="package-check" class="w-4 h-4"></i>
                 Confirm & Record
             </button>
@@ -455,7 +455,7 @@ foreach ($deliveries as $d) {
 			<i data-lucide="truck" class="w-16 h-16 mb-4 text-gray-300"></i>
 			<h3 class="text-lg font-medium text-gray-900 mb-2">No Deliveries Found</h3>
 			<p class="text-sm text-gray-600 mb-4">Start by recording your first delivery</p>
-			<button onclick="document.querySelector('form').scrollIntoView({behavior: 'smooth'})" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#008000] via-[#00A86B] to-[#008000] text-white rounded-xl hover:shadow-lg hover:shadow-[#008000]/30 transition-all font-semibold">
+			<button onclick="document.querySelector('form').scrollIntoView({behavior: 'smooth'})" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-b from-[#00A86B] to-[#008000] text-white rounded-xl shadow-md hover:opacity-90 hover:shadow-lg transition-all font-semibold">
 				<i data-lucide="plus" class="w-4 h-4"></i>
 				Record First Delivery
 			</button>

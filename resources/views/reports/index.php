@@ -136,7 +136,7 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 			<div class="space-y-2">
 				<label class="block text-sm font-medium text-gray-700">Actions</label>
 				<div class="space-y-2">
-					<button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#008000] via-[#00A86B] to-[#008000] text-white px-4 py-3 rounded-xl hover:shadow-lg hover:shadow-[#008000]/30 focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all font-semibold">
+					<button type="submit" class="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-b from-[#00A86B] to-[#008000] text-white px-4 py-3 rounded-xl shadow-md hover:opacity-90 hover:shadow-lg focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all font-semibold">
 						<i data-lucide="search" class="w-4 h-4"></i>
 						Apply Filters
 					</button>

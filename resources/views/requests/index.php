@@ -48,7 +48,7 @@ $ingredientStockMap = $ingredientStock ?? [];
 			</div>
 		</div>
 		<div class="mt-6 flex justify-end">
-			<button type="button" id="flashModalOk" class="px-6 py-2 bg-[#008000] text-white rounded-lg hover:bg-[#006a00] transition-colors font-semibold">
+			<button type="button" id="flashModalOk" class="px-6 py-2 bg-gradient-to-b from-[#00A86B] to-[#008000] text-white rounded-lg hover:opacity-90 transition-all font-semibold">
 				OK
 			</button>
 		</div>
@@ -109,8 +109,10 @@ document.addEventListener('DOMContentLoaded', function() {
 <?php if (in_array(Auth::role(), ['Kitchen Staff','Manager','Owner'], true)): ?>
 <!-- New Request Button -->
 <div class="mb-8 flex justify-end">
-	<button type="button" id="openNewRequestModal" class="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl hover:from-green-700 hover:to-emerald-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-		<i data-lucide="plus-circle" class="w-5 h-5"></i>
+	<button type="button" id="openNewRequestModal" class="inline-flex items-center gap-2 bg-gradient-to-b from-[#00A86B] to-[#008000] text-white px-6 py-3 rounded-xl hover:opacity-90 focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg">
+		<div class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+			<i data-lucide="plus" class="w-4 h-4"></i>
+		</div>
 		<span class="font-semibold">New Batch Request</span>
 	</button>
 </div>
@@ -202,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			<button 
 				type="submit" 
 				form="newRequestForm"
-				class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2.5 text-sm font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg">
+				class="inline-flex items-center justify-center gap-2 bg-gradient-to-b from-[#00A86B] to-[#008000] text-white px-6 py-2.5 text-sm font-semibold rounded-xl hover:opacity-90 focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg">
 				<i data-lucide="send" class="w-4 h-4"></i>
 				Submit Request
 			</button>
