@@ -16,27 +16,194 @@ if (!empty($lowStockGroups)) {
 }
 ?>
 <!-- Page Header -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
+<div class="bg-white rounded-2xl shadow-md border border-gray-200 p-4 md:p-6 mb-6">
 	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 		<div>
 			<h1 class="text-xl md:text-2xl font-bold text-gray-900 mb-1">Inventory Management</h1>
 			<p class="text-xs md:text-sm text-gray-600">Track and manage ingredient stock levels</p>
 		</div>
-		<div class="flex items-center gap-3">
-		<?php if (in_array(Auth::role(), ['Owner','Manager','Stock Handler'], true)): ?>
+	</div>
+</div>
+
+<!-- Action Buttons -->
+<div class="flex flex-wrap items-center gap-2 md:gap-3 mb-6 md:mb-8">
+	<?php if (in_array(Auth::role(), ['Owner','Manager','Stock Handler'], true)): ?>
 		<button 
 			type="button" 
 			id="openAddIngredientModal"
-			class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
+			class="inline-flex items-center gap-1.5 md:gap-2 px-2 md:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
 		>
-			<i data-lucide="plus" class="w-4 h-4"></i>
-			Add Ingredient
+			<i data-lucide="plus" class="w-3 h-3 md:w-4 md:h-4"></i>
+			<span class="hidden sm:inline">Add Ingredient</span>
+			<span class="sm:hidden">Add</span>
 		</button>
+	<?php endif; ?>
+	<a href="<?php echo htmlspecialchars($baseUrl); ?>/inventory/import" class="inline-flex items-center gap-1.5 md:gap-2 px-2 md:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+		<i data-lucide="upload" class="w-3 h-3 md:w-4 md:h-4"></i>
+		<span class="hidden sm:inline">Import CSV</span>
+		<span class="sm:hidden">Import</span>
+	</a>
+</div>
+
+<!-- Current Inventory -->
+<div id="inventory-low-stock" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6 md:mb-8">
+	<div class="px-4 md:px-6 py-3 md:py-4 border-b">
+		<div class="flex flex-col gap-3 md:gap-4">
+			<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
+				<div>
+					<h2 class="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-1.5 md:gap-2">
+						<i data-lucide="package" class="w-4 h-4 md:w-5 md:h-5 text-gray-600"></i>
+						Current Inventory
+					</h2>
+					<p class="text-xs md:text-sm text-gray-600 mt-0.5 md:mt-1">View and monitor all ingredient stock levels</p>
+				</div>
+				<div class="flex flex-wrap items-center gap-2 md:gap-3">
+					<div class="text-xs md:text-sm text-gray-600">
+						<span class="font-medium" id="totalIngredientsCount"><?php echo count($ingredients); ?></span> total ingredients
+					</div>
+					<?php 
+					$lowStockCount = 0;
+					foreach ($ingredients as $ing) {
+						if ((float)$ing['quantity'] <= (float)$ing['reorder_level']) {
+							$lowStockCount++;
+						}
+					}
+					?>
+					<?php if ($lowStockCount > 0): ?>
+						<div class="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-0.5 md:py-1 bg-red-100 text-red-700 rounded-full text-xs md:text-sm font-medium">
+							<i data-lucide="alert-triangle" class="w-3 h-3 md:w-4 md:h-4"></i>
+							<span id="lowStockCount"><?php echo $lowStockCount; ?></span> low stock
+						</div>
+					<?php endif; ?>
+					<button
+						type="button"
+						id="inventoryPurchaseListBtn"
+						class="inline-flex items-center gap-1.5 md:gap-2 px-2 md:px-4 py-1.5 md:py-2 text-xs md:text-sm font-semibold rounded-lg shadow-sm border border-rose-200 bg-rose-600 text-white hover:bg-rose-700 focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
+						<?php echo empty($lowStockGroups) ? 'disabled title="No low stock items to print"' : ''; ?>
+					>
+						<i data-lucide="printer" class="w-3 h-3 md:w-4 md:h-4"></i>
+						<span class="hidden sm:inline">Print Purchase List</span>
+						<span class="sm:hidden">Print</span>
+					</button>
+				</div>
+			</div>
+			
+			<!-- Search and Filter Bar -->
+			<div class="flex flex-col gap-2 md:gap-3 pt-2 border-t border-gray-200">
+				<div class="flex-1 relative">
+					<i data-lucide="search" class="absolute left-2 md:left-3 top-1/2 transform -translate-y-1/2 w-3 h-3 md:w-4 md:h-4 text-gray-400"></i>
+					<input 
+						type="text" 
+						id="inventorySearch" 
+						placeholder="Search ingredients..." 
+						class="w-full pl-8 md:pl-10 pr-3 md:pr-4 py-1.5 md:py-2 text-xs md:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-colors"
+					>
+				</div>
+				<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
+					<?php 
+					$categories = [];
+					foreach ($ingredients as $ing) {
+						$cat = trim($ing['category'] ?? '');
+						if ($cat !== '' && !in_array($cat, $categories, true)) {
+							$categories[] = $cat;
+						}
+					}
+					sort($categories);
+					?>
+					<select id="inventoryCategoryFilter" class="px-2 md:px-4 py-1.5 md:py-2 text-xs md:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-colors">
+						<option value="">All Categories</option>
+						<?php foreach ($categories as $cat): ?>
+							<option value="<?php echo htmlspecialchars(strtolower($cat)); ?>"><?php echo htmlspecialchars($cat); ?></option>
+						<?php endforeach; ?>
+					</select>
+					<select id="inventoryStatusFilter" class="px-2 md:px-4 py-1.5 md:py-2 text-xs md:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-colors">
+						<option value="all">All Status</option>
+						<option value="low">Low Stock</option>
+						<option value="in_stock">In Stock</option>
+						<option value="out_of_stock">Out of Stock</option>
+					</select>
+					<select id="inventorySortBy" class="px-2 md:px-4 py-1.5 md:py-2 text-xs md:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-colors col-span-2 sm:col-span-1">
+						<option value="name_asc">Sort: Name (A-Z)</option>
+						<option value="name_desc">Sort: Name (Z-A)</option>
+						<option value="stock_asc">Sort: Stock (Low to High)</option>
+						<option value="stock_desc">Sort: Stock (High to Low)</option>
+						<option value="reorder_asc">Sort: Reorder Level (Low to High)</option>
+						<option value="reorder_desc">Sort: Reorder Level (High to Low)</option>
+					</select>
+				</div>
+			</div>
+			
+			<!-- Results Counter and Pagination Info -->
+			<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs md:text-sm text-gray-600 pt-2 border-t border-gray-200">
+				<div>
+					Showing <span id="inventoryResultsStart" class="font-medium">1</span> - 
+					<span id="inventoryResultsEnd" class="font-medium"><?php echo min(25, count($ingredients)); ?></span> of 
+					<span id="inventoryResultsTotal" class="font-medium"><?php echo count($ingredients); ?></span> ingredients
+				</div>
+				<div id="inventoryPagination" class="flex items-center gap-1 md:gap-2">
+					<!-- Pagination controls will be inserted here by JavaScript -->
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="overflow-x-auto overflow-y-auto max-h-[500px] md:max-h-[600px] border-t border-gray-200">
+		<table class="w-full text-[10px] md:text-xs lg:text-sm" style="min-width: 100%;">
+			<thead class="sticky top-0 bg-white z-10">
+				<tr>
+					<th class="text-left px-2 md:px-3 lg:px-6 py-1.5 md:py-2 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm cursor-pointer hover:bg-gray-100 transition-colors sortable" data-sort="name">
+						<div class="flex items-center gap-1 md:gap-2">
+							<span>Ingredient</span>
+							<i data-lucide="arrow-up-down" class="w-2.5 h-2.5 md:w-3 md:h-3 text-gray-400"></i>
+						</div>
+					</th>
+					<th class="text-left px-2 md:px-3 lg:px-6 py-1.5 md:py-2 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm cursor-pointer hover:bg-gray-100 transition-colors sortable" data-sort="unit">
+						<div class="flex items-center gap-1 md:gap-2">
+							<span>Unit</span>
+							<i data-lucide="arrow-up-down" class="w-2.5 h-2.5 md:w-3 md:h-3 text-gray-400"></i>
+						</div>
+					</th>
+					<th class="text-left px-2 md:px-3 lg:px-6 py-1.5 md:py-2 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm cursor-pointer hover:bg-gray-100 transition-colors sortable" data-sort="stock">
+						<div class="flex items-center gap-1 md:gap-2">
+							<span>Current Stock</span>
+							<i data-lucide="arrow-up-down" class="w-2.5 h-2.5 md:w-3 md:h-3 text-gray-400"></i>
+						</div>
+					</th>
+					<th class="text-left px-2 md:px-3 lg:px-6 py-1.5 md:py-2 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm cursor-pointer hover:bg-gray-100 transition-colors sortable" data-sort="reorder">
+						<div class="flex items-center gap-1 md:gap-2">
+							<span>Reorder Level</span>
+							<i data-lucide="arrow-up-down" class="w-2.5 h-2.5 md:w-3 md:h-3 text-gray-400"></i>
+						</div>
+					</th>
+					<th class="text-left px-2 md:px-3 lg:px-6 py-1.5 md:py-2 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Status</th>
+					<th class="text-left px-2 md:px-3 lg:px-6 py-1.5 md:py-2 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Stock Level</th>
+				</tr>
+			</thead>
+			<tbody id="inventoryTableBody" class="divide-y divide-gray-200">
+				<!-- Rows will be rendered dynamically by JavaScript -->
+			</tbody>
+		</table>
+		
+		<div id="inventoryEmptyState" class="hidden flex flex-col items-center justify-center py-12 text-gray-500">
+			<i data-lucide="search-x" class="w-16 h-16 mb-4 text-gray-300"></i>
+			<h3 class="text-lg font-medium text-gray-900 mb-2">No Ingredients Found</h3>
+			<p class="text-sm text-gray-600 mb-4">Try adjusting your search or filter criteria</p>
+			<button type="button" id="inventoryClearFilters" class="text-sm text-blue-600 hover:text-blue-700 underline">Clear all filters</button>
+		</div>
+		
+		<?php if (empty($ingredients)): ?>
+		<div class="flex flex-col items-center justify-center py-12 text-gray-500">
+			<i data-lucide="package-x" class="w-16 h-16 mb-4 text-gray-300"></i>
+			<h3 class="text-lg font-medium text-gray-900 mb-2">No Ingredients Found</h3>
+			<p class="text-sm text-gray-600 mb-4">Start by adding your first ingredient to the inventory</p>
+			<?php if (in_array(Auth::role(), ['Owner','Manager','Stock Handler'], true)): ?>
+				<button type="button" id="openAddIngredientModalEmpty" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+					<i data-lucide="plus" class="w-4 h-4"></i>
+					Add First Ingredient
+				</button>
+			<?php endif; ?>
+		</div>
 		<?php endif; ?>
-		<a href="<?php echo htmlspecialchars($baseUrl); ?>/inventory/import" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
-			<i data-lucide="upload" class="w-4 h-4"></i>
-			Import CSV
-		</a>
 	</div>
 </div>
 
@@ -133,6 +300,8 @@ if (!empty($lowStockGroups)) {
 		</div>
 	</div>
 </div>
+
+
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -750,25 +919,25 @@ document.addEventListener('DOMContentLoaded', function() {
 		// Previous button
 		html += `<button 
 			type="button" 
-			class="px-3 py-1.5 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}"
+			class="px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}"
 			${currentPage === 1 ? 'disabled' : ''}
 			data-page="${currentPage - 1}"
 		>
-			<i data-lucide="chevron-left" class="w-4 h-4"></i>
+			<i data-lucide="chevron-left" class="w-3 h-3 md:w-4 md:h-4"></i>
 		</button>`;
 		
 		// Page numbers
 		if (startPage > 1) {
-			html += `<button type="button" class="px-3 py-1.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" data-page="1">1</button>`;
+			html += `<button type="button" class="px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" data-page="1">1</button>`;
 			if (startPage > 2) {
-				html += `<span class="px-2 text-gray-500">...</span>`;
+				html += `<span class="px-1 md:px-2 text-xs md:text-sm text-gray-500">...</span>`;
 			}
 		}
 		
 		for (let i = startPage; i <= endPage; i++) {
 			html += `<button 
 				type="button" 
-				class="px-3 py-1.5 border rounded-lg transition-colors ${
+				class="px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm border rounded-lg transition-colors ${
 					i === currentPage 
 						? 'bg-blue-600 text-white border-blue-600' 
 						: 'border-gray-300 hover:bg-gray-50'
@@ -779,19 +948,19 @@ document.addEventListener('DOMContentLoaded', function() {
 		
 		if (endPage < totalPages) {
 			if (endPage < totalPages - 1) {
-				html += `<span class="px-2 text-gray-500">...</span>`;
+				html += `<span class="px-1 md:px-2 text-xs md:text-sm text-gray-500">...</span>`;
 			}
-			html += `<button type="button" class="px-3 py-1.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" data-page="${totalPages}">${totalPages}</button>`;
+			html += `<button type="button" class="px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" data-page="${totalPages}">${totalPages}</button>`;
 		}
 		
 		// Next button
 		html += `<button 
 			type="button" 
-			class="px-3 py-1.5 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}"
+			class="px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}"
 			${currentPage === totalPages ? 'disabled' : ''}
 			data-page="${currentPage + 1}"
 		>
-			<i data-lucide="chevron-right" class="w-4 h-4"></i>
+			<i data-lucide="chevron-right" class="w-3 h-3 md:w-4 md:h-4"></i>
 		</button>`;
 		
 		paginationContainer.innerHTML = html;
@@ -1277,173 +1446,6 @@ foreach ($ingredients as $ing) {
 	</div>
 </div>
 <?php endif; ?>
-
-<!-- Inventory Table -->
-<div id="inventory-low-stock" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-	<div class="bg-gradient-to-r from-gray-50 to-gray-100 px-4 sm:px-6 py-4 border-b">
-		<div class="flex flex-col gap-4">
-			<div class="flex items-center justify-between">
-				<div>
-					<h2 class="text-lg md:text-xl font-semibold text-gray-900 flex items-center gap-2">
-						<i data-lucide="package" class="w-5 h-5 text-gray-600"></i>
-						Current Inventory
-					</h2>
-					<p class="text-sm text-gray-600 mt-1">View and monitor all ingredient stock levels</p>
-				</div>
-				<div class="flex items-center gap-4">
-					<div class="text-sm text-gray-600">
-						<span class="font-medium" id="totalIngredientsCount"><?php echo count($ingredients); ?></span> total ingredients
-					</div>
-					<?php 
-					$lowStockCount = 0;
-					foreach ($ingredients as $ing) {
-						if ((float)$ing['quantity'] <= (float)$ing['reorder_level']) {
-							$lowStockCount++;
-						}
-					}
-					?>
-					<?php if ($lowStockCount > 0): ?>
-						<div class="flex items-center gap-2 px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
-							<i data-lucide="alert-triangle" class="w-4 h-4"></i>
-							<span id="lowStockCount"><?php echo $lowStockCount; ?></span> low stock
-						</div>
-					<?php endif; ?>
-					<button
-						type="button"
-						id="inventoryPurchaseListBtn"
-						class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg shadow-sm border border-rose-200 bg-rose-600 text-white hover:bg-rose-700 focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
-						<?php echo empty($lowStockGroups) ? 'disabled title="No low stock items to print"' : ''; ?>
-					>
-						<i data-lucide="printer" class="w-4 h-4"></i>
-						Print Purchase List
-					</button>
-				</div>
-			</div>
-			
-			<!-- Search and Filter Bar -->
-			<div class="flex flex-col sm:flex-row gap-3 pt-2 border-t border-gray-200">
-				<div class="flex-1 relative">
-					<i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-					<input 
-						type="text" 
-						id="inventorySearch" 
-						placeholder="Search ingredients by name, category, or supplier..." 
-						class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-					>
-				</div>
-				<?php 
-				$categories = [];
-				foreach ($ingredients as $ing) {
-					$cat = trim($ing['category'] ?? '');
-					if ($cat !== '' && !in_array($cat, $categories, true)) {
-						$categories[] = $cat;
-					}
-				}
-				sort($categories);
-				?>
-				<select id="inventoryCategoryFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-					<option value="">All Categories</option>
-					<?php foreach ($categories as $cat): ?>
-						<option value="<?php echo htmlspecialchars(strtolower($cat)); ?>"><?php echo htmlspecialchars($cat); ?></option>
-					<?php endforeach; ?>
-				</select>
-				<select id="inventoryStatusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-					<option value="all">All Status</option>
-					<option value="low">Low Stock</option>
-					<option value="in_stock">In Stock</option>
-					<option value="out_of_stock">Out of Stock</option>
-				</select>
-				<select id="inventorySortBy" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-					<option value="name_asc">Sort: Name (A-Z)</option>
-					<option value="name_desc">Sort: Name (Z-A)</option>
-					<option value="stock_asc">Sort: Stock (Low to High)</option>
-					<option value="stock_desc">Sort: Stock (High to Low)</option>
-					<option value="reorder_asc">Sort: Reorder Level (Low to High)</option>
-					<option value="reorder_desc">Sort: Reorder Level (High to Low)</option>
-				</select>
-				<button 
-					type="button" 
-					id="inventoryViewToggle" 
-					class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-					title="Toggle compact view"
-				>
-					<i data-lucide="list" class="w-4 h-4"></i>
-				</button>
-			</div>
-			
-			<!-- Results Counter and Pagination Info -->
-			<div class="flex items-center justify-between text-sm text-gray-600 pt-2 border-t border-gray-200">
-				<div>
-					Showing <span id="inventoryResultsStart" class="font-medium">1</span> - 
-					<span id="inventoryResultsEnd" class="font-medium"><?php echo min(25, count($ingredients)); ?></span> of 
-					<span id="inventoryResultsTotal" class="font-medium"><?php echo count($ingredients); ?></span> ingredients
-				</div>
-				<div id="inventoryPagination" class="flex items-center gap-2">
-					<!-- Pagination controls will be inserted here by JavaScript -->
-				</div>
-			</div>
-		</div>
-	</div>
-	
-	<div class="overflow-x-auto max-h-[600px] overflow-y-auto border-t border-gray-200">
-		<table class="w-full text-sm min-w-[640px]">
-			<thead class="bg-gray-50">
-				<tr>
-					<th class="text-left px-6 py-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors sortable" data-sort="name">
-						<div class="flex items-center gap-2">
-							<span>Ingredient</span>
-							<i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400"></i>
-						</div>
-					</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors sortable" data-sort="unit">
-						<div class="flex items-center gap-2">
-							<span>Unit</span>
-							<i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400"></i>
-						</div>
-					</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors sortable" data-sort="stock">
-						<div class="flex items-center gap-2">
-							<span>Current Stock</span>
-							<i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400"></i>
-						</div>
-					</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors sortable" data-sort="reorder">
-						<div class="flex items-center gap-2">
-							<span>Reorder Level</span>
-							<i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400"></i>
-						</div>
-					</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700">Status</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700">Stock Level</th>
-				</tr>
-			</thead>
-			<tbody id="inventoryTableBody" class="divide-y divide-gray-200">
-				<!-- Rows will be rendered dynamically by JavaScript -->
-			</tbody>
-		</table>
-		
-		<div id="inventoryEmptyState" class="hidden flex flex-col items-center justify-center py-12 text-gray-500">
-			<i data-lucide="search-x" class="w-16 h-16 mb-4 text-gray-300"></i>
-			<h3 class="text-lg font-medium text-gray-900 mb-2">No Ingredients Found</h3>
-			<p class="text-sm text-gray-600 mb-4">Try adjusting your search or filter criteria</p>
-			<button type="button" id="inventoryClearFilters" class="text-sm text-blue-600 hover:text-blue-700 underline">Clear all filters</button>
-		</div>
-		
-		<?php if (empty($ingredients)): ?>
-		<div class="flex flex-col items-center justify-center py-12 text-gray-500">
-			<i data-lucide="package-x" class="w-16 h-16 mb-4 text-gray-300"></i>
-			<h3 class="text-lg font-medium text-gray-900 mb-2">No Ingredients Found</h3>
-			<p class="text-sm text-gray-600 mb-4">Start by adding your first ingredient to the inventory</p>
-			<?php if (in_array(Auth::role(), ['Owner','Manager','Stock Handler'], true)): ?>
-				<button type="button" id="openAddIngredientModalEmpty" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-					<i data-lucide="plus" class="w-4 h-4"></i>
-					Add First Ingredient
-				</button>
-			<?php endif; ?>
-		</div>
-		<?php endif; ?>
-	</div>
-</div>
 
 <script>
 // Embed ingredient data as JSON for client-side rendering
