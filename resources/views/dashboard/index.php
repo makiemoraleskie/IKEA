@@ -1,5 +1,5 @@
 <!-- Welcome Banner -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
+<div class="bg-white rounded-2xl shadow-md border border-gray-200 p-4 md:p-6 mb-6">
 	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 		<div>
 			<h1 class="text-xl md:text-2xl font-bold text-gray-900 mb-1">
@@ -36,7 +36,7 @@ $cardCopy = [
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8">
 	<!-- Low Stock Items -->
 	<?php if (in_array('low_stock', $dashboardWidgets, true)): ?>
-	<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 relative">
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
 		<div class="absolute top-3 md:top-4 right-3 md:right-4">
 			<i data-lucide="alert-triangle" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-red-500"></i>
 		</div>
@@ -51,7 +51,7 @@ $cardCopy = [
 
 	<!-- Pending Requests -->
 	<?php if (in_array('pending_requests', $dashboardWidgets, true)): ?>
-	<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 relative">
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
 		<div class="absolute top-3 md:top-4 right-3 md:right-4">
 			<i data-lucide="file-text" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-green-600"></i>
 		</div>
@@ -66,7 +66,7 @@ $cardCopy = [
 
 	<!-- Pending Payments -->
 	<?php if (in_array('pending_payments', $dashboardWidgets, true)): ?>
-	<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 relative">
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
 		<div class="absolute top-3 md:top-4 right-3 md:right-4">
 			<i data-lucide="credit-card" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-green-600"></i>
 		</div>
@@ -81,7 +81,7 @@ $cardCopy = [
 
 	<!-- Partial Deliveries -->
 	<?php if (in_array('partial_deliveries', $dashboardWidgets, true)): ?>
-	<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 relative">
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
 		<div class="absolute top-3 md:top-4 right-3 md:right-4">
 			<i data-lucide="truck" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-green-600"></i>
 		</div>
@@ -96,7 +96,7 @@ $cardCopy = [
 
 	<!-- Pending Deliveries -->
 	<?php if (in_array('pending_deliveries', $dashboardWidgets, true)): ?>
-	<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 relative">
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
 		<div class="absolute top-3 md:top-4 right-3 md:right-4">
 			<i data-lucide="package" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-green-600"></i>
 		</div>
@@ -111,7 +111,7 @@ $cardCopy = [
 
 	<!-- Inventory Value -->
 	<?php if (in_array('inventory_value', $dashboardWidgets, true)): ?>
-	<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 relative">
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
 		<div class="absolute top-3 md:top-4 right-3 md:right-4">
 			<span class="text-xl md:text-2xl font-bold text-green-600">₱</span>
 		</div>
@@ -131,7 +131,7 @@ $cardCopy = [
 </div>
 
 <!-- Overview Chart -->
-<div class="bg-white rounded-lg shadow-sm border p-4 md:p-6">
+<div class="bg-white rounded-lg shadow-md border p-4 md:p-6">
 	<h2 class="text-base md:text-lg font-semibold text-gray-800 mb-3 md:mb-4">Overview</h2>
 	<div class="relative min-h-[8rem] sm:min-h-[10rem] lg:min-h-[12rem]">
 		<canvas id="overviewChart" class="h-full w-full"></canvas>
