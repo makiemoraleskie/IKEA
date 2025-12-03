@@ -136,13 +136,6 @@ $cardCopy = [
 	<div class="relative min-h-[8rem] sm:min-h-[10rem] lg:min-h-[12rem]">
 		<canvas id="overviewChart" class="h-full w-full"></canvas>
 		<div id="chartFallback" class="absolute inset-0 flex items-center justify-center text-xs md:text-sm text-gray-500 <?php echo $chartTotal > 0 ? 'hidden' : ''; ?>">
-
-<!-- Overview Chart -->
-<div class="bg-white rounded-lg shadow-sm border p-4 md:p-6">
-	<h2 class="text-base md:text-lg font-semibold text-gray-800 mb-3 md:mb-4">Overview</h2>
-	<div class="relative min-h-[8rem] sm:min-h-[10rem] lg:min-h-[12rem]">
-		<canvas id="overviewChart" class="h-full w-full"></canvas>
-		<div id="chartFallback" class="absolute inset-0 flex items-center justify-center text-xs md:text-sm text-gray-500 <?php echo $chartTotal > 0 ? 'hidden' : ''; ?>">
 			Not enough activity to chart yet.
 		</div>
 	</div>
