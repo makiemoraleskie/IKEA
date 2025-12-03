@@ -406,6 +406,48 @@ class RequestController extends BaseController
 		$_SESSION['flash_requests'] = ['type' => 'success', 'messages' => ['Batch distributed and inventory updated.']];
 		$this->redirect('/requests');
 	}
+
+	public function delete(): void
+	{
+		Auth::requireRole(['Owner','Manager']);
+		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
+			http_response_code(400);
+			echo 'Invalid CSRF token';
+			return;
+		}
+		$batchId = (int)($_POST['batch_id'] ?? 0);
+		if ($batchId <= 0) {
+			$_SESSION['flash_requests'] = ['type' => 'error', 'messages' => ['Invalid request batch.']];
+			$this->redirect('/requests');
+			return;
+		}
+		
+		$model = new RequestModel();
+		$batch = $model->findBatch($batchId);
+		if (!$batch) {
+			$_SESSION['flash_requests'] = ['type' => 'error', 'messages' => ['Request batch not found.']];
+			$this->redirect('/requests');
+			return;
+		}
+		
+		// Only allow deletion if status is Rejected
+		if (($batch['status'] ?? '') !== 'Rejected') {
+			$_SESSION['flash_requests'] = ['type' => 'error', 'messages' => ['Only rejected requests can be deleted.']];
+			$this->redirect('/requests');
+			return;
+		}
+		
+		// Delete the batch (cascade will delete associated requests)
+		$db = Database::getConnection();
+		$stmt = $db->prepare('DELETE FROM request_batches WHERE id = ?');
+		$stmt->execute([$batchId]);
+		
+		$logger = new AuditLog();
+		$logger->log(Auth::id() ?? 0, 'delete', 'requests', ['batch_id' => $batchId]);
+		
+		$_SESSION['flash_requests'] = ['type' => 'success', 'messages' => ['Request batch deleted successfully.']];
+		$this->redirect('/requests');
+	}
 }
 
 

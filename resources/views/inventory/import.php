@@ -13,22 +13,6 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '';
 	</a>
 </div>
 
-<?php if (!empty($flash)): ?>
-<div class="mb-6 px-4 py-3 rounded-lg border <?php echo ($flash['type'] ?? '') === 'error' ? 'border-red-200 bg-red-50 text-red-800' : 'border-green-200 bg-green-50 text-green-800'; ?>">
-	<div class="flex items-start gap-2">
-		<i data-lucide="<?php echo ($flash['type'] ?? '') === 'error' ? 'alert-circle' : 'check-circle'; ?>" class="w-4 h-4 mt-0.5"></i>
-		<div class="text-sm font-medium space-y-1">
-			<?php if (!empty($flash['messages']) && is_array($flash['messages'])): ?>
-				<?php foreach ($flash['messages'] as $msg): ?>
-					<p><?php echo htmlspecialchars($msg); ?></p>
-				<?php endforeach; ?>
-			<?php else: ?>
-				<p><?php echo htmlspecialchars($flash['messages'][0] ?? ''); ?></p>
-			<?php endif; ?>
-		</div>
-	</div>
-</div>
-<?php endif; ?>
 
 <!-- Import Form -->
 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">

@@ -16,27 +16,19 @@ $currentQuery = http_build_query(array_filter($_GET ?? [], fn($value) => $value 
 .custom-scroll::-webkit-scrollbar-track{background:rgba(226,232,240,0.4)}
 </style>
 <!-- Page Header -->
-<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
-	<div>
-		<h1 class="text-3xl font-bold text-gray-900">Audit Logs</h1>
-		<p class="text-gray-600 mt-1">Track and monitor system activities across modules</p>
-		<div class="mt-2 inline-flex items-center gap-2 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold px-3 py-1">
-			<i data-lucide="calendar" class="w-3 h-3"></i>
-			<span><?php echo htmlspecialchars($activeDateLabel); ?></span>
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+		<div>
+			<h1 class="text-xl md:text-2xl font-bold text-gray-900 mb-1">Audit Logs</h1>
+			<p class="text-xs md:text-sm text-gray-600">Track and monitor system activities across modules</p>
+			<div class="mt-2 inline-flex items-center gap-2 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold px-3 py-1">
+				<i data-lucide="calendar" class="w-3 h-3"></i>
+				<span><?php echo htmlspecialchars($activeDateLabel); ?></span>
+			</div>
 		</div>
 	</div>
-	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-		<i data-lucide="arrow-left" class="w-4 h-4"></i>
-		Back to Dashboard
-	</a>
 </div>
 
-<?php if (!empty($flash)): ?>
-	<div class="mb-6 rounded-xl border px-4 py-3 flex items-center gap-3 <?php echo $flash['type'] === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-blue-50 border-blue-200 text-blue-800'; ?>">
-		<i data-lucide="<?php echo $flash['type'] === 'success' ? 'check-circle' : 'info'; ?>" class="w-5 h-5"></i>
-		<p class="text-sm font-medium"><?php echo htmlspecialchars($flash['text'] ?? ''); ?></p>
-	</div>
-<?php endif; ?>
 
 <!-- Summary Cards -->
 <?php

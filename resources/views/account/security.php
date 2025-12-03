@@ -4,10 +4,10 @@ $user = $user ?? Auth::user();
 $theme = $theme ?? 'system';
 ?>
 <div class="max-w-4xl mx-auto space-y-8">
-	<div class="flex items-center justify-between">
+	<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 		<div>
-			<h1 class="text-3xl font-bold text-gray-900">Account Security</h1>
-			<p class="text-gray-600 mt-2">Manage your password and personalization settings.</p>
+			<h1 class="text-2xl md:text-3xl font-bold text-gray-900">Account Security</h1>
+			<p class="text-sm md:text-base text-gray-600 mt-2">Manage your password and personalization settings.</p>
 		</div>
 		<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
 			<i data-lucide="arrow-left" class="w-4 h-4"></i>
@@ -15,18 +15,10 @@ $theme = $theme ?? 'system';
 		</a>
 	</div>
 
-	<?php if (!empty($flash)): ?>
-		<div class="rounded-lg border px-4 py-3 <?php echo ($flash['type'] ?? '') === 'error' ? 'bg-red-50 border-red-200 text-red-800' : 'bg-green-50 border-green-200 text-green-800'; ?>">
-			<div class="flex items-center gap-2 text-sm font-medium">
-				<i data-lucide="<?php echo ($flash['type'] ?? '') === 'error' ? 'alert-circle' : 'check'; ?>" class="w-4 h-4"></i>
-				<?php echo htmlspecialchars($flash['text'] ?? ''); ?>
-			</div>
-		</div>
-	<?php endif; ?>
 
 	<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 space-y-8">
 		<div>
-			<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+			<h2 class="text-lg md:text-xl font-semibold text-gray-900 flex items-center gap-2">
 				<i data-lucide="shield-check" class="w-5 h-5 text-indigo-600"></i>
 				Change Password
 			</h2>
@@ -59,7 +51,7 @@ $theme = $theme ?? 'system';
 
 		<div class="space-y-6">
 			<div>
-				<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+				<h2 class="text-lg md:text-xl font-semibold text-gray-900 flex items-center gap-2">
 					<i data-lucide="moon" class="w-5 h-5 text-slate-700"></i>
 					Theme Preference
 				</h2>

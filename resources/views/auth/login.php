@@ -351,9 +351,9 @@ $logoPath = (defined('BASE_URL') ? BASE_URL : '') . '/resources/views/logo/54047
 					
 					<!-- Support Content -->
 					<div class="text-center space-y-2">
-						<p class="text-sm font-semibold" style="color: #00A451; font-family: 'Inter', sans-serif;">LOST CREDENTIALS?</p>
+						<p class="text-sm font-semibold" style="color: #00A451; font-family: 'Inter', sans-serif;">FORGOT CREDENTIALS?</p>
 						<p class="text-sm text-gray-600" style="font-family: 'Inter', sans-serif; line-height: 1.6;">
-							Check in with the Owner for access. We don't pin passwords to the wall anymore.
+							Check in with the Owner for access.
 						</p>
 					</div>
 				</div>

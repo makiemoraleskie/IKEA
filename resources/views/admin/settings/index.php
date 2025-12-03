@@ -18,13 +18,19 @@ $widgetsByRole = function (string $role) use ($widgetSettings, $dashboardWidgets
 	 return $widgetSettings['default'] ?? $dashboardWidgets;
 };
 ?>
+<!-- Page Header -->
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+		<div>
+			<h1 class="text-xl md:text-2xl font-bold text-gray-900 mb-1">System Settings</h1>
+			<p class="text-xs md:text-sm text-gray-600">Security, reporting, display and data retention controls. Only Owners and Managers can update these configurations.</p>
+		</div>
+	</div>
+</div>
+
 <div class="space-y-8">
 	<div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 		<div>
-			<p class="uppercase tracking-wide text-xs text-gray-500 font-semibold">Admin Console</p>
-			<h1 class="text-3xl font-bold text-gray-900 mt-1">System Settings</h1>
-			<p class="text-gray-600 mt-2">Security, reporting, display and data retention controls. Only Owners and Managers can update these configurations.</p>
-		</div>
 		<div class="flex flex-wrap gap-3">
 			<a href="<?php echo htmlspecialchars($baseUrl); ?>/account/security" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-indigo-700 bg-indigo-50 rounded-lg hover:bg-indigo-100">
 				<i data-lucide="key-round" class="w-4 h-4"></i>
@@ -37,12 +43,6 @@ $widgetsByRole = function (string $role) use ($widgetSettings, $dashboardWidgets
 		</div>
 	</div>
 
-	<?php if (!empty($flash)): ?>
-		<div class="rounded-xl border px-4 py-3 flex items-center gap-3 <?php echo ($flash['type'] ?? '') === 'error' ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-800'; ?>">
-			<i data-lucide="<?php echo ($flash['type'] ?? '') === 'error' ? 'alert-octagon' : 'check-circle'; ?>" class="w-5 h-5"></i>
-			<p class="text-sm font-medium"><?php echo htmlspecialchars($flash['text'] ?? ''); ?></p>
-		</div>
-	<?php endif; ?>
 
 	<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
 		<div class="xl:col-span-2 space-y-8">
