@@ -1,24 +1,13 @@
 <?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
 <!-- Page Header -->
-<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
-	<div>
-		<h1 class="text-3xl font-bold text-gray-900">Purchase Transactions</h1>
-		<p class="text-gray-600 mt-1">Record and manage ingredient purchases</p>
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+		<div>
+			<h1 class="text-xl md:text-2xl font-bold text-gray-900 mb-1">Purchase Transactions</h1>
+			<p class="text-xs md:text-sm text-gray-600">Record and manage ingredient purchases</p>
+		</div>
 	</div>
-	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-		<i data-lucide="arrow-left" class="w-4 h-4"></i>
-		Back to Dashboard
-	</a>
 </div>
-
-<?php if (!empty($flash)): ?>
-<div class="mb-6 px-4 py-3 rounded-lg border <?php echo ($flash['type'] ?? '') === 'error' ? 'border-red-200 bg-red-50 text-red-800' : 'border-green-200 bg-green-50 text-green-800'; ?>">
-    <div class="flex items-center gap-2">
-        <i data-lucide="<?php echo ($flash['type'] ?? '') === 'error' ? 'alert-circle' : 'check-circle'; ?>" class="w-4 h-4"></i>
-        <span class="text-sm font-medium"><?php echo htmlspecialchars($flash['text'] ?? ''); ?></span>
-    </div>
-</div>
-<?php endif; ?>
 
 <!-- Summary Cards -->
 <?php 
@@ -32,7 +21,7 @@ if (!empty($purchases)) {
 }
 ?>
 <?php if (!empty($purchases)): ?>
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 md:mb-8">
 	<!-- Total Purchases -->
 	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
 		<div class="flex items-center justify-between">
@@ -80,7 +69,7 @@ if (!empty($purchases)) {
 				<p class="text-2xl font-bold text-blue-600">₱<?php echo number_format(array_sum(array_column($purchases, 'cost')), 2); ?></p>
 			</div>
 			<div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-				<i data-lucide="dollar-sign" class="w-6 h-6 text-blue-600"></i>
+				<span class="text-2xl font-bold text-blue-600">₱</span>
 			</div>
 		</div>
 	</div>
@@ -91,9 +80,9 @@ if (!empty($purchases)) {
 <?php 
 $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
 ?>
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-6 md:mb-8 overflow-hidden">
     <div class="bg-gradient-to-r from-purple-50 to-indigo-50 px-4 sm:px-6 py-4 border-b">
-        <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+        <h2 class="text-lg md:text-xl font-semibold text-gray-900 flex items-center gap-2">
             <i data-lucide="shopping-cart" class="w-5 h-5 text-purple-600"></i>
             Record New Purchase (Batch)
         </h2>

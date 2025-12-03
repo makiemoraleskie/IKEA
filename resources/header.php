@@ -27,6 +27,16 @@ if ($user) {
 	<script src="https://cdn.tailwindcss.com"></script>
 	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 	<link rel="stylesheet" href="<?php echo htmlspecialchars($baseUrl); ?>/public/css/theme.css">
+	<style>
+		@media (min-width: 768px) and (max-width: 1023px) {
+			#sidebar.sidebar-tablet-hidden {
+				transform: translateX(-100%) !important;
+			}
+			#sidebar.sidebar-tablet-visible {
+				transform: translateX(0) !important;
+			}
+		}
+	</style>
 	<script>
 		// Tailwind config placeholder if needed
 	</script>
@@ -65,19 +75,28 @@ if ($user) {
 		<!-- Sidebar -->
 		<div
 			id="sidebar"
-			class="theme-sidebar fixed inset-y-0 z-40 flex w-64 lg:w-72 flex-col shadow-lg transition-transform duration-300 -translate-x-full md:relative md:flex-shrink-0 md:translate-x-0 md:shadow-none">
+			class="theme-sidebar fixed inset-y-0 z-40 flex w-64 lg:w-72 flex-col shadow-lg transition-transform duration-300 -translate-x-full md:relative md:flex-shrink-0 md:translate-x-0 md:shadow-none sidebar-tablet-visible">
 			<!-- Logo -->
-			<div class="p-6 border-b flex items-center justify-between">
-				<div class="flex items-center gap-3">
-					<img src="<?php echo htmlspecialchars($logoOverride ?: $defaultLogo); ?>" alt="<?php echo htmlspecialchars($companyName); ?> logo" class="w-10 h-10 object-cover rounded-xl border border-white/60 shadow-sm bg-white">
+			<div class="p-6 flex items-center justify-between">
+				<div class="flex items-center gap-4">
+					<img src="<?php echo htmlspecialchars($logoOverride ?: $defaultLogo); ?>" alt="<?php echo htmlspecialchars($companyName); ?> logo" class="w-10 h-10 object-cover rounded-xl shadow-sm bg-white">
+					<div class="flex flex-col">
+						<span class="text-sm font-semibold text-gray-900">IKEA</span>
+						<span class="text-xs text-gray-600">Commissary</span>
+					</div>
 				</div>
-				<button type="button" id="sidebarClose" class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none" aria-label="Close navigation">
-					<i data-lucide="x" class="w-5 h-5"></i>
-				</button>
+				<div class="flex items-center gap-2">
+					<button type="button" id="sidebarToggleTablet" class="hidden md:inline-flex lg:hidden items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none transition-colors" aria-label="Toggle sidebar">
+						<i data-lucide="menu" class="w-5 h-5"></i>
+					</button>
+					<button type="button" id="sidebarClose" class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none" aria-label="Close navigation">
+						<i data-lucide="x" class="w-5 h-5"></i>
+					</button>
+				</div>
 			</div>
 			
 			<!-- Navigation -->
-			<nav class="mt-6">
+			<nav class="mt-12">
 				<?php 
 				$currentPage = $_SERVER['REQUEST_URI'] ?? '';
 				$role = $user['role'] ?? '';
@@ -111,172 +130,138 @@ if ($user) {
 				foreach ($navItems as $item): 
 					$isActive = strpos($currentPage, $item['url']) !== false;
 					$classes = 'sidebar-link flex items-center gap-3 px-6 py-3 transition-colors duration-200' . ($isActive ? ' active' : '');
+					$isPurchases = $item['url'] === '/purchases';
 				?>
 					<a href="<?php echo htmlspecialchars($baseUrl . $item['url']); ?>" class="<?php echo $classes; ?>">
-						<i data-lucide="<?php echo $item['icon']; ?>" class="w-5 h-5"></i>
+						<?php if ($isPurchases): ?>
+							<span class="text-lg font-bold text-current">₱</span>
+						<?php else: ?>
+							<i data-lucide="<?php echo $item['icon']; ?>" class="w-5 h-5"></i>
+						<?php endif; ?>
 						<span class="text-sm font-medium"><?php echo $item['label']; ?></span>
 					</a>
 				<?php endforeach; ?>
 			</nav>
-			
-			<!-- User Info -->
-			<div class="mt-auto p-6 border-t sidebar-user">
-				<div class="flex items-center gap-3 mb-3">
-					<div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-						<span class="text-sm font-medium text-gray-600"><?php echo strtoupper(substr($user['name'] ?? 'U', 0, 2)); ?></span>
-					</div>
-					<div>
-						<div class="text-sm font-medium text-gray-800"><?php echo htmlspecialchars($user['name'] ?? 'User'); ?></div>
-						<div class="text-xs text-gray-500"><?php echo htmlspecialchars($user['role'] ?? 'User'); ?></div>
-					</div>
-				</div>
-				<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/logout">
-					<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
-					<button class="flex items-center gap-2 text-sm text-red-600 hover:text-red-700">
-						<i data-lucide="log-out" class="w-4 h-4"></i>
-						<span>Logout</span>
-					</button>
-				</form>
-			</div>
 		</div>
 		
 		<!-- Main Content -->
 		<div class="flex-1 flex flex-col transition-all duration-300">
 			<!-- Top Header -->
-			<header class="bg-white border-b theme-header">
-				<div class="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8 xl:px-10">
+			<header class="bg-white border-b theme-header relative z-10" style="z-index: 10;">
+				<div class="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8 xl:px-10">
 					<div class="flex-1 min-w-0">
-						<?php
-						$currentPath = $_SERVER['REQUEST_URI'] ?? '/';
-						$breadcrumbs = [];
-						$breadcrumbs[] = ['label' => 'Dashboard', 'url' => $baseUrl . '/dashboard'];
-						
-						if (strpos($currentPath, '/inventory') !== false) {
-							$breadcrumbs[] = ['label' => 'Inventory', 'url' => $baseUrl . '/inventory'];
-							if (strpos($currentPath, '/import') !== false) {
-								$breadcrumbs[] = ['label' => 'Import', 'url' => ''];
-							}
-						} elseif (strpos($currentPath, '/requests') !== false) {
-							$breadcrumbs[] = ['label' => 'Requests', 'url' => $baseUrl . '/requests'];
-						} elseif (strpos($currentPath, '/purchases') !== false) {
-							$breadcrumbs[] = ['label' => 'Purchases', 'url' => $baseUrl . '/purchases'];
-						} elseif (strpos($currentPath, '/deliveries') !== false) {
-							$breadcrumbs[] = ['label' => 'Deliveries', 'url' => $baseUrl . '/deliveries'];
-						} elseif (strpos($currentPath, '/reports') !== false) {
-							$breadcrumbs[] = ['label' => 'Reports', 'url' => $baseUrl . '/reports'];
-						} elseif (strpos($currentPath, '/audit') !== false) {
-							$breadcrumbs[] = ['label' => 'Audit Logs', 'url' => $baseUrl . '/audit'];
-						} elseif (strpos($currentPath, '/admin/settings') !== false) {
-							$breadcrumbs[] = ['label' => 'Admin Settings', 'url' => $baseUrl . '/admin/settings'];
-						} elseif (strpos($currentPath, '/users') !== false) {
-							$breadcrumbs[] = ['label' => 'Users', 'url' => $baseUrl . '/users'];
-						} elseif (strpos($currentPath, '/notifications') !== false) {
-							$breadcrumbs[] = ['label' => 'Notifications', 'url' => $baseUrl . '/notifications'];
-						} elseif (strpos($currentPath, '/account') !== false) {
-							$breadcrumbs[] = ['label' => 'Account', 'url' => $baseUrl . '/account/security'];
-						}
-						?>
-						<nav class="flex items-center gap-2 text-sm text-gray-600 mb-1" aria-label="Breadcrumb">
-							<?php foreach ($breadcrumbs as $index => $crumb): ?>
-								<?php if ($index > 0): ?>
-									<i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
-								<?php endif; ?>
-								<?php if (!empty($crumb['url']) && $index < count($breadcrumbs) - 1): ?>
-									<a href="<?php echo htmlspecialchars($crumb['url']); ?>" class="hover:text-gray-900 transition-colors">
-										<?php echo htmlspecialchars($crumb['label']); ?>
-									</a>
-								<?php else: ?>
-									<span class="text-gray-900 font-medium"><?php echo htmlspecialchars($crumb['label']); ?></span>
-								<?php endif; ?>
-							<?php endforeach; ?>
-						</nav>
 						<h1 class="text-2xl font-bold text-gray-800 truncate"><?php echo $pageTitle ?? 'Dashboard'; ?></h1>
 					</div>
-					<div class="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto">
+					<div class="flex w-full flex-col gap-3 sm:flex-row sm:items-center md:w-auto md:ml-auto">
 						<div class="flex items-center justify-between gap-3 w-full sm:w-auto">
 							<button id="sidebarToggle" class="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 focus:outline-none" aria-label="Toggle navigation">
 								<i data-lucide="menu" class="w-5 h-5"></i>
 							</button>
-							<div class="relative flex-1">
-								<input type="text" id="globalSearchInput" placeholder="Search ingredients, requests, purchases..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-								<i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-							</div>
 						</div>
-						<button type="button" id="themeSwitcher" data-theme="<?php echo htmlspecialchars($activeTheme); ?>" data-csrf="<?php echo htmlspecialchars(Csrf::token()); ?>" class="inline-flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 focus:outline-none" aria-label="Toggle theme">
-							<i data-lucide="<?php echo $activeTheme === 'dark' ? 'moon' : 'sun'; ?>" class="w-5 h-5"></i>
-						</button>
-						<div class="relative" id="notificationWrapper">
-							<button type="button" id="notificationButton" aria-haspopup="true" aria-expanded="false" class="relative focus:outline-none rounded-full p-2 border <?php echo $notificationCount ? 'border-red-200 text-red-700 bg-red-50 animate-bounce' : 'border-gray-200 text-gray-600 hover:bg-gray-50'; ?>">
-								<i data-lucide="bell" class="w-5 h-5"></i>
-								<?php if ($notificationCount > 0): ?>
-									<span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center"><?php echo $notificationCount; ?></span>
-									<span class="absolute -top-1 -right-1 inline-flex h-5 w-5 rounded-full bg-red-500 opacity-40 animate-ping"></span>
-								<?php else: ?>
-									<span class="absolute -top-1 -right-1 w-4 h-4 bg-gray-300 text-gray-700 text-[10px] rounded-full flex items-center justify-center">0</span>
-								<?php endif; ?>
-							</button>
-							<div id="notificationPanel" class="hidden absolute right-0 mt-3 w-screen max-w-xs sm:max-w-sm max-h-[26rem] overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl z-50">
-								<div class="px-4 py-3 border-b flex items-center justify-between gap-4">
-									<div>
-										<p class="text-sm font-semibold text-gray-900">Notifications</p>
-										<p class="text-xs text-gray-500"><?php echo $notificationCount > 0 ? 'Stay on top of critical updates' : 'All systems look good'; ?></p>
+						<div class="flex items-center gap-3">
+							<!-- Notification Bell -->
+							<div class="relative" id="notificationWrapper">
+								<button type="button" id="notificationButton" aria-haspopup="true" aria-expanded="false" class="relative focus:outline-none rounded-full p-2 border <?php echo $notificationCount ? 'border-red-200 text-red-700 bg-red-50 animate-bounce' : 'border-gray-200 text-gray-600 hover:bg-gray-50'; ?>">
+									<i data-lucide="bell" class="w-5 h-5"></i>
+									<?php if ($notificationCount > 0): ?>
+										<span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center"><?php echo $notificationCount; ?></span>
+										<span class="absolute -top-1 -right-1 inline-flex h-5 w-5 rounded-full bg-red-500 opacity-40 animate-ping"></span>
+									<?php else: ?>
+										<span class="absolute -top-1 -right-1 w-4 h-4 bg-gray-300 text-gray-700 text-[10px] rounded-full flex items-center justify-center">0</span>
+									<?php endif; ?>
+								</button>
+								<div id="notificationPanel" class="hidden absolute right-0 mt-3 w-screen max-w-xs sm:max-w-sm max-h-[26rem] overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl z-50">
+									<div class="px-4 py-3 border-b flex items-center justify-between gap-4">
+										<div>
+											<p class="text-sm font-semibold text-gray-900">Notifications</p>
+											<p class="text-xs text-gray-500"><?php echo $notificationCount > 0 ? 'Stay on top of critical updates' : 'All systems look good'; ?></p>
+										</div>
+										<button type="button" class="text-xs text-gray-500 hover:text-gray-700" onclick="document.getElementById('notificationPanel').classList.add('hidden'); document.getElementById('notificationButton').setAttribute('aria-expanded','false');">Close</button>
 									</div>
-									<button type="button" class="text-xs text-gray-500 hover:text-gray-700" onclick="document.getElementById('notificationPanel').classList.add('hidden'); document.getElementById('notificationButton').setAttribute('aria-expanded','false');">Close</button>
+									<?php if ($notificationCount > 0): ?>
+										<ul class="divide-y divide-gray-100">
+											<?php foreach ($notifications as $note): ?>
+												<li>
+													<a href="<?php echo htmlspecialchars($note['link'] ?: '#'); ?>" class="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none">
+														<span class="inline-flex items-center justify-center w-10 h-10 rounded-full <?php echo htmlspecialchars($note['accent']); ?>">
+															<i data-lucide="<?php echo htmlspecialchars($note['icon']); ?>" class="w-4 h-4"></i>
+														</span>
+														<div class="flex-1">
+															<p class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($note['title'] ?? 'Notification'); ?></p>
+															<p class="text-xs text-gray-600 mt-1">
+																<?php
+																$bodyText = trim((string)($note['body'] ?? ''));
+																if ($bodyText === '' && isset($note['description'])) {
+																	$bodyText = trim((string)$note['description']);
+																}
+																if ($bodyText === '' && isset($note['message'])) {
+																	$bodyText = trim((string)$note['message']);
+																}
+																echo htmlspecialchars($bodyText !== '' ? $bodyText : 'No additional details available.');
+																?>
+															</p>
+															<?php if (!empty($note['created_at'])): ?>
+																<p class="text-[11px] text-gray-400 mt-1"><?php echo htmlspecialchars(date('M j, g:i A', strtotime($note['created_at']))); ?></p>
+															<?php endif; ?>
+															<?php if (!empty($note['link'])): ?>
+																<span class="text-xs text-blue-600 font-medium mt-2 inline-flex items-center gap-1">Review <i data-lucide="arrow-up-right" class="w-3 h-3"></i></span>
+															<?php endif; ?>
+														</div>
+													</a>
+												</li>
+											<?php endforeach; ?>
+										</ul>
+										<div class="border-t px-4 py-3 flex items-center justify-between gap-3">
+											<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/notifications" class="flex items-center gap-2">
+												<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+												<button type="submit" name="action" value="mark" class="text-xs text-gray-600 hover:text-gray-800">Mark all read</button>
+												<button type="submit" name="action" value="clear" class="text-xs text-red-600 hover:text-red-700">Clear all</button>
+											</form>
+											<a href="<?php echo htmlspecialchars($baseUrl); ?>/notifications" class="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700">
+												View all
+												<i data-lucide="arrow-right" class="w-4 h-4"></i>
+											</a>
+										</div>
+									<?php else: ?>
+										<div class="px-4 py-6 text-center text-sm text-gray-500">
+											<i data-lucide="sparkles" class="w-6 h-6 mx-auto mb-2 text-green-500"></i>
+											<p>No new notifications.</p>
+										</div>
+									<?php endif; ?>
 								</div>
-								<?php if ($notificationCount > 0): ?>
-									<ul class="divide-y divide-gray-100">
-										<?php foreach ($notifications as $note): ?>
-											<li>
-												<a href="<?php echo htmlspecialchars($note['link'] ?: '#'); ?>" class="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none">
-													<span class="inline-flex items-center justify-center w-10 h-10 rounded-full <?php echo htmlspecialchars($note['accent']); ?>">
-														<i data-lucide="<?php echo htmlspecialchars($note['icon']); ?>" class="w-4 h-4"></i>
-													</span>
-													<div class="flex-1">
-														<p class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($note['title'] ?? 'Notification'); ?></p>
-														<p class="text-xs text-gray-600 mt-1">
-															<?php
-															$bodyText = trim((string)($note['body'] ?? ''));
-															if ($bodyText === '' && isset($note['description'])) {
-																$bodyText = trim((string)$note['description']);
-															}
-															if ($bodyText === '' && isset($note['message'])) {
-																$bodyText = trim((string)$note['message']);
-															}
-															echo htmlspecialchars($bodyText !== '' ? $bodyText : 'No additional details available.');
-															?>
-														</p>
-														<?php if (!empty($note['created_at'])): ?>
-															<p class="text-[11px] text-gray-400 mt-1"><?php echo htmlspecialchars(date('M j, g:i A', strtotime($note['created_at']))); ?></p>
-														<?php endif; ?>
-														<?php if (!empty($note['link'])): ?>
-															<span class="text-xs text-blue-600 font-medium mt-2 inline-flex items-center gap-1">Review <i data-lucide="arrow-up-right" class="w-3 h-3"></i></span>
-														<?php endif; ?>
-													</div>
-												</a>
-											</li>
-										<?php endforeach; ?>
-									</ul>
-									<div class="border-t px-4 py-3 flex items-center justify-between gap-3">
-										<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/notifications" class="flex items-center gap-2">
-											<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
-											<button type="submit" name="action" value="mark" class="text-xs text-gray-600 hover:text-gray-800">Mark all read</button>
-											<button type="submit" name="action" value="clear" class="text-xs text-red-600 hover:text-red-700">Clear all</button>
-										</form>
-										<a href="<?php echo htmlspecialchars($baseUrl); ?>/notifications" class="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700">
-											View all
-											<i data-lucide="arrow-right" class="w-4 h-4"></i>
-										</a>
-									</div>
-								<?php else: ?>
-									<div class="px-4 py-6 text-center text-sm text-gray-500">
-										<i data-lucide="sparkles" class="w-6 h-6 mx-auto mb-2 text-green-500"></i>
-										<p>No new notifications.</p>
-									</div>
-								<?php endif; ?>
 							</div>
-						</div>
-						<div class="text-sm text-gray-500 text-center sm:text-left">
-							Last updated: <?php echo date('m/d/Y, g:i:s A'); ?>
+							
+							<!-- User Profile Dropdown -->
+							<div class="relative" id="userProfileDropdown">
+								<button type="button" id="userProfileButton" class="flex items-center gap-3 px-4 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500/20" style="border-color: #e5e7eb !important;" onmouseover="this.style.borderColor='#e5e7eb'" onmousedown="this.style.borderColor='#e5e7eb'" onmouseup="this.style.borderColor='#e5e7eb'">
+									<div class="text-left hidden sm:block">
+										<div class="text-sm font-semibold text-green-600"><?php echo htmlspecialchars($user['name'] ?? 'User'); ?></div>
+										<div class="text-xs text-gray-600"><?php echo htmlspecialchars($user['role'] ?? 'User'); ?></div>
+									</div>
+									<svg class="w-4 h-4 text-gray-400 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+									</svg>
+								</button>
+								<div id="userProfileMenu" class="hidden absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
+									<div class="px-4 py-3 border-b border-gray-100">
+										<div class="flex items-center gap-3">
+											<div>
+												<div class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($user['name'] ?? 'User'); ?></div>
+												<div class="text-xs text-gray-600"><?php echo htmlspecialchars($user['role'] ?? 'User'); ?></div>
+											</div>
+										</div>
+									</div>
+									<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/logout" class="border-t border-gray-100">
+										<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+										<button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors">
+											<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+											</svg>
+											<span>Logout</span>
+										</button>
+									</form>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -313,19 +298,38 @@ if ($user) {
 			(function(){
 				const sidebar = document.getElementById('sidebar');
 				const toggle = document.getElementById('sidebarToggle');
+				const toggleTablet = document.getElementById('sidebarToggleTablet');
 				const closeBtn = document.getElementById('sidebarClose');
 				if (!sidebar || !toggle) return;
+				
 				const openSidebar = ()=>{
 					sidebar.classList.remove('-translate-x-full');
 				};
 				const closeSidebar = ()=>{
 					sidebar.classList.add('-translate-x-full');
 				};
+				const toggleSidebarTablet = ()=>{
+					const isVisible = sidebar.classList.contains('sidebar-tablet-visible');
+					if (isVisible) {
+						sidebar.classList.remove('sidebar-tablet-visible');
+						sidebar.classList.add('sidebar-tablet-hidden');
+					} else {
+						sidebar.classList.add('sidebar-tablet-visible');
+						sidebar.classList.remove('sidebar-tablet-hidden');
+					}
+				};
+				
 				toggle.addEventListener('click', (e)=>{
 					e.stopPropagation();
 					const isOpen = !sidebar.classList.contains('-translate-x-full');
 					if (isOpen){ closeSidebar(); } else { openSidebar(); }
 				});
+				
+				toggleTablet?.addEventListener('click', (e)=>{
+					e.stopPropagation();
+					toggleSidebarTablet();
+				});
+				
 				closeBtn?.addEventListener('click', closeSidebar);
 				document.addEventListener('click', (e)=>{
 					if (!sidebar.contains(e.target) && !toggle.contains(e.target) && !sidebar.classList.contains('-translate-x-full')){
@@ -334,40 +338,33 @@ if ($user) {
 				});
 			})();
 			(function(){
-				const btn = document.getElementById('themeSwitcher');
-				if (!btn) return;
-				const themes = ['light','dark','system'];
-				const updateIcon = (theme) => {
-					const icon = btn.querySelector('i');
-					if (icon) {
-						icon.setAttribute('data-lucide', theme === 'dark' ? 'moon' : 'sun');
-						if (window.lucide) {
-							window.lucide.createIcons();
-						}
+				const userBtn = document.getElementById('userProfileButton');
+				const userMenu = document.getElementById('userProfileMenu');
+				if (!userBtn || !userMenu) return;
+				
+				userBtn.addEventListener('click', (e) => {
+					e.stopPropagation();
+					const isOpen = !userMenu.classList.contains('hidden');
+					if (isOpen) {
+						userMenu.classList.add('hidden');
+						userBtn.setAttribute('aria-expanded', 'false');
+					} else {
+						userMenu.classList.remove('hidden');
+						userBtn.setAttribute('aria-expanded', 'true');
 					}
-				};
-				btn.addEventListener('click', ()=>{
-					const current = btn.getAttribute('data-theme') || 'system';
-					const index = themes.indexOf(current);
-					const nextTheme = themes[(index + 1) % themes.length];
-					btn.setAttribute('data-theme', nextTheme);
-					document.body.setAttribute('data-theme', nextTheme);
-					updateIcon(nextTheme);
-
-					const formData = new FormData();
-					formData.append('csrf_token', btn.getAttribute('data-csrf') || '');
-					formData.append('theme', nextTheme);
-					fetch('<?php echo htmlspecialchars($baseUrl); ?>/account/theme', {
-						method: 'POST',
-						body: formData,
-						credentials: 'same-origin'
-					}).catch(()=>{ /* ignore network errors for toggle */ });
+				});
+				
+				document.addEventListener('click', (e) => {
+					if (!userMenu.contains(e.target) && !userBtn.contains(e.target)) {
+						userMenu.classList.add('hidden');
+						userBtn.setAttribute('aria-expanded', 'false');
+					}
 				});
 			})();
 			</script>
 			
 			<!-- Main Content Area -->
-			<main class="flex-1 overflow-y-auto bg-transparent">
+			<main class="flex-1 overflow-y-auto" style="background-color: #f9fafb;">
 				<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 space-y-8">
 	<?php else: ?>
 	<main class="max-w-7xl mx-auto p-4">

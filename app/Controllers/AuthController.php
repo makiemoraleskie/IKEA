@@ -24,21 +24,21 @@ class AuthController extends BaseController
 		$password = (string)($_POST['password'] ?? '');
 
 		if ($email === '' || $password === '') {
-			$this->render('auth/login.php', ['error' => 'Email and password are required.']);
+			$this->renderLogin('auth/login.php', ['error' => 'Email and password are required.']);
 			return;
 		}
 
 		$userModel = new User();
 		$user = $userModel->findByEmail($email);
 		if (!$user || !password_verify($password, $user['password_hash'])) {
-			$this->render('auth/login.php', ['error' => 'Invalid credentials.']);
+			$this->renderLogin('auth/login.php', ['error' => 'Invalid credentials.']);
 			return;
 		}
 
 		$security = new UserSecurity();
 		$meta = $security->get((int)$user['id']);
 		if (($meta['status'] ?? 'active') !== 'active') {
-			$this->render('auth/login.php', ['error' => 'This account is disabled. Please contact an administrator.']);
+			$this->renderLogin('auth/login.php', ['error' => 'This account is disabled. Please contact an administrator.']);
 			return;
 		}
 

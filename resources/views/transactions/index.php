@@ -325,7 +325,7 @@
 				<p class="text-2xl font-bold text-blue-600">₱<?php echo number_format(array_sum(array_column($purchases, 'cost')), 2); ?></p>
 			</div>
 			<div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-				<i data-lucide="dollar-sign" class="w-6 h-6 text-blue-600"></i>
+				<span class="text-2xl font-bold text-blue-600">₱</span>
 			</div>
 		</div>
 	</div>

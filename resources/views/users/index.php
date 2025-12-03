@@ -1,28 +1,20 @@
 <?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
-<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mt-4 mb-6">
-	<div>
-		<h1 class="text-3xl font-bold text-gray-900">User Management</h1>
-		<p class="text-gray-600 mt-1">Create and manage commissary accounts</p>
+<!-- Page Header -->
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+		<div>
+			<h1 class="text-xl md:text-2xl font-bold text-gray-900 mb-1">User Management</h1>
+			<p class="text-xs md:text-sm text-gray-600">Create and manage commissary accounts</p>
+		</div>
 	</div>
-	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-		<i data-lucide="arrow-left" class="w-4 h-4"></i>
-		Back to Dashboard
-	</a>
 </div>
-
-<?php if (!empty($flash)): ?>
-	<div class="mb-6 rounded-xl px-4 py-3 border flex items-center gap-3 <?php echo ($flash['type'] ?? '') === 'error' ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-800'; ?>">
-		<i data-lucide="<?php echo ($flash['type'] ?? '') === 'error' ? 'alert-octagon' : 'check-circle'; ?>" class="w-5 h-5"></i>
-		<p class="text-sm font-medium"><?php echo htmlspecialchars($flash['text'] ?? ''); ?></p>
-	</div>
-<?php endif; ?>
 
 <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-4 sm:p-6 mb-6">
 	<div class="flex flex-col gap-1 mb-4">
 		<h2 class="text-xl font-semibold text-gray-900">Create User</h2>
 		<p class="text-sm text-gray-600">Invite a teammate with appropriate access level</p>
 	</div>
-	<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/users" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+	<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/users" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
 		<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 		<div>
 			<label class="block text-sm font-medium text-gray-700 mb-1">Name</label>

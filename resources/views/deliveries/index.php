@@ -1,14 +1,15 @@
-<?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
+<?php 
+$baseUrl = defined('BASE_URL') ? BASE_URL : '';
+$deliveredTotals = $deliveredTotals ?? [];
+?>
 <!-- Page Header -->
-<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
-	<div>
-		<h1 class="text-3xl font-bold text-gray-900">Delivery Management</h1>
-		<p class="text-gray-600 mt-1">Record and track ingredient deliveries</p>
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+		<div>
+			<h1 class="text-xl md:text-2xl font-bold text-gray-900 mb-1">Delivery Management</h1>
+			<p class="text-xs md:text-sm text-gray-600">Record and track ingredient deliveries</p>
+		</div>
 	</div>
-	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-		<i data-lucide="arrow-left" class="w-4 h-4"></i>
-		Back to Dashboard
-	</a>
 </div>
 
 <!-- Summary Cards -->
@@ -26,7 +27,7 @@ foreach ($deliveries as $d) {
 	}
 }
 ?>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 md:mb-8">
 	<!-- Total Deliveries -->
 	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
 		<div class="flex items-center justify-between">
@@ -69,9 +70,9 @@ foreach ($deliveries as $d) {
 <?php endif; ?>
 
 <!-- Record Delivery Form -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-6 md:mb-8 overflow-hidden">
 	<div class="bg-gradient-to-r from-orange-50 to-red-50 px-4 sm:px-6 py-4 border-b">
-		<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+		<h2 class="text-lg md:text-xl font-semibold text-gray-900 flex items-center gap-2">
 			<i data-lucide="package-check" class="w-5 h-5 text-orange-600"></i>
 			Record New Delivery
 		</h2>
@@ -282,7 +283,7 @@ foreach ($deliveries as $d) {
 </div>
 
 <?php if (!empty($awaitingPurchases)): ?>
-<div id="awaiting-deliveries" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-8">
+<div id="awaiting-deliveries" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6 md:mb-8">
     <div class="bg-gradient-to-r from-orange-50 to-amber-50 px-4 sm:px-6 py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div>
             <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
