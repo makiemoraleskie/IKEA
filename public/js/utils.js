@@ -1,74 +1,18 @@
 /**
  * Global UI/UX Utilities for IKEA Commissary System
- * Provides: Loading states, Toast notifications, Confirmation dialogs, Form validation
+ * Provides: Loading states, Confirmation dialogs, Form validation
  */
 
 (function() {
 	'use strict';
 
 	// ============================================
-	// Toast Notification System
+	// Toast Notification System - DISABLED
 	// ============================================
 	const Toast = {
-		container: null,
-		
-		init() {
-			if (!this.container) {
-				this.container = document.createElement('div');
-				this.container.id = 'toast-container';
-				this.container.className = 'fixed top-4 right-4 z-[9999] space-y-2 pointer-events-none';
-				document.body.appendChild(this.container);
-			}
-		},
-		
-		show(message, type = 'info', duration = 5000) {
-			this.init();
-			const toast = document.createElement('div');
-			const id = 'toast-' + Date.now();
-			toast.id = id;
-			
-			const typeClasses = {
-				success: 'bg-green-50 border-green-200 text-green-800',
-				error: 'bg-red-50 border-red-200 text-red-800',
-				warning: 'bg-amber-50 border-amber-200 text-amber-800',
-				info: 'bg-blue-50 border-blue-200 text-blue-800'
-			};
-			
-			const icons = {
-				success: 'check-circle',
-				error: 'alert-circle',
-				warning: 'alert-triangle',
-				info: 'info'
-			};
-			
-			toast.className = `pointer-events-auto min-w-[300px] max-w-md rounded-lg border shadow-lg p-4 flex items-start gap-3 animate-slide-in-right ${typeClasses[type] || typeClasses.info}`;
-			toast.innerHTML = `
-				<i data-lucide="${icons[type] || icons.info}" class="w-5 h-5 mt-0.5 flex-shrink-0"></i>
-				<div class="flex-1">
-					<p class="text-sm font-medium">${this.escapeHtml(message)}</p>
-				</div>
-				<button type="button" onclick="this.closest('#${id}').remove()" class="text-gray-400 hover:text-gray-600 flex-shrink-0">
-					<i data-lucide="x" class="w-4 h-4"></i>
-				</button>
-			`;
-			
-			this.container.appendChild(toast);
-			if (window.lucide) {
-				window.lucide.createIcons();
-			}
-			
-			setTimeout(() => {
-				toast.style.transition = 'opacity 0.3s, transform 0.3s';
-				toast.style.opacity = '0';
-				toast.style.transform = 'translateX(100%)';
-				setTimeout(() => toast.remove(), 300);
-			}, duration);
-		},
-		
-		escapeHtml(text) {
-			const div = document.createElement('div');
-			div.textContent = text;
-			return div.innerHTML;
+		show() {
+			// Toast notifications disabled
+			return;
 		}
 	};
 
@@ -469,16 +413,7 @@
 		MobileHelper.init();
 		FormUX.init();
 		
-		// Show flash messages as toasts
-		const flashMessages = document.querySelectorAll('[class*="flash"], [class*="border-red"], [class*="border-green"]');
-		flashMessages.forEach(msg => {
-			const text = msg.textContent.trim();
-			if (text) {
-				const isError = msg.classList.toString().includes('red') || msg.classList.toString().includes('error');
-				const isSuccess = msg.classList.toString().includes('green') || msg.classList.toString().includes('success');
-				Toast.show(text, isError ? 'error' : isSuccess ? 'success' : 'info', 6000);
-			}
-		});
+		// Flash messages to toasts conversion - DISABLED
 	});
 
 	// ============================================

@@ -16,12 +16,13 @@ if (!empty($lowStockGroups)) {
 }
 ?>
 <!-- Page Header -->
-<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
-	<div>
-		<h1 class="text-3xl font-bold text-gray-900">Inventory Management</h1>
-		<p class="text-gray-600 mt-1">Track and manage ingredient stock levels</p>
-	</div>
-	<div class="flex items-center gap-3">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+		<div>
+			<h1 class="text-xl md:text-2xl font-bold text-gray-900 mb-1">Inventory Management</h1>
+			<p class="text-xs md:text-sm text-gray-600">Track and manage ingredient stock levels</p>
+		</div>
+		<div class="flex items-center gap-3">
 		<?php if (in_array(Auth::role(), ['Owner','Manager','Stock Handler'], true)): ?>
 		<button 
 			type="button" 
@@ -36,21 +37,8 @@ if (!empty($lowStockGroups)) {
 			<i data-lucide="upload" class="w-4 h-4"></i>
 			Import CSV
 		</a>
-		<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-			<i data-lucide="arrow-left" class="w-4 h-4"></i>
-			Back to Dashboard
-		</a>
 	</div>
 </div>
-
-<?php if (!empty($flash)): ?>
-	<div class="mb-6 px-4 py-3 rounded-xl border <?php echo ($flash['type'] ?? '') === 'success' ? 'border-green-200 bg-green-50 text-green-800' : 'border-red-200 bg-red-50 text-red-800'; ?>">
-		<div class="flex items-start gap-3">
-			<i data-lucide="<?php echo ($flash['type'] ?? '') === 'success' ? 'check-circle' : 'alert-circle'; ?>" class="w-4 h-4 mt-0.5"></i>
-			<p class="text-sm font-medium"><?php echo htmlspecialchars($flash['text'] ?? ''); ?></p>
-		</div>
-	</div>
-<?php endif; ?>
 
 <!-- Purchase List Modal -->
 <div id="purchaseListModal" class="fixed inset-0 z-50 hidden">
@@ -963,7 +951,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		<div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col max-h-[90vh]">
 			<div class="flex items-center justify-between px-6 py-5 border-b">
 				<div>
-					<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+					<h2 class="text-lg md:text-xl font-semibold text-gray-900 flex items-center gap-2">
 						<i data-lucide="plus-circle" class="w-5 h-5 text-green-600"></i>
 						Add New Ingredient
 					</h2>
@@ -977,7 +965,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory" class="p-6 overflow-y-auto">
 				<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 				
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
 					<div class="space-y-2">
 						<label class="block text-sm font-medium text-gray-700">Ingredient Name <span class="text-red-500">*</span></label>
 						<input name="name" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" placeholder="e.g., Flour, Sugar" required />
@@ -1064,7 +1052,7 @@ if (!isset($ingredientSetsEnabled)) {
 }
 ?>
 <?php if ($ingredientSetsEnabled === true): ?>
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-6 md:mb-8 overflow-hidden">
 	<div class="bg-gradient-to-r from-indigo-50 to-blue-50 px-4 sm:px-6 py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 		<div>
 			<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
@@ -1089,7 +1077,7 @@ if (!isset($ingredientSetsEnabled)) {
 				<textarea id="setDescriptionInput" name="set_description" rows="2" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" placeholder="Short notes for the team"></textarea>
 			</div>
 			<div class="space-y-4">
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 					<div class="md:col-span-2">
 						<label class="block text-sm font-medium text-gray-700 mb-1">Ingredient</label>
 						<select id="setIngredientSelect" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
@@ -1247,7 +1235,7 @@ foreach ($ingredients as $ing) {
 }
 ?>
 <?php if (!empty($ingredients)): ?>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 md:mb-8">
 	<!-- Total Ingredients -->
 	<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
 		<div class="flex items-center justify-between">
@@ -1295,7 +1283,7 @@ foreach ($ingredients as $ing) {
 		<div class="flex flex-col gap-4">
 			<div class="flex items-center justify-between">
 				<div>
-					<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+					<h2 class="text-lg md:text-xl font-semibold text-gray-900 flex items-center gap-2">
 						<i data-lucide="package" class="w-5 h-5 text-gray-600"></i>
 						Current Inventory
 					</h2>

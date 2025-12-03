@@ -20,15 +20,13 @@ $consumptionFilters = array_merge([
 ], $consumptionFilters ?? []);
 ?>
 <!-- Page Header -->
-<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
-	<div>
-		<h1 class="text-3xl font-bold text-gray-900">Purchase Reports</h1>
-		<p class="text-gray-600 mt-1">Analyze and export purchase data</p>
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+		<div>
+			<h1 class="text-xl md:text-2xl font-bold text-gray-900 mb-1">Purchase Reports</h1>
+			<p class="text-xs md:text-sm text-gray-600">Analyze and export purchase data</p>
+		</div>
 	</div>
-	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-		<i data-lucide="arrow-left" class="w-4 h-4"></i>
-		Back to Dashboard
-	</a>
 </div>
 
 <section id="purchaseReportSection" class="space-y-8">
@@ -42,7 +40,7 @@ $totalCost = array_sum(array_column($purchases, 'cost'));
 $uniqueSuppliers = count(array_unique(array_column($purchases, 'supplier')));
 $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 ?>
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 md:mb-8">
 	<!-- Total Purchases -->
 	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
 		<div class="flex items-center justify-between">
@@ -65,7 +63,7 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 				<p class="text-2xl font-bold text-green-600">₱<?php echo number_format($totalCost, 2); ?></p>
 			</div>
 			<div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-				<i data-lucide="dollar-sign" class="w-6 h-6 text-green-600"></i>
+				<span class="text-2xl font-bold text-green-600">₱</span>
 			</div>
 		</div>
 	</div>
