@@ -7,7 +7,7 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '';
 		<h1 class="text-3xl font-bold text-gray-900">Import Inventory from CSV</h1>
 		<p class="text-gray-600 mt-1">Upload a CSV file to import or update inventory items</p>
 	</div>
-	<a href="<?php echo htmlspecialchars($baseUrl); ?>/inventory" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+	<a href="<?php echo htmlspecialchars($baseUrl); ?>/inventory" class="inline-flex items-center gap-2 px-4 py-2 text-[12px] font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
 		<i data-lucide="arrow-left" class="w-4 h-4"></i>
 		Back to Inventory
 	</a>
