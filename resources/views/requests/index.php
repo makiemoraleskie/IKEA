@@ -57,23 +57,23 @@ function formatDate($dateString) {
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 				<div class="space-y-2">
 					<label class="block text-sm font-medium text-gray-700">Name</label>
-					<input name="requester_name" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="e.g., malupiton" required>
+					<input name="requester_name" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-gray-500 focus:border-gray-500" placeholder="e.g., Juan Dela Cruz" required>
 				</div>
 				<div class="space-y-2">
 					<label class="block text-sm font-medium text-gray-700">Date Needed</label>
-					<input type="date" name="request_date" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+					<input type="date" name="request_date" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-gray-500 focus:border-gray-500" required>
 				</div>
 			</div>
 			<div class="space-y-2">
 				<label class="block text-sm font-medium text-gray-700">Ingredients / Notes</label>
-				<textarea name="ingredients_note" rows="4" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="List ingredients, quantities, or any prep instructions" required></textarea>
+				<textarea name="ingredients_note" rows="4" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-gray-500 focus:border-gray-500" placeholder="List ingredients, quantities, or any prep instructions" required></textarea>
 				<p class="text-xs text-gray-500">Detailed quantities will be captured later during the Prepare step.</p>
 			</div>
 			<div class="flex justify-end gap-3">
 				<button type="button" id="cancelNewRequestBtn" class="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
 					Cancel
 				</button>
-				<button type="submit" class="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
+					<button type="submit" class="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
 					<i data-lucide="send" class="w-4 h-4"></i>
 					Submit Request
 				</button>
@@ -615,10 +615,10 @@ function formatDate($dateString) {
 				<input type="hidden" name="batch_id" id="prepareModalBatchId">
 				<input type="hidden" name="action" id="prepareModalAction" value="save">
 				<div class="rounded-xl border border-gray-200 p-4 space-y-3">
-					<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-						<div class="space-y-1">
+					<div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+						<div class="space-y-1 md:col-span-2">
 							<label class="text-sm font-medium text-gray-700">Ingredient</label>
-							<select id="prepareIngredientSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-indigo-500">
+							<select id="prepareIngredientSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-gray-500">
 								<option value="">Choose ingredient</option>
 								<?php foreach ($ingredients as $ing): ?>
 									<option value="<?php echo (int)$ing['id']; ?>" data-unit="<?php echo htmlspecialchars($ing['unit']); ?>"><?php echo htmlspecialchars($ing['name']); ?></option>
@@ -627,15 +627,15 @@ function formatDate($dateString) {
 						</div>
 						<div class="space-y-1">
 							<label class="text-sm font-medium text-gray-700">Quantity</label>
-							<input type="number" step="0.01" min="0.01" id="prepareQuantityInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-indigo-500" placeholder="0.00">
+							<input type="number" step="0.01" min="0.01" id="prepareQuantityInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-gray-500" placeholder="0.00">
 						</div>
 						<div class="space-y-1">
 							<label class="text-sm font-medium text-gray-700">Unit</label>
-							<select id="prepareUnitSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-indigo-500">
+							<select id="prepareUnitSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-gray-500">
 								<option value="">Base unit</option>
 							</select>
 						</div>
-						<div class="flex items-end">
+						<div class="flex items-end justify-end">
 							<button type="button" id="prepareAddItemBtn" class="w-10 h-10 inline-flex items-center justify-center bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
 								<i data-lucide="plus" class="w-5 h-5"></i>
 							</button>
@@ -645,7 +645,7 @@ function formatDate($dateString) {
 				</div>
 				<div class="rounded-xl border border-gray-200 overflow-hidden">
 					<table class="w-full text-sm">
-						<thead class="bg-gray-50">
+						<thead class="bg-gray-100">
 							<tr>
 								<th class="text-left px-4 py-2">Ingredient</th>
 								<th class="text-left px-4 py-2">Quantity</th>
