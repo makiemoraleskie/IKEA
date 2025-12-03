@@ -512,7 +512,14 @@ $ingredientStockMap = $ingredientStock ?? [];
 								<select id="prepareIngredientSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" style="display: none;">
 									<option value="">Choose ingredient</option>
 									<?php foreach ($ingredients as $ing): ?>
-										<option value="<?php echo (int)$ing['id']; ?>" data-unit="<?php echo htmlspecialchars($ing['unit']); ?>" data-name="<?php echo htmlspecialchars(strtolower($ing['name'])); ?>"><?php echo htmlspecialchars($ing['name']); ?></option>
+										<option 
+											value="<?php echo (int)$ing['id']; ?>" 
+											data-unit="<?php echo htmlspecialchars($ing['unit']); ?>" 
+											data-name="<?php echo htmlspecialchars(strtolower($ing['name'])); ?>"
+											data-quantity="<?php echo (float)($ing['quantity'] ?? 0); ?>"
+											data-display-unit="<?php echo htmlspecialchars($ing['display_unit'] ?? ''); ?>"
+											data-display-factor="<?php echo (float)($ing['display_factor'] ?? 1); ?>"
+										><?php echo htmlspecialchars($ing['name']); ?></option>
 									<?php endforeach; ?>
 								</select>
 								<div id="prepareIngredientDropdown" class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden">
@@ -576,6 +583,8 @@ $ingredientStockMap = $ingredientStock ?? [];
 			'name' => $i['name'],
 			'unit' => $i['unit'],
 			'quantity' => (float)($i['quantity'] ?? 0),
+			'display_unit' => $i['display_unit'] ?? null,
+			'display_factor' => (float)($i['display_factor'] ?? 1),
 		];
 	}, $ingredients), JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
 	const INGREDIENT_LOOKUP = INGREDIENTS.reduce((map, item) => {
@@ -678,15 +687,18 @@ $ingredientStockMap = $ingredientStock ?? [];
 		const errorBox = document.getElementById('prepareBuilderError');
 		let items = [];
 		
-		// Build ingredient options array from select
+		// Build ingredient options array from select and INGREDIENT_LOOKUP
 		const ingredientOptions = [];
 		if (ingredientSelect) {
 			Array.from(ingredientSelect.options).forEach(option => {
 				if (option.value) {
+					const id = parseInt(option.value, 10);
+					const ingredient = INGREDIENT_LOOKUP[id] || {};
 					ingredientOptions.push({
 						id: option.value,
 						name: option.textContent,
-						unit: option.getAttribute('data-unit') || '',
+						unit: option.getAttribute('data-unit') || ingredient.unit || '',
+						quantity: ingredient.quantity || parseFloat(option.getAttribute('data-quantity') || '0'),
 						nameLower: (option.getAttribute('data-name') || option.textContent.toLowerCase())
 					});
 				}
@@ -707,17 +719,34 @@ $ingredientStockMap = $ingredientStock ?? [];
 				return;
 			}
 			
-			ingredientDropdown.innerHTML = filtered.map(opt => `
+			ingredientDropdown.innerHTML = filtered.map(opt => {
+				const stockQty = Number(opt.quantity || 0);
+				const stockText = stockQty > 0 
+					? `${Number(stockQty).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${opt.unit}`
+					: 'Out of Stock';
+				const stockColor = stockQty > 0 ? 'text-green-600' : 'text-red-600';
+				const stockBg = stockQty > 0 ? 'bg-green-50' : 'bg-red-50';
+				
+				return `
 				<button 
 					type="button" 
-					class="w-full text-left px-4 py-2 hover:bg-indigo-50 focus:bg-indigo-50 focus:outline-none transition-colors"
+					class="w-full text-left px-4 py-2 hover:bg-indigo-50 focus:bg-indigo-50 focus:outline-none transition-colors border-b border-gray-100 last:border-b-0"
 					data-id="${opt.id}"
 					data-unit="${opt.unit}"
 				>
-					<div class="font-medium text-gray-900">${opt.name}</div>
-					<div class="text-xs text-gray-500">${opt.unit}</div>
+					<div class="flex items-center justify-between">
+						<div class="flex-1">
+							<div class="font-medium text-gray-900">${opt.name}</div>
+							<div class="text-xs text-gray-500">${opt.unit}</div>
+						</div>
+						<div class="ml-3 text-right">
+							<div class="text-xs font-semibold ${stockColor}">Stock</div>
+							<div class="text-sm font-medium ${stockColor}">${stockText}</div>
+						</div>
+					</div>
 				</button>
-			`).join('');
+			`;
+			}).join('');
 			
 			// Add click handlers
 			ingredientDropdown.querySelectorAll('button').forEach(btn => {
@@ -725,6 +754,7 @@ $ingredientStockMap = $ingredientStock ?? [];
 					const id = btn.getAttribute('data-id');
 					const unit = btn.getAttribute('data-unit');
 					const name = btn.querySelector('.font-medium').textContent;
+					const ingredient = INGREDIENT_LOOKUP[parseInt(id, 10)];
 					
 					// Update hidden select
 					if (ingredientSelect) {
@@ -740,7 +770,9 @@ $ingredientStockMap = $ingredientStock ?? [];
 					ingredientDropdown.classList.add('hidden');
 					
 					// Trigger change event on select to update units
-					if (ingredientSelect) {
+					if (ingredientSelect && ingredient) {
+						configurePrepareUnits(ingredient.unit || '', ingredient.display_unit || null, ingredient.display_factor || 1);
+					} else if (ingredientSelect) {
 						ingredientSelect.dispatchEvent(new Event('change'));
 					}
 				});
@@ -856,7 +888,44 @@ $ingredientStockMap = $ingredientStock ?? [];
 							</div>
 						</div>
 					</td>
-					<td class="px-4 py-2 font-semibold text-gray-900">${Number(item.quantity / (item.display_unit === 'kg' && item.unit === 'g' ? 1000 : item.display_unit === 'L' && item.unit === 'ml' ? 1000 : 1)).toFixed(2)} ${item.display_unit || item.unit}</td>
+					<td class="px-4 py-2 font-semibold text-gray-900">${(() => {
+						let displayQty = item.quantity;
+						const baseUnit = item.unit;
+						const displayUnit = item.display_unit;
+						
+						// Convert from base unit to display unit
+						if (baseUnit === 'g' && displayUnit === 'kg') {
+							displayQty = item.quantity / 1000;
+						} else if (baseUnit === 'kg' && displayUnit === 'g') {
+							displayQty = item.quantity * 1000;
+						} else if (baseUnit === 'ml' && displayUnit === 'L') {
+							displayQty = item.quantity / 1000;
+						} else if (baseUnit === 'L' && displayUnit === 'ml') {
+							displayQty = item.quantity * 1000;
+						} else if ((displayUnit === 'g' || displayUnit === 'kg') && baseUnit !== 'g' && baseUnit !== 'kg') {
+							// Custom base unit (like 'sack') with g/kg display
+							// Use display_factor if available, otherwise show base quantity
+							const ingredient = INGREDIENT_LOOKUP[item.id];
+							if (ingredient && ingredient.display_factor && ingredient.display_factor > 0) {
+								if (displayUnit === 'kg') {
+									displayQty = item.quantity * ingredient.display_factor;
+								} else if (displayUnit === 'g') {
+									displayQty = item.quantity * ingredient.display_factor * 1000;
+								}
+							}
+						} else if ((displayUnit === 'ml' || displayUnit === 'L') && baseUnit !== 'ml' && baseUnit !== 'L') {
+							// Similar for volume
+							const ingredient = INGREDIENT_LOOKUP[item.id];
+							if (ingredient && ingredient.display_factor && ingredient.display_factor > 0) {
+								if (displayUnit === 'L') {
+									displayQty = item.quantity * ingredient.display_factor;
+								} else if (displayUnit === 'ml') {
+									displayQty = item.quantity * ingredient.display_factor * 1000;
+								}
+							}
+						}
+						return Number(displayQty).toFixed(2);
+					})()} ${item.display_unit || item.unit}</td>
 					<td class="px-4 py-2">
 						<button type="button" class="inline-flex items-center gap-1 text-red-600 hover:text-red-700 removePrepItem" data-index="${index}">
 							<i data-lucide="trash-2" class="w-3 h-3"></i>Remove
@@ -882,25 +951,45 @@ $ingredientStockMap = $ingredientStock ?? [];
 			});
 		}
 
-		function configurePrepareUnits(baseUnit){
+		function configurePrepareUnits(baseUnit, displayUnit = null, displayFactor = 1){
 			if (!unitSelect) return;
 			unitSelect.innerHTML = '';
 			const opt = (value, label)=>{ const o=document.createElement('option'); o.value=value; o.textContent=label; return o; };
-			if (baseUnit === 'g'){
+			
+			// Always show base unit first
+			unitSelect.appendChild(opt(baseUnit || 'pcs', baseUnit || 'pcs'));
+			
+			// Add weight conversions (g/kg) for any ingredient
+			if (baseUnit !== 'g' && baseUnit !== 'kg') {
 				unitSelect.appendChild(opt('g','g'));
 				unitSelect.appendChild(opt('kg','kg'));
-			} else if (baseUnit === 'ml'){
+			} else if (baseUnit === 'g'){
+				unitSelect.appendChild(opt('kg','kg'));
+			} else if (baseUnit === 'kg'){
+				unitSelect.appendChild(opt('g','g'));
+			}
+			
+			// Add volume conversions (ml/L) for any ingredient
+			if (baseUnit !== 'ml' && baseUnit !== 'L') {
 				unitSelect.appendChild(opt('ml','ml'));
 				unitSelect.appendChild(opt('L','L'));
-			} else {
-				unitSelect.appendChild(opt(baseUnit || 'pcs', baseUnit || 'pcs'));
+			} else if (baseUnit === 'ml'){
+				unitSelect.appendChild(opt('L','L'));
+			} else if (baseUnit === 'L'){
+				unitSelect.appendChild(opt('ml','ml'));
 			}
+			
+			// Set default to base unit
 			unitSelect.value = baseUnit || '';
 		}
 
 		ingredientSelect.addEventListener('change', ()=>{
 			const ing = INGREDIENT_LOOKUP[parseInt(ingredientSelect.value || '0', 10)];
-			configurePrepareUnits(ing?.unit || '');
+			if (ing) {
+				configurePrepareUnits(ing.unit || '', ing.display_unit || null, ing.display_factor || 1);
+			} else {
+				configurePrepareUnits('');
+			}
 		});
 
 		addBtn.addEventListener('click', ()=>{
@@ -917,8 +1006,60 @@ $ingredientStockMap = $ingredientStock ?? [];
 			}
 			let baseQuantity = quantity;
 			let chosenUnit = unitSelect.value || ingredient.unit;
-			if (ingredient.unit === 'g' && chosenUnit === 'kg') { baseQuantity = quantity * 1000; }
-			if (ingredient.unit === 'ml' && chosenUnit === 'L') { baseQuantity = quantity * 1000; }
+			const baseUnit = ingredient.unit;
+			
+			// Convert to base unit
+			if (chosenUnit === 'g' && baseUnit === 'kg') {
+				// User selected g, base is kg: convert g to kg
+				baseQuantity = quantity / 1000;
+			} else if (chosenUnit === 'kg' && baseUnit === 'g') {
+				// User selected kg, base is g: convert kg to g
+				baseQuantity = quantity * 1000;
+			} else if (chosenUnit === 'ml' && baseUnit === 'L') {
+				// User selected ml, base is L: convert ml to L
+				baseQuantity = quantity / 1000;
+			} else if (chosenUnit === 'L' && baseUnit === 'ml') {
+				// User selected L, base is ml: convert L to ml
+				baseQuantity = quantity * 1000;
+			} else if ((chosenUnit === 'g' || chosenUnit === 'kg') && baseUnit !== 'g' && baseUnit !== 'kg') {
+				// User selected g/kg but base unit is something else (like 'sack')
+				// Use display_factor if available to convert
+				// display_factor means: 1 base unit = display_factor * display_unit
+				// Example: 1 sack = 25 kg (display_unit='kg', display_factor=25)
+				// So: 1 kg = 1/25 sacks
+				if (ingredient.display_factor && ingredient.display_factor > 0 && ingredient.display_unit) {
+					const displayUnit = ingredient.display_unit.toLowerCase();
+					if (displayUnit === 'kg' || displayUnit === 'g') {
+						// Convert to kg first if needed
+						const qtyInKg = chosenUnit === 'g' ? quantity / 1000 : quantity;
+						// Convert to base unit: kg / factor = base units
+						baseQuantity = qtyInKg / ingredient.display_factor;
+					} else {
+						// Display unit doesn't match, can't convert accurately
+						// Store as-is (user should use base unit or set display_unit/factor)
+						baseQuantity = quantity;
+					}
+				} else {
+					// No conversion factor available - show warning but allow it
+					// The quantity will be stored directly in base unit
+					// This means if user enters 1kg and base is "sack", it stores as 1 sack
+					// User should set display_unit and display_factor in inventory for accurate conversion
+					baseQuantity = quantity;
+				}
+			} else if ((chosenUnit === 'ml' || chosenUnit === 'L') && baseUnit !== 'ml' && baseUnit !== 'L') {
+				// Similar logic for volume units
+				if (ingredient.display_factor && ingredient.display_factor > 0 && ingredient.display_unit) {
+					const displayUnit = ingredient.display_unit.toLowerCase();
+					if (displayUnit === 'l' || displayUnit === 'ml') {
+						const qtyInL = chosenUnit === 'ml' ? quantity / 1000 : quantity;
+						baseQuantity = qtyInL / ingredient.display_factor;
+					} else {
+						baseQuantity = quantity;
+					}
+				} else {
+					baseQuantity = quantity;
+				}
+			}
 			const existing = items.find(entry => entry.id === id);
 			if (existing){
 				existing.quantity += baseQuantity;

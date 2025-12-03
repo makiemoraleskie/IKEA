@@ -36,6 +36,15 @@ if (!empty($lowStockGroups)) {
 			<i data-lucide="upload" class="w-4 h-4"></i>
 			Import CSV
 		</a>
+		<?php if (in_array(Auth::role(), ['Owner','Manager'], true)): ?>
+		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/migrate-kg-to-g" class="inline-block" data-confirm="This will convert all ingredients with base unit 'kg' to 'g'. Quantities will be multiplied by 1000. This action cannot be undone. Continue?">
+			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+			<button type="submit" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors">
+				<i data-lucide="refresh-cw" class="w-4 h-4"></i>
+				Convert kg → g
+			</button>
+		</form>
+		<?php endif; ?>
 		<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
 			<i data-lucide="arrow-left" class="w-4 h-4"></i>
 			Back to Dashboard
@@ -685,9 +694,17 @@ document.addEventListener('DOMContentLoaded', function() {
 				</td>
 				<td class="px-6 py-4">
 					<div class="space-y-1">
-						<div class="flex items-center gap-2">
+						<div class="flex items-center gap-2 flex-wrap">
 							<span class="font-semibold text-gray-900">${formatNumber(ing.quantity)}</span>
 							<span class="text-gray-500 text-sm">${escapeHtml(ing.unit || '')}</span>
+							${(() => {
+								// Show converted display unit if available
+								if (ing.display_unit && ing.display_factor && ing.display_factor > 0) {
+									const displayQty = ing.quantity / ing.display_factor;
+									return `<span class="text-gray-400 text-sm">(${formatNumber(displayQty)} ${escapeHtml(ing.display_unit)})</span>`;
+								}
+								return '';
+							})()}
 						</div>
 						<div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
 							<div class="h-full ${barColor} transition-all duration-300" style="width: ${ing.percentage}%"></div>
@@ -696,9 +713,17 @@ document.addEventListener('DOMContentLoaded', function() {
 					</div>
 				</td>
 				<td class="px-6 py-4">
-					<div class="flex items-center gap-2">
+					<div class="flex items-center gap-2 flex-wrap">
 						<span class="text-gray-700">${formatNumber(ing.reorderLevel)}</span>
 						<span class="text-gray-500 text-sm">${escapeHtml(ing.unit || '')}</span>
+						${(() => {
+							// Show converted display unit for reorder level if available
+							if (ing.display_unit && ing.display_factor && ing.display_factor > 0) {
+								const displayReorder = ing.reorderLevel / ing.display_factor;
+								return `<span class="text-gray-400 text-sm">(${formatNumber(displayReorder)} ${escapeHtml(ing.display_unit)})</span>`;
+							}
+							return '';
+						})()}
 					</div>
 				</td>
 				<td class="px-6 py-4">

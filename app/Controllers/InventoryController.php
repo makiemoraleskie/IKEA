@@ -389,35 +389,73 @@ class InventoryController extends BaseController
 			// Default to 0 if no remain value found
 			$quantity = $lastRemain !== null ? $lastRemain : 0.0;
 			
+			// Convert kg to g: If unit is kg, convert to g as base unit
+			$baseUnit = $unit;
+			$displayUnit = null;
+			$displayFactor = 1.0;
+			$baseQuantity = $quantity;
+			
+			if (strtolower($unit) === 'kg') {
+				// Convert kg to g: multiply quantity by 1000
+				$baseUnit = 'g';
+				$displayUnit = 'kg';
+				$displayFactor = 1000.0;
+				$baseQuantity = $quantity * 1000.0;
+			}
+			
 			// Check if ingredient already exists (case-insensitive)
 			$existing = $ingredientModel->findByName($itemName);
 			
 			try {
+				$db = Database::getConnection();
 				if ($existing) {
 					// Update existing ingredient
-					$ingredientModel->updateQuantity((int)$existing['id'], $quantity);
-					// Also update unit if different
-					if (strtolower($existing['unit']) !== strtolower($unit)) {
-						$db = Database::getConnection();
-						$stmt = $db->prepare('UPDATE ingredients SET unit = ? WHERE id = ?');
-						$stmt->execute([$unit, (int)$existing['id']]);
+					$existingId = (int)$existing['id'];
+					$existingUnit = strtolower($existing['unit'] ?? '');
+					
+					// If existing ingredient has kg base unit, convert it too
+					if ($existingUnit === 'kg') {
+						// Convert existing quantity from kg to g
+						$existingQuantity = (float)($existing['quantity'] ?? 0);
+						$existingQuantityG = $existingQuantity * 1000.0;
+						
+						// Update to g base unit with kg display unit
+						$updateStmt = $db->prepare('UPDATE ingredients SET unit = ?, quantity = ?, display_unit = ?, display_factor = ? WHERE id = ?');
+						$updateStmt->execute(['g', $existingQuantityG, 'kg', 1000.0, $existingId]);
+						
+						// Now update with new quantity (in g)
+						$ingredientModel->updateQuantity($existingId, $baseQuantity);
+					} else {
+						// Existing ingredient is not kg, just update quantity
+						$ingredientModel->updateQuantity($existingId, $baseQuantity);
+						
+						// Update unit, display_unit, and display_factor if they changed
+						if (strtolower($existing['unit'] ?? '') !== strtolower($baseUnit)) {
+							$updateStmt = $db->prepare('UPDATE ingredients SET unit = ?, display_unit = ?, display_factor = ? WHERE id = ?');
+							$updateStmt->execute([$baseUnit, $displayUnit, $displayFactor, $existingId]);
+						}
 					}
+					
 					$stats['updated']++;
 					$logger->log($userId, 'update', 'ingredients', [
-						'ingredient_id' => (int)$existing['id'],
+						'ingredient_id' => $existingId,
 						'name' => $itemName,
-						'quantity' => $quantity,
+						'quantity' => $baseQuantity,
+						'unit' => $baseUnit,
+						'display_unit' => $displayUnit,
 						'source' => 'csv_import',
 					]);
 				} else {
-					// Create new ingredient
-					$id = $ingredientModel->create($itemName, $unit, 0.0, null, 1.0, null, 0.0, null, true);
-					$ingredientModel->updateQuantity($id, $quantity);
+					// Create new ingredient with g base unit and kg display unit (if applicable)
+					$id = $ingredientModel->create($itemName, $baseUnit, 0.0, $displayUnit, $displayFactor, null, 0.0, null, true);
+					$ingredientModel->updateQuantity($id, $baseQuantity);
 					$stats['created']++;
 					$logger->log($userId, 'create', 'ingredients', [
 						'ingredient_id' => $id,
 						'name' => $itemName,
-						'quantity' => $quantity,
+						'quantity' => $baseQuantity,
+						'unit' => $baseUnit,
+						'display_unit' => $displayUnit,
 						'source' => 'csv_import',
 					]);
 				}
@@ -453,6 +491,100 @@ class InventoryController extends BaseController
 		];
 		
 		$this->redirect('/inventory/import');
+	}
+
+	/**
+	 * Migration: Convert all ingredients with base unit "kg" to "g"
+	 * This ensures all weight-based ingredients use grams as the base unit for precise tracking
+	 */
+	public function migrateKgToG(): void
+	{
+		Auth::requireRole(['Owner','Manager']);
+		
+		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
+			http_response_code(400);
+			echo 'Invalid CSRF token';
+			return;
+		}
+		
+		$db = Database::getConnection();
+		$logger = new AuditLog();
+		$userId = Auth::id() ?? 0;
+		
+		try {
+			$db->beginTransaction();
+			
+			// Find all ingredients with unit = 'kg'
+			$stmt = $db->query("SELECT id, name, unit, display_unit, display_factor, quantity, reorder_level FROM ingredients WHERE LOWER(unit) = 'kg'");
+			$ingredients = $stmt->fetchAll();
+			
+			$converted = 0;
+			$errors = [];
+			
+			foreach ($ingredients as $ing) {
+				$id = (int)$ing['id'];
+				$name = $ing['name'];
+				$currentQuantity = (float)$ing['quantity'];
+				$currentReorderLevel = (float)$ing['reorder_level'];
+				$currentDisplayUnit = trim((string)($ing['display_unit'] ?? ''));
+				$currentDisplayFactor = (float)($ing['display_factor'] ?? 1);
+				
+				// Convert quantities: 1 kg = 1000 g
+				$newQuantity = $currentQuantity * 1000.0;
+				$newReorderLevel = $currentReorderLevel * 1000.0;
+				
+				// Update display_unit and display_factor
+				// If display_unit is not set, set it to 'kg' with factor 1000
+				// If display_unit is already 'kg', ensure factor is 1000
+				// If display_unit is something else, keep it but adjust factor if needed
+				$newDisplayUnit = 'kg';
+				$newDisplayFactor = 1000.0;
+				
+				if ($currentDisplayUnit !== '' && strtolower($currentDisplayUnit) !== 'kg') {
+					// Keep existing display_unit but adjust factor
+					// If current factor was 1 (meaning 1 kg = 1 kg), now it should be 1000 (1 kg = 1000 g)
+					if ($currentDisplayFactor == 1.0) {
+						$newDisplayFactor = 1000.0;
+					} else {
+						// If there was already a factor, multiply by 1000
+						$newDisplayFactor = $currentDisplayFactor * 1000.0;
+					}
+					$newDisplayUnit = $currentDisplayUnit;
+				}
+				
+				// Update the ingredient
+				$updateStmt = $db->prepare("UPDATE ingredients SET unit = 'g', quantity = ?, reorder_level = ?, display_unit = ?, display_factor = ? WHERE id = ?");
+				$updateStmt->execute([$newQuantity, $newReorderLevel, $newDisplayUnit, $newDisplayFactor, $id]);
+				
+				$converted++;
+				$logger->log($userId, 'update', 'ingredients', [
+					'ingredient_id' => $id,
+					'name' => $name,
+					'migration' => 'kg_to_g',
+					'old_unit' => 'kg',
+					'new_unit' => 'g',
+					'old_quantity' => $currentQuantity,
+					'new_quantity' => $newQuantity,
+				]);
+			}
+			
+			$db->commit();
+			
+			$_SESSION['flash_inventory'] = [
+				'type' => 'success',
+				'text' => "Migration completed: Converted {$converted} ingredient(s) from kg to g base unit.",
+			];
+		} catch (Throwable $e) {
+			if ($db->inTransaction()) {
+				$db->rollBack();
+			}
+			$_SESSION['flash_inventory'] = [
+				'type' => 'error',
+				'text' => 'Migration failed: ' . $e->getMessage(),
+			];
+		}
+		
+		$this->redirect('/inventory');
 	}
 }
 
