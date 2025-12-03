@@ -340,7 +340,7 @@ function formatDate($dateString) {
 						<td class="px-2 md:px-3 lg:px-6 py-2 md:py-3 lg:py-4">
 							<?php if (in_array(Auth::role(), ['Owner','Manager','Stock Handler'], true)): ?>
 								<button type="button"
-									class="prepareBatchBtn inline-flex items-center gap-1 md:gap-1.5 lg:gap-2 px-1.5 md:px-2 lg:px-4 py-1 md:py-1.5 lg:py-2 text-[9px] md:text-xs lg:text-sm font-semibold text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50"
+									class="prepareBatchBtn inline-flex items-center gap-1 md:gap-1.5 lg:gap-2 px-1.5 md:px-2 lg:px-4 py-1 md:py-1.5 lg:py-2 text-[9px] md:text-xs lg:text-sm font-semibold bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
 									data-batch="<?php echo (int)$batch['id']; ?>"
 									data-items="<?php echo $metaItems; ?>"
 									data-requester="<?php echo htmlspecialchars($batch['custom_requester'] ?: ($batch['staff_name'] ?? '')); ?>"
@@ -626,10 +626,10 @@ function formatDate($dateString) {
 									type="text" 
 									id="prepareIngredientSearch" 
 									placeholder="Search ingredients..." 
-									class="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+									class="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
 									autocomplete="off"
 								>
-								<select id="prepareIngredientSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" style="display: none;">
+								<select id="prepareIngredientSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500" style="display: none;">
 									<option value="">Choose ingredient</option>
 									<?php foreach ($ingredients as $ing): ?>
 										<option 
@@ -658,9 +658,9 @@ function formatDate($dateString) {
 							</select>
 						</div>
 						<div class="flex items-end">
-							<button type="button" id="prepareAddItemBtn" class="w-full inline-flex items-center justify-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-								<i data-lucide="plus" class="w-4 h-4"></i>
-								Add Ingredient
+							<button type="button" id="prepareAddItemBtn" class="w-full inline-flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+								<i data-lucide="plus"></i>
+								Add
 							</button>
 						</div>
 					</div>
@@ -1455,10 +1455,91 @@ function formatDate($dateString) {
 			const btn = event.target.closest('.removePrepItem');
 			if (!btn) return;
 			const index = parseInt(btn.getAttribute('data-index') || '-1', 10);
-			if (index >= 0){
-				items.splice(index, 1);
-				renderItems();
+			if (index < 0 || !items[index]) return;
+			
+			const item = items[index];
+			const ingredientName = item.name || 'this ingredient';
+			const quantity = item.quantity || 0;
+			const unit = item.display_unit || item.unit || '';
+			
+			// Remove any existing confirmation overlays
+			const existingConfirmOverlays = document.querySelectorAll('.remove-ingredient-confirm-overlay');
+			existingConfirmOverlays.forEach(ov => ov.remove());
+			
+			// Create confirmation modal
+			const confirmOverlay = document.createElement('div');
+			confirmOverlay.className = 'remove-ingredient-confirm-overlay fixed inset-0 z-[999999] flex items-center justify-center p-4';
+			confirmOverlay.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; z-index: 999999 !important; background-color: rgba(0, 0, 0, 0.5) !important; pointer-events: none !important;';
+			
+			// Make the modal itself clickable
+			const confirmModal = document.createElement('div');
+			confirmModal.className = 'bg-white rounded-2xl shadow-2xl max-w-md w-full';
+			confirmModal.style.pointerEvents = 'auto';
+			confirmModal.innerHTML = `
+				<div class="px-6 py-6">
+					<div class="flex items-center gap-4 mb-4">
+						<div class="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+							<i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+						</div>
+						<div>
+							<h3 class="text-lg font-semibold text-gray-900">Remove Ingredient</h3>
+							<p class="text-sm text-gray-500 mt-1">This action cannot be undone</p>
+						</div>
+					</div>
+					<p class="text-sm text-gray-700 mb-6">
+						Are you sure you want to remove <strong>${ingredientName}</strong> (${quantity} ${unit}) from this request?
+					</p>
+					<div class="flex items-center justify-end gap-3">
+						<button type="button" class="cancelRemoveIngredientBtn px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+							Cancel
+						</button>
+						<button type="button" class="confirmRemoveIngredientBtn px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+							Remove
+						</button>
+					</div>
+				</div>
+			`;
+			
+			confirmOverlay.appendChild(confirmModal);
+			document.body.appendChild(confirmOverlay);
+			document.body.classList.add('overflow-hidden');
+			
+			if (typeof lucide !== 'undefined') {
+				lucide.createIcons();
 			}
+			
+			// Close on Escape key handler
+			const handleEscape = (e) => {
+				if (e.key === 'Escape') {
+					closeConfirmModal();
+				}
+			};
+			
+			const closeConfirmModal = () => {
+				document.removeEventListener('keydown', handleEscape);
+				confirmOverlay.remove();
+				document.body.classList.remove('overflow-hidden');
+			};
+			
+			// Close on overlay click
+			confirmOverlay.addEventListener('click', (e) => {
+				if (e.target === confirmOverlay) {
+					closeConfirmModal();
+				}
+			});
+			
+			// Add Escape key listener
+			document.addEventListener('keydown', handleEscape);
+			
+			confirmModal.querySelector('.cancelRemoveIngredientBtn').addEventListener('click', closeConfirmModal);
+			
+			confirmModal.querySelector('.confirmRemoveIngredientBtn').addEventListener('click', function() {
+				if (index >= 0 && items[index]) {
+					items.splice(index, 1);
+					renderItems();
+				}
+				closeConfirmModal();
+			});
 		});
 
 		form.addEventListener('submit', (event)=>{

@@ -157,6 +157,9 @@ if ($user) {
 							<button id="sidebarToggle" class="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 focus:outline-none" aria-label="Toggle navigation">
 								<i data-lucide="menu" class="w-5 h-5"></i>
 							</button>
+							<button id="sidebarShowTablet" class="hidden items-center justify-center w-10 h-10 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 focus:outline-none transition-colors" aria-label="Show sidebar">
+								<i data-lucide="menu" class="w-5 h-5"></i>
+							</button>
 						</div>
 						<div class="flex items-center gap-3">
 							<!-- Notification Bell -->
@@ -299,6 +302,7 @@ if ($user) {
 				const sidebar = document.getElementById('sidebar');
 				const toggle = document.getElementById('sidebarToggle');
 				const toggleTablet = document.getElementById('sidebarToggleTablet');
+				const showTablet = document.getElementById('sidebarShowTablet');
 				const closeBtn = document.getElementById('sidebarClose');
 				if (!sidebar || !toggle) return;
 				
@@ -317,6 +321,25 @@ if ($user) {
 						sidebar.classList.add('sidebar-tablet-visible');
 						sidebar.classList.remove('sidebar-tablet-hidden');
 					}
+					updateShowButtonVisibility();
+				};
+				
+				const updateShowButtonVisibility = ()=>{
+					if (!showTablet) return;
+					const isHidden = sidebar.classList.contains('sidebar-tablet-hidden');
+					// Check if we're on tablet size (768px to 1023px)
+					const isTabletSize = window.innerWidth >= 768 && window.innerWidth < 1024;
+					if (isHidden && isTabletSize) {
+						showTablet.classList.remove('hidden');
+						showTablet.classList.add('inline-flex');
+						// Ensure Lucide icons are initialized
+						if (typeof lucide !== 'undefined') {
+							lucide.createIcons();
+						}
+					} else {
+						showTablet.classList.add('hidden');
+						showTablet.classList.remove('inline-flex');
+					}
 				};
 				
 				toggle.addEventListener('click', (e)=>{
@@ -330,7 +353,17 @@ if ($user) {
 					toggleSidebarTablet();
 				});
 				
+				showTablet?.addEventListener('click', (e)=>{
+					e.stopPropagation();
+					toggleSidebarTablet();
+				});
+				
 				closeBtn?.addEventListener('click', closeSidebar);
+				
+				// Update button visibility on load and window resize
+				updateShowButtonVisibility();
+				window.addEventListener('resize', updateShowButtonVisibility);
+				
 				document.addEventListener('click', (e)=>{
 					if (!sidebar.contains(e.target) && !toggle.contains(e.target) && !sidebar.classList.contains('-translate-x-full')){
 						closeSidebar();
