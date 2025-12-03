@@ -1,4 +1,7 @@
-<?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
+<?php 
+$baseUrl = defined('BASE_URL') ? BASE_URL : '';
+$deliveredTotals = $deliveredTotals ?? [];
+?>
 <!-- Page Header -->
 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
 	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
