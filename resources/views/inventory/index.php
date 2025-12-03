@@ -16,11 +16,11 @@ if (!empty($lowStockGroups)) {
 }
 ?>
 <!-- Page Header -->
-<div class="bg-white rounded-2xl shadow-md border border-gray-200 p-3 md:p-4 lg:p-6 mb-5 md:mb-6">
-	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 		<div>
-			<h1 class="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-0.5 md:mb-1">Inventory Management</h1>
-			<p class="text-[10px] md:text-xs lg:text-sm text-gray-600">Track and manage ingredient stock levels</p>
+			<h1 class="text-xl md:text-2xl font-bold text-gray-900 mb-1">Inventory Management</h1>
+			<p class="text-xs md:text-sm text-gray-600">Track and manage ingredient stock levels</p>
 		</div>
 	</div>
 </div>
@@ -35,73 +35,226 @@ foreach ($ingredients as $ing) {
 }
 ?>
 <?php if (!empty($ingredients)): ?>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-5 md:mb-6 lg:mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8">
 	<!-- Total Ingredients -->
-	<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-5 lg:p-6">
-		<div class="flex items-center justify-between">
-			<div>
-				<p class="text-xs md:text-sm font-medium text-gray-600">Total Ingredients</p>
-				<p class="text-xl md:text-2xl font-bold text-gray-900"><?php echo count($ingredients); ?></p>
-			</div>
-			<div class="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-full flex items-center justify-center">
-				<i data-lucide="layers" class="w-5 h-5 md:w-6 md:h-6 text-blue-600"></i>
-			</div>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
+		<div class="absolute top-3 md:top-4 right-3 md:right-4">
+			<i data-lucide="layers" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-blue-600"></i>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">TOTAL INGREDIENTS</h3>
+			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-gray-900 mb-1.5 md:mb-2"><?php echo count($ingredients); ?></div>
+			<p class="text-xs md:text-sm text-gray-600">All ingredients in inventory</p>
 		</div>
 	</div>
 	
 	<!-- Low Stock Items -->
-	<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-5 lg:p-6">
-		<div class="flex items-center justify-between">
-			<div>
-				<p class="text-xs md:text-sm font-medium text-gray-600">Low Stock Items</p>
-				<p class="text-xl md:text-2xl font-bold text-red-600"><?php echo $lowStockCount; ?></p>
-			</div>
-			<div class="w-10 h-10 md:w-12 md:h-12 bg-red-100 rounded-full flex items-center justify-center">
-				<i data-lucide="alert-triangle" class="w-5 h-5 md:w-6 md:h-6 text-red-600"></i>
-			</div>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
+		<div class="absolute top-3 md:top-4 right-3 md:right-4">
+			<i data-lucide="alert-triangle" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-red-500"></i>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">LOW STOCK ITEMS</h3>
+			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-red-600 mb-1.5 md:mb-2"><?php echo $lowStockCount; ?></div>
+			<p class="text-xs md:text-sm text-gray-600">At or below reorder level</p>
 		</div>
 	</div>
 	
 	<!-- In Stock Items -->
-	<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-5 lg:p-6">
-		<div class="flex items-center justify-between">
-			<div>
-				<p class="text-xs md:text-sm font-medium text-gray-600">In Stock Items</p>
-				<p class="text-xl md:text-2xl font-bold text-green-600"><?php echo count($ingredients) - $lowStockCount; ?></p>
-			</div>
-			<div class="w-10 h-10 md:w-12 md:h-12 bg-green-100 rounded-full flex items-center justify-center">
-				<i data-lucide="check-circle" class="w-5 h-5 md:w-6 md:h-6 text-green-600"></i>
-			</div>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
+		<div class="absolute top-3 md:top-4 right-3 md:right-4">
+			<i data-lucide="check-circle" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-green-600"></i>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">IN STOCK ITEMS</h3>
+			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-green-600 mb-1.5 md:mb-2"><?php echo count($ingredients) - $lowStockCount; ?></div>
+			<p class="text-xs md:text-sm text-gray-600">Above reorder level</p>
 		</div>
 	</div>
 </div>
 <?php endif; ?>
 
 <!-- Action Buttons -->
-<div class="flex flex-wrap items-center gap-1.5 md:gap-2 lg:gap-4 mb-5 md:mb-6 lg:mb-8">
+<div class="mb-4 md:mb-8">
+	<div class="flex flex-wrap items-center gap-2 md:gap-3">
 		<?php if (in_array(Auth::role(), ['Owner','Manager','Stock Handler'], true)): ?>
 		<button 
 			type="button" 
 			id="openAddIngredientModal"
-			class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
+			class="inline-flex items-center gap-1.5 md:gap-2 bg-green-600 text-white px-3 md:px-6 py-2 md:py-3 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-sm md:text-base"
 		>
-			<i data-lucide="plus" class="w-4 h-4"></i>
+			<i data-lucide="plus" class="w-4 h-4 md:w-5 md:h-5"></i>
 			Add Ingredient
 		</button>
 		<?php endif; ?>
-		<a href="<?php echo htmlspecialchars($baseUrl); ?>/inventory/import" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
-			<i data-lucide="upload" class="w-4 h-4"></i>
+		<a href="<?php echo htmlspecialchars($baseUrl); ?>/inventory/import" class="inline-flex items-center gap-1.5 md:gap-2 bg-green-600 text-white px-3 md:px-6 py-2 md:py-3 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-sm md:text-base">
+			<i data-lucide="upload" class="w-4 h-4 md:w-5 md:h-5"></i>
 			Import CSV
 		</a>
 		<?php if (in_array(Auth::role(), ['Owner','Manager'], true)): ?>
 		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/migrate-kg-to-g" class="inline-block" data-confirm="This will convert all ingredients with base unit 'kg' to 'g'. Quantities will be multiplied by 1000. This action cannot be undone. Continue?">
 			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
-			<button type="submit" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors">
-				<i data-lucide="refresh-cw" class="w-4 h-4"></i>
-				Convert kg → g
+			<button type="submit" class="inline-flex items-center gap-1.5 md:gap-2 bg-purple-600 text-white px-3 md:px-6 py-2 md:py-3 rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors text-sm md:text-base">
+				<i data-lucide="refresh-cw" class="w-4 h-4 md:w-5 md:h-5"></i>
+				<span class="hidden sm:inline">Convert kg → g</span>
+				<span class="sm:hidden">Convert</span>
 			</button>
 		</form>
 		<?php endif; ?>
+	</div>
+</div>
+
+<!-- Inventory Table -->
+<div id="inventory-low-stock" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+	<div class="px-4 md:px-6 py-3 md:py-4 border-b">
+		<div class="flex flex-col gap-3 md:gap-4 md:flex-row md:items-center md:justify-between">
+			<div>
+				<h2 class="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-1.5 md:gap-2">
+					<i data-lucide="package" class="w-4 h-4 md:w-5 md:h-5 text-gray-600"></i>
+					Current Inventory
+				</h2>
+				<p class="text-xs md:text-sm text-gray-600 mt-0.5 md:mt-1">View and monitor all ingredient stock levels</p>
+			</div>
+			<div class="flex flex-wrap items-center gap-2 md:gap-3">
+				<div class="text-xs md:text-sm text-gray-600 whitespace-nowrap">
+					<span class="font-medium" id="totalIngredientsCount"><?php echo count($ingredients); ?></span> total
+				</div>
+				<?php 
+				$lowStockCount = 0;
+				foreach ($ingredients as $ing) {
+					if ((float)$ing['quantity'] <= (float)$ing['reorder_level']) {
+						$lowStockCount++;
+					}
+				}
+				?>
+				<?php if ($lowStockCount > 0): ?>
+					<div class="flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs md:text-sm font-medium whitespace-nowrap">
+						<i data-lucide="alert-triangle" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+						<span id="lowStockCount"><?php echo $lowStockCount; ?></span> low stock
+					</div>
+				<?php endif; ?>
+				<button
+					type="button"
+					id="inventoryPurchaseListBtn"
+					class="inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm font-semibold rounded-lg shadow-sm border border-rose-200 bg-rose-600 text-white hover:bg-rose-700 focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap"
+					<?php echo empty($lowStockGroups) ? 'disabled title="No low stock items to print"' : ''; ?>
+				>
+					<i data-lucide="printer" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+					<span class="hidden md:inline">Print Purchase List</span>
+					<span class="md:hidden">Print</span>
+				</button>
+			</div>
+		</div>
+	</div>
+	
+	<div class="px-4 md:px-6 py-3 md:py-4 border-b">
+		<div class="flex flex-col lg:flex-row gap-3">
+			<div class="flex-1 relative">
+				<i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+				<input 
+					type="text" 
+					id="inventorySearch" 
+					placeholder="Search ingredients..." 
+					class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-xs md:text-sm"
+				>
+			</div>
+			<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-3 lg:w-auto">
+				<?php 
+				$categories = [];
+				foreach ($ingredients as $ing) {
+					$cat = trim($ing['category'] ?? '');
+					if ($cat !== '' && !in_array($cat, $categories, true)) {
+						$categories[] = $cat;
+					}
+				}
+				sort($categories);
+				?>
+				<select id="inventoryCategoryFilter" class="px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-xs md:text-sm">
+					<option value="">All Categories</option>
+					<?php foreach ($categories as $cat): ?>
+						<option value="<?php echo htmlspecialchars(strtolower($cat)); ?>"><?php echo htmlspecialchars($cat); ?></option>
+					<?php endforeach; ?>
+				</select>
+				<select id="inventoryStatusFilter" class="px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-xs md:text-sm">
+					<option value="all">All Status</option>
+					<option value="low">Low Stock</option>
+					<option value="in_stock">In Stock</option>
+					<option value="out_of_stock">Out of Stock</option>
+				</select>
+				<select id="inventorySortBy" class="px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-xs md:text-sm">
+					<option value="name_asc">Sort: Name (A-Z)</option>
+					<option value="name_desc">Sort: Name (Z-A)</option>
+					<option value="stock_asc">Sort: Stock (Low to High)</option>
+					<option value="stock_desc">Sort: Stock (High to Low)</option>
+					<option value="reorder_asc">Sort: Reorder Level (Low to High)</option>
+					<option value="reorder_desc">Sort: Reorder Level (High to Low)</option>
+				</select>
+			</div>
+		</div>
+	</div>
+	
+	<div class="px-4 md:px-6 py-2 md:py-3 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[10px] md:text-xs lg:text-sm text-gray-600">
+		<div class="whitespace-nowrap">
+			Showing <span id="inventoryResultsStart" class="font-medium">1</span> - 
+			<span id="inventoryResultsEnd" class="font-medium"><?php echo min(25, count($ingredients)); ?></span> of 
+			<span id="inventoryResultsTotal" class="font-medium"><?php echo count($ingredients); ?></span> ingredients
+		</div>
+		<div id="inventoryPagination" class="flex items-center gap-1.5 md:gap-2 flex-wrap">
+			<!-- Pagination controls will be inserted here by JavaScript -->
+		</div>
+	</div>
+	
+	<div class="overflow-x-auto overflow-y-auto max-h-[500px] md:max-h-[600px]">
+		<table class="w-full text-[10px] md:text-xs lg:text-sm" style="min-width: 100%;">
+			<thead class="sticky top-0 bg-white z-10">
+				<tr>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors sortable bg-white text-[10px] md:text-xs lg:text-sm" data-sort="name">
+						<div class="flex items-center gap-1 md:gap-1.5 lg:gap-2">
+							<span>Ingredient</span>
+							<i data-lucide="arrow-up-down" class="w-2.5 h-2.5 md:w-3 md:h-3 text-gray-400"></i>
+						</div>
+					</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors sortable bg-white text-[10px] md:text-xs lg:text-sm" data-sort="stock">
+						<div class="flex items-center gap-1 md:gap-1.5 lg:gap-2">
+							<span>Current Stock</span>
+							<i data-lucide="arrow-up-down" class="w-2.5 h-2.5 md:w-3 md:h-3 text-gray-400"></i>
+						</div>
+					</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors sortable bg-white text-[10px] md:text-xs lg:text-sm" data-sort="reorder">
+						<div class="flex items-center gap-1 md:gap-1.5 lg:gap-2">
+							<span>Reorder Level</span>
+							<i data-lucide="arrow-up-down" class="w-2.5 h-2.5 md:w-3 md:h-3 text-gray-400"></i>
+						</div>
+					</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Status</th>
+				</tr>
+			</thead>
+			<tbody id="inventoryTableBody" class="divide-y divide-gray-200">
+				<!-- Rows will be rendered dynamically by JavaScript -->
+			</tbody>
+		</table>
+		
+		<div id="inventoryEmptyState" class="hidden flex flex-col items-center justify-center py-12 text-gray-500">
+			<i data-lucide="search-x" class="w-16 h-16 mb-4 text-gray-300"></i>
+			<h3 class="text-lg font-medium text-gray-900 mb-2">No Ingredients Found</h3>
+			<p class="text-sm text-gray-600 mb-4">Try adjusting your search or filter criteria</p>
+			<button type="button" id="inventoryClearFilters" class="text-sm text-blue-600 hover:text-blue-700 underline">Clear all filters</button>
+		</div>
+		
+		<?php if (empty($ingredients)): ?>
+		<div class="flex flex-col items-center justify-center py-12 text-gray-500">
+			<i data-lucide="package-x" class="w-16 h-16 mb-4 text-gray-300"></i>
+			<h3 class="text-lg font-medium text-gray-900 mb-2">No Ingredients Found</h3>
+			<p class="text-sm text-gray-600 mb-4">Start by adding your first ingredient to the inventory</p>
+			<?php if (in_array(Auth::role(), ['Owner','Manager','Stock Handler'], true)): ?>
+				<button type="button" id="openAddIngredientModalEmpty" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+					<i data-lucide="plus" class="w-4 h-4"></i>
+					Add First Ingredient
+				</button>
+			<?php endif; ?>
+		</div>
+		<?php endif; ?>
+	</div>
 	</div>
 </div>
 
@@ -109,7 +262,10 @@ foreach ($ingredients as $ing) {
 <div id="purchaseListModal" class="fixed inset-0 z-50 hidden">
 	<div class="absolute inset-0 bg-gray-900/70 backdrop-blur-md" data-purchase-list-dismiss style="backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);"></div>
 	<div class="relative z-10 flex min-h-full items-center justify-center px-4 py-8">
-		<div class="w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col max-h-[85vh]">
+		<div class="w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col max-h-[85vh] relative">
+			<button type="button" class="absolute top-4 right-4 z-10 inline-flex items-center justify-center w-8 h-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors" data-purchase-list-dismiss aria-label="Close">
+				<i data-lucide="x" class="w-5 h-5"></i>
+			</button>
 			<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 px-6 py-5 border-b">
 				<div>
 					<p class="text-xs uppercase tracking-[0.35em] text-rose-400 font-semibold">Low Stock</p>
@@ -132,9 +288,6 @@ foreach ($ingredients as $ing) {
 						<i data-lucide="printer" class="w-4 h-4"></i>
 						Print List
 					</button>
-					<button type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50" data-purchase-list-dismiss>
-						<i data-lucide="x" class="w-4 h-4"></i>
-					</button>
 				</div>
 			</div>
 			<div id="purchaseListContent" class="px-6 py-5 overflow-y-auto space-y-6">
@@ -153,29 +306,28 @@ foreach ($ingredients as $ing) {
 							<span class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium"><?php echo count($items); ?> item<?php echo count($items) === 1 ? '' : 's'; ?></span>
 						</div>
 						<div class="mt-4 overflow-x-auto">
-							<table class="w-full text-sm min-w-[520px]">
+							<table class="w-full text-xs md:text-sm min-w-[520px]">
 								<thead class="bg-gray-50">
 									<tr>
-										<th class="text-left px-4 py-2 font-medium text-gray-700">Ingredient</th>
-										<th class="text-left px-4 py-2 font-medium text-gray-700">Status</th>
-										<th class="text-left px-4 py-2 font-medium text-gray-700">On Hand</th>
-										<th class="text-left px-4 py-2 font-medium text-gray-700">Reorder Level</th>
-										<th class="text-left px-4 py-2 font-medium text-gray-700">Recommended Qty</th>
+										<th class="text-left px-3 md:px-4 py-1.5 md:py-2 font-medium text-gray-700 text-[11px] md:text-xs lg:text-sm">Ingredient</th>
+										<th class="text-left px-3 md:px-4 py-1.5 md:py-2 font-medium text-gray-700 text-[11px] md:text-xs lg:text-sm">Status</th>
+										<th class="text-left px-3 md:px-4 py-1.5 md:py-2 font-medium text-gray-700 text-[11px] md:text-xs lg:text-sm">On Hand</th>
+										<th class="text-left px-3 md:px-4 py-1.5 md:py-2 font-medium text-gray-700 text-[11px] md:text-xs lg:text-sm">Reorder Level</th>
+										<th class="text-left px-3 md:px-4 py-1.5 md:py-2 font-medium text-gray-700 text-[11px] md:text-xs lg:text-sm">Recommended Qty</th>
 									</tr>
 								</thead>
 								<tbody class="divide-y divide-gray-100">
 									<?php foreach ($items as $item): ?>
 									<tr>
-										<td class="px-4 py-2 font-semibold text-gray-900"><?php echo htmlspecialchars($item['name']); ?></td>
-										<td class="px-4 py-2">
-											<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium <?php echo ($item['stock_status'] ?? '') === 'Out of Stock' ? 'bg-red-100 text-red-800 border border-red-200' : 'bg-amber-50 text-amber-700 border border-amber-200'; ?>">
-												<i data-lucide="<?php echo ($item['stock_status'] ?? '') === 'Out of Stock' ? 'x' : 'alert-triangle'; ?>" class="w-3 h-3"></i>
+										<td class="px-3 md:px-4 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm lg:text-base"><?php echo htmlspecialchars($item['name']); ?></td>
+										<td class="px-3 md:px-4 py-1.5 md:py-2">
+											<span class="text-[10px] md:text-xs font-medium <?php echo ($item['stock_status'] ?? '') === 'Out of Stock' ? 'text-red-800' : 'text-amber-700'; ?>">
 												<?php echo htmlspecialchars($item['stock_status'] ?? 'Low Stock'); ?>
 											</span>
 										</td>
-										<td class="px-4 py-2 text-gray-700"><?php echo number_format((float)$item['quantity'], 2); ?> <?php echo htmlspecialchars($item['unit']); ?></td>
-										<td class="px-4 py-2 text-gray-700"><?php echo number_format((float)$item['reorder_level'], 2); ?> <?php echo htmlspecialchars($item['unit']); ?></td>
-										<td class="px-4 py-2 font-semibold text-gray-900"><?php echo number_format((float)$item['recommended_qty'], 2); ?> <?php echo htmlspecialchars($item['unit']); ?></td>
+										<td class="px-3 md:px-4 py-1.5 md:py-2 text-gray-700 text-xs md:text-sm lg:text-base"><?php echo number_format((float)$item['quantity'], 2); ?> <?php echo htmlspecialchars($item['unit']); ?></td>
+										<td class="px-3 md:px-4 py-1.5 md:py-2 text-gray-700 text-xs md:text-sm lg:text-base"><?php echo number_format((float)$item['reorder_level'], 2); ?> <?php echo htmlspecialchars($item['unit']); ?></td>
+										<td class="px-3 md:px-4 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm lg:text-base"><?php echo number_format((float)$item['recommended_qty'], 2); ?> <?php echo htmlspecialchars($item['unit']); ?></td>
 									</tr>
 									<?php endforeach; ?>
 								</tbody>
@@ -335,10 +487,10 @@ document.addEventListener('DOMContentLoaded', function(){
 		countLabel.textContent = `${components.length} ingredient${components.length === 1 ? '' : 's'}`;
 		tableBody.innerHTML = components.map((component, index) => `
 			<tr>
-				<td class="px-4 py-2">${escapeHtml(component.ingredient_name)}</td>
-				<td class="px-4 py-2 font-semibold">${Number(component.quantity).toFixed(2)} <span class="text-xs text-gray-500">${escapeHtml(component.unit)}</span></td>
-				<td class="px-4 py-2 text-right">
-					<button type="button" class="text-xs text-red-600 hover:text-red-700" data-remove-component data-index="${index}">Remove</button>
+				<td class="px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm lg:text-base">${escapeHtml(component.ingredient_name)}</td>
+				<td class="px-3 md:px-4 py-1.5 md:py-2 font-semibold text-xs md:text-sm lg:text-base">${Number(component.quantity).toFixed(2)} <span class="text-[10px] md:text-xs text-gray-500">${escapeHtml(component.unit)}</span></td>
+				<td class="px-3 md:px-4 py-1.5 md:py-2 text-right">
+					<button type="button" class="text-[10px] md:text-xs text-red-600 hover:text-red-700 whitespace-nowrap" data-remove-component data-index="${index}">Remove</button>
 				</td>
 			</tr>
 		`).join('');
@@ -717,80 +869,51 @@ document.addEventListener('DOMContentLoaded', function() {
 		
 		return `
 			<tr class="${rowClass}">
-				<td class="px-6 py-4">
-					<div class="flex items-center gap-3">
-						<div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-							<i data-lucide="package" class="w-5 h-5 text-blue-600"></i>
-						</div>
-						<div>
-							<div class="font-medium text-gray-900">${escapeHtml(ing.name || '')}</div>
-							${ing.display_unit ? `<div class="text-xs text-gray-500">Display: ${escapeHtml(ing.display_unit)}</div>` : ''}
-							${ing.preferred_supplier ? `<p class="text-xs text-gray-500 mt-1">Supplier: ${escapeHtml(ing.preferred_supplier)}</p>` : ''}
-						</div>
+				<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
+					<div>
+						<div class="text-[10px] md:text-xs lg:text-sm font-semibold text-gray-900">${escapeHtml(ing.name || '')}</div>
+						${ing.display_unit ? `<div class="text-[9px] md:text-[10px] lg:text-xs text-gray-500 mt-0.5">Display: ${escapeHtml(ing.display_unit)}</div>` : ''}
+						${ing.preferred_supplier ? `<p class="text-[9px] md:text-[10px] lg:text-xs text-gray-500 mt-1">Supplier: ${escapeHtml(ing.preferred_supplier)}</p>` : ''}
 					</div>
 				</td>
-				<td class="px-6 py-4">
-					<span class="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-medium">
-						<i data-lucide="ruler" class="w-3 h-3"></i>
-						${escapeHtml(ing.unit || '')}
-					</span>
-				</td>
-				<td class="px-6 py-4">
+				<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
 					<div class="space-y-1">
-						<div class="flex items-center gap-2 flex-wrap">
-							<span class="font-semibold text-gray-900">${formatNumber(ing.quantity)}</span>
-							<span class="text-gray-500 text-sm">${escapeHtml(ing.unit || '')}</span>
+						<div class="flex items-center gap-1 md:gap-1.5 lg:gap-2 flex-wrap">
+							<span class="font-semibold text-gray-900 text-[10px] md:text-xs lg:text-sm">${formatNumber(ing.quantity)}</span>
+							<span class="text-gray-500 text-[9px] md:text-[10px] lg:text-xs">${escapeHtml(ing.unit || '')}</span>
 							${(() => {
 								// Show converted display unit if available
 								if (ing.display_unit && ing.display_factor && ing.display_factor > 0) {
 									const displayQty = ing.quantity / ing.display_factor;
-									return `<span class="text-gray-400 text-sm">(${formatNumber(displayQty)} ${escapeHtml(ing.display_unit)})</span>`;
+									return `<span class="text-gray-400 text-[9px] md:text-[10px] lg:text-xs">(${formatNumber(displayQty)} ${escapeHtml(ing.display_unit)})</span>`;
 								}
 								return '';
 							})()}
 						</div>
-						<div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+						<div class="w-full bg-gray-200 rounded-full h-1 md:h-1.5 lg:h-2 overflow-hidden">
 							<div class="h-full ${barColor} transition-all duration-300" style="width: ${ing.percentage}%"></div>
 						</div>
-						<p class="text-xs text-gray-500">${formatNumber(ing.percentage, 0)}% of recommended (${formatNumber(ing.recommendedQty)} ${escapeHtml(ing.unit || '')})</p>
+						<p class="text-[9px] md:text-[10px] lg:text-xs text-gray-500">${formatNumber(ing.percentage, 0)}% of recommended (${formatNumber(ing.recommendedQty)} ${escapeHtml(ing.unit || '')})</p>
 					</div>
 				</td>
-				<td class="px-6 py-4">
-					<div class="flex items-center gap-2 flex-wrap">
-						<span class="text-gray-700">${formatNumber(ing.reorderLevel)}</span>
-						<span class="text-gray-500 text-sm">${escapeHtml(ing.unit || '')}</span>
+				<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
+					<div class="flex items-center gap-1 md:gap-1.5 lg:gap-2 flex-wrap">
+						<span class="text-gray-700 text-[10px] md:text-xs lg:text-sm">${formatNumber(ing.reorderLevel)}</span>
+						<span class="text-gray-500 text-[9px] md:text-[10px] lg:text-xs">${escapeHtml(ing.unit || '')}</span>
 						${(() => {
 							// Show converted display unit for reorder level if available
 							if (ing.display_unit && ing.display_factor && ing.display_factor > 0) {
 								const displayReorder = ing.reorderLevel / ing.display_factor;
-								return `<span class="text-gray-400 text-sm">(${formatNumber(displayReorder)} ${escapeHtml(ing.display_unit)})</span>`;
+								return `<span class="text-gray-400 text-[9px] md:text-[10px] lg:text-xs">(${formatNumber(displayReorder)} ${escapeHtml(ing.display_unit)})</span>`;
 							}
 							return '';
 						})()}
 					</div>
 				</td>
-				<td class="px-6 py-4">
-					${ing.low ? `
-						<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
-							<i data-lucide="alert-triangle" class="w-3 h-3"></i>
-							Low Stock
-						</span>
-					` : `
-						<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
-							<i data-lucide="check-circle" class="w-3 h-3"></i>
-							In Stock
-						</span>
-					`}
-				</td>
-				<td class="px-6 py-4">
-					<div class="flex items-center gap-3">
-						<div class="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
-							<div class="h-2 rounded-full transition-all duration-300 ${stockBarColor}" style="width: ${progressWidth}%"></div>
-						</div>
-						<span class="text-xs text-gray-600 font-medium min-w-[3rem]">
-							${formatNumber(ing.stockPercentage, 0)}%
-						</span>
-					</div>
+				<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
+					<span class="text-[10px] md:text-xs lg:text-sm font-medium ${ing.low ? 'text-red-600' : 'text-green-600'} whitespace-nowrap">
+						${ing.low ? 'Low Stock' : 'In Stock'}
+					</span>
 				</td>
 			</tr>
 		`;
@@ -1029,23 +1152,23 @@ document.addEventListener('DOMContentLoaded', function() {
 	<div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" data-add-ingredient-dismiss></div>
 	<div class="relative z-10 flex min-h-full items-center justify-center px-4 py-8">
 		<div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col max-h-[90vh]">
-			<div class="flex items-center justify-between px-6 py-5 border-b">
+			<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-4 px-4 md:px-5 lg:px-6 py-4 md:py-5 border-b">
 				<div>
 					<h2 class="text-lg md:text-xl font-semibold text-gray-900 flex items-center gap-2">
 						<i data-lucide="plus-circle" class="w-5 h-5 text-green-600"></i>
 						Add New Ingredient
 					</h2>
-					<p class="text-sm text-gray-600 mt-1">Add a new ingredient to your inventory</p>
+					<p class="text-xs md:text-sm text-gray-600 mt-1">Add a new ingredient to your inventory</p>
 				</div>
-				<button type="button" class="text-gray-400 hover:text-gray-600 transition-colors" data-add-ingredient-dismiss>
+				<button type="button" class="text-gray-400 hover:text-gray-600 transition-colors shrink-0" data-add-ingredient-dismiss>
 					<i data-lucide="x" class="w-5 h-5"></i>
 				</button>
 			</div>
 			
-			<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory" class="p-6 overflow-y-auto">
+			<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory" class="p-4 md:p-5 lg:p-6 overflow-y-auto">
 				<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 				
-				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 lg:gap-6">
 					<div class="space-y-2">
 						<label class="block text-sm font-medium text-gray-700">Ingredient Name <span class="text-red-500">*</span></label>
 						<input name="name" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" placeholder="e.g., Flour, Sugar" required />
@@ -1107,12 +1230,12 @@ document.addEventListener('DOMContentLoaded', function() {
 					</div>
 				</div>
 				
-				<div class="mt-6 flex justify-end gap-3">
-					<button type="button" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors" data-add-ingredient-dismiss>
+				<div class="mt-4 md:mt-6 flex flex-col sm:flex-row justify-end gap-2 md:gap-3">
+					<button type="button" class="px-4 md:px-6 py-2 md:py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm md:text-base" data-add-ingredient-dismiss>
 						Cancel
 					</button>
-					<button type="submit" class="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
-						<i data-lucide="plus" class="w-4 h-4"></i>
+					<button type="submit" class="inline-flex items-center gap-1.5 md:gap-2 bg-green-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-sm md:text-base">
+						<i data-lucide="plus" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
 						Add Ingredient
 					</button>
 				</div>
@@ -1133,34 +1256,34 @@ if (!isset($ingredientSetsEnabled)) {
 ?>
 <?php if ($ingredientSetsEnabled === true): ?>
 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-6 md:mb-8 overflow-hidden">
-	<div class="bg-gradient-to-r from-indigo-50 to-blue-50 px-4 sm:px-6 py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+	<div class="bg-gradient-to-r from-indigo-50 to-blue-50 px-4 md:px-5 lg:px-6 py-3 md:py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 		<div>
-			<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+			<h2 class="text-lg md:text-xl font-semibold text-gray-900 flex items-center gap-2">
 				<i data-lucide="layers" class="w-5 h-5 text-indigo-600"></i>
 				Ingredient Sets
 			</h2>
-			<p class="text-sm text-gray-600 mt-1">Combine multiple ingredients into a reusable set for kitchen requests.</p>
+			<p class="text-xs md:text-sm text-gray-600 mt-1">Combine multiple ingredients into a reusable set for kitchen requests.</p>
 		</div>
 		<span class="text-sm text-gray-500"><?php echo count($ingredientSets ?? []); ?> defined</span>
 	</div>
-	<div class="p-4 sm:p-6 <?php echo $canManageSets ? 'grid gap-6 lg:grid-cols-2' : ''; ?>">
+	<div class="p-4 md:p-5 lg:p-6 <?php echo $canManageSets ? 'grid gap-4 md:gap-5 lg:gap-6 md:grid-cols-2' : ''; ?>">
 		<?php if ($canManageSets): ?>
-		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/set" id="setBuilderForm" class="space-y-5">
+		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/set" id="setBuilderForm" class="space-y-4 md:space-y-5">
 			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 			<input type="hidden" name="set_id" id="setIdField" value="0">
 			<div>
-				<label class="block text-sm font-medium text-gray-700 mb-1">Set name</label>
-				<input id="setNameInput" name="set_name" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" placeholder="e.g., Chocolate Cake Kit" required>
+				<label class="block text-xs md:text-sm font-medium text-gray-700 mb-1">Set name</label>
+				<input id="setNameInput" name="set_name" class="w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-sm" placeholder="e.g., Chocolate Cake Kit" required>
 			</div>
 			<div>
-				<label class="block text-sm font-medium text-gray-700 mb-1">Description <span class="text-xs text-gray-400">(optional)</span></label>
-				<textarea id="setDescriptionInput" name="set_description" rows="2" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" placeholder="Short notes for the team"></textarea>
+				<label class="block text-xs md:text-sm font-medium text-gray-700 mb-1">Description <span class="text-xs text-gray-400">(optional)</span></label>
+				<textarea id="setDescriptionInput" name="set_description" rows="2" class="w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-sm" placeholder="Short notes for the team"></textarea>
 			</div>
-			<div class="space-y-4">
-				<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+			<div class="space-y-3 md:space-y-4">
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
 					<div class="md:col-span-2">
-						<label class="block text-sm font-medium text-gray-700 mb-1">Ingredient</label>
-						<select id="setIngredientSelect" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+						<label class="block text-xs md:text-sm font-medium text-gray-700 mb-1">Ingredient</label>
+						<select id="setIngredientSelect" class="w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm">
 							<option value="">Select ingredient</option>
 							<?php foreach ($ingredients as $ing): ?>
 								<option value="<?php echo (int)$ing['id']; ?>" data-unit="<?php echo htmlspecialchars($ing['unit']); ?>">
@@ -1170,58 +1293,58 @@ if (!isset($ingredientSetsEnabled)) {
 						</select>
 					</div>
 					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+						<label class="block text-xs md:text-sm font-medium text-gray-700 mb-1">Quantity</label>
 						<div class="relative">
-							<input type="number" id="setIngredientQty" min="0.01" step="0.01" class="w-full border border-gray-300 rounded-lg px-4 py-3 pr-16 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="0.00">
-							<span id="setIngredientUnitBadge" class="absolute inset-y-0 right-3 flex items-center text-xs font-semibold text-gray-500">unit</span>
+							<input type="number" id="setIngredientQty" min="0.01" step="0.01" class="w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 pr-12 md:pr-16 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm" placeholder="0.00">
+							<span id="setIngredientUnitBadge" class="absolute inset-y-0 right-2 md:right-3 flex items-center text-xs font-semibold text-gray-500">unit</span>
 						</div>
 					</div>
 				</div>
-				<div class="flex items-center justify-between gap-3 flex-wrap">
+				<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-3">
 					<p class="text-xs text-gray-500">Quantities are stored using each ingredient's base unit.</p>
-					<button type="button" id="setAddIngredientBtn" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 transition-colors">
-						<i data-lucide="plus" class="w-4 h-4"></i>
+					<button type="button" id="setAddIngredientBtn" class="inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 transition-colors text-xs md:text-sm whitespace-nowrap">
+						<i data-lucide="plus" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
 						Add to set
 					</button>
 				</div>
 				<div id="setBuilderError" class="hidden px-4 py-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg"></div>
 			</div>
 			<div class="border rounded-xl">
-				<div class="bg-gray-50 px-4 py-3 flex items-center justify-between">
-					<h3 class="text-sm font-semibold text-gray-700">Ingredients in this set</h3>
+				<div class="bg-gray-50 px-3 md:px-4 py-2.5 md:py-3 flex items-center justify-between">
+					<h3 class="text-xs md:text-sm font-semibold text-gray-700">Ingredients in this set</h3>
 					<span id="setComponentCount" class="text-xs text-gray-500">0 ingredients</span>
 				</div>
 				<div class="overflow-x-auto">
-					<table class="w-full text-sm">
+					<table class="w-full text-xs md:text-sm">
 						<thead class="bg-white">
 							<tr>
-								<th class="px-4 py-2 text-left font-medium text-gray-600">Ingredient</th>
-								<th class="px-4 py-2 text-left font-medium text-gray-600">Quantity</th>
-								<th class="px-4 py-2"></th>
+								<th class="px-3 md:px-4 py-1.5 md:py-2 text-left font-medium text-gray-600 text-[11px] md:text-xs lg:text-sm">Ingredient</th>
+								<th class="px-3 md:px-4 py-1.5 md:py-2 text-left font-medium text-gray-600 text-[11px] md:text-xs lg:text-sm">Quantity</th>
+								<th class="px-3 md:px-4 py-1.5 md:py-2"></th>
 							</tr>
 						</thead>
 						<tbody id="setComponentsBody"></tbody>
 					</table>
-					<div id="setComponentsEmpty" class="px-4 py-6 text-center text-sm text-gray-500">No ingredients added yet.</div>
+					<div id="setComponentsEmpty" class="px-3 md:px-4 py-5 md:py-6 text-center text-xs md:text-sm text-gray-500">No ingredients added yet.</div>
 				</div>
 			</div>
 			<input type="hidden" name="components_json" id="setComponentsJson" value="[]">
-			<div class="flex justify-end gap-3">
-				<button type="button" id="setEditCancelBtn" class="inline-flex items-center gap-2 bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg hover:bg-gray-300 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors hidden">
+			<div class="flex flex-col sm:flex-row justify-end gap-2 md:gap-3">
+				<button type="button" id="setEditCancelBtn" class="inline-flex items-center gap-1.5 md:gap-2 bg-gray-200 text-gray-700 px-3 md:px-4 py-2 md:py-2.5 rounded-lg hover:bg-gray-300 focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors text-xs md:text-sm hidden">
 					Cancel edit
 				</button>
-				<button type="submit" id="setBuilderSubmit" class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
-					<i data-lucide="check" class="w-4 h-4"></i>
+				<button type="submit" id="setBuilderSubmit" class="inline-flex items-center gap-1.5 md:gap-2 bg-green-600 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-xs md:text-sm">
+					<i data-lucide="check" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
 					<span id="setBuilderSubmitLabel">Save set</span>
 				</button>
 			</div>
 		</form>
 		<?php endif; ?>
-		<div class="space-y-4">
+		<div class="space-y-3 md:space-y-4">
 			<?php if (empty($ingredientSets)): ?>
-				<div class="rounded-xl border border-dashed border-gray-300 p-6 text-center text-gray-500">
-					<i data-lucide="archive" class="w-8 h-8 mx-auto mb-3 text-gray-400"></i>
-					<p class="text-sm">No sets defined yet. <?php echo $canManageSets ? 'Use the form to create your first set.' : 'Ask a manager to define sets.'; ?></p>
+				<div class="rounded-xl border border-dashed border-gray-300 p-4 md:p-6 text-center text-gray-500">
+					<i data-lucide="archive" class="w-8 h-8 mx-auto mb-2 md:mb-3 text-gray-400"></i>
+					<p class="text-xs md:text-sm">No sets defined yet. <?php echo $canManageSets ? 'Use the form to create your first set.' : 'Ask a manager to define sets.'; ?></p>
 				</div>
 			<?php endif; ?>
 			<?php foreach ($ingredientSets as $set): 
@@ -1247,31 +1370,31 @@ if (!isset($ingredientSetsEnabled)) {
 					}, $set['components']),
 				];
 			?>
-			<div class="border rounded-2xl p-5 space-y-4 bg-white shadow-sm">
-				<div class="flex items-start justify-between gap-4">
-					<div>
-						<div class="flex items-center gap-3 flex-wrap">
-							<h3 class="text-lg font-semibold text-gray-900"><?php echo htmlspecialchars($set['name']); ?></h3>
-							<span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full <?php echo $lowComponent ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-700'; ?>">
+			<div class="border rounded-2xl p-4 md:p-5 space-y-3 md:space-y-4 bg-white shadow-sm">
+				<div class="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-3 md:gap-4">
+					<div class="flex-1 min-w-0">
+						<div class="flex flex-col sm:flex-row sm:items-center gap-2 md:gap-3 flex-wrap">
+							<h3 class="text-base md:text-lg font-semibold text-gray-900"><?php echo htmlspecialchars($set['name']); ?></h3>
+							<span class="inline-flex items-center gap-1 text-xs font-semibold px-2 md:px-2.5 py-0.5 md:py-1 rounded-full <?php echo $lowComponent ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-700'; ?> whitespace-nowrap">
 								<i data-lucide="<?php echo $lowComponent ? 'alert-triangle' : 'check-circle'; ?>" class="w-3 h-3"></i>
 								<?php echo $lowComponent ? 'Needs restock' : 'Kitchen-ready'; ?>
 							</span>
-							<span class="text-xs text-gray-500"><?php echo $componentCount; ?> ingredient<?php echo $componentCount === 1 ? '' : 's'; ?></span>
+							<span class="text-xs text-gray-500 whitespace-nowrap"><?php echo $componentCount; ?> ingredient<?php echo $componentCount === 1 ? '' : 's'; ?></span>
 						</div>
 						<?php if (!empty($set['description'])): ?>
-							<p class="text-sm text-gray-600 mt-2"><?php echo htmlspecialchars($set['description']); ?></p>
+							<p class="text-xs md:text-sm text-gray-600 mt-1.5 md:mt-2"><?php echo htmlspecialchars($set['description']); ?></p>
 						<?php endif; ?>
 					</div>
 					<?php if ($canManageSets): ?>
-					<div class="flex items-center gap-2 shrink-0">
-						<button type="button" data-set-edit="<?php echo htmlspecialchars(json_encode($setPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES, 'UTF-8'); ?>" class="text-xs text-indigo-600 hover:text-indigo-700 inline-flex items-center gap-1 px-3 py-1.5 border border-indigo-200 rounded-lg bg-indigo-50">
+					<div class="flex items-center gap-1.5 md:gap-2 shrink-0">
+						<button type="button" data-set-edit="<?php echo htmlspecialchars(json_encode($setPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES, 'UTF-8'); ?>" class="text-xs text-indigo-600 hover:text-indigo-700 inline-flex items-center gap-1 px-2.5 md:px-3 py-1 md:py-1.5 border border-indigo-200 rounded-lg bg-indigo-50 whitespace-nowrap">
 							<i data-lucide="edit-3" class="w-3 h-3"></i>
 							Edit
 						</button>
 						<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/set/delete" class="shrink-0" data-confirm="Are you sure you want to delete the ingredient set '<?php echo htmlspecialchars($set['name']); ?>'? This action cannot be undone." data-confirm-type="danger">
 							<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 							<input type="hidden" name="set_id" value="<?php echo (int)$set['id']; ?>">
-							<button type="submit" class="text-xs text-red-600 hover:text-red-700 inline-flex items-center gap-1 px-3 py-1.5 border border-red-200 rounded-lg">
+							<button type="submit" class="text-xs text-red-600 hover:text-red-700 inline-flex items-center gap-1 px-2.5 md:px-3 py-1 md:py-1.5 border border-red-200 rounded-lg whitespace-nowrap">
 								<i data-lucide="trash-2" class="w-3 h-3"></i>
 								Delete
 							</button>
@@ -1279,14 +1402,14 @@ if (!isset($ingredientSetsEnabled)) {
 					</div>
 					<?php endif; ?>
 				</div>
-				<ul class="space-y-2 text-sm">
+				<ul class="space-y-1.5 md:space-y-2 text-xs md:text-sm">
 					<?php foreach ($set['components'] as $component): ?>
-						<li class="flex items-center justify-between text-gray-700">
-							<span class="flex items-center gap-2">
-								<i data-lucide="dot" class="w-4 h-4 text-gray-400"></i>
-								<?php echo htmlspecialchars($component['ingredient_name']); ?>
+						<li class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 sm:gap-2 text-gray-700">
+							<span class="flex items-center gap-1.5 md:gap-2">
+								<i data-lucide="dot" class="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400 shrink-0"></i>
+								<span class="break-words"><?php echo htmlspecialchars($component['ingredient_name']); ?></span>
 							</span>
-							<span class="font-medium">
+							<span class="font-medium whitespace-nowrap ml-5 sm:ml-0">
 								<?php echo number_format((float)$component['quantity'], 2); ?>
 								<span class="text-xs text-gray-500"><?php echo htmlspecialchars($component['unit']); ?></span>
 							</span>
@@ -1294,7 +1417,7 @@ if (!isset($ingredientSetsEnabled)) {
 					<?php endforeach; ?>
 				</ul>
 				<?php if ($lowComponent): ?>
-					<div class="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+					<div class="text-xs md:text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
 						<?php echo htmlspecialchars($lowComponent['ingredient_name']); ?> is currently at or below its reorder level.
 					</div>
 				<?php endif; ?>
@@ -1304,173 +1427,6 @@ if (!isset($ingredientSetsEnabled)) {
 	</div>
 </div>
 <?php endif; ?>
-
-<!-- Inventory Table -->
-<div id="inventory-low-stock" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-	<div class="bg-gradient-to-r from-gray-50 to-gray-100 px-4 sm:px-6 py-4 border-b">
-		<div class="flex flex-col gap-4">
-			<div class="flex items-center justify-between">
-				<div>
-					<h2 class="text-lg md:text-xl font-semibold text-gray-900 flex items-center gap-2">
-						<i data-lucide="package" class="w-5 h-5 text-gray-600"></i>
-						Current Inventory
-					</h2>
-					<p class="text-sm text-gray-600 mt-1">View and monitor all ingredient stock levels</p>
-				</div>
-				<div class="flex items-center gap-4">
-					<div class="text-sm text-gray-600">
-						<span class="font-medium" id="totalIngredientsCount"><?php echo count($ingredients); ?></span> total ingredients
-					</div>
-					<?php 
-					$lowStockCount = 0;
-					foreach ($ingredients as $ing) {
-						if ((float)$ing['quantity'] <= (float)$ing['reorder_level']) {
-							$lowStockCount++;
-						}
-					}
-					?>
-					<?php if ($lowStockCount > 0): ?>
-						<div class="flex items-center gap-2 px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
-							<i data-lucide="alert-triangle" class="w-4 h-4"></i>
-							<span id="lowStockCount"><?php echo $lowStockCount; ?></span> low stock
-						</div>
-					<?php endif; ?>
-					<button
-						type="button"
-						id="inventoryPurchaseListBtn"
-						class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg shadow-sm border border-rose-200 bg-rose-600 text-white hover:bg-rose-700 focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
-						<?php echo empty($lowStockGroups) ? 'disabled title="No low stock items to print"' : ''; ?>
-					>
-						<i data-lucide="printer" class="w-4 h-4"></i>
-						Print Purchase List
-					</button>
-				</div>
-			</div>
-			
-			<!-- Search and Filter Bar -->
-			<div class="flex flex-col sm:flex-row gap-3 pt-2 border-t border-gray-200">
-				<div class="flex-1 relative">
-					<i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-					<input 
-						type="text" 
-						id="inventorySearch" 
-						placeholder="Search ingredients by name, category, or supplier..." 
-						class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-					>
-				</div>
-				<?php 
-				$categories = [];
-				foreach ($ingredients as $ing) {
-					$cat = trim($ing['category'] ?? '');
-					if ($cat !== '' && !in_array($cat, $categories, true)) {
-						$categories[] = $cat;
-					}
-				}
-				sort($categories);
-				?>
-				<select id="inventoryCategoryFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-					<option value="">All Categories</option>
-					<?php foreach ($categories as $cat): ?>
-						<option value="<?php echo htmlspecialchars(strtolower($cat)); ?>"><?php echo htmlspecialchars($cat); ?></option>
-					<?php endforeach; ?>
-				</select>
-				<select id="inventoryStatusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-					<option value="all">All Status</option>
-					<option value="low">Low Stock</option>
-					<option value="in_stock">In Stock</option>
-					<option value="out_of_stock">Out of Stock</option>
-				</select>
-				<select id="inventorySortBy" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-					<option value="name_asc">Sort: Name (A-Z)</option>
-					<option value="name_desc">Sort: Name (Z-A)</option>
-					<option value="stock_asc">Sort: Stock (Low to High)</option>
-					<option value="stock_desc">Sort: Stock (High to Low)</option>
-					<option value="reorder_asc">Sort: Reorder Level (Low to High)</option>
-					<option value="reorder_desc">Sort: Reorder Level (High to Low)</option>
-				</select>
-				<button 
-					type="button" 
-					id="inventoryViewToggle" 
-					class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-					title="Toggle compact view"
-				>
-					<i data-lucide="list" class="w-4 h-4"></i>
-				</button>
-			</div>
-			
-			<!-- Results Counter and Pagination Info -->
-			<div class="flex items-center justify-between text-sm text-gray-600 pt-2 border-t border-gray-200">
-				<div>
-					Showing <span id="inventoryResultsStart" class="font-medium">1</span> - 
-					<span id="inventoryResultsEnd" class="font-medium"><?php echo min(25, count($ingredients)); ?></span> of 
-					<span id="inventoryResultsTotal" class="font-medium"><?php echo count($ingredients); ?></span> ingredients
-				</div>
-				<div id="inventoryPagination" class="flex items-center gap-2">
-					<!-- Pagination controls will be inserted here by JavaScript -->
-				</div>
-			</div>
-		</div>
-	</div>
-	
-	<div class="overflow-x-auto max-h-[600px] overflow-y-auto border-t border-gray-200">
-		<table class="w-full text-sm min-w-[640px]">
-			<thead class="bg-gray-50">
-				<tr>
-					<th class="text-left px-6 py-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors sortable" data-sort="name">
-						<div class="flex items-center gap-2">
-							<span>Ingredient</span>
-							<i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400"></i>
-						</div>
-					</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors sortable" data-sort="unit">
-						<div class="flex items-center gap-2">
-							<span>Unit</span>
-							<i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400"></i>
-						</div>
-					</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors sortable" data-sort="stock">
-						<div class="flex items-center gap-2">
-							<span>Current Stock</span>
-							<i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400"></i>
-						</div>
-					</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors sortable" data-sort="reorder">
-						<div class="flex items-center gap-2">
-							<span>Reorder Level</span>
-							<i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400"></i>
-						</div>
-					</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700">Status</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700">Stock Level</th>
-				</tr>
-			</thead>
-			<tbody id="inventoryTableBody" class="divide-y divide-gray-200">
-				<!-- Rows will be rendered dynamically by JavaScript -->
-			</tbody>
-		</table>
-		
-		<div id="inventoryEmptyState" class="hidden flex flex-col items-center justify-center py-12 text-gray-500">
-			<i data-lucide="search-x" class="w-16 h-16 mb-4 text-gray-300"></i>
-			<h3 class="text-lg font-medium text-gray-900 mb-2">No Ingredients Found</h3>
-			<p class="text-sm text-gray-600 mb-4">Try adjusting your search or filter criteria</p>
-			<button type="button" id="inventoryClearFilters" class="text-sm text-blue-600 hover:text-blue-700 underline">Clear all filters</button>
-		</div>
-		
-		<?php if (empty($ingredients)): ?>
-		<div class="flex flex-col items-center justify-center py-12 text-gray-500">
-			<i data-lucide="package-x" class="w-16 h-16 mb-4 text-gray-300"></i>
-			<h3 class="text-lg font-medium text-gray-900 mb-2">No Ingredients Found</h3>
-			<p class="text-sm text-gray-600 mb-4">Start by adding your first ingredient to the inventory</p>
-			<?php if (in_array(Auth::role(), ['Owner','Manager','Stock Handler'], true)): ?>
-				<button type="button" id="openAddIngredientModalEmpty" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-					<i data-lucide="plus" class="w-4 h-4"></i>
-					Add First Ingredient
-				</button>
-			<?php endif; ?>
-		</div>
-		<?php endif; ?>
-	</div>
-</div>
 
 <script>
 // Embed ingredient data as JSON for client-side rendering

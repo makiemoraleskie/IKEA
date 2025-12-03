@@ -27,43 +27,40 @@ foreach ($deliveries as $d) {
 	}
 }
 ?>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 md:mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8">
 	<!-- Total Deliveries -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-		<div class="flex items-center justify-between">
-			<div>
-				<p class="text-sm font-medium text-gray-600">Total Deliveries</p>
-				<p class="text-2xl font-bold text-gray-900"><?php echo $totalDeliveries; ?></p>
-			</div>
-			<div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-				<i data-lucide="truck" class="w-6 h-6 text-blue-600"></i>
-			</div>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
+		<div class="absolute top-3 md:top-4 right-3 md:right-4">
+			<i data-lucide="truck" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-blue-600"></i>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">TOTAL DELIVERIES</h3>
+			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-gray-900 mb-1.5 md:mb-2"><?php echo $totalDeliveries; ?></div>
+			<p class="text-xs md:text-sm text-gray-600">All delivery records</p>
 		</div>
 	</div>
 	
 	<!-- Complete Deliveries -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-		<div class="flex items-center justify-between">
-			<div>
-				<p class="text-sm font-medium text-gray-600">Complete Deliveries</p>
-				<p class="text-2xl font-bold text-green-600"><?php echo $completeDeliveries; ?></p>
-			</div>
-			<div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-				<i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
-			</div>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
+		<div class="absolute top-3 md:top-4 right-3 md:right-4">
+			<i data-lucide="check-circle" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-green-600"></i>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">COMPLETE DELIVERIES</h3>
+			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-green-600 mb-1.5 md:mb-2"><?php echo $completeDeliveries; ?></div>
+			<p class="text-xs md:text-sm text-gray-600">Fully delivered</p>
 		</div>
 	</div>
 	
 	<!-- Partial Deliveries -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-		<div class="flex items-center justify-between">
-			<div>
-				<p class="text-sm font-medium text-gray-600">Partial Deliveries</p>
-				<p class="text-2xl font-bold text-yellow-600"><?php echo $partialDeliveries; ?></p>
-			</div>
-			<div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-				<i data-lucide="clock" class="w-6 h-6 text-yellow-600"></i>
-			</div>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
+		<div class="absolute top-3 md:top-4 right-3 md:right-4">
+			<i data-lucide="clock" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-yellow-600"></i>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">PARTIAL DELIVERIES</h3>
+			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-yellow-600 mb-1.5 md:mb-2"><?php echo $partialDeliveries; ?></div>
+			<p class="text-xs md:text-sm text-gray-600">Incomplete shipments</p>
 		</div>
 	</div>
 </div>
@@ -298,16 +295,16 @@ foreach ($deliveries as $d) {
         </span>
     </div>
     <div class="overflow-x-auto">
-        <table class="w-full text-sm min-w-[720px]">
-            <thead class="bg-gray-50">
+        <table class="w-full text-[10px] md:text-xs lg:text-sm" style="min-width: 100%;">
+            <thead class="sticky top-0 bg-white z-10">
                 <tr>
-                    <th class="text-left px-6 py-3 text-gray-700 font-medium">Purchase</th>
-                    <th class="text-left px-6 py-3 text-gray-700 font-medium">Supplier</th>
-                    <th class="text-left px-6 py-3 text-gray-700 font-medium">Item</th>
-                    <th class="text-left px-6 py-3 text-gray-700 font-medium">Ordered</th>
-                    <th class="text-left px-6 py-3 text-gray-700 font-medium">Delivered</th>
-                    <th class="text-left px-6 py-3 text-gray-700 font-medium">Remaining</th>
-                    <th class="text-left px-6 py-3 text-gray-700 font-medium">Action</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Purchase</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Supplier</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Item</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Ordered</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Delivered</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Remaining</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Action</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
@@ -340,7 +337,7 @@ foreach ($deliveries as $d) {
                     $batchId = substr(sha1(($pending['purchaser_id']??'').'|'.($pending['supplier']??'').'|'.($pending['payment_status']??'').'|'.($pending['receipt_url']??'').'|'.$batchTs),0,10);
                 ?>
                 <tr class="hover:bg-orange-50 transition-colors">
-                    <td class="px-6 py-4">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
                                 <span class="text-xs font-semibold text-purple-700">#<?php echo htmlspecialchars($batchId); ?></span>
@@ -351,25 +348,25 @@ foreach ($deliveries as $d) {
                             </div>
                         </div>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-100 text-gray-700 text-xs font-medium">
                             <i data-lucide="factory" class="w-3 h-3"></i>
                             <?php echo htmlspecialchars($pending['supplier']); ?>
                         </span>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <div class="font-medium text-gray-900"><?php echo htmlspecialchars($pending['item_name']); ?></div>
                         <div class="text-xs text-gray-500">Unit: <?php echo htmlspecialchars($displayUnit); ?></div>
                     </td>
-                    <td class="px-6 py-4"><?php echo number_format($orderedDisplay, 2); ?> <?php echo htmlspecialchars($displayUnit); ?></td>
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm"><?php echo number_format($orderedDisplay, 2); ?> <?php echo htmlspecialchars($displayUnit); ?></td>
                     <td class="px-6 py-4 text-gray-600"><?php echo number_format($deliveredDisplay, 2); ?> <?php echo htmlspecialchars($displayUnit); ?></td>
-                    <td class="px-6 py-4">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800 border border-orange-200">
                             <i data-lucide="alert-triangle" class="w-3 h-3"></i>
                             <?php echo number_format($remainingDisplay, 2); ?> <?php echo htmlspecialchars($displayUnit); ?>
                         </span>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <button
                             type="button"
                             class="inline-flex items-center gap-1 px-3 py-2 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors"
@@ -510,22 +507,22 @@ foreach ($deliveries as $d) {
 		</div>
 	</div>
 	
-	<div class="overflow-x-auto">
-		<table class="w-full text-sm min-w-[700px]">
-			<thead class="bg-gray-50">
+	<div class="overflow-x-auto overflow-y-auto max-h-[500px] md:max-h-[600px]">
+		<table class="w-full text-[10px] md:text-xs lg:text-sm" style="min-width: 100%;">
+			<thead class="sticky top-0 bg-white z-10">
                 <tr>
-                    <th class="text-left px-6 py-3 font-medium text-gray-700">Delivery ID</th>
-                    <th class="text-left px-6 py-3 font-medium text-gray-700">Batch</th>
-                    <th class="text-left px-6 py-3 font-medium text-gray-700">Item</th>
-                    <th class="text-left px-6 py-3 font-medium text-gray-700">Quantity Received</th>
-                    <th class="text-left px-6 py-3 font-medium text-gray-700">Status</th>
-                    <th class="text-left px-6 py-3 font-medium text-gray-700">Date Received</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Delivery ID</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Batch</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Item</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Quantity Received</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Status</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Date Received</th>
                 </tr>
 			</thead>
 			<tbody class="divide-y divide-gray-200">
 				<?php foreach ($deliveries as $d): ?>
 				<tr class="hover:bg-gray-50 transition-colors" data-delivery-status="<?php echo strtolower($d['delivery_status']); ?>">
-					<td class="px-6 py-4">
+					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
 						<div class="flex items-center gap-2">
 							<div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
 								<span class="text-xs font-semibold text-orange-600">#<?php echo (int)$d['id']; ?></span>
@@ -533,7 +530,7 @@ foreach ($deliveries as $d) {
 						</div>
 					</td>
 					
-                    <td class="px-6 py-4">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
                                 <?php $ts = substr((string)($d['date_purchased'] ?? ''),0,19); $batchId = substr(sha1(($d['purchaser_id']??'').'|'.($d['supplier']??'').'|'.($d['payment_status']??'').'|'.($d['receipt_url']??'').'|'.$ts),0,10); ?>

@@ -75,28 +75,28 @@ if ($user) {
 		<!-- Sidebar -->
 		<div
 			id="sidebar"
-			class="theme-sidebar fixed inset-y-0 z-40 flex w-64 lg:w-72 flex-col shadow-lg transition-transform duration-300 -translate-x-full md:relative md:flex-shrink-0 md:translate-x-0 md:shadow-none sidebar-tablet-visible">
+			class="theme-sidebar fixed inset-y-0 z-40 flex w-56 md:w-64 lg:w-72 flex-col shadow-lg transition-transform duration-300 -translate-x-full md:relative md:flex-shrink-0 md:translate-x-0 md:shadow-none sidebar-tablet-visible">
 			<!-- Logo -->
-			<div class="p-6 flex items-center justify-between">
-				<div class="flex items-center gap-4">
-					<img src="<?php echo htmlspecialchars($logoOverride ?: $defaultLogo); ?>" alt="<?php echo htmlspecialchars($companyName); ?> logo" class="w-10 h-10 object-cover rounded-xl shadow-sm bg-white">
+			<div class="p-4 md:p-5 lg:p-6 flex items-center justify-between">
+				<div class="flex items-center gap-3 md:gap-4">
+					<img src="<?php echo htmlspecialchars($logoOverride ?: $defaultLogo); ?>" alt="<?php echo htmlspecialchars($companyName); ?> logo" class="w-8 h-8 md:w-10 md:h-10 object-cover rounded-xl shadow-sm bg-white">
 					<div class="flex flex-col">
-						<span class="text-sm font-semibold text-gray-900">IKEA</span>
-						<span class="text-xs text-gray-600">Commissary</span>
+						<span class="text-xs md:text-sm font-semibold text-gray-900">IKEA</span>
+						<span class="text-[10px] md:text-xs text-gray-600">Commissary</span>
 					</div>
 				</div>
 				<div class="flex items-center gap-2">
-					<button type="button" id="sidebarToggleTablet" class="hidden md:inline-flex lg:hidden items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none transition-colors" aria-label="Toggle sidebar">
-						<i data-lucide="menu" class="w-5 h-5"></i>
+					<button type="button" id="sidebarToggleTablet" class="hidden md:inline-flex lg:hidden items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none transition-colors" aria-label="Toggle sidebar">
+						<i data-lucide="menu" class="w-4 h-4 md:w-5 md:h-5"></i>
 					</button>
 					<button type="button" id="sidebarClose" class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none" aria-label="Close navigation">
-						<i data-lucide="x" class="w-5 h-5"></i>
+						<i data-lucide="x" class="w-4 h-4 md:w-5 md:h-5"></i>
 					</button>
 				</div>
 			</div>
 			
 			<!-- Navigation -->
-			<nav class="mt-12">
+			<nav class="mt-8 md:mt-12">
 				<?php 
 				$currentPage = $_SERVER['REQUEST_URI'] ?? '';
 				$role = $user['role'] ?? '';
@@ -129,16 +129,16 @@ if ($user) {
 				
 				foreach ($navItems as $item): 
 					$isActive = strpos($currentPage, $item['url']) !== false;
-					$classes = 'sidebar-link flex items-center gap-3 px-6 py-3 transition-colors duration-200' . ($isActive ? ' active' : '');
+					$classes = 'sidebar-link flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-3 transition-colors duration-200' . ($isActive ? ' active' : '');
 					$isPurchases = $item['url'] === '/purchases';
 				?>
 					<a href="<?php echo htmlspecialchars($baseUrl . $item['url']); ?>" class="<?php echo $classes; ?>">
 						<?php if ($isPurchases): ?>
-							<span class="text-lg font-bold text-current">₱</span>
+							<span class="text-base md:text-lg font-bold text-current">₱</span>
 						<?php else: ?>
-							<i data-lucide="<?php echo $item['icon']; ?>" class="w-5 h-5"></i>
+							<i data-lucide="<?php echo $item['icon']; ?>" class="w-4 h-4 md:w-5 md:h-5"></i>
 						<?php endif; ?>
-						<span class="text-sm font-medium"><?php echo $item['label']; ?></span>
+						<span class="text-xs md:text-sm font-medium"><?php echo $item['label']; ?></span>
 					</a>
 				<?php endforeach; ?>
 			</nav>
@@ -148,9 +148,9 @@ if ($user) {
 		<div class="flex-1 flex flex-col transition-all duration-300">
 			<!-- Top Header -->
 			<header class="bg-white border-b theme-header relative z-10" style="z-index: 10;">
-				<div class="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8 xl:px-10">
+				<div class="mx-auto flex w-full max-w-7xl flex-col gap-3 md:gap-4 px-4 py-3 md:py-4 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8 xl:px-10">
 					<div class="flex-1 min-w-0">
-						<h1 class="text-2xl font-bold text-gray-800 truncate"><?php echo $pageTitle ?? 'Dashboard'; ?></h1>
+						<h1 class="text-lg md:text-xl lg:text-2xl font-bold text-gray-800 truncate"><?php echo $pageTitle ?? 'Dashboard'; ?></h1>
 					</div>
 					<div class="flex w-full flex-col gap-3 sm:flex-row sm:items-center md:w-auto md:ml-auto">
 						<div class="flex items-center justify-between gap-3 w-full sm:w-auto">

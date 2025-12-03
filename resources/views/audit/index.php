@@ -73,56 +73,52 @@ foreach ($logs as $log) {
 	}
 }
 ?>
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8">
 	<!-- Total Logs -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-		<div class="flex items-center justify-between">
-			<div>
-				<p class="text-sm font-medium text-gray-600">Total Logs</p>
-				<p class="text-2xl font-bold text-gray-900"><?php echo $totalLogs; ?></p>
-			</div>
-			<div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-				<i data-lucide="file-text" class="w-6 h-6 text-gray-600"></i>
-			</div>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
+		<div class="absolute top-3 md:top-4 right-3 md:right-4">
+			<i data-lucide="file-text" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-gray-600"></i>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">TOTAL LOGS</h3>
+			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-gray-900 mb-1.5 md:mb-2"><?php echo $totalLogs; ?></div>
+			<p class="text-xs md:text-sm text-gray-600">All audit entries</p>
 		</div>
 	</div>
 	
 	<!-- Today's Logs -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-		<div class="flex items-center justify-between">
-			<div>
-				<p class="text-sm font-medium text-gray-600">Today's Activity</p>
-				<p class="text-2xl font-bold text-blue-600"><?php echo $todayLogs; ?></p>
-			</div>
-			<div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-				<i data-lucide="calendar" class="w-6 h-6 text-blue-600"></i>
-			</div>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
+		<div class="absolute top-3 md:top-4 right-3 md:right-4">
+			<i data-lucide="calendar" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-blue-600"></i>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">TODAY'S ACTIVITY</h3>
+			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-blue-600 mb-1.5 md:mb-2"><?php echo $todayLogs; ?></div>
+			<p class="text-xs md:text-sm text-gray-600">Today's actions</p>
 		</div>
 	</div>
 	
 	<!-- Active Users -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-		<div class="flex items-center justify-between">
-			<div>
-				<p class="text-sm font-medium text-gray-600">Active Users</p>
-				<p class="text-2xl font-bold text-green-600"><?php echo $uniqueUsers; ?></p>
-			</div>
-			<div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-				<i data-lucide="users" class="w-6 h-6 text-green-600"></i>
-			</div>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
+		<div class="absolute top-3 md:top-4 right-3 md:right-4">
+			<i data-lucide="users" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-green-600"></i>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">ACTIVE USERS</h3>
+			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-green-600 mb-1.5 md:mb-2"><?php echo $uniqueUsers; ?></div>
+			<p class="text-xs md:text-sm text-gray-600">Unique users</p>
 		</div>
 	</div>
 	
 	<!-- Modules Tracked -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-		<div class="flex items-center justify-between">
-			<div>
-				<p class="text-sm font-medium text-gray-600">Modules Tracked</p>
-				<p class="text-2xl font-bold text-purple-600"><?php echo $uniqueModules; ?></p>
-			</div>
-			<div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-				<i data-lucide="layers" class="w-6 h-6 text-purple-600"></i>
-			</div>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
+		<div class="absolute top-3 md:top-4 right-3 md:right-4">
+			<i data-lucide="layers" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-purple-600"></i>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">MODULES TRACKED</h3>
+			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-purple-600 mb-1.5 md:mb-2"><?php echo $uniqueModules; ?></div>
+			<p class="text-xs md:text-sm text-gray-600">Tracked modules</p>
 		</div>
 	</div>
 </div>
@@ -307,16 +303,15 @@ foreach ($logs as $log) {
 		</div>
 	</div>
 	
-	<div class="overflow-x-auto">
-		<div class="max-h-[32rem] overflow-y-auto custom-scroll">
-		<table class="w-full text-sm min-w-[720px]">
-			<thead class="bg-gray-50">
+	<div class="overflow-x-auto overflow-y-auto max-h-[500px] md:max-h-[600px]">
+		<table class="w-full text-[10px] md:text-xs lg:text-sm" style="min-width: 100%;">
+			<thead class="sticky top-0 bg-white z-10">
 				<tr>
-					<th class="text-left px-6 py-3 font-medium text-gray-700">Timestamp</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700">User</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700">Module</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700">Action</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700">Details</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Timestamp</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">User</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Module</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Action</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Details</th>
 				</tr>
 			</thead>
 			<tbody class="divide-y divide-gray-200">
@@ -354,14 +349,14 @@ foreach ($logs as $log) {
 					}
 				?>
 				<tr class="hover:bg-gray-50 transition-colors">
-					<td class="px-6 py-4">
+					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
 						<div class="flex items-center gap-2">
 							<i data-lucide="clock" class="w-4 h-4 text-gray-400"></i>
 							<span class="text-gray-600 font-mono text-xs"><?php echo htmlspecialchars($log['timestamp']); ?></span>
 						</div>
 					</td>
 					
-					<td class="px-6 py-4">
+					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
 						<div class="flex items-start gap-2">
 							<div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
 								<span class="text-xs font-semibold text-gray-600"><?php echo htmlspecialchars($initials); ?></span>
@@ -386,14 +381,14 @@ foreach ($logs as $log) {
 						</div>
 					</td>
 					
-					<td class="px-6 py-4">
+					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
 						<span class="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-medium">
 							<i data-lucide="layers" class="w-3 h-3"></i>
 							<?php echo htmlspecialchars($log['module']); ?>
 						</span>
 					</td>
 					
-					<td class="px-6 py-4">
+					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
 						<?php 
 						$actionClass = match(strtolower($log['action'])) {
 							'create', 'add', 'insert' => 'bg-green-100 text-green-800',
@@ -416,7 +411,7 @@ foreach ($logs as $log) {
 						</span>
 					</td>
 					
-					<td class="px-6 py-4">
+					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
 						<?php
 						$detailsBlockId = 'details-' . (int)$log['id'];
 						?>

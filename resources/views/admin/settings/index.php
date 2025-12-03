@@ -93,32 +93,32 @@ $widgetsByRole = function (string $role) use ($widgetSettings, $dashboardWidgets
 								</ul>
 							</div>
 						</div>
-						<div class="overflow-x-auto">
-							<table class="min-w-full text-sm">
-								<thead class="bg-gray-50">
+						<div class="overflow-x-auto overflow-y-auto max-h-[500px] md:max-h-[600px]">
+							<table class="w-full text-[10px] md:text-xs lg:text-sm" style="min-width: 100%;">
+								<thead class="sticky top-0 bg-white z-10">
 									<tr>
-										<th class="px-3 py-2 text-left text-xs font-semibold text-gray-500">User</th>
-										<th class="px-3 py-2 text-left text-xs font-semibold text-gray-500">Role</th>
-										<th class="px-3 py-2 text-left text-xs font-semibold text-gray-500">Status</th>
-										<th class="px-3 py-2 text-left text-xs font-semibold text-gray-500">Actions</th>
+										<th class="px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-left font-semibold text-gray-500 bg-white text-[10px] md:text-xs lg:text-sm">User</th>
+										<th class="px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-left font-semibold text-gray-500 bg-white text-[10px] md:text-xs lg:text-sm">Role</th>
+										<th class="px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-left font-semibold text-gray-500 bg-white text-[10px] md:text-xs lg:text-sm">Status</th>
+										<th class="px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-left font-semibold text-gray-500 bg-white text-[10px] md:text-xs lg:text-sm">Actions</th>
 									</tr>
 								</thead>
 								<tbody class="divide-y divide-gray-100">
 									<?php foreach ($users as $u): ?>
 										<tr>
-											<td class="px-3 py-3">
+											<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
 												<p class="font-semibold text-gray-900"><?php echo htmlspecialchars($u['name']); ?></p>
 												<p class="text-xs text-gray-500"><?php echo htmlspecialchars($u['email']); ?></p>
 											</td>
-											<td class="px-3 py-3 text-gray-700"><?php echo htmlspecialchars($u['role']); ?></td>
-											<td class="px-3 py-3">
+											<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm text-gray-700"><?php echo htmlspecialchars($u['role']); ?></td>
+											<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
 												<?php $status = $u['status'] ?? 'active'; ?>
 												<span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold <?php echo $status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'; ?>">
 													<i data-lucide="<?php echo $status === 'active' ? 'check' : 'slash'; ?>" class="w-3 h-3"></i>
 													<?php echo ucfirst($status); ?>
 												</span>
 											</td>
-											<td class="px-3 py-3 space-y-2">
+											<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm space-y-2">
 												<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/users/reset-password" class="flex gap-2 items-center">
 													<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 													<input type="hidden" name="id" value="<?php echo (int)$u['id']; ?>">
@@ -187,23 +187,23 @@ $widgetsByRole = function (string $role) use ($widgetSettings, $dashboardWidgets
 								<p class="text-sm text-gray-500">Toggle access to financial data, receipts, and critical tooling.</p>
 							</div>
 						</div>
-						<div class="overflow-x-auto border border-gray-200 rounded-xl">
-							<table class="min-w-full text-sm">
-								<thead class="bg-gray-50">
+						<div class="overflow-x-auto overflow-y-auto max-h-[500px] md:max-h-[600px] border border-gray-200 rounded-xl">
+							<table class="w-full text-[10px] md:text-xs lg:text-sm" style="min-width: 100%;">
+								<thead class="sticky top-0 bg-white z-10">
 									<tr>
-										<th class="px-3 py-2 text-left font-semibold text-xs text-gray-500">Role</th>
+										<th class="px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-left font-semibold text-gray-500 bg-white text-[10px] md:text-xs lg:text-sm">Role</th>
 										<?php foreach ($permissionKeys as $perm): ?>
-											<th class="px-3 py-2 text-center font-semibold text-xs text-gray-500"><?php echo ucwords(str_replace('_', ' ', $perm)); ?></th>
+											<th class="px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-center font-semibold text-gray-500 bg-white text-[10px] md:text-xs lg:text-sm"><?php echo ucwords(str_replace('_', ' ', $perm)); ?></th>
 										<?php endforeach; ?>
 									</tr>
 								</thead>
 								<tbody class="divide-y divide-gray-100">
 									<?php foreach ($roles as $role): ?>
 										<tr>
-											<td class="px-3 py-3 font-semibold text-gray-800"><?php echo htmlspecialchars($role); ?></td>
+											<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm font-semibold text-gray-800"><?php echo htmlspecialchars($role); ?></td>
 											<?php foreach ($permissionKeys as $perm): ?>
 												<?php $checked = !empty($permissionMatrix[$role][$perm]); ?>
-												<td class="px-3 py-3 text-center">
+												<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm text-center">
 													<label class="inline-flex items-center justify-center gap-2">
 														<input type="checkbox" name="permissions[<?php echo htmlspecialchars($role); ?>][<?php echo htmlspecialchars($perm); ?>]" value="1" class="accent-indigo-600" <?php echo $checked ? 'checked' : ''; ?>>
 													</label>

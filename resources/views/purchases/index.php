@@ -21,56 +21,52 @@ if (!empty($purchases)) {
 }
 ?>
 <?php if (!empty($purchases)): ?>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 md:mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8">
 	<!-- Total Purchases -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-		<div class="flex items-center justify-between">
-			<div>
-				<p class="text-sm font-medium text-gray-600">Total Purchases</p>
-				<p class="text-2xl font-bold text-gray-900"><?php echo count($purchases); ?></p>
-			</div>
-			<div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-				<i data-lucide="shopping-cart" class="w-6 h-6 text-purple-600"></i>
-			</div>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
+		<div class="absolute top-3 md:top-4 right-3 md:right-4">
+			<i data-lucide="shopping-cart" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-purple-600"></i>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">TOTAL PURCHASES</h3>
+			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-gray-900 mb-1.5 md:mb-2"><?php echo count($purchases); ?></div>
+			<p class="text-xs md:text-sm text-gray-600">All purchase transactions</p>
 		</div>
 	</div>
 	
 	<!-- Pending Payments -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-		<div class="flex items-center justify-between">
-			<div>
-				<p class="text-sm font-medium text-gray-600">Pending Payments</p>
-				<p class="text-2xl font-bold text-yellow-600"><?php echo $pendingCount; ?></p>
-			</div>
-			<div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-				<i data-lucide="clock" class="w-6 h-6 text-yellow-600"></i>
-			</div>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
+		<div class="absolute top-3 md:top-4 right-3 md:right-4">
+			<i data-lucide="clock" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-yellow-600"></i>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">PENDING PAYMENTS</h3>
+			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-yellow-600 mb-1.5 md:mb-2"><?php echo $pendingCount; ?></div>
+			<p class="text-xs md:text-sm text-gray-600">Awaiting payment</p>
 		</div>
 	</div>
 	
 	<!-- Paid Purchases -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-		<div class="flex items-center justify-between">
-			<div>
-				<p class="text-sm font-medium text-gray-600">Paid Purchases</p>
-				<p class="text-2xl font-bold text-green-600"><?php echo count($purchases) - $pendingCount; ?></p>
-			</div>
-			<div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-				<i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
-			</div>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
+		<div class="absolute top-3 md:top-4 right-3 md:right-4">
+			<i data-lucide="check-circle" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-green-600"></i>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">PAID PURCHASES</h3>
+			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-green-600 mb-1.5 md:mb-2"><?php echo count($purchases) - $pendingCount; ?></div>
+			<p class="text-xs md:text-sm text-gray-600">Completed payments</p>
 		</div>
 	</div>
 	
 	<!-- Total Cost -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-		<div class="flex items-center justify-between">
-			<div>
-				<p class="text-sm font-medium text-gray-600">Total Cost</p>
-				<p class="text-2xl font-bold text-blue-600">₱<?php echo number_format(array_sum(array_column($purchases, 'cost')), 2); ?></p>
-			</div>
-			<div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-				<span class="text-2xl font-bold text-blue-600">₱</span>
-			</div>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
+		<div class="absolute top-3 md:top-4 right-3 md:right-4">
+			<span class="text-xl md:text-2xl font-bold text-blue-600">₱</span>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">TOTAL COST</h3>
+			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-blue-600 mb-1.5 md:mb-2">₱<?php echo number_format(array_sum(array_column($purchases, 'cost')), 2); ?></div>
+			<p class="text-xs md:text-sm text-gray-600">Total expenses</p>
 		</div>
 	</div>
 </div>
@@ -259,33 +255,33 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
 		</div>
 	</div>
 	
-	<div class="overflow-x-auto">
-        <table class="w-full text-sm min-w-[700px]">
-			<thead class="bg-gray-50">
+	<div class="overflow-x-auto overflow-y-auto max-h-[500px] md:max-h-[600px]">
+        <table class="w-full text-[10px] md:text-xs lg:text-sm" style="min-width: 100%;">
+			<thead class="sticky top-0 bg-white z-10">
 				<tr>
-                    <th class="text-left px-6 py-3 font-medium text-gray-700">Batch</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700">Purchaser</th>
-                    <th class="text-left px-6 py-3 font-medium text-gray-700">Items</th>
-                    <th class="text-left px-6 py-3 font-medium text-gray-700">Total Qty</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700">Cost</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700">Supplier</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700">Payment</th>
-                    <th class="text-left px-6 py-3 font-medium text-gray-700">Receipt</th>
-                    <th class="text-left px-6 py-3 font-medium text-gray-700">Delivery Status</th>
-					<th class="text-left px-6 py-3 font-medium text-gray-700">Actions</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Batch</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Purchaser</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Items</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Total Qty</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Cost</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Supplier</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Payment</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Receipt</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Delivery Status</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Actions</th>
 				</tr>
 			</thead>
             <tbody class="divide-y divide-gray-200">
                 <?php foreach (($purchaseGroups ?? []) as $g): ?>
                 <tr class="hover:bg-gray-50 transition-colors" data-payment-status="<?php echo strtolower($g['payment_status'] ?? ''); ?>">
-                    <td class="px-6 py-4">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
                                 <span class="text-xs font-semibold text-purple-600">#<?php echo htmlspecialchars($g['group_id']); ?></span>
                             </div>
                         </div>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
                                 <span class="text-xs font-medium text-gray-600"><?php echo strtoupper(substr($g['purchaser_name'], 0, 2)); ?></span>
@@ -293,7 +289,7 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                             <span class="font-medium text-gray-900"><?php echo htmlspecialchars($g['purchaser_name']); ?></span>
                         </div>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <?php $count = count($g['items']); ?>
                         <div class="flex items-center gap-2">
                             <span class="font-medium text-gray-900"><?php echo $count; ?> item<?php echo $count>1?'s':''; ?></span>
@@ -304,7 +300,7 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                             <?php endif; ?>
                         </div>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <?php
                         // Use purchase_unit and purchase_quantity if available (show as entered, no conversion)
                         $first = $g['items'][0];
@@ -337,16 +333,16 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                             <span class="text-gray-500 text-sm"><?php echo htmlspecialchars($unitShow); ?></span>
                         </div>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <span class="text-lg font-bold text-gray-900">₱<?php echo number_format((float)$g['cost_sum'], 2); ?></span>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <span class="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-medium">
                             <i data-lucide="truck" class="w-3 h-3"></i>
                             <?php echo htmlspecialchars($g['supplier']); ?>
                         </span>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <?php 
                         $paymentClass = $g['payment_status'] === 'Paid' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200';
                         $paymentIcon = $g['payment_status'] === 'Paid' ? 'check-circle' : 'clock';
@@ -359,7 +355,7 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                             <p class="text-xs text-gray-500 mt-1">Paid on <?php echo htmlspecialchars(date('M j, Y g:i A', strtotime($g['paid_at']))); ?></p>
                         <?php endif; ?>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <?php if (!empty($g['receipt_url'])): ?>
                             <?php $fullUrl = (preg_match('#^https?://#', $g['receipt_url'])) ? $g['receipt_url'] : (rtrim($baseUrl, '/').'/'.ltrim($g['receipt_url'], '/')); ?>
                             <a href="<?php echo htmlspecialchars($fullUrl); ?>" target="_blank" class="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-xs font-medium">
@@ -370,7 +366,7 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                             <span class="text-gray-400 text-sm">No receipt</span>
                         <?php endif; ?>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <?php 
                         $deliveryPercentage = (float)$g['quantity_sum'] > 0 ? ($g['delivered_sum'] / (float)$g['quantity_sum']) * 100 : 0;
                         $deliveryStatus = $deliveryPercentage >= 100 ? 'Complete' : ($deliveryPercentage > 0 ? 'Partial' : 'Pending');
@@ -387,7 +383,7 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                             </div>
                         </div>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <?php if (Auth::role() !== 'Purchaser'): ?>
                             <a href="<?php echo htmlspecialchars($baseUrl); ?>/deliveries" class="inline-flex items-center gap-1 px-3 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
                                 <i data-lucide="truck" class="w-3 h-3"></i>

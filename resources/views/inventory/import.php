@@ -2,15 +2,13 @@
 $baseUrl = defined('BASE_URL') ? BASE_URL : '';
 ?>
 <!-- Page Header -->
-<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
-	<div>
-		<h1 class="text-3xl font-bold text-gray-900">Import Inventory from CSV</h1>
-		<p class="text-gray-600 mt-1">Upload a CSV file to import or update inventory items</p>
+<div class="bg-white rounded-2xl shadow-md border border-gray-200 p-3 md:p-4 lg:p-6 mb-5 md:mb-6">
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
+		<div>
+			<h1 class="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-0.5 md:mb-1">Import Inventory from CSV</h1>
+			<p class="text-[10px] md:text-xs lg:text-sm text-gray-600">Upload a CSV file to import or update inventory items</p>
+		</div>
 	</div>
-	<a href="<?php echo htmlspecialchars($baseUrl); ?>/inventory" class="inline-flex items-center gap-2 px-4 py-2 text-[12px] font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
-		<i data-lucide="arrow-left" class="w-4 h-4"></i>
-		Back to Inventory
-	</a>
 </div>
 
 <!-- Import Form -->
@@ -71,7 +69,7 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '';
 				<a href="<?php echo htmlspecialchars($baseUrl); ?>/inventory" class="inline-flex items-center gap-2 px-6 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
 					Cancel
 				</a>
-				<button type="submit" class="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+				<button type="submit" class="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
 					<i data-lucide="upload" class="w-4 h-4"></i>
 					Import Inventory
 				</button>
