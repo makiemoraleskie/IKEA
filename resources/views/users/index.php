@@ -9,7 +9,6 @@
 	</div>
 </div>
 
-
 <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-4 sm:p-6 mb-6">
 	<div class="flex flex-col gap-1 mb-4">
 		<h2 class="text-xl font-semibold text-gray-900">Create User</h2>

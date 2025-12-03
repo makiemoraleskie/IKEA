@@ -142,7 +142,6 @@ if ($user) {
 					</a>
 				<?php endforeach; ?>
 			</nav>
-			
 		</div>
 		
 		<!-- Main Content -->

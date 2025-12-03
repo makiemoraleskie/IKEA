@@ -15,7 +15,6 @@ $theme = $theme ?? 'system';
 		</a>
 	</div>
 
-
 	<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 space-y-8">
 		<div>
 			<h2 class="text-lg md:text-xl font-semibold text-gray-900 flex items-center gap-2">

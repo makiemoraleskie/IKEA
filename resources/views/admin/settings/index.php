@@ -43,7 +43,6 @@ $widgetsByRole = function (string $role) use ($widgetSettings, $dashboardWidgets
 		</div>
 	</div>
 
-
 	<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
 		<div class="xl:col-span-2 space-y-8">
 			<!-- Security & Accounts -->

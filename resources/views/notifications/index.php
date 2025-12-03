@@ -10,7 +10,6 @@
 	</a>
 </div>
 
-
 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
 	<div class="bg-gradient-to-r from-indigo-50 to-blue-50 px-6 py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 		<div>

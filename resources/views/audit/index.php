@@ -29,7 +29,6 @@ $currentQuery = http_build_query(array_filter($_GET ?? [], fn($value) => $value 
 	</div>
 </div>
 
-
 <!-- Summary Cards -->
 <?php
 $limitReached = $limitReached ?? false;

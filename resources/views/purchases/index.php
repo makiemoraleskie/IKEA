@@ -9,7 +9,6 @@
 	</div>
 </div>
 
-
 <!-- Summary Cards -->
 <?php 
 $pendingCount = 0;

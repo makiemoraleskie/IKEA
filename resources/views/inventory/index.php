@@ -207,7 +207,6 @@ if (!empty($lowStockGroups)) {
 	</div>
 </div>
 
-
 <!-- Purchase List Modal -->
 <div id="purchaseListModal" class="fixed inset-0 z-50 hidden">
 	<div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" data-purchase-list-dismiss></div>
@@ -843,9 +842,17 @@ document.addEventListener('DOMContentLoaded', function() {
 				</td>
 				<td class="px-6 py-4">
 					<div class="space-y-1">
-						<div class="flex items-center gap-2">
+						<div class="flex items-center gap-2 flex-wrap">
 							<span class="font-semibold text-gray-900">${formatNumber(ing.quantity)}</span>
 							<span class="text-gray-500 text-sm">${escapeHtml(ing.unit || '')}</span>
+							${(() => {
+								// Show converted display unit if available
+								if (ing.display_unit && ing.display_factor && ing.display_factor > 0) {
+									const displayQty = ing.quantity / ing.display_factor;
+									return `<span class="text-gray-400 text-sm">(${formatNumber(displayQty)} ${escapeHtml(ing.display_unit)})</span>`;
+								}
+								return '';
+							})()}
 						</div>
 						<div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
 							<div class="h-full ${barColor} transition-all duration-300" style="width: ${ing.percentage}%"></div>
@@ -854,9 +861,17 @@ document.addEventListener('DOMContentLoaded', function() {
 					</div>
 				</td>
 				<td class="px-6 py-4">
-					<div class="flex items-center gap-2">
+					<div class="flex items-center gap-2 flex-wrap">
 						<span class="text-gray-700">${formatNumber(ing.reorderLevel)}</span>
 						<span class="text-gray-500 text-sm">${escapeHtml(ing.unit || '')}</span>
+						${(() => {
+							// Show converted display unit for reorder level if available
+							if (ing.display_unit && ing.display_factor && ing.display_factor > 0) {
+								const displayReorder = ing.reorderLevel / ing.display_factor;
+								return `<span class="text-gray-400 text-sm">(${formatNumber(displayReorder)} ${escapeHtml(ing.display_unit)})</span>`;
+							}
+							return '';
+						})()}
 					</div>
 				</td>
 				<td class="px-6 py-4">
