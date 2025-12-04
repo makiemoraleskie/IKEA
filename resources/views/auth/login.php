@@ -524,11 +524,11 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	}
 	
-	// Show modal if there's an error or status message
+	// Show modal if there's an error or status message - show immediately
 	<?php if (!empty($errorMessage)): ?>
-		showModal(<?php echo json_encode($errorMessage); ?>, 'error');
+		setTimeout(() => showModal(<?php echo json_encode($errorMessage); ?>, 'error'), 100);
 	<?php elseif (!empty($statusMessage)): ?>
-		showModal(<?php echo json_encode($statusMessage); ?>, 'info');
+		setTimeout(() => showModal(<?php echo json_encode($statusMessage); ?>, 'info'), 100);
 	<?php endif; ?>
 	
 	// Login button loading state

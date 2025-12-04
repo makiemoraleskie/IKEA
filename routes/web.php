@@ -5,6 +5,7 @@ return [
 	'GET' => [
 		'/' => ['DashboardController', 'index'],
 		'/login' => ['AuthController', 'showLogin'],
+		'/auth/check-session' => ['AuthController', 'checkSession'],
 		'/dashboard' => ['DashboardController', 'index'],
 		'/requests' => ['RequestController', 'index'],
 		'/purchases' => ['PurchaseController', 'index'],
