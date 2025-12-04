@@ -58,6 +58,56 @@ class AuthController extends BaseController
 		Auth::logout();
 		$this->redirect('/login');
 	}
+
+	public function checkSession(): void
+	{
+		header('Content-Type: application/json');
+		
+		if (!Auth::check()) {
+			echo json_encode([
+				'authenticated' => false,
+				'reason' => 'not_logged_in',
+				'message' => 'You are not logged in.'
+			]);
+			return;
+		}
+
+		$user = Auth::user();
+		$security = new UserSecurity();
+		$record = $security->get((int)($user['id'] ?? 0));
+		$status = $record['status'] ?? 'active';
+		
+		if ($status !== 'active') {
+			echo json_encode([
+				'authenticated' => false,
+				'reason' => 'disabled',
+				'message' => 'Your account has been disabled. Please contact an administrator.'
+			]);
+			return;
+		}
+
+		// Check session token validity
+		$sessionToken = $_SESSION['session_token'] ?? '';
+		$dbToken = $record['session_token'] ?? '';
+		
+		if ($dbToken === '' || !hash_equals($dbToken, $sessionToken)) {
+			echo json_encode([
+				'authenticated' => false,
+				'reason' => 'expired',
+				'message' => 'Your session has expired. Please sign in again.'
+			]);
+			return;
+		}
+
+		echo json_encode([
+			'authenticated' => true,
+			'user' => [
+				'id' => $user['id'] ?? null,
+				'name' => $user['name'] ?? '',
+				'role' => $user['role'] ?? ''
+			]
+		]);
+	}
 }
 
 

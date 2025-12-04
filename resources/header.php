@@ -396,6 +396,132 @@ if ($user) {
 			})();
 			</script>
 			
+			<!-- Session Expiration Modal -->
+			<div id="sessionExpiredModal" class="fixed inset-0 z-[99999] hidden items-center justify-center p-4" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; z-index: 99999 !important; background: rgba(0, 0, 0, 0.6) !important;">
+				<div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4">
+					<div class="flex items-center gap-4">
+						<div class="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+							<i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+						</div>
+						<div class="flex-1">
+							<h3 class="text-lg font-semibold text-gray-900" id="sessionModalTitle">Session Expired</h3>
+							<p class="text-sm text-gray-600 mt-1" id="sessionModalMessage">Your session has expired. Please sign in again.</p>
+						</div>
+					</div>
+					<div class="flex justify-end gap-3 pt-4 border-t">
+						<a href="<?php echo htmlspecialchars($baseUrl); ?>/login" class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+							<i data-lucide="log-in" class="w-4 h-4"></i>
+							Go to Login
+						</a>
+					</div>
+				</div>
+			</div>
+			
+			<script>
+			// Session Monitoring
+			(function() {
+				if (!document.getElementById('sessionExpiredModal')) return;
+				
+				const baseUrl = '<?php echo htmlspecialchars($baseUrl); ?>';
+				const modal = document.getElementById('sessionExpiredModal');
+				const modalTitle = document.getElementById('sessionModalTitle');
+				const modalMessage = document.getElementById('sessionModalMessage');
+				let checkInterval = null;
+				let isChecking = false;
+				let redirectTimer = null;
+				
+				function showSessionModal(reason, message) {
+					if (!modal || modal.classList.contains('flex')) return; // Already showing
+					
+					// Set modal content
+					if (reason === 'disabled') {
+						modalTitle.textContent = 'Account Disabled';
+						modalMessage.textContent = message || 'Your account has been disabled. Please contact an administrator.';
+					} else if (reason === 'expired') {
+						modalTitle.textContent = 'Session Expired';
+						modalMessage.textContent = message || 'Your session has expired. Please sign in again.';
+					} else {
+						modalTitle.textContent = 'Session Error';
+						modalMessage.textContent = message || 'Your session is no longer valid. Please sign in again.';
+					}
+					
+					// Show modal
+					modal.classList.remove('hidden');
+					modal.classList.add('flex');
+					document.body.classList.add('overflow-hidden');
+					
+					// Initialize icons
+					if (typeof lucide !== 'undefined') {
+						lucide.createIcons();
+					}
+					
+					// Auto-redirect after 5 seconds
+					redirectTimer = setTimeout(() => {
+						window.location.href = baseUrl + '/login?status=' + encodeURIComponent(reason);
+					}, 5000);
+				}
+				
+				function checkSession() {
+					if (isChecking) return;
+					isChecking = true;
+					
+					fetch(baseUrl + '/auth/check-session', {
+						method: 'GET',
+						credentials: 'same-origin',
+						headers: {
+							'X-Requested-With': 'XMLHttpRequest'
+						}
+					})
+					.then(response => {
+						if (!response.ok) {
+							throw new Error('Network response was not ok');
+						}
+						return response.json();
+					})
+					.then(data => {
+						if (!data.authenticated) {
+							// Stop checking
+							if (checkInterval) {
+								clearInterval(checkInterval);
+								checkInterval = null;
+							}
+							
+							// Show modal
+							showSessionModal(data.reason || 'expired', data.message);
+						}
+					})
+					.catch(error => {
+						// Network errors or other issues - don't show modal for these
+						// Only show if it's a 401/403 which might indicate auth issues
+						console.warn('Session check failed:', error);
+					})
+					.finally(() => {
+						isChecking = false;
+					});
+				}
+				
+				// Start checking session every 30 seconds
+				checkInterval = setInterval(checkSession, 30000);
+				
+				// Also check on page visibility change (when user comes back to tab)
+				document.addEventListener('visibilitychange', () => {
+					if (!document.hidden && !isChecking) {
+						checkSession();
+					}
+				});
+				
+				// Check on focus
+				window.addEventListener('focus', () => {
+					if (!isChecking) {
+						checkSession();
+					}
+				});
+				
+				// Initial check after 5 seconds (give page time to load)
+				setTimeout(checkSession, 5000);
+			})();
+			</script>
+			
 			<!-- Main Content Area -->
 			<main class="flex-1 overflow-y-auto" style="background-color: #f9fafb;">
 				<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 space-y-8">
