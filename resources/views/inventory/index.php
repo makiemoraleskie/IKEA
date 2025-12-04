@@ -227,6 +227,9 @@ foreach ($ingredients as $ing) {
 						</div>
 					</th>
 					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Status</th>
+					<?php if ($canManageInventory): ?>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Action</th>
+					<?php endif; ?>
 				</tr>
 			</thead>
 			<tbody id="inventoryTableBody" class="divide-y divide-gray-200">
@@ -419,6 +422,43 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 });
 </script>
+
+<!-- Delete Ingredient Confirmation Modal -->
+<?php if ($canManageInventory): ?>
+<div id="deleteIngredientModal" class="fixed inset-0 z-50 hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 50 !important;">
+    <div class="fixed inset-0 bg-black/50" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
+    <div class="relative z-10 flex min-h-full items-center justify-center p-4 overflow-x-hidden">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full max-w-[calc(100vw-2rem)] mx-auto">
+            <div class="p-6">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold text-gray-900">Delete Ingredient</h3>
+                        <p class="text-sm text-gray-600 mt-1">Are you sure you want to delete this ingredient from the inventory?</p>
+                    </div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 mb-4">
+                    <p class="text-sm font-medium text-gray-900" id="deleteIngredientName"></p>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button type="button" id="cancelDeleteIngredientBtn" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium">
+                        Cancel
+                    </button>
+                    <form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/delete" id="deleteIngredientForm" class="inline">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+                        <input type="hidden" name="ingredient_id" id="deleteIngredientId" value="">
+                        <button type="submit" id="confirmDeleteIngredientBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
+                            Delete Ingredient
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 
 <script>
 document.addEventListener('DOMContentLoaded', function(){
@@ -915,6 +955,13 @@ document.addEventListener('DOMContentLoaded', function() {
 						${ing.low ? 'Low Stock' : 'In Stock'}
 					</span>
 				</td>
+				${<?php echo $canManageInventory ? 'true' : 'false'; ?> ? `
+				<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
+					<button type="button" class="delete-ingredient-btn inline-flex items-center justify-center w-7 h-7 md:w-8 md:h-8 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors" data-ingredient-id="${ing.id}" data-ingredient-name="${escapeHtml(ing.name || '')}" title="Delete ingredient">
+						<i data-lucide="trash-2" class="w-4 h-4 md:w-4 md:h-4"></i>
+					</button>
+				</td>
+				` : ''}
 			</tr>
 		`;
 	}
@@ -1107,11 +1154,60 @@ document.addEventListener('DOMContentLoaded', function() {
 			if (sortSelect) {
 				sortSelect.value = currentSort;
 			}
-			sortRows();
+			sortIngredients();
 			currentPage = 1;
 			renderTable();
 		});
 	});
+	
+	// Delete ingredient modal handlers
+	<?php if ($canManageInventory): ?>
+	const deleteIngredientModal = document.getElementById('deleteIngredientModal');
+	const deleteIngredientName = document.getElementById('deleteIngredientName');
+	const deleteIngredientId = document.getElementById('deleteIngredientId');
+	const cancelDeleteIngredientBtn = document.getElementById('cancelDeleteIngredientBtn');
+	
+	function openDeleteModal(ingredientId, ingredientName) {
+		if (!deleteIngredientModal || !deleteIngredientName || !deleteIngredientId) return;
+		deleteIngredientName.textContent = ingredientName;
+		deleteIngredientId.value = ingredientId;
+		deleteIngredientModal.classList.remove('hidden');
+		if (window.lucide?.createIcons) {
+			window.lucide.createIcons({ elements: deleteIngredientModal.querySelectorAll('i[data-lucide]') });
+		}
+	}
+	
+	function closeDeleteModal() {
+		if (deleteIngredientModal) deleteIngredientModal.classList.add('hidden');
+	}
+	
+	// Handle delete button clicks (delegated event listener on table body)
+	if (tableBody) {
+		tableBody.addEventListener('click', (e) => {
+			const deleteBtn = e.target.closest('.delete-ingredient-btn');
+			if (deleteBtn) {
+				e.preventDefault();
+				const ingredientId = deleteBtn.getAttribute('data-ingredient-id');
+				const ingredientName = deleteBtn.getAttribute('data-ingredient-name');
+				if (ingredientId && ingredientName) {
+					openDeleteModal(ingredientId, ingredientName);
+				}
+			}
+		});
+	}
+	
+	if (cancelDeleteIngredientBtn) {
+		cancelDeleteIngredientBtn.addEventListener('click', closeDeleteModal);
+	}
+	
+	if (deleteIngredientModal) {
+		deleteIngredientModal.addEventListener('click', (e) => {
+			if (e.target === deleteIngredientModal || e.target.classList.contains('bg-black')) {
+				closeDeleteModal();
+			}
+		});
+	}
+	<?php endif; ?>
 	
 	// Initialize
 	sortIngredients();
