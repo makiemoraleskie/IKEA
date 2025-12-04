@@ -3,11 +3,11 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '';
 $deliveredTotals = $deliveredTotals ?? [];
 ?>
 <!-- Page Header -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
-	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6">
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
 		<div>
-			<h1 class="text-xl md:text-2xl font-bold text-gray-900 mb-1">Delivery Management</h1>
-			<p class="text-xs md:text-sm text-gray-600">Record and track ingredient deliveries</p>
+			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1">Delivery Management</h1>
+			<p class="text-[10px] md:text-xs text-gray-600">Record and track ingredient deliveries</p>
 		</div>
 	</div>
 </div>
@@ -29,38 +29,38 @@ foreach ($deliveries as $d) {
 ?>
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8">
 	<!-- Total Deliveries -->
-	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
-		<div class="absolute top-3 md:top-4 right-3 md:right-4">
-			<i data-lucide="truck" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-blue-600"></i>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
+			<i data-lucide="truck" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-blue-600"></i>
 		</div>
 		<div class="flex flex-col">
-			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">TOTAL DELIVERIES</h3>
-			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-gray-900 mb-1.5 md:mb-2"><?php echo $totalDeliveries; ?></div>
-			<p class="text-xs md:text-sm text-gray-600">All delivery records</p>
+			<h3 class="text-[9px] md:text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 md:mb-2">TOTAL DELIVERIES</h3>
+			<div class="text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-gray-900 mb-1 md:mb-1.5"><?php echo $totalDeliveries; ?></div>
+			<p class="text-[10px] md:text-xs text-gray-600">All delivery records</p>
 		</div>
 	</div>
 	
 	<!-- Complete Deliveries -->
-	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
-		<div class="absolute top-3 md:top-4 right-3 md:right-4">
-			<i data-lucide="check-circle" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-green-600"></i>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
+			<i data-lucide="check-circle" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-green-600"></i>
 		</div>
 		<div class="flex flex-col">
-			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">COMPLETE DELIVERIES</h3>
-			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-green-600 mb-1.5 md:mb-2"><?php echo $completeDeliveries; ?></div>
-			<p class="text-xs md:text-sm text-gray-600">Fully delivered</p>
+			<h3 class="text-[9px] md:text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 md:mb-2">COMPLETE DELIVERIES</h3>
+			<div class="text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-green-600 mb-1 md:mb-1.5"><?php echo $completeDeliveries; ?></div>
+			<p class="text-[10px] md:text-xs text-gray-600">Fully delivered</p>
 		</div>
 	</div>
 	
 	<!-- Partial Deliveries -->
-	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
-		<div class="absolute top-3 md:top-4 right-3 md:right-4">
-			<i data-lucide="clock" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-yellow-600"></i>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
+			<i data-lucide="clock" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-yellow-600"></i>
 		</div>
 		<div class="flex flex-col">
-			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">PARTIAL DELIVERIES</h3>
-			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-yellow-600 mb-1.5 md:mb-2"><?php echo $partialDeliveries; ?></div>
-			<p class="text-xs md:text-sm text-gray-600">Incomplete shipments</p>
+			<h3 class="text-[9px] md:text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 md:mb-2">PARTIAL DELIVERIES</h3>
+			<div class="text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-yellow-600 mb-1 md:mb-1.5"><?php echo $partialDeliveries; ?></div>
+			<p class="text-[10px] md:text-xs text-gray-600">Incomplete shipments</p>
 		</div>
 	</div>
 </div>
@@ -69,11 +69,11 @@ foreach ($deliveries as $d) {
 <!-- Record Delivery Form -->
 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-6 md:mb-8 overflow-hidden">
 	<div class="bg-gradient-to-r from-orange-50 to-red-50 px-4 sm:px-6 py-4 border-b">
-		<h2 class="text-lg md:text-xl font-semibold text-gray-900 flex items-center gap-2">
-			<i data-lucide="package-check" class="w-5 h-5 text-orange-600"></i>
+		<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
+			<i data-lucide="package-check" class="w-3.5 h-3.5 md:w-4 md:h-4 text-orange-600"></i>
 			Record New Delivery
 		</h2>
-		<p class="text-sm text-gray-600 mt-1">Record a delivery for an existing purchase</p>
+		<p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Record a delivery for an existing purchase</p>
 	</div>
 	
     <form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/deliveries" class="p-4 sm:p-6" id="deliveriesForm">

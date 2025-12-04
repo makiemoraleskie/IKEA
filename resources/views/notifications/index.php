@@ -1,11 +1,11 @@
 <?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
-<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6 md:mb-8">
+<div class="flex flex-col gap-3 md:gap-4 md:flex-row md:items-center md:justify-between mb-4 md:mb-6">
 	<div>
-		<h1 class="text-2xl md:text-3xl font-bold text-gray-900">Notifications</h1>
-		<p class="text-sm md:text-base text-gray-600 mt-1">Review all recent updates and alerts</p>
+		<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900">Notifications</h1>
+		<p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Review all recent updates and alerts</p>
 	</div>
-	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-		<i data-lucide="arrow-left" class="w-4 h-4"></i>
+	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-1 md:gap-1.5 px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+		<i data-lucide="arrow-left" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
 		Back to Dashboard
 	</a>
 </div>
@@ -13,11 +13,11 @@
 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
 	<div class="bg-gradient-to-r from-indigo-50 to-blue-50 px-6 py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 		<div>
-			<h2 class="text-lg md:text-xl font-semibold text-gray-900 flex items-center gap-2">
-				<i data-lucide="bell" class="w-5 h-5 text-indigo-600"></i>
+			<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
+				<i data-lucide="bell" class="w-3.5 h-3.5 md:w-4 md:h-4 text-indigo-600"></i>
 				Activity Feed
 			</h2>
-			<p class="text-sm text-gray-600 mt-1">Latest 50 notifications for your account.</p>
+			<p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Latest 50 notifications for your account.</p>
 		</div>
 		<div class="flex flex-wrap items-center gap-3 text-sm text-gray-500">
 			<span><?php echo count($notifications ?? []); ?> entries</span>

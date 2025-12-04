@@ -21,11 +21,11 @@ function formatDate($dateString) {
 }
 ?>
 <!-- Page Header -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
-	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6">
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
 		<div>
-			<h1 class="text-xl md:text-2xl font-bold text-gray-900 mb-1">Ingredient Requests</h1>
-			<p class="text-xs md:text-sm text-gray-600">Manage ingredient requests and batch approvals</p>
+			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1">Ingredient Requests</h1>
+			<p class="text-[10px] md:text-xs text-gray-600">Manage ingredient requests and batch approvals</p>
 		</div>
 	</div>
 </div>
@@ -33,8 +33,8 @@ function formatDate($dateString) {
 <?php if (in_array(Auth::role(), ['Kitchen Staff','Manager','Owner'], true)): ?>
 <!-- New Request Button -->
 <div class="mb-4 md:mb-8">
-	<button type="button" id="newRequestBtn" class="inline-flex items-center gap-1.5 md:gap-2 bg-green-600 text-white px-3 md:px-6 py-2 md:py-3 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-sm md:text-base">
-		<i data-lucide="plus-circle" class="w-4 h-4 md:w-5 md:h-5"></i>
+	<button type="button" id="newRequestBtn" class="inline-flex items-center gap-1 md:gap-1.5 bg-green-600 text-white px-2.5 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-xs md:text-sm">
+		<i data-lucide="plus-circle" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
 		New Batch Request
 	</button>
 </div>
@@ -44,37 +44,37 @@ function formatDate($dateString) {
 	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
 		<div class="flex items-center justify-between px-4 md:px-5 lg:px-6 py-4 border-b">
 			<div>
-				<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-					<i data-lucide="plus-circle" class="w-5 h-5 text-green-600"></i>
+				<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
+					<i data-lucide="plus-circle" class="w-3.5 h-3.5 md:w-4 md:h-4 text-green-600"></i>
 					New Batch Request
 				</h2>
-				<p class="text-sm text-gray-600 mt-1">Describe what you need and when it's required.</p>
+				<p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Describe what you need and when it's required.</p>
 			</div>
-			<button type="button" id="closeNewRequestModal" class="text-gray-500 hover:text-gray-700 text-2xl leading-none" aria-label="Close">&times;</button>
+			<button type="button" id="closeNewRequestModal" class="text-gray-500 hover:text-gray-700 text-xl md:text-2xl leading-none" aria-label="Close">&times;</button>
 		</div>
-		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests" class="p-4 md:p-5 lg:p-6 space-y-4 md:space-y-5 lg:space-y-6">
+		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests" class="p-3 md:p-4 lg:p-5 space-y-3 md:space-y-4 lg:space-y-5">
 			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-				<div class="space-y-2">
-					<label class="block text-sm font-medium text-gray-700">Name</label>
-					<input name="requester_name" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-gray-500 focus:border-gray-500" placeholder="e.g., Juan Dela Cruz" required>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+				<div class="space-y-1.5 md:space-y-2">
+					<label class="block text-xs md:text-sm font-medium text-gray-700">Name</label>
+					<input name="requester_name" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500" placeholder="e.g., Juan Dela Cruz" required>
 				</div>
-				<div class="space-y-2">
-					<label class="block text-sm font-medium text-gray-700">Date Needed</label>
-					<input type="date" name="request_date" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-gray-500 focus:border-gray-500" required>
+				<div class="space-y-1.5 md:space-y-2">
+					<label class="block text-xs md:text-sm font-medium text-gray-700">Date Needed</label>
+					<input type="date" name="request_date" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500" required>
 				</div>
 			</div>
-			<div class="space-y-2">
-				<label class="block text-sm font-medium text-gray-700">Ingredients / Notes</label>
-				<textarea name="ingredients_note" rows="4" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-gray-500 focus:border-gray-500" placeholder="List ingredients, quantities, or any prep instructions" required></textarea>
-				<p class="text-xs text-gray-500">Detailed quantities will be captured later during the Prepare step.</p>
+			<div class="space-y-1.5 md:space-y-2">
+				<label class="block text-xs md:text-sm font-medium text-gray-700">Ingredients / Notes</label>
+				<textarea name="ingredients_note" rows="4" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500" placeholder="List ingredients, quantities, or any prep instructions" required></textarea>
+				<p class="text-[10px] md:text-xs text-gray-500">Detailed quantities will be captured later during the Prepare step.</p>
 			</div>
-			<div class="flex justify-end gap-3">
-				<button type="button" id="cancelNewRequestBtn" class="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">
+			<div class="flex justify-end gap-2 md:gap-3">
+				<button type="button" id="cancelNewRequestBtn" class="inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors text-xs md:text-sm">
 					Cancel
 				</button>
-					<button type="submit" class="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
-					<i data-lucide="send" class="w-4 h-4"></i>
+					<button type="submit" class="inline-flex items-center gap-1 md:gap-1.5 bg-green-600 text-white px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-xs md:text-sm">
+					<i data-lucide="send" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
 					Submit Request
 				</button>
 			</div>
@@ -89,11 +89,11 @@ function formatDate($dateString) {
 	<div class="px-4 md:px-6 py-3 md:py-4 border-b">
         <div class="flex flex-col gap-3 md:gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-                <h2 class="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-1.5 md:gap-2">
-                    <i data-lucide="clipboard-list" class="w-4 h-4 md:w-5 md:h-5 text-gray-600"></i>
+                <h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
+                    <i data-lucide="clipboard-list" class="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-600"></i>
                     Batch Requests History
                 </h2>
-                <p class="text-xs md:text-sm text-gray-600 mt-0.5 md:mt-1">View and manage all ingredient requests</p>
+                <p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">View and manage all ingredient requests</p>
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 md:gap-2 text-xs md:text-sm text-gray-600">
                 <label for="requestStatusFilter" class="whitespace-nowrap">Filter status:</label>
@@ -130,30 +130,6 @@ function formatDate($dateString) {
 					</td>
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
                         <button type="button" class="text-green-600 hover:text-green-700 text-[10px] md:text-xs lg:text-sm font-medium viewBatchDetails" data-batch="<?php echo (int)$b['id']; ?>" data-status="<?php echo htmlspecialchars($b['status'] ?? ''); ?>">View details</button>
-						<?php 
-						$batchRemainingStock = $batchRemainingStock ?? [];
-						$batchId = (int)$b['id'];
-						$shouldShowRemaining = ($b['status'] ?? '') === 'Distributed' && !empty($items) && isset($batchRemainingStock[$batchId]);
-						?>
-						<?php if ($shouldShowRemaining): ?>
-							<div class="mt-2 space-y-1 text-xs text-gray-500">
-								<?php foreach ($items as $it): 
-									$iid = (int)($it['item_id'] ?? 0);
-									// Show remaining stock for this specific batch
-									if (isset($batchRemainingStock[$batchId][$iid])):
-										$remain = $batchRemainingStock[$batchId][$iid];
-								?>
-									<div class="flex items-center gap-2">
-										<i data-lucide="battery-charging" class="w-3 h-3 text-green-500"></i>
-										<span>Remaining <?php echo htmlspecialchars($it['item_name']); ?>:
-											<span class="font-semibold text-gray-900"><?php echo number_format((float)$remain, 2) . ' ' . htmlspecialchars($it['unit']); ?></span>
-										</span>
-									</div>
-								<?php 
-									endif;
-								endforeach; ?>
-							</div>
-						<?php endif; ?>
 					</td>
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-gray-600 text-[10px] md:text-xs lg:text-sm">
 						<?php 
@@ -222,19 +198,17 @@ function formatDate($dateString) {
 
 							<!-- Requested Items Section -->
 							<?php if (!empty($b['custom_ingredients'])): ?>
-							<div class="space-y-4 pt-2 border-t border-gray-100">
-								<div>
-									<h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">Requested Items</h3>
-								</div>
-								<ul class="space-y-2.5 pl-1">
+							<div class="p-3 md:p-4 border border-gray-200 rounded-lg">
+								<p class="text-xs uppercase tracking-wide text-gray-500 mb-2 md:mb-3">Requested Items</p>
+								<ul class="grid grid-cols-1 md:grid-cols-2 gap-2">
 									<?php 
 									$ingredientLines = explode("\n", trim($b['custom_ingredients']));
 									foreach ($ingredientLines as $line): 
 										$line = trim($line);
 										if (empty($line)) continue;
 									?>
-									<li class="text-sm text-gray-700 flex items-start gap-3">
-										<span class="text-green-600 font-bold mt-0.5">•</span>
+									<li class="text-sm text-gray-700 flex items-start gap-2">
+										<span class="text-gray-500 mt-0.5">•</span>
 										<span class="flex-1"><?php echo htmlspecialchars($line); ?></span>
 									</li>
 									<?php endforeach; ?>
@@ -244,28 +218,43 @@ function formatDate($dateString) {
 
 							<!-- Items In Batch Section -->
 							<?php if (!empty($items)): ?>
-							<div class="space-y-4 pt-2 border-t border-gray-100">
-								<div class="flex items-center gap-2">
-									<i data-lucide="list-checks" class="w-5 h-5 text-green-600"></i>
-									<h3 class="text-base font-bold text-gray-900 uppercase tracking-wide">Items In Batch</h3>
+							<div class="space-y-3 md:space-y-4 pt-2 border-t border-gray-100">
+								<div class="flex items-center gap-1.5 md:gap-2">
+									<i data-lucide="list-checks" class="w-4 h-4 md:w-5 md:h-5 text-green-600"></i>
+									<h3 class="text-xs md:text-xs font-bold text-gray-900 tracking-wide">Items In Batch</h3>
 								</div>
-								<ul class="space-y-2.5">
-									<?php foreach ($items as $it): ?>
-									<li class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 text-sm rounded-lg border border-gray-200 px-3 md:px-4 py-2.5 md:py-3 bg-gray-50 hover:bg-gray-100 transition-colors">
-										<div class="flex items-center gap-3">
-											<i data-lucide="package" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
-											<div>
-												<p class="font-semibold text-gray-900"><?php echo htmlspecialchars($it['item_name']); ?></p>
-												<p class="text-xs text-gray-500 mt-0.5">Unit: <?php echo htmlspecialchars($it['unit']); ?></p>
-												<?php if (!empty($it['set_name'])): ?>
-													<p class="text-[11px] text-indigo-600 font-semibold mt-1">Part of <?php echo htmlspecialchars($it['set_name']); ?> set</p>
-												<?php endif; ?>
-											</div>
-										</div>
-										<span class="text-sm font-bold text-gray-900 sm:ml-4 shrink-0"><?php echo htmlspecialchars($it['quantity']); ?> <?php echo htmlspecialchars($it['unit']); ?></span>
-									</li>
-									<?php endforeach; ?>
-								</ul>
+								<div class="overflow-x-auto rounded-lg border border-gray-200">
+									<table class="w-full text-xs md:text-sm">
+										<thead class="bg-gray-100">
+											<tr>
+												<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Ingredient</th>
+												<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Quantity</th>
+												<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Actions</th>
+											</tr>
+										</thead>
+										<tbody class="divide-y divide-gray-200">
+											<?php foreach ($items as $it): ?>
+											<tr class="hover:bg-gray-50 transition-colors">
+												<td class="px-2.5 md:px-3 py-2 md:py-2.5">
+													<div>
+														<p class="font-semibold text-gray-900 text-xs md:text-sm"><?php echo htmlspecialchars($it['item_name']); ?></p>
+														<p class="text-[10px] md:text-xs text-gray-500 mt-0.5"><?php echo htmlspecialchars($it['unit']); ?></p>
+														<?php if (!empty($it['set_name'])): ?>
+															<p class="text-[9px] md:text-[10px] text-indigo-600 font-semibold mt-0.5 md:mt-1">Part of <?php echo htmlspecialchars($it['set_name']); ?> set</p>
+														<?php endif; ?>
+													</div>
+												</td>
+												<td class="px-2.5 md:px-3 py-2 md:py-2.5">
+													<span class="font-bold text-gray-900 text-xs md:text-sm"><?php echo htmlspecialchars($it['quantity']); ?> <?php echo htmlspecialchars($it['unit']); ?></span>
+												</td>
+												<td class="px-2.5 md:px-3 py-2 md:py-2.5">
+													<button type="button" class="text-red-600 hover:text-red-700 text-[10px] md:text-xs font-medium">Remove</button>
+												</td>
+											</tr>
+											<?php endforeach; ?>
+										</tbody>
+									</table>
+								</div>
 							</div>
 							<?php endif; ?>
 						</div>
@@ -468,19 +457,17 @@ function formatDate($dateString) {
 
 							<!-- Requested Items Section -->
 							<?php if (!empty($b['custom_ingredients'])): ?>
-							<div class="space-y-4 pt-2 border-t border-gray-100">
-								<div>
-									<h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide">Requested Items</h3>
-								</div>
-								<ul class="space-y-2.5 pl-1">
+							<div class="p-3 md:p-4 border border-gray-200 rounded-lg">
+								<p class="text-xs uppercase tracking-wide text-gray-500 mb-2 md:mb-3">Requested Items</p>
+								<ul class="grid grid-cols-1 md:grid-cols-2 gap-2">
 									<?php 
 									$ingredientLines = explode("\n", trim($b['custom_ingredients']));
 									foreach ($ingredientLines as $line): 
 										$line = trim($line);
 										if (empty($line)) continue;
 									?>
-									<li class="text-sm text-gray-700 flex items-start gap-3">
-										<span class="text-green-600 font-bold mt-0.5">•</span>
+									<li class="text-sm text-gray-700 flex items-start gap-2">
+										<span class="text-gray-500 mt-0.5">•</span>
 										<span class="flex-1"><?php echo htmlspecialchars($line); ?></span>
 									</li>
 									<?php endforeach; ?>
@@ -493,28 +480,43 @@ function formatDate($dateString) {
 							$kitchenStaffItems = $batchItems[(int)$b['id']] ?? [];
 							if (!empty($kitchenStaffItems)): 
 							?>
-							<div class="space-y-4 pt-2 border-t border-gray-100">
-								<div class="flex items-center gap-2">
-									<i data-lucide="list-checks" class="w-5 h-5 text-green-600"></i>
-									<h3 class="text-base font-bold text-gray-900 uppercase tracking-wide">Items In Batch</h3>
+							<div class="space-y-3 md:space-y-4 pt-2 border-t border-gray-100">
+								<div class="flex items-center gap-1.5 md:gap-2">
+									<i data-lucide="list-checks" class="w-4 h-4 md:w-5 md:h-5 text-green-600"></i>
+									<h3 class="text-xs md:text-xs font-bold text-gray-900 tracking-wide">Items In Batch</h3>
 								</div>
-								<ul class="space-y-2.5">
-									<?php foreach ($kitchenStaffItems as $it): ?>
-									<li class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 text-sm rounded-lg border border-gray-200 px-3 md:px-4 py-2.5 md:py-3 bg-gray-50 hover:bg-gray-100 transition-colors">
-										<div class="flex items-center gap-3">
-											<i data-lucide="package" class="w-4 h-4 text-gray-400 flex-shrink-0"></i>
-											<div>
-												<p class="font-semibold text-gray-900"><?php echo htmlspecialchars($it['item_name']); ?></p>
-												<p class="text-xs text-gray-500 mt-0.5">Unit: <?php echo htmlspecialchars($it['unit']); ?></p>
-												<?php if (!empty($it['set_name'])): ?>
-													<p class="text-[11px] text-indigo-600 font-semibold mt-1">Part of <?php echo htmlspecialchars($it['set_name']); ?> set</p>
-												<?php endif; ?>
-											</div>
-										</div>
-										<span class="text-sm font-bold text-gray-900 sm:ml-4 shrink-0"><?php echo htmlspecialchars($it['quantity']); ?> <?php echo htmlspecialchars($it['unit']); ?></span>
-									</li>
-									<?php endforeach; ?>
-								</ul>
+								<div class="overflow-x-auto rounded-lg border border-gray-200">
+									<table class="w-full text-xs md:text-sm">
+										<thead class="bg-gray-100">
+											<tr>
+												<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Ingredient</th>
+												<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Quantity</th>
+												<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Actions</th>
+											</tr>
+										</thead>
+										<tbody class="divide-y divide-gray-200">
+											<?php foreach ($kitchenStaffItems as $it): ?>
+											<tr class="hover:bg-gray-50 transition-colors">
+												<td class="px-2.5 md:px-3 py-2 md:py-2.5">
+													<div>
+														<p class="font-semibold text-gray-900 text-xs md:text-sm"><?php echo htmlspecialchars($it['item_name']); ?></p>
+														<p class="text-[10px] md:text-xs text-gray-500 mt-0.5"><?php echo htmlspecialchars($it['unit']); ?></p>
+														<?php if (!empty($it['set_name'])): ?>
+															<p class="text-[9px] md:text-[10px] text-indigo-600 font-semibold mt-0.5 md:mt-1">Part of <?php echo htmlspecialchars($it['set_name']); ?> set</p>
+														<?php endif; ?>
+													</div>
+												</td>
+												<td class="px-2.5 md:px-3 py-2 md:py-2.5">
+													<span class="font-bold text-gray-900 text-xs md:text-sm"><?php echo htmlspecialchars($it['quantity']); ?> <?php echo htmlspecialchars($it['unit']); ?></span>
+												</td>
+												<td class="px-2.5 md:px-3 py-2 md:py-2.5">
+													<button type="button" class="text-red-600 hover:text-red-700 text-[10px] md:text-xs font-medium">Remove</button>
+												</td>
+											</tr>
+											<?php endforeach; ?>
+										</tbody>
+									</table>
+								</div>
 							</div>
 							<?php endif; ?>
 						</div>
@@ -537,38 +539,38 @@ function formatDate($dateString) {
 <div id="editRequestModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
 	<div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
 		<div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 md:px-5 lg:px-6 py-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-4">
-			<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-				<i data-lucide="edit" class="w-5 h-5 text-blue-600"></i>
+			<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
+				<i data-lucide="edit" class="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-600"></i>
 				Edit Request
 			</h2>
 			<button type="button" id="closeEditModal" class="text-gray-400 hover:text-gray-600 transition-colors shrink-0">
-				<i data-lucide="x" class="w-5 h-5"></i>
+				<i data-lucide="x" class="w-4 h-4 md:w-5 md:h-5"></i>
 			</button>
 		</div>
-		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests/update" class="p-4 md:p-5 lg:p-6 space-y-4 md:space-y-5 lg:space-y-6">
+		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests/update" class="p-3 md:p-4 lg:p-5 space-y-3 md:space-y-4 lg:space-y-5">
 			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 			<input type="hidden" name="batch_id" id="editBatchId" value="">
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-				<div class="space-y-2">
-					<label class="block text-sm font-medium text-gray-700">Name</label>
-					<input name="requester_name" id="editRequesterName" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., malupiton" required>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+				<div class="space-y-1.5 md:space-y-2">
+					<label class="block text-xs md:text-sm font-medium text-gray-700">Name</label>
+					<input name="requester_name" id="editRequesterName" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., malupiton" required>
 				</div>
-				<div class="space-y-2">
-					<label class="block text-sm font-medium text-gray-700">Date Needed</label>
-					<input type="date" name="request_date" id="editRequestDate" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+				<div class="space-y-1.5 md:space-y-2">
+					<label class="block text-xs md:text-sm font-medium text-gray-700">Date Needed</label>
+					<input type="date" name="request_date" id="editRequestDate" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
 				</div>
 			</div>
-			<div class="space-y-2">
-				<label class="block text-sm font-medium text-gray-700">Ingredients / Notes</label>
-				<textarea name="ingredients_note" id="editIngredientsNote" rows="4" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="List ingredients, quantities, or any prep instructions" required></textarea>
-				<p class="text-xs text-gray-500">Detailed quantities will be captured later during the Prepare step.</p>
+			<div class="space-y-1.5 md:space-y-2">
+				<label class="block text-xs md:text-sm font-medium text-gray-700">Ingredients / Notes</label>
+				<textarea name="ingredients_note" id="editIngredientsNote" rows="4" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="List ingredients, quantities, or any prep instructions" required></textarea>
+				<p class="text-[10px] md:text-xs text-gray-500">Detailed quantities will be captured later during the Prepare step.</p>
 			</div>
-			<div class="flex justify-end gap-3">
-				<button type="button" id="cancelEditModal" class="inline-flex items-center gap-2 px-6 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+			<div class="flex justify-end gap-2 md:gap-3">
+				<button type="button" id="cancelEditModal" class="inline-flex items-center gap-1 md:gap-1.5 px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors text-xs md:text-sm">
 					Cancel
 				</button>
-				<button type="submit" class="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-					<i data-lucide="save" class="w-4 h-4"></i>
+				<button type="submit" class="inline-flex items-center gap-1 md:gap-1.5 bg-blue-600 text-white px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors text-xs md:text-sm">
+					<i data-lucide="save" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
 					Save Changes
 				</button>
 			</div>
@@ -600,7 +602,7 @@ function formatDate($dateString) {
 						</div>
 					</div>
 				</div>
-				<button type="button" class="prepareModalClose text-gray-500 hover:text-gray-700 text-2xl leading-none shrink-0" aria-label="Close">&times;</button>
+				<button type="button" class="prepareModalClose text-gray-500 hover:text-gray-700 text-xl md:text-2xl leading-none shrink-0" aria-label="Close">&times;</button>
 			</div>
 		</div>
 		<div class="px-4 md:px-5 lg:px-6 py-4 space-y-4">
@@ -658,35 +660,35 @@ function formatDate($dateString) {
 							</select>
 						</div>
 						<div class="flex items-end">
-							<button type="button" id="prepareAddItemBtn" class="w-full inline-flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-								<i data-lucide="plus"></i>
-								Add
-							</button>
+					<button type="button" id="prepareAddItemBtn" class="w-full inline-flex items-center justify-center gap-1 md:gap-1.5 bg-green-600 text-white px-2.5 md:px-3 py-1.5 md:py-2 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 text-xs md:text-sm">
+						<i data-lucide="plus" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+						Add
+					</button>
 						</div>
 					</div>
 					<div id="prepareBuilderError" class="hidden px-4 py-2 rounded-lg border border-red-200 bg-red-50 text-sm text-red-700"></div>
 				</div>
 				<div class="rounded-xl border border-gray-200 overflow-hidden">
-					<table class="w-full text-sm">
+					<table class="w-full text-xs md:text-sm">
 						<thead class="bg-gray-100">
 							<tr>
-								<th class="text-left px-4 py-2">Ingredient</th>
-								<th class="text-left px-4 py-2">Quantity</th>
-								<th class="text-left px-4 py-2 w-20">Actions</th>
+								<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Ingredient</th>
+								<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Quantity</th>
+								<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Actions</th>
 							</tr>
 						</thead>
 						<tbody id="prepareItemsBody" class="divide-y divide-gray-200"></tbody>
 					</table>
-					<div id="prepareEmptyState" class="px-4 py-6 text-center text-sm text-gray-500">No ingredients added yet.</div>
+					<div id="prepareEmptyState" class="px-4 py-6 text-center text-xs md:text-sm text-gray-500">No ingredients added yet.</div>
 				</div>
 				<div id="prepareDynamicInputs"></div>
-				<div class="flex flex-col sm:flex-row sm:justify-end gap-3">
-					<button type="button" data-action="save" class="prepareSubmitBtn inline-flex items-center justify-center gap-2 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50">
-						<i data-lucide="save" class="w-4 h-4"></i>
+				<div class="flex flex-col sm:flex-row sm:justify-end gap-2 md:gap-3">
+					<button type="button" data-action="save" class="prepareSubmitBtn inline-flex items-center justify-center gap-1 md:gap-1.5 border border-gray-300 text-gray-700 px-2.5 md:px-3 py-1.5 md:py-2 rounded-lg hover:bg-gray-50 text-xs md:text-sm">
+						<i data-lucide="save" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
 						Save Prep
 					</button>
-					<button type="button" data-action="distribute" class="prepareSubmitBtn inline-flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-						<i data-lucide="send" class="w-4 h-4"></i>
+					<button type="button" data-action="distribute" class="prepareSubmitBtn inline-flex items-center justify-center gap-1 md:gap-1.5 bg-green-600 text-white px-2.5 md:px-3 py-1.5 md:py-2 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 text-xs md:text-sm">
+						<i data-lucide="send" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
 						Distribute
 					</button>
 				</div>
@@ -855,28 +857,28 @@ function formatDate($dateString) {
 					<form method="post" action="${baseUrl}/requests/approve" class="inline">
 						<input type="hidden" name="csrf_token" value="${csrfToken}">
 						<input type="hidden" name="batch_id" value="${id}">
-						<button type="submit" class="inline-flex items-center gap-1 px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
-							<i data-lucide="check" class="w-4 h-4"></i>
+						<button type="submit" class="inline-flex items-center gap-1 px-2.5 md:px-3 py-1.5 md:py-2 bg-green-600 text-white text-xs md:text-sm rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
+							<i data-lucide="check" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
 							Approve
 						</button>
 					</form>
 					<form method="post" action="${baseUrl}/requests/reject" class="inline" data-confirm="Are you sure you want to reject request batch #${id}? The requester will be notified." data-confirm-type="warning">
 						<input type="hidden" name="csrf_token" value="${csrfToken}">
 						<input type="hidden" name="batch_id" value="${id}">
-						<button type="submit" class="inline-flex items-center gap-1 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
-							<i data-lucide="x" class="w-4 h-4"></i>
+						<button type="submit" class="inline-flex items-center gap-1 px-2.5 md:px-3 py-1.5 md:py-2 bg-red-600 text-white text-xs md:text-sm rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+							<i data-lucide="x" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
 							Reject
 						</button>
 					</form>
 				</div>
 				` : ''}
 				${isRejected ? `
-				<div class="px-4 md:px-5 lg:px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-3">
+				<div class="px-4 md:px-5 lg:px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-2 md:gap-3">
 					<form method="post" action="${baseUrl}/requests/delete" class="inline" id="deleteBatchForm${id}">
 						<input type="hidden" name="csrf_token" value="${csrfToken}">
 						<input type="hidden" name="batch_id" value="${id}">
-						<button type="button" class="deleteBatchBtn inline-flex items-center gap-1 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
-							<i data-lucide="trash-2" class="w-4 h-4"></i>
+						<button type="button" class="deleteBatchBtn inline-flex items-center gap-1 px-2.5 md:px-3 py-1.5 md:py-2 bg-red-600 text-white text-xs md:text-sm rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+							<i data-lucide="trash-2" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
 							Delete
 						</button>
 					</form>
@@ -940,18 +942,18 @@ function formatDate($dateString) {
 									<i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
 								</div>
 								<div>
-									<h3 class="text-lg font-semibold text-gray-900">Delete Request Batch</h3>
-									<p class="text-sm text-gray-500 mt-1">This action cannot be undone</p>
+									<h3 class="text-sm md:text-base font-semibold text-gray-900">Delete Request Batch</h3>
+									<p class="text-[10px] md:text-xs text-gray-500 mt-0.5 md:mt-1">This action cannot be undone</p>
 								</div>
 							</div>
-							<p class="text-sm text-gray-700 mb-6">
+							<p class="text-xs md:text-sm text-gray-700 mb-4 md:mb-6">
 								Are you sure you want to delete request batch <strong>#${id}</strong>? This will permanently remove the batch and all associated data.
 							</p>
-							<div class="flex items-center justify-end gap-3">
-								<button type="button" class="cancelDeleteBtn px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+							<div class="flex items-center justify-end gap-2 md:gap-3">
+								<button type="button" class="cancelDeleteBtn inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
 									Cancel
 								</button>
-								<button type="button" class="confirmDeleteBtn px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+								<button type="button" class="confirmDeleteBtn inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
 									Delete
 								</button>
 							</div>
@@ -1010,6 +1012,13 @@ function formatDate($dateString) {
 		const batchIdInput = document.getElementById('prepareModalBatchId');
 		const errorBox = document.getElementById('prepareBuilderError');
 		let items = [];
+		
+		// Escape HTML function
+		const escapeHtml = (text) => {
+			const div = document.createElement('div');
+			div.textContent = text;
+			return div.innerHTML;
+		};
 		
 		// Build ingredient options array from select and INGREDIENT_LOOKUP
 		const ingredientOptions = [];
@@ -1248,16 +1257,14 @@ function formatDate($dateString) {
 			items.forEach((item, index) => {
 				const tr = document.createElement('tr');
 				tr.innerHTML = `
-					<td class="px-4 py-2">
-						<div class="flex items-center gap-2">
-							<i data-lucide="package" class="w-4 h-4 text-gray-400"></i>
-							<div>
-								<p class="font-medium text-gray-900">${item.name}</p>
-								<p class="text-xs text-gray-500">${item.unit}</p>
-							</div>
+					<td class="px-2.5 md:px-3 py-2 md:py-2.5">
+						<div>
+							<p class="font-semibold text-gray-900 text-xs md:text-sm">${escapeHtml(item.name || '')}</p>
+							<p class="text-[10px] md:text-xs text-gray-500 mt-0.5">${escapeHtml(item.display_unit || item.unit || '')}</p>
 						</div>
 					</td>
-					<td class="px-4 py-2 font-semibold text-gray-900">${(() => {
+					<td class="px-2.5 md:px-3 py-2 md:py-2.5">
+						<span class="font-bold text-gray-900 text-xs md:text-sm">${(() => {
 						let displayQty = item.quantity;
 						const baseUnit = item.unit;
 						const displayUnit = item.display_unit;
@@ -1294,10 +1301,11 @@ function formatDate($dateString) {
 							}
 						}
 						return Number(displayQty).toFixed(2);
-					})()} ${item.display_unit || item.unit}</td>
-					<td class="px-4 py-2">
-						<button type="button" class="inline-flex items-center gap-1 text-red-600 hover:text-red-700 removePrepItem" data-index="${index}">
-							<i data-lucide="trash-2" class="w-3 h-3"></i>Remove
+					})()} ${escapeHtml(item.display_unit || item.unit || '')}</span>
+					</td>
+					<td class="px-2.5 md:px-3 py-2 md:py-2.5">
+						<button type="button" class="text-red-600 hover:text-red-700 text-[10px] md:text-xs font-medium removePrepItem" data-index="${index}">
+							Remove
 						</button>
 					</td>
 				`;
@@ -1482,18 +1490,18 @@ function formatDate($dateString) {
 							<i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
 						</div>
 						<div>
-							<h3 class="text-lg font-semibold text-gray-900">Remove Ingredient</h3>
-							<p class="text-sm text-gray-500 mt-1">This action cannot be undone</p>
+							<h3 class="text-sm md:text-base font-semibold text-gray-900">Remove Ingredient</h3>
+							<p class="text-[10px] md:text-xs text-gray-500 mt-0.5 md:mt-1">This action cannot be undone</p>
 						</div>
 					</div>
-					<p class="text-sm text-gray-700 mb-6">
+					<p class="text-xs md:text-sm text-gray-700 mb-4 md:mb-6">
 						Are you sure you want to remove <strong>${ingredientName}</strong> (${quantity} ${unit}) from this request?
 					</p>
-					<div class="flex items-center justify-end gap-3">
-						<button type="button" class="cancelRemoveIngredientBtn px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+					<div class="flex items-center justify-end gap-2 md:gap-3">
+						<button type="button" class="cancelRemoveIngredientBtn inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
 							Cancel
 						</button>
-						<button type="button" class="confirmRemoveIngredientBtn px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+						<button type="button" class="confirmRemoveIngredientBtn inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
 							Remove
 						</button>
 					</div>

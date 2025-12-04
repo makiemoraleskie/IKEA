@@ -19,11 +19,11 @@ $widgetsByRole = function (string $role) use ($widgetSettings, $dashboardWidgets
 };
 ?>
 <!-- Page Header -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
-	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6">
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
 		<div>
-			<h1 class="text-xl md:text-2xl font-bold text-gray-900 mb-1">System Settings</h1>
-			<p class="text-xs md:text-sm text-gray-600">Security, reporting, display and data retention controls. Only Owners and Managers can update these configurations.</p>
+			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1">System Settings</h1>
+			<p class="text-[10px] md:text-xs text-gray-600">Security, reporting, display and data retention controls. Only Owners and Managers can update these configurations.</p>
 		</div>
 	</div>
 </div>

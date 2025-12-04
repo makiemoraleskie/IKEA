@@ -1,12 +1,12 @@
 <?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
 <!-- Page Header -->
-<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
+<div class="flex flex-col gap-3 md:gap-4 md:flex-row md:items-center md:justify-between mb-4 md:mb-6">
 	<div>
-		<h1 class="text-3xl font-bold text-gray-900">Purchase Transactions</h1>
-		<p class="text-gray-600 mt-1">Record and manage ingredient purchases</p>
+		<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900">Purchase Transactions</h1>
+		<p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Record and manage ingredient purchases</p>
 	</div>
-	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-		<i data-lucide="arrow-left" class="w-4 h-4"></i>
+	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-1 md:gap-1.5 px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+		<i data-lucide="arrow-left" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
 		Back to Dashboard
 	</a>
 </div>
@@ -14,11 +14,11 @@
 <!-- New Purchase Form -->
 <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
 	<div class="bg-gradient-to-r from-purple-50 to-indigo-50 px-6 py-4 border-b">
-		<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-			<i data-lucide="shopping-cart" class="w-5 h-5 text-purple-600"></i>
+		<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
+			<i data-lucide="shopping-cart" class="w-3.5 h-3.5 md:w-4 md:h-4 text-purple-600"></i>
 			Record New Purchase
 		</h2>
-		<p class="text-sm text-gray-600 mt-1">Add a new ingredient purchase to the system</p>
+		<p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Add a new ingredient purchase to the system</p>
 	</div>
 	
 	<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/purchases" enctype="multipart/form-data" class="p-6">

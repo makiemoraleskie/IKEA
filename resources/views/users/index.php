@@ -1,18 +1,18 @@
 <?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
 <!-- Page Header -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
-	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6">
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
 		<div>
-			<h1 class="text-xl md:text-2xl font-bold text-gray-900 mb-1">User Management</h1>
-			<p class="text-xs md:text-sm text-gray-600">Create and manage commissary accounts</p>
+			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1">User Management</h1>
+			<p class="text-[10px] md:text-xs text-gray-600">Create and manage commissary accounts</p>
 		</div>
 	</div>
 </div>
 
 <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-4 sm:p-6 mb-6">
 	<div class="flex flex-col gap-1 mb-4">
-		<h2 class="text-xl font-semibold text-gray-900">Create User</h2>
-		<p class="text-sm text-gray-600">Invite a teammate with appropriate access level</p>
+		<h2 class="text-sm md:text-base font-semibold text-gray-900">Create User</h2>
+		<p class="text-[10px] md:text-xs text-gray-600">Invite a teammate with appropriate access level</p>
 	</div>
 	<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/users" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
 		<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
@@ -48,8 +48,8 @@
 <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
 	<div class="px-4 sm:px-6 py-4 border-b flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
 		<div>
-			<h2 class="text-xl font-semibold text-gray-900">Users</h2>
-			<p class="text-sm text-gray-600">Existing accounts and quick resets</p>
+			<h2 class="text-sm md:text-base font-semibold text-gray-900">Users</h2>
+			<p class="text-[10px] md:text-xs text-gray-600">Existing accounts and quick resets</p>
 		</div>
 		<span class="text-sm text-gray-500"><?php echo count($users); ?> total</span>
 	</div>

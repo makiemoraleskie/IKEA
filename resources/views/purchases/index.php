@@ -1,10 +1,10 @@
 <?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
 <!-- Page Header -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6 max-w-full overflow-x-hidden">
-	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6 max-w-full overflow-x-hidden">
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
 		<div class="min-w-0 flex-1">
-			<h1 class="text-xl md:text-2xl font-bold text-gray-900 mb-1 truncate">Purchase Transactions</h1>
-			<p class="text-xs md:text-sm text-gray-600">Record and manage ingredient purchases</p>
+			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1 truncate">Purchase Transactions</h1>
+			<p class="text-[10px] md:text-xs text-gray-600">Record and manage ingredient purchases</p>
 		</div>
 	</div>
 </div>
@@ -23,50 +23,50 @@ if (!empty($purchases)) {
 <?php if (!empty($purchases)): ?>
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8 max-w-full overflow-x-hidden">
 	<!-- Total Purchases -->
-	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
-		<div class="absolute top-3 md:top-4 right-3 md:right-4">
-			<i data-lucide="shopping-cart" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-purple-600"></i>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
+			<i data-lucide="shopping-cart" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-purple-600"></i>
 		</div>
 		<div class="flex flex-col">
-			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">TOTAL PURCHASES</h3>
-			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-gray-900 mb-1.5 md:mb-2"><?php echo count($purchases); ?></div>
-			<p class="text-xs md:text-sm text-gray-600">All purchase transactions</p>
+			<h3 class="text-[9px] md:text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 md:mb-2">TOTAL PURCHASES</h3>
+			<div class="text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-gray-900 mb-1 md:mb-1.5"><?php echo count($purchases); ?></div>
+			<p class="text-[10px] md:text-xs text-gray-600">All purchase transactions</p>
 		</div>
 	</div>
 	
 	<!-- Pending Payments -->
-	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
-		<div class="absolute top-3 md:top-4 right-3 md:right-4">
-			<i data-lucide="clock" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-yellow-600"></i>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
+			<i data-lucide="clock" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-yellow-600"></i>
 		</div>
 		<div class="flex flex-col">
-			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">PENDING PAYMENTS</h3>
-			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-yellow-600 mb-1.5 md:mb-2"><?php echo $pendingCount; ?></div>
-			<p class="text-xs md:text-sm text-gray-600">Awaiting payment</p>
+			<h3 class="text-[9px] md:text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 md:mb-2">PENDING PAYMENTS</h3>
+			<div class="text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-yellow-600 mb-1 md:mb-1.5"><?php echo $pendingCount; ?></div>
+			<p class="text-[10px] md:text-xs text-gray-600">Awaiting payment</p>
 		</div>
 	</div>
 	
 	<!-- Paid Purchases -->
-	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
-		<div class="absolute top-3 md:top-4 right-3 md:right-4">
-			<i data-lucide="check-circle" class="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-green-600"></i>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
+			<i data-lucide="check-circle" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-green-600"></i>
 		</div>
 		<div class="flex flex-col">
-			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">PAID PURCHASES</h3>
-			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-green-600 mb-1.5 md:mb-2"><?php echo count($purchases) - $pendingCount; ?></div>
-			<p class="text-xs md:text-sm text-gray-600">Completed payments</p>
+			<h3 class="text-[9px] md:text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 md:mb-2">PAID PURCHASES</h3>
+			<div class="text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-green-600 mb-1 md:mb-1.5"><?php echo count($purchases) - $pendingCount; ?></div>
+			<p class="text-[10px] md:text-xs text-gray-600">Completed payments</p>
 		</div>
 	</div>
 	
 	<!-- Total Cost -->
-	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 relative">
-		<div class="absolute top-3 md:top-4 right-3 md:right-4">
-			<span class="text-xl md:text-2xl font-bold text-blue-600">₱</span>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
+			<span class="text-lg md:text-xl font-bold text-blue-600">₱</span>
 		</div>
 		<div class="flex flex-col">
-			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">TOTAL COST</h3>
-			<div class="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-blue-600 mb-1.5 md:mb-2">₱<?php echo number_format(array_sum(array_column($purchases, 'cost')), 2); ?></div>
-			<p class="text-xs md:text-sm text-gray-600">Total expenses</p>
+			<h3 class="text-[9px] md:text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 md:mb-2">TOTAL COST</h3>
+			<div class="text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-blue-600 mb-1 md:mb-1.5">₱<?php echo number_format(array_sum(array_column($purchases, 'cost')), 2); ?></div>
+			<p class="text-[10px] md:text-xs text-gray-600">Total expenses</p>
 		</div>
 	</div>
 </div>
@@ -80,11 +80,11 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
     <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-4 md:px-5 lg:px-6 py-3 md:py-4 border-b">
         <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div class="min-w-0 flex-1">
-                <h2 class="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-1.5 md:gap-2">
-                    <i data-lucide="shopping-cart" class="w-4 h-4 md:w-5 md:h-5 text-green-600 flex-shrink-0"></i>
+                <h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
+                    <i data-lucide="shopping-cart" class="w-3.5 h-3.5 md:w-4 md:h-4 text-green-600 flex-shrink-0"></i>
                     <span class="truncate">Record New Purchase (Batch)</span>
                 </h2>
-                <p class="text-xs md:text-sm text-gray-600 mt-0.5 md:mt-1">Search ingredient, set qty/unit/cost, add to list, then save</p>
+                <p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Search ingredient, set qty/unit/cost, add to list, then save</p>
             </div>
         </div>
     </div>
@@ -148,7 +148,7 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                 
                 <!-- Add Button -->
                 <div class="flex justify-end pt-2">
-                    <button type="button" id="addRowBtn" class="inline-flex items-center justify-center gap-1.5 md:gap-1 lg:gap-2 bg-green-600 text-white px-3 md:px-3 lg:px-6 py-2 md:py-2 lg:py-3 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors font-semibold shadow-sm text-sm md:text-xs lg:text-base w-full sm:w-auto">
+                    <button type="button" id="addRowBtn" class="inline-flex items-center justify-center gap-1 md:gap-1.5 bg-green-600 text-white px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors font-semibold shadow-sm text-xs md:text-sm w-full sm:w-auto">
                         <i data-lucide="plus-circle" class="w-4 h-4 md:w-3.5 md:h-3.5 lg:w-5 lg:h-5"></i>
                         <span class="whitespace-nowrap">Add to Purchase List</span>
                     </button>
@@ -187,7 +187,7 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                 </table>
             </div>
             <div class="px-4 md:px-5 lg:px-6 py-3 md:py-4 border-t flex justify-end">
-                <button type="button" id="openBatchModalBtn" class="inline-flex items-center justify-center gap-1.5 md:gap-1 lg:gap-2 bg-green-600 text-white px-3 md:px-3 lg:px-6 py-2 md:py-2 lg:py-3 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors font-semibold shadow-sm disabled:opacity-60 disabled:cursor-not-allowed text-sm md:text-xs lg:text-base">
+                <button type="button" id="openBatchModalBtn" class="inline-flex items-center justify-center gap-1 md:gap-1.5 bg-green-600 text-white px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors font-semibold shadow-sm disabled:opacity-60 disabled:cursor-not-allowed text-xs md:text-sm">
                     <i data-lucide="shopping-cart" class="w-4 h-4 md:w-3.5 md:h-3.5 lg:w-5 lg:h-5"></i>
                     <span class="whitespace-nowrap">Record Purchase Batch</span>
                 </button>
@@ -203,17 +203,17 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
         <div class="bg-white rounded-xl shadow-xl w-full max-w-[calc(100vw-2rem)] md:max-w-2xl my-4 md:my-8 overflow-y-auto overflow-x-hidden max-h-[90vh] mx-auto">
             <div class="sticky top-0 bg-white border-b px-4 md:px-5 lg:px-6 py-3 md:py-4 z-10">
                 <div class="flex items-center justify-between mb-2">
-                    <h2 class="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-1.5 md:gap-2">
-                        <i data-lucide="shopping-cart" class="w-4 h-4 md:w-5 md:h-5 text-green-600"></i>
+                    <h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
+                        <i data-lucide="shopping-cart" class="w-3.5 h-3.5 md:w-4 md:h-4 text-green-600"></i>
                         <span class="hidden sm:inline">Record Purchase Batch</span>
                         <span class="sm:hidden">Record Batch</span>
                     </h2>
                     <button type="button" id="closeBatchModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors p-1">
-                        <i data-lucide="x" class="w-5 h-5 md:w-6 md:h-6"></i>
+                        <i data-lucide="x" class="w-4 h-4 md:w-5 md:h-5"></i>
                     </button>
                 </div>
                 <div class="flex items-center justify-end">
-                    <div class="text-sm md:text-base font-bold text-green-700">Total: ₱<span id="totalCostModal">0.00</span></div>
+                    <div class="text-xs md:text-sm font-bold text-green-700">Total: ₱<span id="totalCostModal">0.00</span></div>
                 </div>
             </div>
         <form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/purchases" enctype="multipart/form-data" id="batchModalForm" class="p-4 md:p-5 lg:p-6 max-w-full overflow-x-hidden">
@@ -223,24 +223,24 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
             <div class="space-y-6">
                 <!-- Batch Information Section -->
                 <div>
-                    <h3 class="text-xs md:text-sm font-semibold text-gray-700 mb-2 md:mb-3 flex items-center gap-1.5 md:gap-2">
-                        <i data-lucide="info" class="w-4 h-4 md:w-5 md:h-5"></i>
+                    <h3 class="text-[10px] md:text-xs font-semibold text-gray-700 mb-2 md:mb-3 flex items-center gap-1 md:gap-1.5">
+                        <i data-lucide="info" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
                         Batch Information
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 lg:gap-6">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i data-lucide="truck" class="w-4 h-4 inline-block mr-1"></i>
+                            <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">
+                                <i data-lucide="truck" class="w-3.5 h-3.5 md:w-4 md:h-4 inline-block mr-1"></i>
                                 Supplier
                             </label>
-                            <input name="supplier" class="w-full border-2 border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" placeholder="Enter supplier name" required />
+                            <input name="supplier" class="w-full border-2 border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" placeholder="Enter supplier name" required />
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i data-lucide="shopping-bag" class="w-4 h-4 inline-block mr-1"></i>
+                            <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">
+                                <i data-lucide="shopping-bag" class="w-3.5 h-3.5 md:w-4 md:h-4 inline-block mr-1"></i>
                                 Purchase Type
                             </label>
-                            <select name="purchase_type" id="purchaseTypeModal" class="w-full border-2 border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors bg-white">
+                            <select name="purchase_type" id="purchaseTypeModal" class="w-full border-2 border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors bg-white">
                                 <option value="in_store">In-store purchase</option>
                                 <option value="delivery">Delivery</option>
                             </select>
@@ -251,17 +251,17 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                 
                 <!-- Payment Information Section -->
                 <div>
-                    <h3 class="text-xs md:text-sm font-semibold text-gray-700 mb-2 md:mb-3 flex items-center gap-1.5 md:gap-2">
-                        <i data-lucide="credit-card" class="w-4 h-4 md:w-5 md:h-5"></i>
+                    <h3 class="text-[10px] md:text-xs font-semibold text-gray-700 mb-2 md:mb-3 flex items-center gap-1 md:gap-1.5">
+                        <i data-lucide="credit-card" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
                         Payment Information
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 lg:gap-6">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                <i data-lucide="wallet" class="w-4 h-4 inline-block mr-1"></i>
+                            <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">
+                                <i data-lucide="wallet" class="w-3.5 h-3.5 md:w-4 md:h-4 inline-block mr-1"></i>
                                 Payment Type
                             </label>
-                            <select name="payment_type" id="paymentTypeModal" class="w-full border-2 border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors bg-white">
+                            <select name="payment_type" id="paymentTypeModal" class="w-full border-2 border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors bg-white">
                                 <option value="Card">Card</option>
                                 <option value="Cash">Cash</option>
                             </select>
@@ -270,24 +270,24 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                     <div id="cashFieldsModal" class="hidden mt-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Base Amount (Cash)</label>
+                                <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">Base Amount (Cash)</label>
                                 <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">₱</span>
-                                    <input type="number" step="0.01" min="0" name="base_amount" id="baseAmountModal" class="w-full border-2 border-gray-300 rounded-lg pl-8 pr-4 py-2 md:py-3 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" placeholder="0.00" />
+                                    <span class="absolute left-2.5 md:left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-xs md:text-sm">₱</span>
+                                    <input type="number" step="0.01" min="0" name="base_amount" id="baseAmountModal" class="w-full border-2 border-gray-300 rounded-lg pl-7 md:pl-8 pr-2.5 md:pr-4 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors" placeholder="0.00" />
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Total</label>
+                                <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">Total</label>
                                 <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">₱</span>
-                                    <input type="text" id="totalCostReadonlyModal" class="w-full border-2 border-gray-200 rounded-lg pl-8 pr-4 py-2 md:py-3 text-sm bg-gray-50 font-semibold" value="0.00" readonly />
+                                    <span class="absolute left-2.5 md:left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-xs md:text-sm">₱</span>
+                                    <input type="text" id="totalCostReadonlyModal" class="w-full border-2 border-gray-200 rounded-lg pl-7 md:pl-8 pr-2.5 md:pr-4 py-1.5 md:py-2 text-xs md:text-sm bg-gray-50 font-semibold" value="0.00" readonly />
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Change</label>
+                                <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">Change</label>
                                 <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">₱</span>
-                                    <input type="text" id="changeReadonlyModal" class="w-full border-2 border-gray-200 rounded-lg pl-8 pr-4 py-2 md:py-3 text-sm bg-gray-50 font-semibold" value="0.00" readonly />
+                                    <span class="absolute left-2.5 md:left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-xs md:text-sm">₱</span>
+                                    <input type="text" id="changeReadonlyModal" class="w-full border-2 border-gray-200 rounded-lg pl-7 md:pl-8 pr-2.5 md:pr-4 py-1.5 md:py-2 text-xs md:text-sm bg-gray-50 font-semibold" value="0.00" readonly />
                                 </div>
                             </div>
                         </div>
@@ -296,16 +296,16 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                 
                 <!-- Receipt Upload -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i data-lucide="file-text" class="w-4 h-4 inline-block mr-1"></i>
+                    <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">
+                        <i data-lucide="file-text" class="w-3.5 h-3.5 md:w-4 md:h-4 inline-block mr-1"></i>
                         Receipt Upload
                     </label>
-                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-3 md:p-4 text-center hover:border-green-400 transition-colors bg-gray-50/50" id="receiptDropzoneModal">
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-2.5 md:p-3 text-center hover:border-green-400 transition-colors bg-gray-50/50" id="receiptDropzoneModal">
                         <input type="file" name="receipt" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf" class="hidden" id="receiptUploadModal" required />
-                        <label for="receiptUploadModal" class="cursor-pointer flex flex-col items-center gap-1.5">
-                            <i data-lucide="upload" class="w-6 h-6 text-gray-400"></i>
-                            <p class="text-xs text-gray-600 font-medium">Click to upload receipt</p>
-                            <p class="text-[10px] text-gray-500">JPG, PNG, WebP, HEIC, PDF (max 10MB)</p>
+                        <label for="receiptUploadModal" class="cursor-pointer flex flex-col items-center gap-1">
+                            <i data-lucide="upload" class="w-5 h-5 md:w-6 md:h-6 text-gray-400"></i>
+                            <p class="text-[10px] md:text-xs text-gray-600 font-medium">Click to upload receipt</p>
+                            <p class="text-[9px] md:text-[10px] text-gray-500">JPG, PNG, WebP, HEIC, PDF (max 10MB)</p>
                         </label>
                         <div id="receiptSelectedModal" class="mt-2 hidden text-left bg-white border border-gray-200 rounded-lg px-3 py-2 flex items-center justify-between gap-3">
                             <div class="min-w-0 flex-1">
@@ -320,11 +320,11 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
             </div>
             
             <div class="mt-4 md:mt-6 flex flex-col sm:flex-row justify-end gap-2 md:gap-3 pt-4 border-t">
-                <button type="button" id="cancelBatchModalBtn" class="w-full sm:w-auto px-4 md:px-6 py-2 md:py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium text-sm md:text-base">
+                <button type="button" id="cancelBatchModalBtn" class="w-full sm:w-auto inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium text-xs md:text-sm">
                     Cancel
                 </button>
-                <button type="submit" id="recordPurchaseBtnModal" class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 md:gap-1 lg:gap-2 bg-green-600 text-white px-4 md:px-3 lg:px-6 py-2 md:py-2 lg:py-3 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors font-semibold shadow-sm disabled:opacity-60 disabled:cursor-not-allowed text-sm md:text-xs lg:text-base">
-                    <i data-lucide="shopping-cart" class="w-4 h-4 md:w-3.5 md:h-3.5 lg:w-5 lg:h-5"></i>
+                <button type="submit" id="recordPurchaseBtnModal" class="w-full sm:w-auto inline-flex items-center justify-center gap-1 md:gap-1.5 bg-green-600 text-white px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors font-semibold shadow-sm disabled:opacity-60 disabled:cursor-not-allowed text-xs md:text-sm">
+                    <i data-lucide="shopping-cart" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
                     <span class="whitespace-nowrap">Record Purchase Batch</span>
                 </button>
             </div>
@@ -344,18 +344,18 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                     <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
                 </div>
                 <div class="flex-1">
-                    <h3 class="text-lg font-semibold text-gray-900">Remove Item</h3>
-                    <p class="text-sm text-gray-600 mt-1">Are you sure you want to remove this item from the purchase list?</p>
+                    <h3 class="text-sm md:text-base font-semibold text-gray-900">Remove Item</h3>
+                    <p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Are you sure you want to remove this item from the purchase list?</p>
                 </div>
             </div>
-            <div class="bg-gray-50 rounded-lg p-3 mb-4">
-                <p class="text-sm font-medium text-gray-900" id="removeItemName"></p>
+            <div class="bg-gray-50 rounded-lg p-2.5 md:p-3 mb-3 md:mb-4">
+                <p class="text-xs md:text-sm font-medium text-gray-900" id="removeItemName"></p>
             </div>
-            <div class="flex justify-end gap-3">
-                <button type="button" id="cancelRemoveBtn" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium">
+            <div class="flex justify-end gap-2 md:gap-3">
+                <button type="button" id="cancelRemoveBtn" class="inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium text-xs md:text-sm">
                     Cancel
                 </button>
-                <button type="button" id="confirmRemoveBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
+                <button type="button" id="confirmRemoveBtn" class="inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-xs md:text-sm">
                     Remove Item
                 </button>
             </div>
@@ -369,11 +369,11 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
 	<div class="bg-gradient-to-r from-gray-50 to-gray-100 px-4 md:px-5 lg:px-6 py-3 md:py-4 border-b">
 		<div class="flex flex-col gap-3 md:gap-4 md:flex-row md:items-center md:justify-between">
 			<div>
-                <h2 class="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-1.5 md:gap-2">
-                    <span class="text-green-600 font-semibold text-base md:text-lg">₱</span>
+                <h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
+                    <span class="text-green-600 font-semibold text-sm md:text-base">₱</span>
                     Recent Purchases
                 </h2>
-				<p class="text-xs md:text-sm text-gray-600 mt-0.5 md:mt-1">View and manage all purchase transactions</p>
+				<p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">View and manage all purchase transactions</p>
 			</div>
 			<div class="flex flex-col sm:flex-row gap-3 md:gap-4 items-start sm:items-center">
 				<div class="flex items-center gap-2 md:gap-4">

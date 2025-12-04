@@ -289,8 +289,8 @@ class InventoryController extends BaseController
 		}
 		
 		// Skip first two rows (date row and header row)
-		fgetcsv($handle); // Row 1: dates
-		fgetcsv($handle); // Row 2: headers
+		fgetcsv($handle, 0, ',', '"', '\\'); // Row 1: dates
+		fgetcsv($handle, 0, ',', '"', '\\'); // Row 2: headers
 		
 		$ingredientModel = new Ingredient();
 		$logger = new AuditLog();
@@ -346,7 +346,7 @@ class InventoryController extends BaseController
 		};
 		
 		$rowNum = 2; // Track row number for error reporting
-		while (($row = fgetcsv($handle)) !== false) {
+		while (($row = fgetcsv($handle, 0, ',', '"', '\\')) !== false) {
 			$rowNum++;
 			
 			// Skip empty rows

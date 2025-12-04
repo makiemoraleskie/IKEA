@@ -16,11 +16,11 @@ $currentQuery = http_build_query(array_filter($_GET ?? [], fn($value) => $value 
 .custom-scroll::-webkit-scrollbar-track{background:rgba(226,232,240,0.4)}
 </style>
 <!-- Page Header -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6 mb-6">
-	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6">
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
 		<div>
-			<h1 class="text-xl md:text-2xl font-bold text-gray-900 mb-1">Audit Logs</h1>
-			<p class="text-xs md:text-sm text-gray-600">Track and monitor system activities across modules</p>
+			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1">Audit Logs</h1>
+			<p class="text-[10px] md:text-xs text-gray-600">Track and monitor system activities across modules</p>
 			<div class="mt-2 inline-flex items-center gap-2 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold px-3 py-1">
 				<i data-lucide="calendar" class="w-3 h-3"></i>
 				<span><?php echo htmlspecialchars($activeDateLabel); ?></span>
