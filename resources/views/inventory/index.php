@@ -441,29 +441,29 @@ document.addEventListener('DOMContentLoaded', function () {
 <?php if ($canManageInventory): ?>
 <div id="deleteIngredientModal" class="fixed inset-0 z-50 hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 50 !important;">
     <div class="fixed inset-0 bg-black/50" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
-    <div class="relative z-10 flex min-h-full items-center justify-center p-4 overflow-x-hidden">
-        <div class="bg-white rounded-xl shadow-xl max-w-md w-full max-w-[calc(100vw-2rem)] mx-auto">
-            <div class="p-6">
-                <div class="flex items-center gap-4 mb-4">
-                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                        <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+    <div class="relative z-10 flex items-center justify-center p-4 overflow-x-hidden" style="min-height: 100vh;">
+        <div class="bg-white rounded-xl shadow-xl max-w-sm w-full mx-auto">
+            <div class="p-4 md:p-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600"></i>
                     </div>
                     <div class="flex-1">
                         <h3 class="text-sm md:text-base font-semibold text-gray-900">Delete Ingredient</h3>
-                        <p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Are you sure you want to delete this ingredient from the inventory?</p>
+                        <p class="text-[10px] md:text-xs text-gray-600 mt-0.5">Are you sure you want to delete this ingredient from the inventory?</p>
                     </div>
                 </div>
-                <div class="bg-gray-50 rounded-lg p-2.5 md:p-3 mb-3 md:mb-4">
+                <div class="bg-gray-50 rounded-lg p-2.5 md:p-3 mb-3">
                     <p class="text-xs md:text-sm font-medium text-gray-900" id="deleteIngredientName"></p>
                 </div>
-                <div class="flex justify-end gap-2 md:gap-3">
-                    <button type="button" id="cancelDeleteIngredientBtn" class="inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium text-xs md:text-sm">
+                <div class="flex justify-end gap-2">
+                    <button type="button" id="cancelDeleteIngredientBtn" class="inline-flex items-center justify-center px-3 md:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium text-xs md:text-sm">
                         Cancel
                     </button>
                     <form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/delete" id="deleteIngredientForm" class="inline">
                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
-                        <input type="hidden" name="ingredient_id" id="deleteIngredientId" value="">
-                        <button type="submit" id="confirmDeleteIngredientBtn" class="inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-xs md:text-sm">
+                        <input type="hidden" name="id" id="deleteIngredientId" value="">
+                        <button type="submit" id="confirmDeleteIngredientBtn" class="inline-flex items-center justify-center px-3 md:px-4 py-1.5 md:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-xs md:text-sm">
                             Delete Ingredient
                         </button>
                     </form>
@@ -1376,16 +1376,16 @@ document.addEventListener('DOMContentLoaded', function() {
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 lg:gap-5">
 					<div class="space-y-1.5 md:space-y-2">
 						<label class="block text-xs md:text-sm font-medium text-gray-700">Ingredient Name <span class="text-red-500">*</span></label>
-						<input name="name" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" placeholder="e.g., Flour, Sugar" required />
+						<input name="name" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm" placeholder="e.g., Flour, Sugar" required />
 					</div>
 					<div class="space-y-1.5 md:space-y-2">
 						<label class="block text-xs md:text-sm font-medium text-gray-700">Category</label>
-						<input name="category" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" placeholder="e.g., Dry Goods, Packaging" />
+						<input name="category" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm" placeholder="e.g., Dry Goods, Packaging" />
 					</div>
 					
 					<div class="space-y-1.5 md:space-y-2">
 						<label class="block text-xs md:text-sm font-medium text-gray-700">Base Unit <span class="text-red-500">*</span></label>
-						<select name="unit" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" required>
+						<select name="unit" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm" required>
 							<option value="">Select unit</option>
 							<option value="g">Grams (g)</option>
 							<option value="kg">Kilograms (kg)</option>
@@ -1449,6 +1449,66 @@ document.addEventListener('DOMContentLoaded', function() {
 	</div>
 </div>
 <?php endif; ?>
+
+<style>
+	/* Remove focus ring and border color for ALL input fields in add ingredient modal on tablet mode */
+	@media (min-width: 768px) and (max-width: 1023px) {
+		#addIngredientModal input[type="text"]:focus,
+		#addIngredientModal input[type="number"]:focus,
+		#addIngredientModal input[type="email"]:focus,
+		#addIngredientModal input[type="password"]:focus,
+		#addIngredientModal input:focus,
+		#addIngredientModal select:focus,
+		#addIngredientModal textarea:focus {
+			outline: none !important;
+			box-shadow: none !important;
+			border-color: rgb(209 213 219) !important; /* Keep gray-300 border color */
+			--tw-ring-offset-shadow: 0 0 #0000 !important;
+			--tw-ring-shadow: 0 0 #0000 !important;
+			--tw-ring-offset-width: 0px !important;
+			--tw-ring-width: 0px !important;
+		}
+		
+		/* Remove focus ring and blue border for input fields in current inventory section on tablet mode */
+		#inventory-low-stock input:focus,
+		#inventory-low-stock select:focus,
+		#inventory-low-stock textarea:focus {
+			outline: none !important;
+			box-shadow: none !important;
+			border-color: rgb(209 213 219) !important; /* Keep gray-300 border color */
+			--tw-ring-offset-shadow: 0 0 #0000 !important;
+			--tw-ring-shadow: 0 0 #0000 !important;
+			--tw-ring-offset-width: 0px !important;
+			--tw-ring-width: 0px !important;
+		}
+		
+		/* Remove focus ring and border color for input fields in purchase list modal on tablet mode */
+		#purchaseListModal input:focus,
+		#purchaseListModal select:focus,
+		#purchaseListModal textarea:focus {
+			outline: none !important;
+			box-shadow: none !important;
+			border-color: rgb(209 213 219) !important; /* Keep gray-300 border color */
+			--tw-ring-offset-shadow: 0 0 #0000 !important;
+			--tw-ring-shadow: 0 0 #0000 !important;
+			--tw-ring-offset-width: 0px !important;
+			--tw-ring-width: 0px !important;
+		}
+		
+		/* Remove focus ring and indigo border for input fields in ingredient sets form on tablet mode */
+		#setBuilderForm input:focus,
+		#setBuilderForm select:focus,
+		#setBuilderForm textarea:focus {
+			outline: none !important;
+			box-shadow: none !important;
+			border-color: rgb(209 213 219) !important; /* Keep gray-300 border color */
+			--tw-ring-offset-shadow: 0 0 #0000 !important;
+			--tw-ring-shadow: 0 0 #0000 !important;
+			--tw-ring-offset-width: 0px !important;
+			--tw-ring-width: 0px !important;
+		}
+	}
+</style>
 
 <!-- Ingredient Sets -->
 <?php 

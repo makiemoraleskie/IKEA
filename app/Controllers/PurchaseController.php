@@ -180,8 +180,29 @@ class PurchaseController extends BaseController
                 if (($receiptUpload['size'] ?? 0) > $maxBytes) {
                     $receiptProblem = 'Receipt exceeds the 10MB limit. Please compress the file or upload a PDF scan.';
                 } else {
-                    $finfo = new finfo(FILEINFO_MIME_TYPE);
-                    $mime = $finfo->file($receiptUpload['tmp_name']);
+                    // Try to detect MIME type using finfo if available, otherwise use fallback methods
+                    $mime = null;
+                    if (class_exists('finfo')) {
+                        $finfo = new finfo(FILEINFO_MIME_TYPE);
+                        $mime = $finfo->file($receiptUpload['tmp_name']);
+                    } elseif (function_exists('mime_content_type')) {
+                        $mime = mime_content_type($receiptUpload['tmp_name']);
+                    } else {
+                        // Fallback: use file extension from original filename
+                        $originalName = $receiptUpload['name'] ?? '';
+                        $extensionMap = [
+                            'jpg' => 'image/jpeg',
+                            'jpeg' => 'image/jpeg',
+                            'png' => 'image/png',
+                            'webp' => 'image/webp',
+                            'heic' => 'image/heic',
+                            'heif' => 'image/heif',
+                            'pdf' => 'application/pdf',
+                        ];
+                        $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+                        $mime = $extensionMap[$ext] ?? null;
+                    }
+                    
                     $ext = $allowed[$mime] ?? null;
                     if ($ext === null) {
                         $receiptProblem = 'Unsupported receipt file type. Allowed types: JPG, PNG, WebP, HEIC and PDF.';

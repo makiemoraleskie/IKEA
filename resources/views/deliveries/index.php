@@ -1780,4 +1780,30 @@ foreach ($deliveries as $d) {
 })();
 </script>
 
+<style>
+	/* Remove focus ring and border color for input fields in deliveries page on tablet mode */
+	@media (min-width: 768px) and (max-width: 1023px) {
+		#deliveriesForm input:focus,
+		#deliveriesForm select:focus,
+		#deliveriesForm textarea:focus,
+		#deliveryModal input:focus,
+		#deliveryModal select:focus,
+		#deliveryModal textarea:focus,
+		#receiveQuickModal input:focus,
+		#receiveQuickModal select:focus,
+		#receiveQuickModal textarea:focus,
+		#awaiting-deliveries input:focus,
+		#awaiting-deliveries select:focus,
+		#awaiting-deliveries textarea:focus {
+			outline: none !important;
+			box-shadow: none !important;
+			border-color: rgb(209 213 219) !important; /* Keep gray-300 border color */
+			--tw-ring-offset-shadow: 0 0 #0000 !important;
+			--tw-ring-shadow: 0 0 #0000 !important;
+			--tw-ring-offset-width: 0px !important;
+			--tw-ring-width: 0px !important;
+		}
+	}
+</style>
+
 
