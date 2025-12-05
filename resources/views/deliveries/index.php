@@ -12,6 +12,13 @@ $deliveredTotals = $deliveredTotals ?? [];
 	</div>
 </div>
 
+<div class="space-y-2">
+				<label class="block text-sm font-medium text-gray-700">Delivery Status</label>
+				<div class="border border-dashed border-green-200 bg-green-50 text-sm text-green-800 rounded-lg px-4 py-3">
+					Status is now auto-calculated when you click <strong class="font-semibold">Record Delivery</strong>. If <em>Receive Now</em> matches the <em>Remaining</em> quantity, the delivery will be marked as <span class="font-semibold">Complete Delivery</span>; otherwise it will be recorded as <span class="font-semibold">Partial Delivery</span>.
+				</div>
+</div>
+
 <!-- Summary Cards -->
 <?php if (!empty($deliveries)): ?>
 <?php 
@@ -68,9 +75,9 @@ foreach ($deliveries as $d) {
 
 <!-- Record Delivery Form -->
 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-6 md:mb-8 overflow-hidden">
-	<div class="bg-gradient-to-r from-orange-50 to-red-50 px-4 sm:px-6 py-4 border-b">
+	<div class="bg-gray-100 px-4 sm:px-6 py-4 border-b">
 		<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
-			<i data-lucide="package-check" class="w-3.5 h-3.5 md:w-4 md:h-4 text-orange-600"></i>
+			<i data-lucide="package-check" class="w-3.5 h-3.5 md:w-4 md:h-4 text-green-600"></i>
 			Record New Delivery
 		</h2>
 		<p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Record a delivery for an existing purchase</p>
@@ -123,13 +130,6 @@ foreach ($deliveries as $d) {
                 <label class="block text-sm font-medium text-gray-700">Unit</label>
                 <select id="deliveryQtyUnit" class="w-full border border-gray-300 rounded-lg px-4 py-3"><option value="">Auto-detect</option></select>
             </div>
-			
-			<div class="space-y-2">
-				<label class="block text-sm font-medium text-gray-700">Delivery Status</label>
-				<div class="border border-dashed border-orange-200 bg-orange-50 text-sm text-orange-800 rounded-lg px-4 py-3">
-					Status is now auto-calculated when you click <strong class="font-semibold">Record Delivery</strong>. If <em>Receive Now</em> matches the <em>Remaining</em> quantity, the delivery will be marked as <span class="font-semibold">Complete Delivery</span>; otherwise it will be recorded as <span class="font-semibold">Partial Delivery</span>.
-				</div>
-			</div>
 		</div>
 		
         <div id="batchItemsBox" class="mt-4 hidden">
@@ -150,7 +150,7 @@ foreach ($deliveries as $d) {
         </div>
 
         <div class="mt-6 flex justify-end">
-			<button type="submit" class="inline-flex items-center gap-2 bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors">
+			<button type="submit" class="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
 				<i data-lucide="package-check" class="w-4 h-4"></i>
 				Record Delivery
 			</button>
@@ -601,7 +601,7 @@ foreach ($deliveries as $d) {
 			<i data-lucide="truck" class="w-16 h-16 mb-4 text-gray-300"></i>
 			<h3 class="text-lg font-medium text-gray-900 mb-2">No Deliveries Found</h3>
 			<p class="text-sm text-gray-600 mb-4">Start by recording your first delivery</p>
-			<button onclick="document.querySelector('form').scrollIntoView({behavior: 'smooth'})" class="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
+			<button onclick="document.querySelector('form').scrollIntoView({behavior: 'smooth'})" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
 				<i data-lucide="plus" class="w-4 h-4"></i>
 				Record First Delivery
 			</button>
