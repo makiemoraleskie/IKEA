@@ -16,10 +16,10 @@ $currentQuery = http_build_query(array_filter($_GET ?? [], fn($value) => $value 
 .custom-scroll::-webkit-scrollbar-track{background:rgba(226,232,240,0.4)}
 </style>
 <!-- Page Header -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6 max-w-full overflow-x-hidden">
 	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
-		<div>
-			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1">Audit Logs</h1>
+		<div class="min-w-0 flex-1">
+			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1 truncate">Audit Logs</h1>
 			<p class="text-[10px] md:text-xs text-gray-600">Track and monitor system activities across modules</p>
 			<div class="mt-2 inline-flex items-center gap-2 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold px-3 py-1">
 				<i data-lucide="calendar" class="w-3 h-3"></i>
@@ -125,7 +125,7 @@ foreach ($logs as $log) {
 <?php endif; ?>
 
 <?php if (!empty($timeline)): ?>
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-8 overflow-hidden max-w-full w-full">
 	<div class="bg-gradient-to-r from-indigo-50 to-slate-50 px-4 sm:px-6 py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 		<div>
 			<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
@@ -175,7 +175,7 @@ foreach ($logs as $log) {
 <?php endif; ?>
 
 <!-- Filters Section -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-8 overflow-hidden max-w-full w-full">
 	<div class="bg-gradient-to-r from-slate-50 to-gray-50 px-4 sm:px-6 py-4 border-b">
 		<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
 			<i data-lucide="filter" class="w-5 h-5 text-slate-600"></i>
@@ -274,7 +274,7 @@ foreach ($logs as $log) {
 </div>
 
 <!-- Audit Logs Table -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden max-w-full w-full">
 	<div class="bg-gradient-to-r from-gray-50 to-gray-100 px-4 sm:px-6 py-4 border-b">
 		<div class="flex items-center justify-between">
 			<div>

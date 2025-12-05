@@ -145,7 +145,7 @@ if ($user) {
 		</div>
 		
 		<!-- Main Content -->
-		<div class="flex-1 flex flex-col transition-all duration-300">
+		<div class="flex-1 flex flex-col transition-all duration-300 min-w-0">
 			<!-- Top Header -->
 			<header class="bg-white border-b theme-header relative z-10" style="z-index: 10;">
 				<div class="mx-auto flex w-full max-w-7xl flex-col gap-3 md:gap-4 px-4 py-3 md:py-4 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8 xl:px-10">
@@ -523,8 +523,8 @@ if ($user) {
 			</script>
 			
 			<!-- Main Content Area -->
-			<main class="flex-1 overflow-y-auto" style="background-color: #f9fafb;">
-				<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 space-y-8">
+			<main class="flex-1 overflow-y-auto min-w-0" style="background-color: #f9fafb;">
+				<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 space-y-8 min-w-0">
 	<?php else: ?>
 	<main class="max-w-7xl mx-auto p-4">
 	<?php endif; ?>

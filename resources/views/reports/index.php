@@ -20,10 +20,10 @@ $consumptionFilters = array_merge([
 ], $consumptionFilters ?? []);
 ?>
 <!-- Page Header -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6 max-w-full overflow-x-hidden">
 	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
-		<div>
-			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1">Purchase Reports</h1>
+		<div class="min-w-0 flex-1">
+			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1 truncate">Purchase Reports</h1>
 			<p class="text-[10px] md:text-xs text-gray-600">Analyze and export purchase data</p>
 		</div>
 	</div>
@@ -40,7 +40,7 @@ $totalCost = array_sum(array_column($purchases, 'cost'));
 $uniqueSuppliers = count(array_unique(array_column($purchases, 'supplier')));
 $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 ?>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8 max-w-full overflow-x-hidden">
 	<!-- Total Purchases -->
 	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
 		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
@@ -106,7 +106,7 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 
 <!-- Filters Section -->
 <div class="mb-8 no-print">
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+	<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden max-w-full w-full">
 		<div class="bg-gray-50 px-4 md:px-5 lg:px-6 py-3 md:py-4 border-b">
 			<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
 				<i data-lucide="filter" class="w-3.5 h-3.5 md:w-4 md:h-4 text-green-600"></i>
@@ -198,7 +198,7 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 
 <?php if (!empty($sectionsEnabled['consumption'])): ?>
 	<!-- Consumption Filters Section -->
-	<div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8 overflow-hidden no-print">
+	<div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8 overflow-hidden no-print max-w-full w-full">
 		<div class="bg-gray-50 px-4 md:px-5 lg:px-6 py-3 md:py-4 border-b">
 			<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
 				<i data-lucide="activity" class="w-3.5 h-3.5 md:w-4 md:h-4 text-green-600"></i>
@@ -363,7 +363,7 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 
 <?php if (!empty($sectionsEnabled['consumption'])): ?>
 <!-- Ingredient Consumption Report -->
-<div id="consumptionReportSection" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
+<div id="consumptionReportSection" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8 max-w-full w-full">
 	<div class="bg-gray-50 px-4 md:px-5 lg:px-6 py-3 md:py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 		<div>
 			<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">

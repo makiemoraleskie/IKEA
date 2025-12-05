@@ -21,10 +21,10 @@ function formatDate($dateString) {
 }
 ?>
 <!-- Page Header -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6 max-w-full overflow-x-hidden">
 	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
-		<div>
-			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1">Ingredient Requests</h1>
+		<div class="min-w-0 flex-1">
+			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1 truncate">Ingredient Requests</h1>
 			<p class="text-[10px] md:text-xs text-gray-600">Manage ingredient requests and batch approvals</p>
 		</div>
 	</div>
@@ -52,7 +52,7 @@ function formatDate($dateString) {
 			</div>
 			<button type="button" id="closeNewRequestModal" class="text-gray-500 hover:text-gray-700 text-xl md:text-2xl leading-none" aria-label="Close">&times;</button>
 		</div>
-		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests" class="p-3 md:p-4 lg:p-5 space-y-3 md:space-y-4 lg:space-y-5">
+		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests" class="p-3 md:p-4 lg:p-5 space-y-3 md:space-y-4 lg:space-y-5 w-full overflow-x-hidden">
 			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
 				<div class="space-y-1.5 md:space-y-2">
@@ -85,7 +85,7 @@ function formatDate($dateString) {
 
 <?php if (Auth::role() !== 'Kitchen Staff'): ?>
 <!-- Batch Requests Table -->
-<div id="requests-history" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+<div id="requests-history" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden max-w-full w-full">
 	<div class="px-4 md:px-6 py-3 md:py-4 border-b">
         <div class="flex flex-col gap-3 md:gap-4 md:flex-row md:items-center md:justify-between">
             <div>
@@ -317,7 +317,7 @@ function formatDate($dateString) {
 
 <?php if (Auth::role() !== 'Kitchen Staff'): ?>
 <!-- To Prepare -->
-<div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 md:mb-8 overflow-hidden">
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 md:mb-8 overflow-hidden max-w-full w-full">
 	<div class="px-4 md:px-6 py-3 md:py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 		<div>
 			<h2 class="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-1.5 md:gap-2">
@@ -403,7 +403,7 @@ function formatDate($dateString) {
 
 <?php if (Auth::role() === 'Kitchen Staff'): ?>
 <!-- Kitchen Staff history -->
-<div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden max-w-full w-full">
 	<div class="px-4 md:px-6 py-3 md:py-4 border-b">
 		<h2 class="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-1.5 md:gap-2">
 			<i data-lucide="clock" class="w-4 h-4 md:w-5 md:h-5 text-gray-600"></i>

@@ -16,10 +16,10 @@ if (!empty($lowStockGroups)) {
 }
 ?>
 <!-- Page Header -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6 max-w-full overflow-x-hidden">
 	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
-		<div>
-			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1">Inventory Management</h1>
+		<div class="min-w-0 flex-1">
+			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1 truncate">Inventory Management</h1>
 			<p class="text-[10px] md:text-xs text-gray-600">Track and manage ingredient stock levels</p>
 		</div>
 	</div>
@@ -35,7 +35,7 @@ foreach ($ingredients as $ing) {
 }
 ?>
 <?php if (!empty($ingredients)): ?>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8 max-w-full overflow-x-hidden">
 	<!-- Total Ingredients -->
 	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
 		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
@@ -105,7 +105,7 @@ foreach ($ingredients as $ing) {
 </div>
 
 <!-- Inventory Table -->
-<div id="inventory-low-stock" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+<div id="inventory-low-stock" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden max-w-full w-full">
 	<div class="px-4 md:px-6 py-3 md:py-4 border-b">
 		<div class="flex flex-col gap-3 md:gap-4 md:flex-row md:items-center md:justify-between">
 			<div>
@@ -1460,7 +1460,7 @@ if (!isset($ingredientSetsEnabled)) {
 }
 ?>
 <?php if ($ingredientSetsEnabled === true): ?>
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-6 md:mb-8 overflow-hidden">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-6 md:mb-8 overflow-hidden max-w-full w-full">
 	<div class="bg-gradient-to-r from-indigo-50 to-blue-50 px-4 md:px-5 lg:px-6 py-3 md:py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 		<div>
 			<h2 class="text-lg md:text-xl font-semibold text-gray-900 flex items-center gap-2">

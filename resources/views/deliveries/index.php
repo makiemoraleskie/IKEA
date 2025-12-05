@@ -3,10 +3,10 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '';
 $deliveredTotals = $deliveredTotals ?? [];
 ?>
 <!-- Page Header -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6 max-w-full overflow-x-hidden">
 	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
-		<div>
-			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1">Delivery Management</h1>
+		<div class="min-w-0 flex-1">
+			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1 truncate">Delivery Management</h1>
 			<p class="text-[10px] md:text-xs text-gray-600">Record and track ingredient deliveries</p>
 		</div>
 	</div>
@@ -34,7 +34,7 @@ foreach ($deliveries as $d) {
 	}
 }
 ?>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8 max-w-full overflow-x-hidden">
 	<!-- Total Deliveries -->
 	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
 		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
@@ -74,7 +74,7 @@ foreach ($deliveries as $d) {
 <?php endif; ?>
 
 <!-- Record Delivery Form -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-6 md:mb-8 overflow-hidden">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-6 md:mb-8 overflow-hidden max-w-full w-full">
 	<div class="bg-gray-100 px-4 sm:px-6 py-4 border-b">
 		<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
 			<i data-lucide="package-check" class="w-3.5 h-3.5 md:w-4 md:h-4 text-green-600"></i>
@@ -83,7 +83,7 @@ foreach ($deliveries as $d) {
 		<p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Record a delivery for an existing purchase</p>
 	</div>
 	
-    <form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/deliveries" class="p-4 sm:p-6" id="deliveriesForm">
+    <form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/deliveries" class="p-4 sm:p-6 w-full overflow-x-hidden" id="deliveriesForm">
 		<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
         <input type="hidden" name="items_json" id="deliveriesItemsJson" value="[]">
 		
@@ -280,7 +280,7 @@ foreach ($deliveries as $d) {
 </div>
 
 <?php if (!empty($awaitingPurchases)): ?>
-<div id="awaiting-deliveries" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6 md:mb-8">
+<div id="awaiting-deliveries" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6 md:mb-8 max-w-full w-full">
     <div class="bg-gradient-to-r from-orange-50 to-amber-50 px-4 sm:px-6 py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div>
             <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
@@ -473,7 +473,7 @@ foreach ($deliveries as $d) {
 </div>
 
 <!-- Recent Deliveries Table -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden max-w-full w-full">
 	<div class="bg-gradient-to-r from-gray-50 to-gray-100 px-4 sm:px-6 py-4 border-b">
 		<div class="flex items-center justify-between">
 			<div>
