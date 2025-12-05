@@ -708,6 +708,32 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
     <input type="file" name="receipt" id="markPaidReceiptInput" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf" class="hidden">
 </form>
 
+<!-- Custom Alert Modal -->
+<div id="customAlertModal" class="fixed inset-0 z-50 hidden overflow-hidden">
+    <div class="fixed inset-0 bg-gray-900/70 backdrop-blur-sm" data-alert-dismiss></div>
+    <div class="fixed inset-0 flex items-center justify-center px-4 py-8 pointer-events-none">
+        <div class="bg-white rounded-xl shadow-2xl border border-gray-200 max-w-sm w-full mx-auto pointer-events-auto">
+            <div class="p-4 md:p-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="alert-circle" class="w-5 h-5 text-yellow-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-sm md:text-base font-semibold text-gray-900">Notice</h3>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <p class="text-xs md:text-sm text-gray-700" id="alertMessage"></p>
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" id="alertOkBtn" class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-xs md:text-sm">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <style>
 #purchaseForm {
@@ -746,6 +772,47 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
   word-break: break-word;
   overflow-wrap: anywhere;
 }
+
+/* Remove focus ring and gray border for input fields in purchase form on tablet mode */
+@media (min-width: 768px) and (max-width: 1023px) {
+  #purchaseForm input:focus,
+  #purchaseForm select:focus,
+  #purchaseForm textarea:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: rgb(209 213 219) !important; /* Keep gray-300 border color */
+    --tw-ring-offset-shadow: 0 0 #0000 !important;
+    --tw-ring-shadow: 0 0 #0000 !important;
+    --tw-ring-offset-width: 0px !important;
+    --tw-ring-width: 0px !important;
+  }
+}
+
+/* Ensure custom alert modal backdrop is full screen */
+#customAlertModal {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  z-index: 9999 !important;
+}
+
+#customAlertModal > div:first-child {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
 </style>
 <script>
 (function(){
@@ -756,6 +823,45 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   const unitSel = document.getElementById('unitSelect');
   const cost = document.getElementById('costInput');
   const addBtn = document.getElementById('addRowBtn');
+  
+  // Custom Alert Modal Handler
+  const alertModal = document.getElementById('customAlertModal');
+  const alertMessage = document.getElementById('alertMessage');
+  const alertOkBtn = document.getElementById('alertOkBtn');
+  const alertDismiss = alertModal ? alertModal.querySelectorAll('[data-alert-dismiss]') : [];
+  
+  function showAlert(message) {
+    if (!alertModal || !alertMessage) return;
+    alertMessage.textContent = message;
+    alertModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+    if (window.lucide?.createIcons) {
+      window.lucide.createIcons({ elements: alertModal.querySelectorAll('i[data-lucide]') });
+    }
+  }
+  
+  function hideAlert() {
+    if (alertModal) {
+      alertModal.classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+    }
+  }
+  
+  if (alertOkBtn) {
+    alertOkBtn.addEventListener('click', hideAlert);
+  }
+  
+  alertDismiss.forEach(btn => {
+    btn.addEventListener('click', hideAlert);
+  });
+  
+  if (alertModal) {
+    alertModal.addEventListener('click', (e) => {
+      if (e.target === alertModal || e.target.classList.contains('bg-gray-900')) {
+        hideAlert();
+      }
+    });
+  }
   const listBody = document.getElementById('purchaseList');
   const itemsJson = document.getElementById('itemsJson');
   const totalCostSpan = document.getElementById('totalCost');
@@ -1306,7 +1412,7 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   addBtn.addEventListener('click', ()=>{
     const ingredientName = ingInput.value.trim();
     if (!ingredientName) {
-      alert('Please enter an ingredient name');
+      showAlert('Please enter an ingredient name');
       return;
     }
     
@@ -1315,15 +1421,15 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     const rowCost = parseFloat(cost.value || '0');
     
     if (!quantity || quantity <= 0) {
-      alert('Please enter a valid quantity');
+      showAlert('Please enter a valid quantity');
       return;
     }
     if (!selectedUnit) {
-      alert('Please enter or select a unit');
+      showAlert('Please enter or select a unit');
       return;
     }
     if (isNaN(rowCost) || rowCost < 0) {
-      alert('Please enter a valid cost');
+      showAlert('Please enter a valid cost');
       return;
     }
     

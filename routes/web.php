@@ -37,6 +37,7 @@ return [
 		'/deliveries' => ['DeliveryController', 'store'],
 		// removed force-delete feature routes
 		'/inventory' => ['InventoryController', 'store'],
+		'/inventory/delete' => ['InventoryController', 'deleteIngredient'],
 		'/inventory/import' => ['InventoryController', 'import'],
 		'/inventory/migrate-kg-to-g' => ['InventoryController', 'migrateKgToG'],
 		'/inventory/meta' => ['InventoryController', 'updateMeta'],
