@@ -1506,3 +1506,4 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   window.addEventListener('resize', updateEmptyStateColspan);
 })();
 </script>
+

@@ -217,7 +217,11 @@ function formatDate($dateString) {
 							<?php endif; ?>
 
 							<!-- Items In Batch Section -->
-							<?php if (!empty($items)): ?>
+							<?php 
+							if (!empty($items) && Auth::role() !== 'Kitchen Staff'): 
+								$isDistributed = (strtolower($b['status'] ?? '') === 'distributed');
+								$batchId = (int)$b['id'];
+							?>
 							<div class="space-y-3 md:space-y-4 pt-2 border-t border-gray-100">
 								<div class="flex items-center gap-1.5 md:gap-2">
 									<i data-lucide="list-checks" class="w-4 h-4 md:w-5 md:h-5 text-green-600"></i>
@@ -229,11 +233,20 @@ function formatDate($dateString) {
 											<tr>
 												<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Ingredient</th>
 												<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Quantity</th>
-												<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Actions</th>
+												<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm"><?php echo $isDistributed ? 'Remaining Stock' : 'Actions'; ?></th>
 											</tr>
 										</thead>
 										<tbody class="divide-y divide-gray-200">
-											<?php foreach ($items as $it): ?>
+											<?php foreach ($items as $it): 
+												$itemId = (int)($it['item_id'] ?? 0);
+												$ingredient = null;
+												foreach ($ingredients as $ing) {
+													if ((int)$ing['id'] === $itemId) {
+														$ingredient = $ing;
+														break;
+													}
+												}
+											?>
 											<tr class="hover:bg-gray-50 transition-colors">
 												<td class="px-2.5 md:px-3 py-2 md:py-2.5">
 													<div>
@@ -248,7 +261,38 @@ function formatDate($dateString) {
 													<span class="font-bold text-gray-900 text-xs md:text-sm"><?php echo htmlspecialchars($it['quantity']); ?> <?php echo htmlspecialchars($it['unit']); ?></span>
 												</td>
 												<td class="px-2.5 md:px-3 py-2 md:py-2.5">
-													<button type="button" class="text-red-600 hover:text-red-700 text-[10px] md:text-xs font-medium">Remove</button>
+													<?php if ($isDistributed): 
+														$remainingStock = $batchRemainingStock[$batchId][$itemId] ?? 0;
+														$baseUnit = $ingredient['unit'] ?? $it['unit'] ?? '';
+														$displayUnit = $ingredient['display_unit'] ?? null;
+														$displayFactor = (float)($ingredient['display_factor'] ?? 1.0);
+														
+														// Format remaining stock with display unit if available
+														$stockValue = (float)$remainingStock;
+														$stockDisplay = '';
+														
+														if ($displayUnit && $displayFactor > 0) {
+															// Convert to display unit
+															if ($baseUnit === 'g' && $displayUnit === 'kg') {
+																$stockDisplay = number_format($stockValue / 1000.0, 2) . ' ' . $displayUnit;
+															} else if ($baseUnit === 'kg' && $displayUnit === 'g') {
+																$stockDisplay = number_format($stockValue * 1000.0, 2) . ' ' . $displayUnit;
+															} else if ($baseUnit === 'ml' && $displayUnit === 'L') {
+																$stockDisplay = number_format($stockValue / 1000.0, 2) . ' ' . $displayUnit;
+															} else if ($baseUnit === 'L' && $displayUnit === 'ml') {
+																$stockDisplay = number_format($stockValue * 1000.0, 2) . ' ' . $displayUnit;
+															} else {
+																// Use display_factor for conversion
+																$stockDisplay = number_format($stockValue / $displayFactor, 2) . ' ' . $displayUnit;
+															}
+														} else {
+															$stockDisplay = number_format($stockValue, 2) . ' ' . $baseUnit;
+														}
+													?>
+														<span class="font-semibold text-gray-900 text-xs md:text-sm"><?php echo htmlspecialchars($stockDisplay); ?></span>
+													<?php else: ?>
+														<button type="button" class="text-red-600 hover:text-red-700 text-[10px] md:text-xs font-medium">Remove</button>
+													<?php endif; ?>
 												</td>
 											</tr>
 											<?php endforeach; ?>
@@ -478,7 +522,9 @@ function formatDate($dateString) {
 							<!-- Items In Batch Section -->
 							<?php 
 							$kitchenStaffItems = $batchItems[(int)$b['id']] ?? [];
-							if (!empty($kitchenStaffItems)): 
+							if (!empty($kitchenStaffItems) && Auth::role() !== 'Kitchen Staff'): 
+								$isDistributed = (strtolower($b['status'] ?? '') === 'distributed');
+								$batchId = (int)$b['id'];
 							?>
 							<div class="space-y-3 md:space-y-4 pt-2 border-t border-gray-100">
 								<div class="flex items-center gap-1.5 md:gap-2">
@@ -491,11 +537,20 @@ function formatDate($dateString) {
 											<tr>
 												<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Ingredient</th>
 												<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Quantity</th>
-												<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Actions</th>
+												<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm"><?php echo $isDistributed ? 'Remaining Stock' : 'Actions'; ?></th>
 											</tr>
 										</thead>
 										<tbody class="divide-y divide-gray-200">
-											<?php foreach ($kitchenStaffItems as $it): ?>
+											<?php foreach ($kitchenStaffItems as $it): 
+												$itemId = (int)($it['item_id'] ?? 0);
+												$ingredient = null;
+												foreach ($ingredients as $ing) {
+													if ((int)$ing['id'] === $itemId) {
+														$ingredient = $ing;
+														break;
+													}
+												}
+											?>
 											<tr class="hover:bg-gray-50 transition-colors">
 												<td class="px-2.5 md:px-3 py-2 md:py-2.5">
 													<div>
@@ -510,7 +565,38 @@ function formatDate($dateString) {
 													<span class="font-bold text-gray-900 text-xs md:text-sm"><?php echo htmlspecialchars($it['quantity']); ?> <?php echo htmlspecialchars($it['unit']); ?></span>
 												</td>
 												<td class="px-2.5 md:px-3 py-2 md:py-2.5">
-													<button type="button" class="text-red-600 hover:text-red-700 text-[10px] md:text-xs font-medium">Remove</button>
+													<?php if ($isDistributed): 
+														$remainingStock = $batchRemainingStock[$batchId][$itemId] ?? 0;
+														$baseUnit = $ingredient['unit'] ?? $it['unit'] ?? '';
+														$displayUnit = $ingredient['display_unit'] ?? null;
+														$displayFactor = (float)($ingredient['display_factor'] ?? 1.0);
+														
+														// Format remaining stock with display unit if available
+														$stockValue = (float)$remainingStock;
+														$stockDisplay = '';
+														
+														if ($displayUnit && $displayFactor > 0) {
+															// Convert to display unit
+															if ($baseUnit === 'g' && $displayUnit === 'kg') {
+																$stockDisplay = number_format($stockValue / 1000.0, 2) . ' ' . $displayUnit;
+															} else if ($baseUnit === 'kg' && $displayUnit === 'g') {
+																$stockDisplay = number_format($stockValue * 1000.0, 2) . ' ' . $displayUnit;
+															} else if ($baseUnit === 'ml' && $displayUnit === 'L') {
+																$stockDisplay = number_format($stockValue / 1000.0, 2) . ' ' . $displayUnit;
+															} else if ($baseUnit === 'L' && $displayUnit === 'ml') {
+																$stockDisplay = number_format($stockValue * 1000.0, 2) . ' ' . $displayUnit;
+															} else {
+																// Use display_factor for conversion
+																$stockDisplay = number_format($stockValue / $displayFactor, 2) . ' ' . $displayUnit;
+															}
+														} else {
+															$stockDisplay = number_format($stockValue, 2) . ' ' . $baseUnit;
+														}
+													?>
+														<span class="font-semibold text-gray-900 text-xs md:text-sm"><?php echo htmlspecialchars($stockDisplay); ?></span>
+													<?php else: ?>
+														<button type="button" class="text-red-600 hover:text-red-700 text-[10px] md:text-xs font-medium">Remove</button>
+													<?php endif; ?>
 												</td>
 											</tr>
 											<?php endforeach; ?>
@@ -705,6 +791,7 @@ function formatDate($dateString) {
 			'name' => $i['name'],
 			'unit' => $i['unit'],
 			'quantity' => (float)($i['quantity'] ?? 0),
+			'reorder_level' => (float)($i['reorder_level'] ?? 0),
 			'display_unit' => $i['display_unit'] ?? null,
 			'display_factor' => (float)($i['display_factor'] ?? 1),
 		];
@@ -1437,7 +1524,121 @@ function formatDate($dateString) {
 					baseQuantity = quantity;
 				}
 			}
+			
+			// Check if ingredient already exists in the list
 			const existing = items.find(entry => entry.id === id);
+			const totalRequestedQty = (existing ? existing.quantity + baseQuantity : baseQuantity);
+			
+			// Stock validation before adding
+			const currentStock = ingredient.quantity || 0;
+			const reorderLevel = ingredient.reorder_level || 0;
+			
+			// Check if out of stock
+			if (currentStock <= 0) {
+				showBuilderError('This ingredient is out of stock and cannot be added to the request.');
+				return;
+			}
+			
+			// Check if low stock - show warning if ingredient is low stock (regardless of quantity)
+			const isLowStock = currentStock <= reorderLevel && currentStock > 0;
+			if (isLowStock) {
+				// Show confirmation modal for low stock
+				const confirmOverlay = document.createElement('div');
+				confirmOverlay.className = 'low-stock-confirm-overlay fixed inset-0 z-[999999] flex items-center justify-center p-4';
+				confirmOverlay.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; z-index: 999999 !important; background-color: rgba(0, 0, 0, 0.6) !important; pointer-events: none !important;';
+				
+				const confirmModal = document.createElement('div');
+				confirmModal.className = 'bg-white rounded-2xl shadow-2xl max-w-md w-full';
+				confirmModal.style.pointerEvents = 'auto';
+				
+				const stockDisplay = currentStock.toFixed(2) + ' ' + (ingredient.display_unit || ingredient.unit || '');
+				
+				confirmModal.innerHTML = `
+					<div class="px-6 py-6">
+						<div class="flex items-center gap-4 mb-4">
+							<div class="flex-shrink-0 w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
+								<i data-lucide="alert-triangle" class="w-6 h-6 text-amber-600"></i>
+							</div>
+							<div>
+								<h3 class="text-sm md:text-base font-semibold text-gray-900">Low Stock Warning</h3>
+								<p class="text-[10px] md:text-xs text-gray-500 mt-0.5 md:mt-1">Insufficient inventory</p>
+							</div>
+						</div>
+						<p class="text-xs md:text-sm text-gray-700 mb-4 md:mb-6">
+							Ingredient "<strong>${escapeHtml(ingredient.name)}</strong>" is low stock with remaining <strong>${stockDisplay}</strong>. Do you still wish to proceed?
+						</p>
+						<div class="flex items-center justify-end gap-2 md:gap-3">
+							<button type="button" class="cancelLowStockBtn inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+								No
+							</button>
+							<button type="button" class="confirmLowStockBtn inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium text-white bg-amber-600 rounded-lg hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-colors">
+								Yes
+							</button>
+						</div>
+					</div>
+				`;
+				
+				confirmOverlay.appendChild(confirmModal);
+				document.body.appendChild(confirmOverlay);
+				document.body.classList.add('overflow-hidden');
+				
+				if (typeof lucide !== 'undefined') {
+					lucide.createIcons();
+				}
+				
+				// Helper function to escape HTML
+				function escapeHtml(text) {
+					const div = document.createElement('div');
+					div.textContent = text;
+					return div.innerHTML;
+				}
+				
+				// Handle confirmation
+				const proceedWithAdd = () => {
+					confirmOverlay.remove();
+					document.body.classList.remove('overflow-hidden');
+					
+					// Proceed with adding the ingredient
+					if (existing){
+						existing.quantity += baseQuantity;
+						existing.display_unit = chosenUnit;
+					} else {
+						items.push({
+							id,
+							name: ingredient.name,
+							unit: ingredient.unit,
+							display_unit: chosenUnit,
+							quantity: baseQuantity,
+						});
+					}
+					if (ingredientSelect) ingredientSelect.value = '';
+					if (ingredientSearch) ingredientSearch.value = '';
+					if (ingredientDropdown) ingredientDropdown.classList.add('hidden');
+					quantityInput.value = '';
+					configurePrepareUnits('');
+					clearBuilderError();
+					renderItems();
+				};
+				
+				confirmModal.querySelector('.cancelLowStockBtn').addEventListener('click', () => {
+					confirmOverlay.remove();
+					document.body.classList.remove('overflow-hidden');
+				});
+				
+				confirmModal.querySelector('.confirmLowStockBtn').addEventListener('click', proceedWithAdd);
+				
+				// Close on overlay click
+				confirmOverlay.addEventListener('click', (e) => {
+					if (e.target === confirmOverlay) {
+						confirmOverlay.remove();
+						document.body.classList.remove('overflow-hidden');
+					}
+				});
+				
+				return; // Stop here, wait for user confirmation
+			}
+			
+			// Stock is sufficient, proceed with adding
 			if (existing){
 				existing.quantity += baseQuantity;
 				existing.display_unit = chosenUnit;
