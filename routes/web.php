@@ -34,9 +34,11 @@ return [
 		'/requests/prepare' => ['RequestController', 'prepare'],
 		'/purchases' => ['PurchaseController', 'store'],
 		'/purchases/mark-paid' => ['PurchaseController', 'markPaid'],
+		'/purchases/delete' => ['PurchaseController', 'delete'],
 		'/deliveries' => ['DeliveryController', 'store'],
 		// removed force-delete feature routes
 		'/inventory' => ['InventoryController', 'store'],
+		'/inventory/delete' => ['InventoryController', 'deleteIngredient'],
 		'/inventory/import' => ['InventoryController', 'import'],
 		'/inventory/migrate-kg-to-g' => ['InventoryController', 'migrateKgToG'],
 		'/inventory/meta' => ['InventoryController', 'updateMeta'],

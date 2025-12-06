@@ -1,6 +1,6 @@
 <?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
 <!-- Page Header -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6 max-w-full overflow-x-hidden">
+<div class="bg-white rounded-2xl shadow-none border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6 max-w-full overflow-x-hidden">
 	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
 		<div class="min-w-0 flex-1">
 			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1 truncate">Purchase Transactions</h1>
@@ -23,7 +23,7 @@ if (!empty($purchases)) {
 <?php if (!empty($purchases)): ?>
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8 max-w-full overflow-x-hidden">
 	<!-- Total Purchases -->
-	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+	<div class="bg-white rounded-lg shadow-none border border-gray-200 p-3 md:p-4 lg:p-5 relative">
 		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
 			<i data-lucide="shopping-cart" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-purple-600"></i>
 		</div>
@@ -35,7 +35,7 @@ if (!empty($purchases)) {
 	</div>
 	
 	<!-- Pending Payments -->
-	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+	<div class="bg-white rounded-lg shadow-none border border-gray-200 p-3 md:p-4 lg:p-5 relative">
 		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
 			<i data-lucide="clock" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-yellow-600"></i>
 		</div>
@@ -47,7 +47,7 @@ if (!empty($purchases)) {
 	</div>
 	
 	<!-- Paid Purchases -->
-	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+	<div class="bg-white rounded-lg shadow-none border border-gray-200 p-3 md:p-4 lg:p-5 relative">
 		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
 			<i data-lucide="check-circle" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-green-600"></i>
 		</div>
@@ -59,7 +59,7 @@ if (!empty($purchases)) {
 	</div>
 	
 	<!-- Total Cost -->
-	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+	<div class="bg-white rounded-lg shadow-none border border-gray-200 p-3 md:p-4 lg:p-5 relative">
 		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
 			<span class="text-lg md:text-xl font-bold text-blue-600">₱</span>
 		</div>
@@ -76,7 +76,7 @@ if (!empty($purchases)) {
 <?php 
 $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
 ?>
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-6 md:mb-8 overflow-hidden w-full">
+<div class="bg-white rounded-2xl shadow-none border border-gray-200 mb-6 md:mb-8 overflow-hidden w-full">
     <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-4 md:px-5 lg:px-6 py-3 md:py-4 border-b">
         <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div class="min-w-0 flex-1">
@@ -203,7 +203,7 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
 <div id="batchModal" class="fixed inset-0 z-50 hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 50 !important;">
     <div class="fixed inset-0 bg-black/50" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;"></div>
     <div class="relative z-10 flex min-h-full items-center justify-center p-4 md:p-6 overflow-y-auto overflow-x-hidden">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-[calc(100vw-2rem)] md:max-w-2xl my-4 md:my-8 overflow-y-auto overflow-x-hidden max-h-[90vh] mx-auto">
+        <div class="bg-white rounded-xl shadow-none w-full max-w-[calc(100vw-2rem)] md:max-w-2xl my-4 md:my-8 overflow-y-auto overflow-x-hidden max-h-[90vh] mx-auto">
             <div class="sticky top-0 bg-white border-b px-4 md:px-5 lg:px-6 py-3 md:py-4 z-10">
                 <div class="flex items-center justify-between mb-2">
                     <h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
@@ -340,7 +340,7 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
 <div id="removeItemModal" class="fixed inset-0 z-50 hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 50 !important;">
     <div class="fixed inset-0 bg-black/50" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
     <div class="relative z-10 flex min-h-full items-center justify-center p-4 overflow-x-hidden">
-        <div class="bg-white rounded-xl shadow-xl max-w-md w-full max-w-[calc(100vw-2rem)] mx-auto">
+        <div class="bg-white rounded-xl shadow-none max-w-md w-full max-w-[calc(100vw-2rem)] mx-auto">
         <div class="p-6">
             <div class="flex items-center gap-4 mb-4">
                 <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
@@ -368,7 +368,7 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
 </div>
 
 <!-- Recent Purchases Table (Grouped) -->
-<div id="recent-purchases" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden max-w-full">
+<div id="recent-purchases" class="bg-white rounded-2xl shadow-none border border-gray-200 overflow-hidden max-w-full">
 	<div class="bg-gradient-to-r from-gray-50 to-gray-100 px-4 md:px-5 lg:px-6 py-3 md:py-4 border-b">
 		<div class="flex flex-col gap-3 md:gap-4 md:flex-row md:items-center md:justify-between">
 			<div>
@@ -407,73 +407,17 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
 			<thead class="sticky top-0 bg-white z-10">
 				<tr>
 					<th class="hidden lg:table-cell text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Purchaser</th>
-                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Items</th>
-                    <th class="hidden lg:table-cell text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Total Qty</th>
-					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Cost</th>
-					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Supplier</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Supplier</th>
 					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Payment</th>
-                    <th class="hidden lg:table-cell text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Receipt</th>
                     <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Delivery Status</th>
 					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Actions</th>
 				</tr>
 			</thead>
             <tbody class="divide-y divide-gray-200">
                 <?php foreach (($purchaseGroups ?? []) as $g): ?>
-                <tr class="hover:bg-gray-50 transition-colors" data-payment-status="<?php echo strtolower($g['payment_status'] ?? ''); ?>">
+                <tr class="hover:bg-gray-50 transition-colors cursor-pointer" data-payment-status="<?php echo strtolower($g['payment_status'] ?? ''); ?>" data-group-id="<?php echo htmlspecialchars($g['group_id']); ?>" tabindex="0">
                     <td class="hidden lg:table-cell px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                                <span class="text-xs font-medium text-gray-600"><?php echo strtoupper(substr($g['purchaser_name'], 0, 2)); ?></span>
-                            </div>
-                            <span class="font-medium text-gray-900"><?php echo htmlspecialchars($g['purchaser_name']); ?></span>
-                        </div>
-                    </td>
-                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
-                        <?php $count = count($g['items']); ?>
-                        <div class="flex items-center gap-1 md:gap-1.5 lg:gap-2">
-                            <span class="font-medium text-gray-900"><?php echo $count; ?> item<?php echo $count>1?'s':''; ?></span>
-                            <?php if ($count>1): ?>
-                                <button type="button" class="text-blue-600 underline text-xs openPurchaseModal" data-group-id="<?php echo htmlspecialchars($g['group_id']); ?>">View</button>
-                            <?php else: ?>
-                                <button type="button" class="text-blue-600 underline text-xs openPurchaseModal" data-group-id="<?php echo htmlspecialchars($g['group_id']); ?>">View</button>
-                            <?php endif; ?>
-                        </div>
-                    </td>
-                    <td class="hidden lg:table-cell px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
-                        <?php
-                        // Use purchase_unit and purchase_quantity if available (show as entered, no conversion)
-                        $first = $g['items'][0];
-                        $purchaseUnit = trim((string)($first['purchase_unit'] ?? ''));
-                        $purchaseQtySum = 0;
-                        $allSameUnit = true;
-                        foreach ($g['items'] as $it) {
-                            $pu = trim((string)($it['purchase_unit'] ?? ''));
-                            $pq = (float)($it['purchase_quantity'] ?? 0);
-                            if ($pu !== '' && $pq > 0) {
-                                if ($purchaseUnit === '') $purchaseUnit = $pu;
-                                if ($pu !== $purchaseUnit) $allSameUnit = false;
-                                $purchaseQtySum += $pq;
-                            }
-                        }
-                        if ($purchaseUnit !== '' && $purchaseQtySum > 0 && $allSameUnit) {
-                            $qtyShow = $purchaseQtySum;
-                            $unitShow = $purchaseUnit;
-                        } else {
-                            // Fallback for old records without purchase_unit
-                            $baseUnit = $first['unit'];
-                            $dispUnit = $first['display_unit'] ?: ($baseUnit==='g'?'kg':($baseUnit==='ml'?'L':$baseUnit));
-                            $dispFactor = (float)($first['display_factor'] ?: ($dispUnit!==$baseUnit?1000:1));
-                            $qtyShow = $dispFactor>0 ? $g['quantity_sum']/$dispFactor : $g['quantity_sum'];
-                            $unitShow = $dispUnit;
-                        }
-                        ?>
-                        <div class="flex items-center gap-1 md:gap-1.5 lg:gap-2">
-                            <span class="font-semibold text-gray-900"><?php echo number_format($qtyShow,2); ?></span>
-                            <span class="text-gray-500 text-[9px] md:text-[10px] lg:text-xs"><?php echo htmlspecialchars($unitShow); ?></span>
-                        </div>
-                    </td>
-                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
-                        <span class="text-lg font-bold text-gray-900">₱<?php echo number_format((float)$g['cost_sum'], 2); ?></span>
+                        <span class="font-medium text-gray-900"><?php echo htmlspecialchars($g['purchaser_name']); ?></span>
                     </td>
                     <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <span class="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-[10px] md:text-xs lg:text-sm font-medium">
@@ -490,20 +434,9 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                             <i data-lucide="<?php echo $paymentIcon; ?>" class="w-3 h-3 md:w-3.5 md:h-3.5"></i>
                             <?php echo htmlspecialchars($g['payment_status']); ?>
                         </span>
-                        <?php if (!empty($g['paid_at'])): ?>
-                            <p class="text-[9px] md:text-[10px] lg:text-xs text-gray-500 mt-1">Paid on <?php echo htmlspecialchars(date('M j, Y g:i A', strtotime($g['paid_at']))); ?></p>
-                        <?php endif; ?>
-                    </td>
-                    <td class="hidden lg:table-cell px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
-                        <?php if (!empty($g['receipt_url'])): ?>
-                            <?php $fullUrl = (preg_match('#^https?://#', $g['receipt_url'])) ? $g['receipt_url'] : (rtrim($baseUrl, '/').'/'.ltrim($g['receipt_url'], '/')); ?>
-                            <a href="<?php echo htmlspecialchars($fullUrl); ?>" target="_blank" class="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-[10px] md:text-xs lg:text-sm font-medium">
-                                <i data-lucide="file-text" class="w-3 h-3 md:w-3.5 md:h-3.5"></i>
-                                View Receipt
-                            </a>
-                        <?php else: ?>
-                            <span class="text-gray-400 text-[10px] md:text-xs lg:text-sm">No receipt</span>
-                        <?php endif; ?>
+                         <?php if (!empty($g['paid_at'])): ?>
+                             <p class="text-[9px] md:text-[10px] lg:text-xs text-gray-500 mt-1" data-paid-at="<?php echo htmlspecialchars($g['paid_at']); ?>">Paid on <?php echo htmlspecialchars(date('M j, Y g:i A', strtotime($g['paid_at']))); ?></p>
+                         <?php endif; ?>
                     </td>
                     <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <?php 
@@ -524,12 +457,12 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                     </td>
                     <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <?php if (Auth::role() !== 'Purchaser'): ?>
-                            <a href="<?php echo htmlspecialchars($baseUrl); ?>/deliveries" class="inline-flex items-center gap-1 px-3 py-2 bg-gray-600 text-white text-[10px] md:text-xs lg:text-sm rounded-lg hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+                            <a href="<?php echo htmlspecialchars($baseUrl); ?>/deliveries" class="inline-flex items-center gap-1 px-3 py-2 bg-gray-600 text-white text-[10px] md:text-xs lg:text-sm rounded-lg hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors" data-stop-row-modal>
                                 <i data-lucide="truck" class="w-3 h-3 md:w-3.5 md:h-3.5"></i>
                                 Deliveries
                             </a>
                         <?php else: ?>
-                            <span class="inline-flex items-center gap-1 px-3 py-2 bg-gray-300 text-gray-500 text-[10px] md:text-xs lg:text-sm rounded-lg cursor-not-allowed" title="Not available for Purchaser role">
+                            <span class="inline-flex items-center gap-1 px-3 py-2 bg-gray-300 text-gray-500 text-[10px] md:text-xs lg:text-sm rounded-lg cursor-not-allowed" title="Not available for Purchaser role" data-stop-row-modal>
                                 <i data-lucide="truck" class="w-3 h-3 md:w-3.5 md:h-3.5"></i>
                                 Deliveries
                             </span>
@@ -537,29 +470,31 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                     </td>
                 </tr>
                 <!-- Hidden modal content for this group -->
-                <tr class="hidden" data-payment-status="<?php echo strtolower($g['payment_status'] ?? ''); ?>" data-detail-row="true"><td colspan="9">
+                <tr class="hidden" data-payment-status="<?php echo strtolower($g['payment_status'] ?? ''); ?>" data-detail-row="true"><td colspan="5">
                     <div id="modal-content-<?php echo htmlspecialchars($g['group_id']); ?>" data-pay-type="<?php echo htmlspecialchars($g['payment_type'] ?? ''); ?>" data-cash-base="<?php echo isset($g['cash_base_amount']) ? number_format((float)$g['cash_base_amount'],2,'.','') : ''; ?>">
-                        <div class="mb-4">
-                            <div class="text-sm text-gray-600">Batch ID</div>
-                            <div class="font-medium text-gray-900">#<?php echo htmlspecialchars($g['group_id']); ?></div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                            <div>
-                                <div class="text-sm text-gray-600">Purchaser</div>
-                                <div class="font-medium text-gray-900"><?php echo htmlspecialchars($g['purchaser_name']); ?></div>
+                        <div class="mb-4 space-y-3" data-top-info>
+                            <div data-batch-id-container>
+                                <div class="text-sm text-gray-600">Batch ID</div>
+                                <div class="font-medium text-gray-900" data-batch-id>#<?php echo htmlspecialchars($g['group_id']); ?></div>
                             </div>
-                            <div>
-                                <div class="text-sm text-gray-600">Supplier</div>
-                                <div class="font-medium text-gray-900"><?php echo htmlspecialchars($g['supplier']); ?></div>
-                            </div>
-                            <div>
-                                <div class="text-sm text-gray-600">Date</div>
-                                <div class="font-medium text-gray-900"><?php echo htmlspecialchars($g['date_purchased']); ?></div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" data-meta-grid>
+                                <div data-purchaser-container>
+                                    <div class="text-sm text-gray-600">Requested By</div>
+                                    <div class="font-medium text-gray-900" data-purchaser><?php echo htmlspecialchars($g['purchaser_name']); ?></div>
+                                </div>
+                                <div data-supplier-container>
+                                    <div class="text-sm text-gray-600">Supplier</div>
+                                    <div class="font-medium text-gray-900" data-supplier><?php echo htmlspecialchars($g['supplier']); ?></div>
+                                </div>
+                                <div data-date-container>
+                                    <div class="text-sm text-gray-600">Date Requested</div>
+                                    <div class="font-medium text-gray-900" data-date><?php echo htmlspecialchars($g['date_purchased']); ?></div>
+                                </div>
                             </div>
                         </div>
                         <div class="overflow-x-auto border rounded-lg w-full">
                             <table class="w-full text-sm">
-                                <thead class="bg-gray-50">
+                                <thead class="bg-gray-100">
                                     <tr>
                                         <th class="text-left px-4 py-2">Item</th>
                                         <th class="text-left px-4 py-2">Quantity</th>
@@ -608,7 +543,7 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
-                                <tfoot class="bg-gray-50">
+                                <tfoot class="bg-gray-100">
                                     <tr>
                                         <td class="px-4 py-2 font-medium" colspan="3">Total</td>
                                         <td class="px-4 py-2 font-semibold">₱<?php echo number_format((float)$g['cost_sum'],2); ?></td>
@@ -618,73 +553,63 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                         </div>
                         <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="space-y-2">
-                                <div class="text-sm text-gray-600">Receipt</div>
+                                <div class="text-xs text-gray-600 font-medium">Receipt</div>
                                 <?php if (!empty($g['receipt_url'])): ?>
                                     <?php 
                                         $url = $g['receipt_url'];
                                         $fullUrl = (preg_match('#^https?://#', $url)) ? $url : (rtrim($baseUrl, '/').'/'.ltrim($url, '/'));
                                         $ext = strtolower(pathinfo(parse_url($url, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION));
                                     ?>
-                                    <?php if (in_array($ext, ['jpg','jpeg','png','webp','gif'])): ?>
-                                        <img src="<?php echo htmlspecialchars($fullUrl); ?>" alt="Receipt" class="max-h-56 rounded border" />
+                                     <?php if (in_array($ext, ['jpg','jpeg','png','webp','gif'])): ?>
+                                         <img src="<?php echo htmlspecialchars($fullUrl); ?>" alt="Receipt" class="h-48 w-full object-contain rounded border cursor-zoom-in" data-receipt-full="<?php echo htmlspecialchars($fullUrl); ?>" />
                                     <?php else: ?>
-                                        <a href="<?php echo htmlspecialchars($fullUrl); ?>" target="_blank" class="inline-flex items-center gap-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
-                                            <i data-lucide="file-text" class="w-3 h-3"></i>
-                                            View Receipt
-                                        </a>
+                                        <a href="<?php echo htmlspecialchars($fullUrl); ?>" target="_blank" class="text-xs text-blue-600 underline">Open receipt</a>
                                     <?php endif; ?>
                                 <?php else: ?>
                                     <div class="text-xs text-gray-500">No receipt uploaded</div>
                                 <?php endif; ?>
                             </div>
-                            <div class="space-y-2">
-                                <div class="text-sm text-gray-600">Payment</div>
+                            <div class="space-y-3">
+                                <div class="text-xs text-gray-600 font-medium">Payment</div>
                                 <?php if (($g['payment_type'] ?? 'Card') === 'Cash' && isset($g['cash_base_amount'])): ?>
                                     <?php $baseAmt = (float)$g['cash_base_amount']; $change = $baseAmt - (float)$g['cost_sum']; ?>
-                                    <div class="grid grid-cols-3 gap-2">
+                                    <div class="grid grid-cols-3 gap-2 text-xs">
                                         <div>
-                                            <div class="block text-xs text-gray-500">Base Amount</div>
+                                            <div class="block text-[11px] text-gray-500">Base Amount</div>
                                             <div class="text-sm font-medium">₱<?php echo number_format($baseAmt,2); ?></div>
                                         </div>
                                         <div>
-                                            <div class="block text-xs text-gray-500">Total</div>
+                                            <div class="block text-[11px] text-gray-500">Total</div>
                                             <div class="text-sm font-medium">₱<?php echo number_format((float)$g['cost_sum'],2); ?></div>
                                         </div>
                                         <div>
-                                            <div class="block text-xs text-gray-500">Change</div>
+                                            <div class="block text-[11px] text-gray-500">Change</div>
                                             <div class="text-sm font-medium <?php echo $change<0?'text-red-600':'text-gray-900'; ?>">₱<?php echo number_format($change,2); ?></div>
                                         </div>
                                     </div>
                                 <?php else: ?>
-                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border bg-gray-100 text-gray-800 border-gray-200">Card</span>
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold border bg-gray-100 text-gray-800 border-gray-200">Card</span>
                                 <?php endif; ?>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-semibold border <?php echo ($g['payment_status']==='Paid')?'bg-green-100 text-green-800 border-green-200':'bg-yellow-100 text-yellow-800 border-yellow-200'; ?>">
+                                        <i data-lucide="<?php echo ($g['payment_status']==='Paid')?'check-circle':'clock'; ?>" class="w-3 h-3"></i>
+                                        <?php echo htmlspecialchars($g['payment_status']); ?>
+                                    </span>
+                                    <?php if (($g['payment_status'] ?? '') === 'Pending'): ?>
+                                        <button
+                                            type="button"
+                                            class="markPaidBtn inline-flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-[11px] font-semibold rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+                                            data-purchase-id="<?php echo (int)$g['first_id']; ?>"
+                                            data-delivery-status="<?php echo strtolower($deliveryStatus); ?>"
+                                        >
+                                            <i data-lucide="check" class="w-3 h-3"></i>
+                                            Set to Paid
+                                        </button>
+                                    <?php elseif (!empty($g['paid_at'])): ?>
+                                        <span class="text-[11px] text-gray-500" data-paid-at="<?php echo htmlspecialchars($g['paid_at']); ?>">Paid on <?php echo htmlspecialchars(date('M j, Y g:i A', strtotime($g['paid_at']))); ?></span>
+                                    <?php endif; ?>
+                                </div>
                             </div>
-                        </div>
-                        <div class="mt-4 flex flex-wrap items-center gap-2">
-                            <?php if (!empty($g['receipt_url'])): ?>
-                                <?php $fullUrl2 = (preg_match('#^https?://#', $g['receipt_url'])) ? $g['receipt_url'] : (rtrim($baseUrl, '/').'/'.ltrim($g['receipt_url'], '/')); ?>
-                                <a href="<?php echo htmlspecialchars($fullUrl2); ?>" target="_blank" class="inline-flex items-center gap-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
-                                    <i data-lucide="file-text" class="w-3 h-3"></i>
-                                    View Receipt
-                                </a>
-                            <?php endif; ?>
-                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border <?php echo ($g['payment_status']==='Paid')?'bg-green-100 text-green-800 border-green-200':'bg-yellow-100 text-yellow-800 border-yellow-200'; ?>">
-                                <i data-lucide="<?php echo ($g['payment_status']==='Paid')?'check-circle':'clock'; ?>" class="w-3 h-3"></i>
-                                <?php echo htmlspecialchars($g['payment_status']); ?>
-                            </span>
-                            <?php if (($g['payment_status'] ?? '') === 'Pending'): ?>
-                                <button
-                                    type="button"
-                                    class="markPaidBtn inline-flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
-                                    data-purchase-id="<?php echo (int)$g['first_id']; ?>"
-                                    data-delivery-status="<?php echo strtolower($deliveryStatus); ?>"
-                                >
-                                    <i data-lucide="check" class="w-3 h-3"></i>
-                                    Set to Paid
-                                </button>
-                            <?php elseif (!empty($g['paid_at'])): ?>
-                                <span class="text-xs text-gray-500">Paid on <?php echo htmlspecialchars(date('M j, Y g:i A', strtotime($g['paid_at']))); ?></span>
-                            <?php endif; ?>
                         </div>
                     </div>
                 </td></tr>
@@ -711,6 +636,32 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
     <input type="file" name="receipt" id="markPaidReceiptInput" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf" class="hidden">
 </form>
 
+<!-- Custom Alert Modal -->
+<div id="customAlertModal" class="fixed inset-0 z-50 hidden overflow-hidden">
+    <div class="fixed inset-0 bg-gray-900/70 backdrop-blur-sm" data-alert-dismiss></div>
+    <div class="fixed inset-0 flex items-center justify-center px-4 py-8 pointer-events-none">
+        <div class="bg-white rounded-xl shadow-none border border-gray-200 max-w-sm w-full mx-auto pointer-events-auto">
+            <div class="p-4 md:p-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="alert-circle" class="w-5 h-5 text-yellow-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-sm md:text-base font-semibold text-gray-900">Notice</h3>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <p class="text-xs md:text-sm text-gray-700" id="alertMessage"></p>
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" id="alertOkBtn" class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-xs md:text-sm">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <style>
 #purchaseForm {
@@ -749,6 +700,47 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
   word-break: break-word;
   overflow-wrap: anywhere;
 }
+
+/* Remove focus ring and gray border for input fields in purchase form on tablet mode */
+@media (min-width: 768px) and (max-width: 1023px) {
+  #purchaseForm input:focus,
+  #purchaseForm select:focus,
+  #purchaseForm textarea:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: rgb(209 213 219) !important; /* Keep gray-300 border color */
+    --tw-ring-offset-shadow: 0 0 #0000 !important;
+    --tw-ring-shadow: 0 0 #0000 !important;
+    --tw-ring-offset-width: 0px !important;
+    --tw-ring-width: 0px !important;
+  }
+}
+
+/* Ensure custom alert modal backdrop is full screen */
+#customAlertModal {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  z-index: 9999 !important;
+}
+
+#customAlertModal > div:first-child {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
 </style>
 <script>
 (function(){
@@ -760,6 +752,45 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   const unitInput = document.getElementById('unitInput');
   const cost = document.getElementById('costInput');
   const addBtn = document.getElementById('addRowBtn');
+  
+  // Custom Alert Modal Handler
+  const alertModal = document.getElementById('customAlertModal');
+  const alertMessage = document.getElementById('alertMessage');
+  const alertOkBtn = document.getElementById('alertOkBtn');
+  const alertDismiss = alertModal ? alertModal.querySelectorAll('[data-alert-dismiss]') : [];
+  
+  function showAlert(message) {
+    if (!alertModal || !alertMessage) return;
+    alertMessage.textContent = message;
+    alertModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+    if (window.lucide?.createIcons) {
+      window.lucide.createIcons({ elements: alertModal.querySelectorAll('i[data-lucide]') });
+    }
+  }
+  
+  function hideAlert() {
+    if (alertModal) {
+      alertModal.classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+    }
+  }
+  
+  if (alertOkBtn) {
+    alertOkBtn.addEventListener('click', hideAlert);
+  }
+  
+  alertDismiss.forEach(btn => {
+    btn.addEventListener('click', hideAlert);
+  });
+  
+  if (alertModal) {
+    alertModal.addEventListener('click', (e) => {
+      if (e.target === alertModal || e.target.classList.contains('bg-gray-900')) {
+        hideAlert();
+      }
+    });
+  }
   const listBody = document.getElementById('purchaseList');
   const itemsJson = document.getElementById('itemsJson');
   const totalCostSpan = document.getElementById('totalCost');
@@ -788,6 +819,13 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   const markPaidForm = document.getElementById('markPaidForm');
   const markPaidPurchaseId = document.getElementById('markPaidPurchaseId');
   const markPaidReceiptInput = document.getElementById('markPaidReceiptInput');
+  const deletePurchaseForm = document.getElementById('deletePurchaseForm');
+  const deletePurchaseIds = document.getElementById('deletePurchaseIds');
+  const deletePurchaseModal = document.getElementById('deletePurchaseModal');
+  const deleteConfirmBtn = document.getElementById('confirmDeletePurchase');
+  const deleteCancelBtn = document.getElementById('cancelDeletePurchase');
+  const deleteOverlayBtn = document.getElementById('closeDeletePurchase');
+  let pendingDeleteIds = null;
   let pendingMarkPaidId = null;
   let receiptPopupTimer = null;
 
@@ -813,6 +851,41 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   const receiptErrorModal = document.getElementById('receiptErrorModal');
   const receiptDropzoneModal = document.getElementById('receiptDropzoneModal');
   const recordPurchaseBtnModal = document.getElementById('recordPurchaseBtnModal');
+
+  // Date helpers for local-time display
+  function parseLocalDateTime(str){
+    if (!str) return null;
+    const cleaned = str.trim().replace('T', ' ').replace(/\.\d+Z?$/, '');
+    const m = cleaned.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
+    if (m){
+      const [,y,mo,d,h,mi,s] = m;
+      // Treat source as UTC then display in local time
+      const utcMs = Date.UTC(Number(y), Number(mo)-1, Number(d), Number(h), Number(mi), Number(s||'0'));
+      return new Date(utcMs);
+    }
+    const fallback = new Date(str);
+    return Number.isNaN(fallback.getTime()) ? null : fallback;
+  }
+  function formatPaidLabel(str){
+    const dt = parseLocalDateTime(str);
+    if (!dt) return '';
+    return new Intl.DateTimeFormat(undefined, {
+      month:'short',
+      day:'numeric',
+      year:'numeric',
+      hour:'numeric',
+      minute:'2-digit',
+      hour12:true
+    }).format(dt);
+  }
+  function applyPaidLabels(root=document){
+    root.querySelectorAll('[data-paid-at]').forEach(el => {
+      const iso = el.getAttribute('data-paid-at');
+      const label = formatPaidLabel(iso);
+      if (label) el.textContent = `Paid on ${label}`;
+    });
+  }
+  applyPaidLabels(document);
 
   function setRecordBtnReady(isReady){
     if (!recordPurchaseBtn) return;
@@ -1161,6 +1234,9 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     markPaidForm.submit();
   });
 
+  // Delete purchase (group) modal
+  // Delete modal logic was removed (delete button removed)
+
   function syncItemsJson(){
     const items = [];
     listBody.querySelectorAll('tr[data-id]').forEach(tr=>{
@@ -1324,7 +1400,7 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   addBtn.addEventListener('click', ()=>{
     const ingredientName = ingInput.value.trim();
     if (!ingredientName) {
-      alert('Please enter an ingredient name');
+      showAlert('Please enter an ingredient name');
       return;
     }
     
@@ -1333,15 +1409,15 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     const rowCost = parseFloat(cost.value || '0');
     
     if (!quantity || quantity <= 0) {
-      alert('Please enter a valid quantity');
+      showAlert('Please enter a valid quantity');
       return;
     }
     if (!selectedUnit) {
-      alert('Please enter or select a unit');
+      showAlert('Please enter or select a unit');
       return;
     }
     if (isNaN(rowCost) || rowCost < 0) {
-      alert('Please enter a valid cost');
+      showAlert('Please enter a valid cost');
       return;
     }
     
@@ -1485,35 +1561,146 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   }
 
   // Modal logic
-  document.querySelectorAll('.openPurchaseModal').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = btn.getAttribute('data-group-id');
-      const content = document.getElementById('modal-content-' + id);
-      if (!content) return;
-      // Create modal container
-      const overlay = document.createElement('div');
-      overlay.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
-      const modal = document.createElement('div');
-      modal.className = 'bg-white rounded-xl shadow-xl max-w-2xl w-full p-6';
-      // Build header with optional cash base/change
-      const header = document.createElement('div');
-      header.className = 'flex items-center justify-between mb-4';
-      const title = document.createElement('h3');
-      title.className = 'text-lg font-semibold';
-      title.textContent = 'Purchase Details';
-      const closeBtn = document.createElement('button');
-      closeBtn.className = 'closeModal text-gray-500 hover:text-gray-700';
-      closeBtn.textContent = '✕';
-      header.appendChild(title);
-      header.appendChild(closeBtn);
-      modal.appendChild(header);
+  const openPurchaseModal = (id) => {
+    const content = document.getElementById('modal-content-' + id);
+    if (!content) return;
+    const overlay = document.createElement('div');
+    overlay.className = 'fixed inset-0 bg-gray-900/70 backdrop-blur-sm flex items-center justify-center z-50 p-4';
+    const modal = document.createElement('div');
+    modal.className = 'bg-white rounded-2xl shadow-none border border-gray-200 w-full max-w-2xl max-h-[85vh] overflow-hidden';
 
-      const inner = document.createElement('div');
-      inner.innerHTML = content.innerHTML;
-      modal.appendChild(inner);
-      overlay.appendChild(modal);
-      document.body.appendChild(overlay);
-      overlay.addEventListener('click', (e)=>{ if (e.target === overlay || e.target.classList.contains('closeModal')) overlay.remove(); });
+    const header = document.createElement('div');
+    header.className = 'flex items-start justify-between gap-3 px-4 py-3 border-b bg-gray-100';
+    const headerText = document.createElement('div');
+    const title = document.createElement('h3');
+    title.className = 'text-lg font-semibold text-gray-900';
+    title.textContent = 'Purchase Details';
+    const subtitle = document.createElement('p');
+    subtitle.className = 'text-xs text-gray-600';
+    subtitle.textContent = 'Review batch items, payment, and receipt in one view.';
+    headerText.appendChild(title);
+    headerText.appendChild(subtitle);
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'closeModal inline-flex items-center justify-center w-8 h-8 rounded-full bg-white border border-gray-200 text-gray-500 hover:text-gray-700 hover:border-gray-300 shadow-sm transition-colors text-sm';
+    closeBtn.innerHTML = '<span class="sr-only">Close</span>✕';
+    header.appendChild(headerText);
+    header.appendChild(closeBtn);
+    modal.appendChild(header);
+
+    const body = document.createElement('div');
+    body.className = 'p-4 overflow-y-auto max-h-[calc(85vh-96px)] bg-white';
+    const inner = document.createElement('div');
+    inner.className = 'space-y-6';
+    inner.innerHTML = content.innerHTML;
+    // Tidy inner content to match modern layout
+    const topInfo = inner.querySelector('[data-top-info]');
+    const batchIdVal = inner.querySelector('[data-batch-id]');
+    const purchaserVal = inner.querySelector('[data-purchaser]');
+    const dateVal = inner.querySelector('[data-date]');
+    if (topInfo && batchIdVal && purchaserVal && dateVal) {
+      const supplierVal = inner.querySelector('[data-supplier]')?.textContent?.trim() || '';
+      const headerBar = document.createElement('div');
+      headerBar.className = 'grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 items-start bg-white border border-gray-200 rounded-lg p-2.5 md:p-3 mb-3';
+      const makeCell = (label, value) => {
+        const cell = document.createElement('div');
+        const lbl = document.createElement('div');
+        lbl.className = 'text-[9px] md:text-[10px] uppercase tracking-[0.12em] text-gray-500 font-semibold';
+        lbl.textContent = label;
+        const val = document.createElement('div');
+        val.className = 'text-[10px] md:text-xs font-semibold text-gray-900 mt-0.5 truncate';
+        val.textContent = value;
+        cell.appendChild(lbl);
+        cell.appendChild(val);
+        return cell;
+      };
+      const dateRaw = dateVal ? dateVal.textContent.trim() : '';
+      const dateFormatted = formatPaidLabel(dateRaw) || dateRaw;
+      headerBar.appendChild(makeCell('Batch ID', batchIdVal.textContent.trim()));
+      headerBar.appendChild(makeCell('Requested By', purchaserVal.textContent.trim()));
+      headerBar.appendChild(makeCell('Date Requested', dateFormatted));
+      topInfo.replaceWith(headerBar);
+      // If supplier exists, place it below header as subtle pill
+      if (supplierVal) {
+        const supplierRow = document.createElement('div');
+        supplierRow.className = 'flex items-center gap-2 mb-4';
+        const badge = document.createElement('span');
+        badge.className = 'inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-medium';
+        badge.textContent = supplierVal;
+        supplierRow.appendChild(badge);
+        inner.prepend(supplierRow);
+      }
+    }
+    applyPaidLabels(inner);
+
+    inner.querySelectorAll('table').forEach(tbl => {
+      tbl.classList.add('w-full','text-sm','border','border-gray-200','rounded-xl','overflow-hidden','shadow-none');
+      const thead = tbl.querySelector('thead');
+      if (thead) thead.classList.add('bg-gray-100','text-gray-700');
+      tbl.querySelectorAll('th').forEach(th => th.classList.add('px-4','py-3','text-left','font-semibold','text-gray-700','border-b','border-gray-200','bg-gray-100'));
+      tbl.querySelectorAll('td').forEach(td => td.classList.add('px-4','py-3','text-gray-800','border-b','border-gray-100'));
+      tbl.querySelectorAll('tr:last-child td').forEach(td => td.classList.add('border-b-0'));
+    });
+    // Remove bullets from any lists that may appear
+    inner.querySelectorAll('ul').forEach(ul => {
+      ul.classList.add('list-none','pl-0','space-y-1','text-gray-800');
+    });
+
+    // Receipt image fullscreen preview
+    inner.querySelectorAll('[data-receipt-full]').forEach(img => {
+      img.addEventListener('click', () => {
+        const src = img.getAttribute('data-receipt-full');
+        if (!src) return;
+        const overlay = document.createElement('div');
+        overlay.className = 'fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[60] p-4';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'relative max-w-4xl w-full';
+        const closeImg = document.createElement('button');
+        closeImg.className = 'absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white text-gray-700 shadow-lg border border-gray-200 flex items-center justify-center hover:bg-gray-100';
+        closeImg.innerHTML = '✕';
+        const fullImg = document.createElement('img');
+        fullImg.src = src;
+        fullImg.alt = 'Receipt';
+        fullImg.className = 'w-full max-h-[80vh] object-contain rounded-lg shadow-2xl bg-white';
+        wrapper.appendChild(fullImg);
+        wrapper.appendChild(closeImg);
+        overlay.appendChild(wrapper);
+        document.body.appendChild(overlay);
+        const removeOverlay = () => overlay.remove();
+        overlay.addEventListener('click', (e)=>{ if (e.target === overlay || e.target === closeImg) removeOverlay(); });
+      });
+    });
+    body.appendChild(inner);
+    modal.appendChild(body);
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', (e)=>{ if (e.target === overlay || e.target.classList.contains('closeModal')) overlay.remove(); });
+    if (window.lucide?.createIcons) {
+      window.lucide.createIcons({ elements: modal.querySelectorAll('i[data-lucide]') });
+    }
+  };
+
+  document.querySelectorAll('.openPurchaseModal').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const id = btn.getAttribute('data-group-id');
+      openPurchaseModal(id);
+    });
+  });
+
+  document.querySelectorAll('#recent-purchases tbody tr[data-group-id]').forEach(row => {
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('[data-stop-row-modal]')) return;
+      const id = row.getAttribute('data-group-id');
+      openPurchaseModal(id);
+    });
+    row.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const id = row.getAttribute('data-group-id');
+        openPurchaseModal(id);
+      }
     });
   });
 

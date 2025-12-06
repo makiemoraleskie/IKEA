@@ -1,5 +1,5 @@
 <!-- Welcome Banner -->
-<div class="bg-white rounded-2xl shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6 max-w-full overflow-x-hidden">
+<div class="bg-white rounded-2xl shadow-none border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6 max-w-full overflow-x-hidden">
 	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
 		<div class="min-w-0 flex-1">
 			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1 truncate">
@@ -36,7 +36,7 @@ $cardCopy = [
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8 max-w-full overflow-x-hidden">
 	<!-- Low Stock Items -->
 	<?php if (in_array('low_stock', $dashboardWidgets, true)): ?>
-	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+	<div class="bg-white rounded-lg shadow-none border border-gray-200 p-3 md:p-4 lg:p-5 relative">
 		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
 			<i data-lucide="alert-triangle" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-red-500"></i>
 		</div>
@@ -51,7 +51,7 @@ $cardCopy = [
 
 	<!-- Pending Requests -->
 	<?php if (in_array('pending_requests', $dashboardWidgets, true)): ?>
-	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+	<div class="bg-white rounded-lg shadow-none border border-gray-200 p-3 md:p-4 lg:p-5 relative">
 		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
 			<i data-lucide="file-text" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-green-600"></i>
 		</div>
@@ -66,7 +66,7 @@ $cardCopy = [
 
 	<!-- Pending Payments -->
 	<?php if (in_array('pending_payments', $dashboardWidgets, true)): ?>
-	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+	<div class="bg-white rounded-lg shadow-none border border-gray-200 p-3 md:p-4 lg:p-5 relative">
 		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
 			<i data-lucide="credit-card" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-green-600"></i>
 		</div>
@@ -81,7 +81,7 @@ $cardCopy = [
 
 	<!-- Partial Deliveries -->
 	<?php if (in_array('partial_deliveries', $dashboardWidgets, true)): ?>
-	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+	<div class="bg-white rounded-lg shadow-none border border-gray-200 p-3 md:p-4 lg:p-5 relative">
 		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
 			<i data-lucide="truck" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-green-600"></i>
 		</div>
@@ -96,7 +96,7 @@ $cardCopy = [
 
 	<!-- Pending Deliveries -->
 	<?php if (in_array('pending_deliveries', $dashboardWidgets, true)): ?>
-	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+	<div class="bg-white rounded-lg shadow-none border border-gray-200 p-3 md:p-4 lg:p-5 relative">
 		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
 			<i data-lucide="package" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-green-600"></i>
 		</div>
@@ -111,7 +111,7 @@ $cardCopy = [
 
 	<!-- Inventory Value -->
 	<?php if (in_array('inventory_value', $dashboardWidgets, true)): ?>
-	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+	<div class="bg-white rounded-lg shadow-none border border-gray-200 p-3 md:p-4 lg:p-5 relative">
 		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
 			<span class="text-lg md:text-xl font-bold text-green-600">₱</span>
 		</div>
@@ -129,72 +129,4 @@ $cardCopy = [
 	</div>
 	<?php endif; ?>
 </div>
-
-<!-- Overview Chart -->
-<div class="bg-white rounded-lg shadow-md border p-3 md:p-4 lg:p-5">
-	<h2 class="text-sm md:text-base font-semibold text-gray-800 mb-2 md:mb-3">Overview</h2>
-	<div class="relative min-h-[8rem] sm:min-h-[10rem] lg:min-h-[12rem]">
-		<canvas id="overviewChart" class="h-full w-full"></canvas>
-		<div id="chartFallback" class="absolute inset-0 flex items-center justify-center text-[10px] md:text-xs text-gray-500 <?php echo $chartTotal > 0 ? 'hidden' : ''; ?>">
-			Not enough activity to chart yet.
-		</div>
-	</div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-const chartCtx = document.getElementById('overviewChart');
-const chartFallback = document.getElementById('chartFallback');
-const chartData = <?php echo json_encode($chart, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
-if (chartCtx && Array.isArray(chartData.labels)) {
-	const datasets = [
-		{
-			label: 'Purchases',
-			data: chartData.purchases ?? [],
-			backgroundColor: 'rgba(59,130,246,0.65)',
-			borderColor: 'rgba(59,130,246,1)',
-			borderWidth: 1,
-			borderRadius: 4,
-		},
-		{
-			label: 'Deliveries',
-			data: chartData.deliveries ?? [],
-			backgroundColor: 'rgba(16,185,129,0.5)',
-			borderColor: 'rgba(16,185,129,0.9)',
-			borderWidth: 1,
-			borderRadius: 4,
-		}
-	];
-	const hasData = datasets.some(ds => Array.isArray(ds.data) && ds.data.some(v => v > 0));
-	if (hasData) {
-		if (chartFallback) chartFallback.classList.add('hidden');
-		new Chart(chartCtx, {
-			type: 'bar',
-			data: {
-				labels: chartData.labels,
-				datasets,
-			},
-			options: {
-				responsive: true,
-				maintainAspectRatio: false,
-				plugins: {
-					legend: {
-						display: true,
-						position: 'bottom',
-					}
-				},
-				scales: {
-					y: {
-						beginAtZero: true,
-						ticks: { precision:0 }
-					}
-				}
-			}
-		});
-	} else if (chartFallback) {
-		chartFallback.classList.remove('hidden');
-	}
-}
-</script>
-
 

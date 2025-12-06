@@ -41,40 +41,40 @@ function formatDate($dateString) {
 
 <!-- New Request Modal -->
 <div id="newRequestModal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[99999] hidden items-center justify-center p-4" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; z-index: 99999 !important;">
-	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-		<div class="flex items-center justify-between px-4 md:px-5 lg:px-6 py-4 border-b">
+	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-y-auto">
+		<div class="flex items-center justify-between px-5 md:px-6 py-4 md:py-4.5 border-b">
 			<div>
-				<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
-					<i data-lucide="plus-circle" class="w-3.5 h-3.5 md:w-4 md:h-4 text-green-600"></i>
+				<h2 class="text-lg md:text-xl font-semibold text-gray-900 flex items-center gap-2">
+					<i data-lucide="plus-circle" class="w-5 h-5 md:w-5 md:h-5 text-green-600"></i>
 					New Batch Request
 				</h2>
-				<p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Describe what you need and when it's required.</p>
+				<p class="text-sm md:text-base text-gray-600 mt-1">Describe what you need and when it's required.</p>
 			</div>
-			<button type="button" id="closeNewRequestModal" class="text-gray-500 hover:text-gray-700 text-xl md:text-2xl leading-none" aria-label="Close">&times;</button>
+			<button type="button" id="closeNewRequestModal" class="text-gray-500 hover:text-gray-700 text-lg md:text-xl leading-none" aria-label="Close">&times;</button>
 		</div>
-		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests" class="p-3 md:p-4 lg:p-5 space-y-3 md:space-y-4 lg:space-y-5 w-full overflow-x-hidden">
+		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests" class="p-5 md:p-6 lg:p-7 space-y-5 md:space-y-6 w-full overflow-x-hidden">
 			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
-				<div class="space-y-1.5 md:space-y-2">
-					<label class="block text-xs md:text-sm font-medium text-gray-700">Name</label>
-					<input name="requester_name" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500" placeholder="e.g., Juan Dela Cruz" required>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+				<div class="space-y-1">
+					<label class="block text-sm md:text-base font-medium text-gray-700">Name</label>
+					<input name="requester_name" class="w-full border border-gray-300 rounded-lg px-3.5 md:px-4 py-2.5 md:py-3 text-sm md:text-base focus:ring-2 focus:ring-gray-500 md:focus:ring-0 focus:outline-none" placeholder="e.g., Juan Dela Cruz" required>
 				</div>
-				<div class="space-y-1.5 md:space-y-2">
-					<label class="block text-xs md:text-sm font-medium text-gray-700">Date Needed</label>
-					<input type="date" name="request_date" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500" required>
+				<div class="space-y-1">
+					<label class="block text-sm md:text-base font-medium text-gray-700">Date Needed</label>
+					<input type="date" name="request_date" class="w-full border border-gray-300 rounded-lg px-3.5 md:px-4 py-2.5 md:py-3 text-sm md:text-base focus:ring-2 focus:ring-gray-500 md:focus:ring-0 focus:outline-none" required>
 				</div>
 			</div>
-			<div class="space-y-1.5 md:space-y-2">
-				<label class="block text-xs md:text-sm font-medium text-gray-700">Ingredients / Notes</label>
-				<textarea name="ingredients_note" rows="4" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500" placeholder="List ingredients, quantities, or any prep instructions" required></textarea>
-				<p class="text-[10px] md:text-xs text-gray-500">Detailed quantities will be captured later during the Prepare step.</p>
+			<div class="space-y-1">
+				<label class="block text-sm md:text-base font-medium text-gray-700">Ingredients / Notes</label>
+				<textarea name="ingredients_note" rows="4" class="w-full border border-gray-300 rounded-lg px-3.5 md:px-4 py-2.5 md:py-3 text-sm md:text-base focus:ring-2 focus:ring-gray-500 md:focus:ring-0 focus:outline-none" placeholder="List ingredients, quantities, or any prep instructions" required></textarea>
+				<p class="text-xs md:text-sm text-gray-500">Detailed quantities will be captured later during the Prepare step.</p>
 			</div>
-			<div class="flex justify-end gap-2 md:gap-3">
-				<button type="button" id="cancelNewRequestBtn" class="inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors text-xs md:text-sm">
+			<div class="flex justify-end gap-2">
+				<button type="button" id="cancelNewRequestBtn" class="inline-flex items-center justify-center px-3.5 md:px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors text-sm md:text-base">
 					Cancel
 				</button>
-					<button type="submit" class="inline-flex items-center gap-1 md:gap-1.5 bg-green-600 text-white px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-xs md:text-sm">
-					<i data-lucide="send" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+					<button type="submit" class="inline-flex items-center gap-1 bg-green-600 text-white px-3.5 md:px-4 py-2.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 md:focus:ring-0 md:focus:ring-offset-0 transition-colors text-sm md:text-base">
+					<i data-lucide="send" class="w-5 h-5 md:w-5 md:h-5"></i>
 					Submit Request
 				</button>
 			</div>
@@ -623,40 +623,40 @@ function formatDate($dateString) {
 
 <!-- Edit Request Modal -->
 <div id="editRequestModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-	<div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-		<div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 md:px-5 lg:px-6 py-4 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-4">
-			<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
-				<i data-lucide="edit" class="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-600"></i>
+	<div class="bg-white rounded-2xl shadow-xl max-w-xl w-full max-h-[90vh] overflow-y-auto">
+		<div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-3 md:px-4 lg:px-5 py-3 md:py-3.5 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-3">
+			<h2 class="text-xs md:text-sm font-semibold text-gray-900 flex items-center gap-1">
+				<i data-lucide="edit" class="w-3 h-3 md:w-3.5 md:h-3.5 text-blue-600"></i>
 				Edit Request
 			</h2>
 			<button type="button" id="closeEditModal" class="text-gray-400 hover:text-gray-600 transition-colors shrink-0">
-				<i data-lucide="x" class="w-4 h-4 md:w-5 md:h-5"></i>
+				<i data-lucide="x" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
 			</button>
 		</div>
-		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests/update" class="p-3 md:p-4 lg:p-5 space-y-3 md:space-y-4 lg:space-y-5">
+		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests/update" class="p-3 md:p-4 space-y-2.5 md:space-y-3">
 			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 			<input type="hidden" name="batch_id" id="editBatchId" value="">
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
-				<div class="space-y-1.5 md:space-y-2">
-					<label class="block text-xs md:text-sm font-medium text-gray-700">Name</label>
-					<input name="requester_name" id="editRequesterName" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., malupiton" required>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+				<div class="space-y-1">
+					<label class="block text-[10px] md:text-xs font-medium text-gray-700">Name</label>
+					<input name="requester_name" id="editRequesterName" class="w-full border border-gray-300 rounded-lg px-2 md:px-2.5 py-2 text-[10px] md:text-xs focus:ring-2 focus:ring-blue-500 md:focus:ring-0 focus:outline-none" placeholder="e.g., malupiton" required>
 				</div>
-				<div class="space-y-1.5 md:space-y-2">
-					<label class="block text-xs md:text-sm font-medium text-gray-700">Date Needed</label>
-					<input type="date" name="request_date" id="editRequestDate" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+				<div class="space-y-1">
+					<label class="block text-[10px] md:text-xs font-medium text-gray-700">Date Needed</label>
+					<input type="date" name="request_date" id="editRequestDate" class="w-full border border-gray-300 rounded-lg px-2 md:px-2.5 py-2 text-[10px] md:text-xs focus:ring-2 focus:ring-blue-500 md:focus:ring-0 focus:outline-none" required>
 				</div>
 			</div>
-			<div class="space-y-1.5 md:space-y-2">
-				<label class="block text-xs md:text-sm font-medium text-gray-700">Ingredients / Notes</label>
-				<textarea name="ingredients_note" id="editIngredientsNote" rows="4" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="List ingredients, quantities, or any prep instructions" required></textarea>
-				<p class="text-[10px] md:text-xs text-gray-500">Detailed quantities will be captured later during the Prepare step.</p>
+			<div class="space-y-1">
+				<label class="block text-[10px] md:text-xs font-medium text-gray-700">Ingredients / Notes</label>
+				<textarea name="ingredients_note" id="editIngredientsNote" rows="3" class="w-full border border-gray-300 rounded-lg px-2 md:px-2.5 py-2 text-[10px] md:text-xs focus:ring-2 focus:ring-blue-500 md:focus:ring-0 focus:outline-none" placeholder="List ingredients, quantities, or any prep instructions" required></textarea>
+				<p class="text-[9px] md:text-[10px] text-gray-500">Detailed quantities will be captured later during the Prepare step.</p>
 			</div>
-			<div class="flex justify-end gap-2 md:gap-3">
-				<button type="button" id="cancelEditModal" class="inline-flex items-center gap-1 md:gap-1.5 px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors text-xs md:text-sm">
+			<div class="flex justify-end gap-2">
+				<button type="button" id="cancelEditModal" class="inline-flex items-center gap-1 px-2.5 md:px-3 py-1.5 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 md:focus:ring-0 md:focus:ring-offset-0 transition-colors text-[10px] md:text-xs">
 					Cancel
 				</button>
-				<button type="submit" class="inline-flex items-center gap-1 md:gap-1.5 bg-blue-600 text-white px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors text-xs md:text-sm">
-					<i data-lucide="save" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+				<button type="submit" class="inline-flex items-center gap-1 bg-blue-600 text-white px-2.5 md:px-3 py-1.5 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 md:focus:ring-0 md:focus:ring-offset-0 transition-colors text-[10px] md:text-xs">
+					<i data-lucide="save" class="w-3 h-3 md:w-3.5 md:h-3.5"></i>
 					Save Changes
 				</button>
 			</div>
@@ -665,59 +665,59 @@ function formatDate($dateString) {
 </div>
 
 <div id="prepareModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; z-index: 99999 !important;">
-	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-		<div class="px-4 md:px-5 lg:px-6 py-4 border-b">
-			<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-4">
-				<div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 md:gap-6">
+	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+		<div class="px-3 md:px-4 lg:px-5 py-3 border-b">
+			<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-3">
+				<div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4">
 					<div>
-						<p class="text-[10px] uppercase tracking-wide text-gray-500">Batch</p>
-						<p class="text-base font-semibold text-gray-900" id="prepareModalBatchLabel">#0</p>
+						<p class="text-[9px] uppercase tracking-wide text-gray-500">Batch</p>
+						<p class="text-sm font-semibold text-gray-900" id="prepareModalBatchLabel">#0</p>
 					</div>
-					<div class="flex flex-wrap items-center gap-3 md:gap-4">
+					<div class="flex flex-wrap items-center gap-2 md:gap-3">
 						<div>
-							<p class="text-[10px] uppercase tracking-wide text-gray-500">Request Name</p>
-							<p class="text-xs font-semibold text-gray-900 mt-1" id="prepareModalRequestName">—</p>
+							<p class="text-[9px] uppercase tracking-wide text-gray-500">Request Name</p>
+							<p class="text-[10px] md:text-xs font-semibold text-gray-900 mt-0.5" id="prepareModalRequestName">—</p>
 						</div>
 						<div>
-							<p class="text-[10px] uppercase tracking-wide text-gray-500">Date Needed</p>
-							<p class="text-xs font-semibold text-gray-900 mt-1" id="prepareModalRequestDate">—</p>
+							<p class="text-[9px] uppercase tracking-wide text-gray-500">Date Needed</p>
+							<p class="text-[10px] md:text-xs font-semibold text-gray-900 mt-0.5" id="prepareModalRequestDate">—</p>
 						</div>
 						<div>
-							<p class="text-[10px] uppercase tracking-wide text-gray-500">Requested By</p>
-							<p class="text-xs font-semibold text-gray-900 mt-1" id="prepareModalStaff">—</p>
+							<p class="text-[9px] uppercase tracking-wide text-gray-500">Requested By</p>
+							<p class="text-[10px] md:text-xs font-semibold text-gray-900 mt-0.5" id="prepareModalStaff">—</p>
 						</div>
 					</div>
 				</div>
-				<button type="button" class="prepareModalClose text-gray-500 hover:text-gray-700 text-xl md:text-2xl leading-none shrink-0" aria-label="Close">&times;</button>
+				<button type="button" class="prepareModalClose text-gray-500 hover:text-gray-700 text-lg md:text-xl leading-none shrink-0" aria-label="Close">&times;</button>
 			</div>
 		</div>
-		<div class="px-4 md:px-5 lg:px-6 py-4 space-y-4">
-			<div class="p-3 md:p-4 border border-gray-200 rounded-lg">
-				<p class="text-xs uppercase tracking-wide text-gray-500 mb-2 md:mb-3">Requested Ingredients</p>
-				<ul class="grid grid-cols-1 md:grid-cols-2 gap-2" id="prepareModalNotes">
-					<li class="text-sm text-gray-700">—</li>
+		<div class="px-3 md:px-4 lg:px-5 py-3 space-y-3">
+			<div class="p-2.5 md:p-3 border border-gray-200 rounded-lg">
+				<p class="text-[10px] uppercase tracking-wide text-gray-500 mb-2">Requested Ingredients</p>
+				<ul class="grid grid-cols-1 md:grid-cols-2 gap-1.5" id="prepareModalNotes">
+					<li class="text-[10px] md:text-xs text-gray-700">—</li>
 				</ul>
 			</div>
-			<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests/prepare" id="prepareModalForm" class="space-y-4">
+			<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests/prepare" id="prepareModalForm" class="space-y-3">
 				<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 				<input type="hidden" name="batch_id" id="prepareModalBatchId">
 				<input type="hidden" name="action" id="prepareModalAction" value="save">
-				<div class="rounded-xl border border-gray-200 p-3 md:p-4 space-y-3">
-					<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
+				<div class="rounded-xl border border-gray-200 p-2.5 md:p-3 space-y-2.5">
+					<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2.5 md:gap-3">
 						<div class="space-y-1 md:col-span-2 lg:col-span-2">
-							<label class="text-sm font-medium text-gray-700">Ingredient</label>
+							<label class="text-[10px] md:text-xs font-medium text-gray-700">Ingredient</label>
 							<div class="relative">
-								<div class="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
-									<i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
+								<div class="absolute left-2 top-1/2 transform -translate-y-1/2 z-10">
+									<i data-lucide="search" class="w-3 h-3 text-gray-400"></i>
 								</div>
 								<input 
 									type="text" 
 									id="prepareIngredientSearch" 
 									placeholder="Search ingredients..." 
-									class="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500"
+									class="w-full border border-gray-300 rounded-lg pl-8 pr-2 py-2 text-[10px] md:text-xs focus:outline-none"
 									autocomplete="off"
 								>
-								<select id="prepareIngredientSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-gray-500 focus:border-gray-500" style="display: none;">
+								<select id="prepareIngredientSelect" class="w-full border border-gray-300 rounded-lg px-2 py-2 text-[10px] md:text-xs focus:ring-2 focus:ring-gray-500 focus:outline-none" style="display: none;">
 									<option value="">Choose ingredient</option>
 									<?php foreach ($ingredients as $ing): ?>
 										<option 
@@ -736,45 +736,45 @@ function formatDate($dateString) {
 							</div>
 						</div>
 						<div class="space-y-1">
-							<label class="text-sm font-medium text-gray-700">Quantity</label>
-							<input type="number" step="0.01" min="0.01" id="prepareQuantityInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-gray-500" placeholder="0.00">
+							<label class="text-[10px] md:text-xs font-medium text-gray-700">Quantity</label>
+							<input type="number" step="0.01" min="0.01" id="prepareQuantityInput" class="w-full border border-gray-300 rounded-lg px-2 py-2 text-[10px] md:text-xs focus:outline-none" placeholder="0.00">
 						</div>
 						<div class="space-y-1">
-							<label class="text-sm font-medium text-gray-700">Unit</label>
-							<select id="prepareUnitSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-gray-500">
+							<label class="text-[10px] md:text-xs font-medium text-gray-700">Unit</label>
+							<select id="prepareUnitSelect" class="w-full border border-gray-300 rounded-lg px-2 py-2 text-[10px] md:text-xs focus:outline-none">
 								<option value="">Base unit</option>
 							</select>
 						</div>
 						<div class="flex items-end">
-					<button type="button" id="prepareAddItemBtn" class="w-full inline-flex items-center justify-center gap-1 md:gap-1.5 bg-green-600 text-white px-2.5 md:px-3 py-1.5 md:py-2 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 text-xs md:text-sm">
-						<i data-lucide="plus" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+					<button type="button" id="prepareAddItemBtn" class="w-full inline-flex items-center justify-center gap-1 bg-green-600 text-white px-2 md:px-2.5 py-1.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 text-[10px] md:text-xs">
+						<i data-lucide="plus" class="w-3 h-3"></i>
 						Add
 					</button>
 						</div>
 					</div>
-					<div id="prepareBuilderError" class="hidden px-4 py-2 rounded-lg border border-red-200 bg-red-50 text-sm text-red-700"></div>
+					<div id="prepareBuilderError" class="hidden px-3 py-1.5 rounded-lg border border-red-200 bg-red-50 text-[10px] md:text-xs text-red-700"></div>
 				</div>
 				<div class="rounded-xl border border-gray-200 overflow-hidden">
-					<table class="w-full text-xs md:text-sm">
+					<table class="w-full text-[10px] md:text-xs">
 						<thead class="bg-gray-100">
 							<tr>
-								<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Ingredient</th>
-								<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Quantity</th>
-								<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Actions</th>
+								<th class="text-left px-2 md:px-2.5 py-1.5 font-semibold text-gray-900 text-[10px] md:text-xs">Ingredient</th>
+								<th class="text-left px-2 md:px-2.5 py-1.5 font-semibold text-gray-900 text-[10px] md:text-xs">Quantity</th>
+								<th class="text-left px-2 md:px-2.5 py-1.5 font-semibold text-gray-900 text-[10px] md:text-xs">Actions</th>
 							</tr>
 						</thead>
 						<tbody id="prepareItemsBody" class="divide-y divide-gray-200"></tbody>
 					</table>
-					<div id="prepareEmptyState" class="px-4 py-6 text-center text-xs md:text-sm text-gray-500">No ingredients added yet.</div>
+					<div id="prepareEmptyState" class="px-3 py-4 text-center text-[10px] md:text-xs text-gray-500">No ingredients added yet.</div>
 				</div>
 				<div id="prepareDynamicInputs"></div>
-				<div class="flex flex-col sm:flex-row sm:justify-end gap-2 md:gap-3">
-					<button type="button" data-action="save" class="prepareSubmitBtn inline-flex items-center justify-center gap-1 md:gap-1.5 border border-gray-300 text-gray-700 px-2.5 md:px-3 py-1.5 md:py-2 rounded-lg hover:bg-gray-50 text-xs md:text-sm">
-						<i data-lucide="save" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+				<div class="flex flex-col sm:flex-row sm:justify-end gap-2">
+					<button type="button" data-action="save" class="prepareSubmitBtn inline-flex items-center justify-center gap-1 border border-gray-300 text-gray-700 px-2.5 md:px-3 py-1.5 rounded-lg hover:bg-gray-50 text-[10px] md:text-xs">
+						<i data-lucide="save" class="w-3 h-3"></i>
 						Save Prep
 					</button>
-					<button type="button" data-action="distribute" class="prepareSubmitBtn inline-flex items-center justify-center gap-1 md:gap-1.5 bg-green-600 text-white px-2.5 md:px-3 py-1.5 md:py-2 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 text-xs md:text-sm">
-						<i data-lucide="send" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+					<button type="button" data-action="distribute" class="prepareSubmitBtn inline-flex items-center justify-center gap-1 bg-green-600 text-white px-2.5 md:px-3 py-1.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 text-[10px] md:text-xs">
+						<i data-lucide="send" class="w-3 h-3"></i>
 						Distribute
 					</button>
 				</div>
@@ -917,55 +917,55 @@ function formatDate($dateString) {
 			overlay.className = 'batch-detail-overlay fixed inset-0 bg-black/60 backdrop-blur-md z-[99999] flex items-center justify-center p-4';
 			overlay.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; z-index: 99999 !important;';
 			const modal = document.createElement('div');
-			modal.className = 'bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto';
+			modal.className = 'bg-white rounded-2xl shadow-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto';
 			modal.innerHTML = `
-				<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-4 px-4 md:px-5 lg:px-6 py-4 border-b border-gray-200">
-					<div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 md:gap-6">
+				<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-3 px-3 md:px-4 lg:px-5 py-3 border-b border-gray-200">
+					<div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4">
 						<div>
-							<p class="text-[9px] uppercase tracking-wider text-gray-500 font-medium mb-1">BATCH ID</p>
-							<p class="text-base font-bold text-gray-900">#${id}</p>
+							<p class="text-[9px] uppercase tracking-wider text-gray-500 font-medium mb-0.5">BATCH ID</p>
+							<p class="text-sm font-bold text-gray-900">#${id}</p>
 						</div>
 						<div>
-							<p class="text-[9px] uppercase tracking-wider text-gray-500 font-medium mb-1">REQUESTED BY</p>
-							<p class="text-xs font-semibold text-gray-900">${requestedBy}</p>
+							<p class="text-[9px] uppercase tracking-wider text-gray-500 font-medium mb-0.5">REQUESTED BY</p>
+							<p class="text-[10px] md:text-xs font-semibold text-gray-900">${requestedBy}</p>
 						</div>
 						<div>
-							<p class="text-[9px] uppercase tracking-wider text-gray-500 font-medium mb-1">DATE REQUESTED</p>
-							<p class="text-xs font-semibold text-gray-900">${dateRequested}</p>
+							<p class="text-[9px] uppercase tracking-wider text-gray-500 font-medium mb-0.5">DATE REQUESTED</p>
+							<p class="text-[10px] md:text-xs font-semibold text-gray-900">${dateRequested}</p>
 						</div>
 					</div>
-					<button type="button" class="closeBatchModal text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg shrink-0" aria-label="Close">
-						<i data-lucide="x" class="w-5 h-5"></i>
+					<button type="button" class="closeBatchModal text-gray-400 hover:text-gray-600 transition-colors p-1.5 hover:bg-gray-100 rounded-lg shrink-0" aria-label="Close">
+						<i data-lucide="x" class="w-4 h-4"></i>
 					</button>
 				</div>
-				<div class="px-4 md:px-5 lg:px-6 py-4 md:py-5 lg:py-6">${cardClone.innerHTML}</div>
+				<div class="px-3 md:px-4 lg:px-5 py-3 md:py-4">${cardClone.innerHTML}</div>
 				${showActions ? `
-				<div class="px-4 md:px-5 lg:px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-3">
+				<div class="px-3 md:px-4 lg:px-5 py-3 border-t border-gray-200 flex items-center justify-end gap-2">
 					<form method="post" action="${baseUrl}/requests/approve" class="inline">
 						<input type="hidden" name="csrf_token" value="${csrfToken}">
 						<input type="hidden" name="batch_id" value="${id}">
-						<button type="submit" class="inline-flex items-center gap-1 px-2.5 md:px-3 py-1.5 md:py-2 bg-green-600 text-white text-xs md:text-sm rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
-							<i data-lucide="check" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+						<button type="submit" class="inline-flex items-center gap-1 px-2.5 md:px-3 py-1.5 bg-green-600 text-white text-[10px] md:text-xs rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
+							<i data-lucide="check" class="w-3 h-3"></i>
 							Approve
 						</button>
 					</form>
 					<form method="post" action="${baseUrl}/requests/reject" class="inline" data-confirm="Are you sure you want to reject request batch #${id}? The requester will be notified." data-confirm-type="warning">
 						<input type="hidden" name="csrf_token" value="${csrfToken}">
 						<input type="hidden" name="batch_id" value="${id}">
-						<button type="submit" class="inline-flex items-center gap-1 px-2.5 md:px-3 py-1.5 md:py-2 bg-red-600 text-white text-xs md:text-sm rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
-							<i data-lucide="x" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+						<button type="submit" class="inline-flex items-center gap-1 px-2.5 md:px-3 py-1.5 bg-red-600 text-white text-[10px] md:text-xs rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+							<i data-lucide="x" class="w-3 h-3"></i>
 							Reject
 						</button>
 					</form>
 				</div>
 				` : ''}
 				${isRejected ? `
-				<div class="px-4 md:px-5 lg:px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-2 md:gap-3">
+				<div class="px-3 md:px-4 lg:px-5 py-3 border-t border-gray-200 flex items-center justify-end gap-2">
 					<form method="post" action="${baseUrl}/requests/delete" class="inline" id="deleteBatchForm${id}">
 						<input type="hidden" name="csrf_token" value="${csrfToken}">
 						<input type="hidden" name="batch_id" value="${id}">
-						<button type="button" class="deleteBatchBtn inline-flex items-center gap-1 px-2.5 md:px-3 py-1.5 md:py-2 bg-red-600 text-white text-xs md:text-sm rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
-							<i data-lucide="trash-2" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+						<button type="button" class="deleteBatchBtn inline-flex items-center gap-1 px-2.5 md:px-3 py-1.5 bg-red-600 text-white text-[10px] md:text-xs rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+							<i data-lucide="trash-2" class="w-3 h-3"></i>
 							Delete
 						</button>
 					</form>
@@ -1020,27 +1020,27 @@ function formatDate($dateString) {
 					
 					// Make the modal itself clickable
 					const confirmModal = document.createElement('div');
-					confirmModal.className = 'bg-white rounded-2xl shadow-2xl max-w-md w-full';
+					confirmModal.className = 'bg-white rounded-2xl shadow-2xl max-w-sm w-full';
 					confirmModal.style.pointerEvents = 'auto';
 					confirmModal.innerHTML = `
-						<div class="px-4 md:px-5 lg:px-6 py-4 md:py-5 lg:py-6">
-							<div class="flex items-center gap-4 mb-4">
-								<div class="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-									<i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+						<div class="px-3 md:px-4 lg:px-5 py-3 md:py-4">
+							<div class="flex items-center gap-3 mb-3">
+								<div class="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+									<i data-lucide="alert-triangle" class="w-5 h-5 text-red-600"></i>
 								</div>
 								<div>
-									<h3 class="text-sm md:text-base font-semibold text-gray-900">Delete Request Batch</h3>
-									<p class="text-[10px] md:text-xs text-gray-500 mt-0.5 md:mt-1">This action cannot be undone</p>
+									<h3 class="text-xs md:text-sm font-semibold text-gray-900">Delete Request Batch</h3>
+									<p class="text-[9px] md:text-[10px] text-gray-500 mt-0.5">This action cannot be undone</p>
 								</div>
 							</div>
-							<p class="text-xs md:text-sm text-gray-700 mb-4 md:mb-6">
+							<p class="text-[10px] md:text-xs text-gray-700 mb-3 md:mb-4">
 								Are you sure you want to delete request batch <strong>#${id}</strong>? This will permanently remove the batch and all associated data.
 							</p>
-							<div class="flex items-center justify-end gap-2 md:gap-3">
-								<button type="button" class="cancelDeleteBtn inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+							<div class="flex items-center justify-end gap-2">
+								<button type="button" class="cancelDeleteBtn inline-flex items-center justify-center px-2.5 md:px-3 py-1.5 text-[10px] md:text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
 									Cancel
 								</button>
-								<button type="button" class="confirmDeleteBtn inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+								<button type="button" class="confirmDeleteBtn inline-flex items-center justify-center px-2.5 md:px-3 py-1.5 text-[10px] md:text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
 									Delete
 								</button>
 							</div>
@@ -1150,18 +1150,18 @@ function formatDate($dateString) {
 				return `
 				<button 
 					type="button" 
-					class="w-full text-left px-4 py-2 hover:bg-indigo-50 focus:bg-indigo-50 focus:outline-none transition-colors border-b border-gray-100 last:border-b-0"
+					class="w-full text-left px-3 py-1.5 hover:bg-indigo-50 focus:bg-indigo-50 focus:outline-none transition-colors border-b border-gray-100 last:border-b-0"
 					data-id="${opt.id}"
 					data-unit="${opt.unit}"
 				>
 					<div class="flex items-center justify-between">
 						<div class="flex-1">
-							<div class="font-medium text-gray-900">${opt.name}</div>
-							<div class="text-xs text-gray-500">${opt.unit}</div>
+							<div class="font-medium text-[10px] md:text-xs text-gray-900">${opt.name}</div>
+							<div class="text-[9px] md:text-[10px] text-gray-500">${opt.unit}</div>
 						</div>
-						<div class="ml-3 text-right">
-							<div class="text-xs font-semibold ${stockColor}">Stock</div>
-							<div class="text-sm font-medium ${stockColor}">${stockText}</div>
+						<div class="ml-2 text-right">
+							<div class="text-[9px] md:text-[10px] font-semibold ${stockColor}">Stock</div>
+							<div class="text-[10px] md:text-xs font-medium ${stockColor}">${stockText}</div>
 						</div>
 					</div>
 				</button>
@@ -1266,7 +1266,7 @@ function formatDate($dateString) {
 				if (ingredientLines.length > 0) {
 					ingredientLines.forEach(line => {
 						const li = document.createElement('li');
-						li.className = 'text-sm text-gray-700 flex items-start gap-2';
+						li.className = 'text-[10px] md:text-xs text-gray-700 flex items-start gap-1.5';
 						const bullet = document.createElement('span');
 						bullet.className = 'text-gray-500 mt-0.5';
 						bullet.textContent = '•';
@@ -1278,13 +1278,13 @@ function formatDate($dateString) {
 					});
 				} else {
 					const li = document.createElement('li');
-					li.className = 'text-sm text-gray-700';
+					li.className = 'text-[10px] md:text-xs text-gray-700';
 					li.textContent = '—';
 					notesContainer.appendChild(li);
 				}
 			} else {
 				const li = document.createElement('li');
-				li.className = 'text-sm text-gray-700';
+				li.className = 'text-[10px] md:text-xs text-gray-700';
 				li.textContent = '—';
 				notesContainer.appendChild(li);
 			}
@@ -1344,14 +1344,14 @@ function formatDate($dateString) {
 			items.forEach((item, index) => {
 				const tr = document.createElement('tr');
 				tr.innerHTML = `
-					<td class="px-2.5 md:px-3 py-2 md:py-2.5">
+					<td class="px-2 md:px-2.5 py-1.5 md:py-2">
 						<div>
-							<p class="font-semibold text-gray-900 text-xs md:text-sm">${escapeHtml(item.name || '')}</p>
-							<p class="text-[10px] md:text-xs text-gray-500 mt-0.5">${escapeHtml(item.display_unit || item.unit || '')}</p>
+							<p class="font-semibold text-gray-900 text-[10px] md:text-xs">${escapeHtml(item.name || '')}</p>
+							<p class="text-[9px] md:text-[10px] text-gray-500 mt-0.5">${escapeHtml(item.display_unit || item.unit || '')}</p>
 						</div>
 					</td>
-					<td class="px-2.5 md:px-3 py-2 md:py-2.5">
-						<span class="font-bold text-gray-900 text-xs md:text-sm">${(() => {
+					<td class="px-2 md:px-2.5 py-1.5 md:py-2">
+						<span class="font-bold text-gray-900 text-[10px] md:text-xs">${(() => {
 						let displayQty = item.quantity;
 						const baseUnit = item.unit;
 						const displayUnit = item.display_unit;
@@ -1390,8 +1390,8 @@ function formatDate($dateString) {
 						return Number(displayQty).toFixed(2);
 					})()} ${escapeHtml(item.display_unit || item.unit || '')}</span>
 					</td>
-					<td class="px-2.5 md:px-3 py-2 md:py-2.5">
-						<button type="button" class="text-red-600 hover:text-red-700 text-[10px] md:text-xs font-medium removePrepItem" data-index="${index}">
+					<td class="px-2 md:px-2.5 py-1.5 md:py-2">
+						<button type="button" class="text-red-600 hover:text-red-700 text-[9px] md:text-[10px] font-medium removePrepItem" data-index="${index}">
 							Remove
 						</button>
 					</td>
@@ -1682,27 +1682,27 @@ function formatDate($dateString) {
 			
 			// Make the modal itself clickable
 			const confirmModal = document.createElement('div');
-			confirmModal.className = 'bg-white rounded-2xl shadow-2xl max-w-md w-full';
+			confirmModal.className = 'bg-white rounded-2xl shadow-2xl max-w-sm w-full';
 			confirmModal.style.pointerEvents = 'auto';
 			confirmModal.innerHTML = `
-				<div class="px-6 py-6">
-					<div class="flex items-center gap-4 mb-4">
-						<div class="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-							<i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+				<div class="px-3 md:px-4 lg:px-5 py-3 md:py-4">
+					<div class="flex items-center gap-3 mb-3">
+						<div class="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+							<i data-lucide="alert-triangle" class="w-5 h-5 text-red-600"></i>
 						</div>
 						<div>
-							<h3 class="text-sm md:text-base font-semibold text-gray-900">Remove Ingredient</h3>
-							<p class="text-[10px] md:text-xs text-gray-500 mt-0.5 md:mt-1">This action cannot be undone</p>
+							<h3 class="text-xs md:text-sm font-semibold text-gray-900">Remove Ingredient</h3>
+							<p class="text-[9px] md:text-[10px] text-gray-500 mt-0.5">This action cannot be undone</p>
 						</div>
 					</div>
-					<p class="text-xs md:text-sm text-gray-700 mb-4 md:mb-6">
+					<p class="text-[10px] md:text-xs text-gray-700 mb-3 md:mb-4">
 						Are you sure you want to remove <strong>${ingredientName}</strong> (${quantity} ${unit}) from this request?
 					</p>
-					<div class="flex items-center justify-end gap-2 md:gap-3">
-						<button type="button" class="cancelRemoveIngredientBtn inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+					<div class="flex items-center justify-end gap-2">
+						<button type="button" class="cancelRemoveIngredientBtn inline-flex items-center justify-center px-2.5 md:px-3 py-1.5 text-[10px] md:text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
 							Cancel
 						</button>
-						<button type="button" class="confirmRemoveIngredientBtn inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+						<button type="button" class="confirmRemoveIngredientBtn inline-flex items-center justify-center px-2.5 md:px-3 py-1.5 text-[10px] md:text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
 							Remove
 						</button>
 					</div>

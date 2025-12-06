@@ -180,8 +180,29 @@ class PurchaseController extends BaseController
                 if (($receiptUpload['size'] ?? 0) > $maxBytes) {
                     $receiptProblem = 'Receipt exceeds the 10MB limit. Please compress the file or upload a PDF scan.';
                 } else {
-                    $finfo = new finfo(FILEINFO_MIME_TYPE);
-                    $mime = $finfo->file($receiptUpload['tmp_name']);
+                    // Try to detect MIME type using finfo if available, otherwise use fallback methods
+                    $mime = null;
+                    if (class_exists('finfo')) {
+                        $finfo = new finfo(FILEINFO_MIME_TYPE);
+                        $mime = $finfo->file($receiptUpload['tmp_name']);
+                    } elseif (function_exists('mime_content_type')) {
+                        $mime = mime_content_type($receiptUpload['tmp_name']);
+                    } else {
+                        // Fallback: use file extension from original filename
+                        $originalName = $receiptUpload['name'] ?? '';
+                        $extensionMap = [
+                            'jpg' => 'image/jpeg',
+                            'jpeg' => 'image/jpeg',
+                            'png' => 'image/png',
+                            'webp' => 'image/webp',
+                            'heic' => 'image/heic',
+                            'heif' => 'image/heif',
+                            'pdf' => 'application/pdf',
+                        ];
+                        $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+                        $mime = $extensionMap[$ext] ?? null;
+                    }
+                    
                     $ext = $allowed[$mime] ?? null;
                     if ($ext === null) {
                         $receiptProblem = 'Unsupported receipt file type. Allowed types: JPG, PNG, WebP, HEIC and PDF.';
@@ -397,6 +418,46 @@ class PurchaseController extends BaseController
         $_SESSION['flash_purchases'] = ['type' => 'success', 'text' => 'Purchase marked as paid and receipt saved.'];
 		$this->redirect('/purchases');
 	}
+
+    public function delete(): void
+    {
+        Auth::requireRole(['Purchaser','Manager','Owner','Stock Handler']);
+        if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
+            http_response_code(400);
+            echo 'Invalid CSRF token';
+            return;
+        }
+        $idsRaw = trim((string)($_POST['ids'] ?? ''));
+        $ids = array_values(array_filter(array_map('intval', explode(',', $idsRaw)), fn($v)=>$v>0));
+        if (empty($ids)) {
+            $_SESSION['flash_purchases'] = ['type' => 'error', 'text' => 'Invalid purchase selection.'];
+            $this->redirect('/purchases');
+        }
+
+        $purchaseModel = new Purchase();
+        $purchases = $purchaseModel->findByIds($ids);
+        if (empty($purchases)) {
+            $_SESSION['flash_purchases'] = ['type' => 'error', 'text' => 'Purchase records not found.'];
+            $this->redirect('/purchases');
+        }
+
+        // Delete attached receipts (only local uploads under /public/uploads)
+        foreach ($purchases as $p) {
+            $url = (string)($p['receipt_url'] ?? '');
+            if ($url && str_starts_with($url, '/public/uploads/')) {
+                $path = BASE_PATH . $url;
+                if (is_file($path)) {
+                    @unlink($path);
+                }
+            }
+        }
+
+        $deleted = $purchaseModel->deleteByIds($ids);
+        $logger = new AuditLog();
+        $logger->log(Auth::id() ?? 0, 'delete', 'purchases', ['ids' => $ids, 'rows' => $deleted]);
+        $_SESSION['flash_purchases'] = ['type' => 'success', 'text' => 'Purchase group deleted successfully.'];
+        $this->redirect('/purchases');
+    }
 
     private function describeUploadError(int $code): string
     {

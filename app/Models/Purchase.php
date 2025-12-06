@@ -150,6 +150,42 @@ class Purchase extends BaseModel
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$receiptUrl, $id]);
     }
+
+    public function findByGroupId(string $groupId): array
+    {
+        $sql = 'SELECT * FROM purchases WHERE group_id = ?';
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$groupId]);
+        return $stmt->fetchAll() ?: [];
+    }
+
+    public function deleteByGroupId(string $groupId): int
+    {
+        $sql = 'DELETE FROM purchases WHERE group_id = ?';
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$groupId]);
+        return $stmt->rowCount();
+    }
+
+    public function findByIds(array $ids): array
+    {
+        if (empty($ids)) return [];
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $sql = "SELECT * FROM purchases WHERE id IN ($placeholders)";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(array_values($ids));
+        return $stmt->fetchAll() ?: [];
+    }
+
+    public function deleteByIds(array $ids): int
+    {
+        if (empty($ids)) return 0;
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $sql = "DELETE FROM purchases WHERE id IN ($placeholders)";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(array_values($ids));
+        return $stmt->rowCount();
+    }
 }
 
 
