@@ -357,8 +357,6 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 		<?php endif; ?>
 	</div>
 </div>
-<?php endif; ?>
-
 <?php else: ?>
 	<div class="bg-white rounded-xl border border-dashed border-gray-300 p-6 text-sm text-gray-600">
 		Purchase reporting is currently disabled by an administrator.

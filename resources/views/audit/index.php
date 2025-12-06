@@ -4,8 +4,10 @@ $activeDateLabel = 'All activity';
 $from = $filters['date_from'] ?? '';
 $to = $filters['date_to'] ?? '';
 if ($from || $to) {
-	$fromLabel = $from ? date('M d, Y', strtotime((string)$from)) : 'start';
-	$toLabel = $to ? date('M d, Y', strtotime((string)$to)) : 'today';
+	$fromTimestamp = $from ? strtotime((string)$from) : false;
+	$toTimestamp = $to ? strtotime((string)$to) : false;
+	$fromLabel = ($fromTimestamp !== false) ? date('M d, Y', $fromTimestamp) : 'start';
+	$toLabel = ($toTimestamp !== false) ? date('M d, Y', $toTimestamp) : 'today';
 	$activeDateLabel = $fromLabel . ' → ' . $toLabel;
 }
 $currentQuery = http_build_query(array_filter($_GET ?? [], fn($value) => $value !== '' && $value !== null));
@@ -150,7 +152,8 @@ $uniqueUsers = count(array_unique(array_column($logs, 'user_id')));
 $uniqueModules = count(array_unique(array_column($logs, 'module')));
 $todayLogs = 0;
 foreach ($logs as $log) {
-	if (date('Y-m-d', strtotime($log['timestamp'])) === date('Y-m-d')) {
+	$logTimestamp = strtotime($log['timestamp']);
+	if ($logTimestamp !== false && date('Y-m-d', $logTimestamp) === date('Y-m-d')) {
 		$todayLogs++;
 	}
 }
@@ -242,7 +245,11 @@ foreach ($logs as $log) {
 			<div class="flex flex-col gap-1">
 				<div class="flex flex-wrap items-center justify-between gap-2">
 					<p class="font-semibold text-gray-900"><?php echo htmlspecialchars($entry['action']); ?> on <?php echo htmlspecialchars($entry['module']); ?></p>
-					<span class="text-xs text-gray-500 font-mono"><?php echo htmlspecialchars(date('M j, Y g:i A', strtotime((string)$entry['timestamp']))); ?></span>
+					<?php 
+					$timelineTimestamp = strtotime((string)$entry['timestamp']);
+					$timelineDate = ($timelineTimestamp !== false) ? date('M j, Y g:i A', $timelineTimestamp) : 'Invalid date';
+					?>
+					<span class="text-xs text-gray-500 font-mono"><?php echo htmlspecialchars($timelineDate); ?></span>
 				</div>
 				<p class="text-sm text-gray-600">By <?php echo htmlspecialchars($entry['user_name'] ?? (string)($entry['user_id'] ?? 'System')); ?></p>
 				<?php if (!empty($sentence)): ?>
@@ -376,7 +383,7 @@ foreach ($logs as $log) {
 						<?php echo $todayLogs; ?> today
 					</div>
 				<?php endif; ?>
-			</span>
+			</div>
 		</div>
 	</div>
 	<div class="overflow-x-auto overflow-y-auto max-h-[26rem] custom-scroll">
@@ -417,15 +424,16 @@ foreach ($logs as $log) {
 					if ($userInitials === '') {
 						$userInitials = 'SY';
 					}
-					$timestamp = strtotime((string)$entry['timestamp']);
-					$fullDate = date('M j, Y g:i A', $timestamp);
+					$timestampRaw = strtotime((string)$entry['timestamp']);
+					$timestamp = ($timestampRaw !== false) ? $timestampRaw : time(); // Fallback to current time if invalid
+					$fullDate = ($timestampRaw !== false) ? date('M j, Y g:i A', $timestamp) : 'Invalid date';
 				?>
 				<tr class="hover:bg-gray-50 transition-colors cursor-pointer timeline-row" 
 					data-action="<?php echo htmlspecialchars($entry['action']); ?>"
 					data-module="<?php echo htmlspecialchars($entry['module']); ?>"
 					data-user="<?php echo htmlspecialchars($userName); ?>"
 					data-sentence="<?php echo htmlspecialchars($sentence ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-					data-timestamp="<?php echo $timestamp; ?>">
+					data-timestamp="<?php echo ($timestampRaw !== false) ? $timestamp : ''; ?>">
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
 						<div class="flex items-center gap-2">
 							<?php if (!empty($sentence) || !empty($detailJsonPretty)): ?>
@@ -446,7 +454,7 @@ foreach ($logs as $log) {
 						<span class="text-gray-700 font-medium text-[10px] md:text-xs"><?php echo htmlspecialchars($userName); ?></span>
 					</td>
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
-						<span class="text-gray-600 text-[10px] md:text-xs timeline-time" data-full-date="<?php echo htmlspecialchars($fullDate); ?>" data-timestamp="<?php echo $timestamp; ?>">
+						<span class="text-gray-600 text-[10px] md:text-xs timeline-time" data-full-date="<?php echo htmlspecialchars($fullDate); ?>" data-timestamp="<?php echo ($timestampRaw !== false) ? $timestamp : ''; ?>">
 							<?php echo htmlspecialchars($fullDate); ?>
 						</span>
 					</td>
@@ -456,7 +464,6 @@ foreach ($logs as $log) {
 		</table>
 	</div>
 </div>
-<?php endif; ?>
 
 <!-- Timeline Detail Modal -->
 <div id="timelineDetailModal" class="fixed inset-0 z-50 hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 50 !important;">
@@ -610,6 +617,9 @@ foreach ($logs as $log) {
 
 	// Relative time formatter
 	function formatRelativeTime(timestamp) {
+		if (!timestamp || isNaN(timestamp) || timestamp <= 0) {
+			return 'Invalid date';
+		}
 		const now = Math.floor(Date.now() / 1000);
 		const diff = now - timestamp;
 		
@@ -640,8 +650,15 @@ foreach ($logs as $log) {
 	function updateRelativeTimes() {
 		const timeElements = document.querySelectorAll('.timeline-time[data-timestamp]');
 		timeElements.forEach(el => {
-			const timestamp = parseInt(el.getAttribute('data-timestamp'), 10);
-			const fullDate = el.getAttribute('data-full-date');
+			const timestampStr = el.getAttribute('data-timestamp');
+			if (!timestampStr || timestampStr === '') {
+				return; // Skip invalid timestamps
+			}
+			const timestamp = parseInt(timestampStr, 10);
+			if (isNaN(timestamp) || timestamp <= 0) {
+				return; // Skip invalid timestamps
+			}
+			const fullDate = el.getAttribute('data-full-date') || '';
 			const relative = formatRelativeTime(timestamp);
 			el.textContent = relative;
 			el.title = fullDate; // Show full date on hover
@@ -665,7 +682,8 @@ foreach ($logs as $log) {
 		const module = element.getAttribute('data-module') || '';
 		const user = element.getAttribute('data-user') || 'System';
 		const sentence = element.getAttribute('data-sentence') || '';
-		const timestamp = parseInt(element.getAttribute('data-timestamp'), 10) || 0;
+		const timestampStr = element.getAttribute('data-timestamp') || '';
+		const timestamp = (timestampStr && !isNaN(parseInt(timestampStr, 10)) && parseInt(timestampStr, 10) > 0) ? parseInt(timestampStr, 10) : 0;
 		
 		// Set header activity info
 		document.getElementById('timelineModalActivity').textContent = `${action.charAt(0).toUpperCase() + action.slice(1)} on ${module}`;

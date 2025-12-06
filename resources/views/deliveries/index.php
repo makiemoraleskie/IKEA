@@ -786,6 +786,13 @@ foreach ($deliveries as $d) {
   const quickError = document.getElementById('quickModalError');
   const quickConfirmBtn = document.getElementById('quickConfirmBtn');
   const quickStatusButtons = Array.from(document.querySelectorAll('[data-quick-status]'));
+  const selectedBatchCard = document.getElementById('selectedBatchCard');
+  const selectedBatchId = document.getElementById('selectedBatchId');
+  const selectedSupplier = document.getElementById('selectedSupplier');
+  const selectedPurchaser = document.getElementById('selectedPurchaser');
+  const selectedDate = document.getElementById('selectedDate');
+  const selectedItems = document.getElementById('selectedItems');
+  const selectedBatchStatus = document.getElementById('selectedBatchStatus');
   const quickCloseTargets = Array.from(document.querySelectorAll('[data-quick-cancel]'));
   const quickReceiveButtons = Array.from(document.querySelectorAll('[data-quick-receive]'));
   let quickSelection = null;
