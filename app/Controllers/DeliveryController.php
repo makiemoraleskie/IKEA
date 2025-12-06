@@ -179,6 +179,15 @@ class DeliveryController extends BaseController
             $deliveryId = $deliveryModel->create($purchaseId, $ingredientId, $quantityReceived, $deliveryStatus, $quantityUnit);
             $deliveredCache[$purchaseId] += $quantityReceived;
 
+            // Auto-populate preferred_supplier from purchase if ingredient doesn't have one
+            // This helps build supplier data over time without manual entry
+            if ($item && empty($item['preferred_supplier']) && !empty($purchase['supplier'])) {
+                $purchaseSupplier = trim((string)$purchase['supplier']);
+                if ($purchaseSupplier !== '') {
+                    $ingredientModel->updateMeta((int)$item['id'], $purchaseSupplier, (float)($item['restock_quantity'] ?? 0));
+                }
+            }
+
             // IMPORTANT: This is the ONLY place where inventory quantities are updated after a purchase.
             // PurchaseController::store() does NOT update inventory - only delivery confirmation does.
             // Stock-in update: Add the exact converted amount to inventory

@@ -133,6 +133,14 @@ class Ingredient extends BaseModel
 		$stmt->execute([$supplier, $restockQuantity, $id]);
 	}
 
+	public function update(int $id, string $name, string $category, string $unit, ?string $displayUnit, float $displayFactor, float $reorderLevel): void
+	{
+		$this->ensureSupplierFields();
+		$sql = 'UPDATE ingredients SET name = ?, category = ?, unit = ?, display_unit = ?, display_factor = ?, reorder_level = ? WHERE id = ?';
+		$stmt = $this->db->prepare($sql);
+		$stmt->execute([$name, $category, $unit, $displayUnit, $displayFactor, $reorderLevel, $id]);
+	}
+
 	public function countLowStockItems(): int
 	{
 		$this->ensureSupplierFields();

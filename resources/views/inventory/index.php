@@ -158,6 +158,7 @@ foreach ($ingredients as $ing) {
 			Add Ingredient
 		</button>
 		<?php endif; ?>
+		<?php if (Auth::role() === 'Owner'): ?>
 		<button 
 			type="button" 
 			id="openImportCsvModal"
@@ -166,6 +167,14 @@ foreach ($ingredients as $ing) {
 			<i data-lucide="upload" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
 			Import CSV
 		</button>
+		<a 
+			href="<?php echo htmlspecialchars($baseUrl); ?>/inventory/export"
+			class="inline-flex items-center gap-1 md:gap-1.5 bg-blue-600 text-white px-2.5 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors text-xs md:text-sm"
+		>
+			<i data-lucide="download" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+			Export CSV
+		</a>
+		<?php endif; ?>
 		<?php if (in_array(Auth::role(), ['Owner','Manager'], true)): ?>
 		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/migrate-kg-to-g" class="inline-block" data-confirm="This will convert all ingredients with base unit 'kg' to 'g'. Quantities will be multiplied by 1000. This action cannot be undone. Continue?">
 			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
@@ -796,13 +805,57 @@ document.addEventListener('DOMContentLoaded', function() {
 		return;
 	}
 	
-	const openModal = (e) => {
+	const resetForm = () => {
+		const form = document.getElementById('addIngredientForm');
+		if (form) {
+			form.reset();
+			form.action = '<?php echo htmlspecialchars($baseUrl); ?>/inventory';
+			document.getElementById('editIngredientId').value = '';
+			document.getElementById('addIngredientModalTitle').innerHTML = '<i data-lucide="plus-circle" class="w-3.5 h-3.5 md:w-4 md:h-4 text-green-600"></i>Add New Ingredient';
+			document.getElementById('addIngredientModalSubtitle').textContent = 'Add a new ingredient to your inventory';
+			document.getElementById('addIngredientSubmitText').textContent = 'Add Ingredient';
+			const submitIcon = document.querySelector('#addIngredientSubmitBtn i[data-lucide]');
+			if (submitIcon) {
+				submitIcon.setAttribute('data-lucide', 'plus');
+				if (window.lucide) window.lucide.createIcons();
+			}
+		}
+	};
+	
+	window.openAddIngredientModal = (e, editData = null) => {
 		if (e) {
 			e.preventDefault();
 			e.stopPropagation();
 		}
+		resetForm();
+		
+		if (editData) {
+			// Edit mode
+			document.getElementById('editIngredientId').value = editData.id;
+			document.getElementById('addIngredientForm').action = '<?php echo htmlspecialchars($baseUrl); ?>/inventory/update';
+			document.getElementById('addIngredientModalTitle').innerHTML = '<i data-lucide="pencil" class="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-600"></i>Edit Ingredient';
+			document.getElementById('addIngredientModalSubtitle').textContent = 'Update ingredient details';
+			document.getElementById('addIngredientSubmitText').textContent = 'Update Ingredient';
+			const submitIcon = document.querySelector('#addIngredientSubmitBtn i[data-lucide]');
+			if (submitIcon) {
+				submitIcon.setAttribute('data-lucide', 'save');
+				if (window.lucide) window.lucide.createIcons();
+			}
+			
+			// Populate form fields
+			document.querySelector('input[name="name"]').value = editData.name || '';
+			document.querySelector('input[name="category"]').value = editData.category || '';
+			document.querySelector('select[name="unit"]').value = editData.unit || '';
+			document.querySelector('input[name="display_unit"]').value = editData.display_unit || '';
+			document.querySelector('input[name="display_factor"]').value = editData.display_factor || '1';
+			document.querySelector('input[name="reorder_level"]').value = editData.reorder_level || '0';
+		}
+		
 		addIngredientModal.classList.remove('hidden');
 		document.body.classList.add('overflow-hidden');
+		if (window.lucide) {
+			window.lucide.createIcons({ elements: addIngredientModal.querySelectorAll('i[data-lucide]') });
+		}
 	};
 	
 	const closeModal = (e) => {
@@ -812,14 +865,15 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 		addIngredientModal.classList.add('hidden');
 		document.body.classList.remove('overflow-hidden');
+		resetForm();
 	};
 	
 	if (openAddIngredientBtn) {
-		openAddIngredientBtn.addEventListener('click', openModal);
+		openAddIngredientBtn.addEventListener('click', (e) => window.openAddIngredientModal(e));
 	}
 	
 	if (openAddIngredientBtnEmpty) {
-		openAddIngredientBtnEmpty.addEventListener('click', openModal);
+		openAddIngredientBtnEmpty.addEventListener('click', (e) => window.openAddIngredientModal(e));
 	}
 	
 	const dismissButtons = addIngredientModal.querySelectorAll('[data-add-ingredient-dismiss]');
@@ -1105,9 +1159,16 @@ document.addEventListener('DOMContentLoaded', function() {
 				</td>
 				${<?php echo $canManageInventory ? 'true' : 'false'; ?> ? `
 				<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
-					<button type="button" class="delete-ingredient-btn inline-flex items-center justify-center w-7 h-7 md:w-8 md:h-8 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors" data-ingredient-id="${ing.id}" data-ingredient-name="${escapeHtml(ing.name || '')}" title="Delete ingredient">
-						<i data-lucide="trash-2" class="w-4 h-4 md:w-4 md:h-4"></i>
-					</button>
+					<div class="flex items-center gap-1 md:gap-2">
+						${<?php echo Auth::role() === 'Owner' ? 'true' : 'false'; ?> ? `
+						<button type="button" class="edit-ingredient-btn inline-flex items-center justify-center w-7 h-7 md:w-8 md:h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors" data-ingredient-id="${ing.id}" title="Edit ingredient">
+							<i data-lucide="pencil" class="w-4 h-4 md:w-4 md:h-4"></i>
+						</button>
+						` : ''}
+						<button type="button" class="delete-ingredient-btn inline-flex items-center justify-center w-7 h-7 md:w-8 md:h-8 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors" data-ingredient-id="${ing.id}" data-ingredient-name="${escapeHtml(ing.name || '')}" title="Delete ingredient">
+							<i data-lucide="trash-2" class="w-4 h-4 md:w-4 md:h-4"></i>
+						</button>
+					</div>
 				</td>
 				` : ''}
 			</tr>
@@ -1321,6 +1382,37 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	});
 	
+	// Edit ingredient handlers
+	<?php if (Auth::role() === 'Owner'): ?>
+	if (tableBody) {
+		tableBody.addEventListener('click', (e) => {
+			const editBtn = e.target.closest('.edit-ingredient-btn');
+			if (!editBtn) return;
+			
+			e.preventDefault();
+			const ingredientId = parseInt(editBtn.dataset.ingredientId || '0', 10);
+			if (!ingredientId) return;
+			
+			// Find the ingredient data from the current filtered/sorted list
+			const ingredient = filteredIngredients.find(ing => ing.id === ingredientId);
+			if (!ingredient) return;
+			
+			// Open modal in edit mode
+			if (window.openAddIngredientModal) {
+				window.openAddIngredientModal(null, {
+					id: ingredient.id,
+					name: ingredient.name || '',
+					category: ingredient.category || '',
+					unit: ingredient.unit || '',
+					display_unit: ingredient.display_unit || '',
+					display_factor: ingredient.display_factor || 1,
+					reorder_level: ingredient.reorderLevel || 0
+				});
+			}
+		});
+	}
+	<?php endif; ?>
+	
 	// Delete ingredient modal handlers
 	<?php if ($canManageInventory): ?>
 	const deleteIngredientModal = document.getElementById('deleteIngredientModal');
@@ -1520,19 +1612,20 @@ document.addEventListener('DOMContentLoaded', function() {
 		<div class="w-full max-w-3xl bg-white rounded-2xl shadow-none border border-gray-200 flex flex-col max-h-[90vh]">
 			<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-4 px-4 md:px-5 lg:px-6 py-4 md:py-5 border-b">
 				<div>
-					<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
+					<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5" id="addIngredientModalTitle">
 						<i data-lucide="plus-circle" class="w-3.5 h-3.5 md:w-4 md:h-4 text-green-600"></i>
 						Add New Ingredient
 					</h2>
-					<p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Add a new ingredient to your inventory</p>
+					<p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1" id="addIngredientModalSubtitle">Add a new ingredient to your inventory</p>
 				</div>
 				<button type="button" class="text-gray-400 hover:text-gray-600 transition-colors shrink-0" data-add-ingredient-dismiss>
 					<i data-lucide="x" class="w-4 h-4 md:w-5 md:h-5"></i>
 				</button>
 			</div>
 			
-			<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory" class="p-4 md:p-5 lg:p-6 overflow-y-auto">
+			<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory" id="addIngredientForm" class="p-4 md:p-5 lg:p-6 overflow-y-auto">
 				<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+				<input type="hidden" name="id" id="editIngredientId" value="">
 				
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 lg:gap-5">
 					<div class="space-y-1.5 md:space-y-2">
@@ -1600,9 +1693,9 @@ document.addEventListener('DOMContentLoaded', function() {
 					<button type="button" class="inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-xs md:text-sm" data-add-ingredient-dismiss>
 						Cancel
 					</button>
-					<button type="submit" class="inline-flex items-center gap-1 md:gap-1.5 bg-green-600 text-white px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-xs md:text-sm">
+					<button type="submit" id="addIngredientSubmitBtn" class="inline-flex items-center gap-1 md:gap-1.5 bg-green-600 text-white px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-xs md:text-sm">
 						<i data-lucide="plus" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
-						Add Ingredient
+						<span id="addIngredientSubmitText">Add Ingredient</span>
 					</button>
 				</div>
 			</form>

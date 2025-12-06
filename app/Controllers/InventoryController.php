@@ -91,6 +91,50 @@ class InventoryController extends BaseController
 		$this->redirect('/inventory');
 	}
 
+	public function update(): void
+	{
+		// Only Owner can edit: Name, Category, Base Unit, Display Unit, Display Factor, Reorder Level
+		Auth::requireRole(['Owner']);
+		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
+			http_response_code(400);
+			echo 'Invalid CSRF token';
+			return;
+		}
+		$id = (int)($_POST['id'] ?? 0);
+		$name = trim((string)($_POST['name'] ?? ''));
+		$category = trim((string)($_POST['category'] ?? ''));
+		$unit = trim((string)($_POST['unit'] ?? ''));
+		$displayUnit = trim((string)($_POST['display_unit'] ?? '')) ?: null;
+		$displayFactor = (float)($_POST['display_factor'] ?? 1);
+		$reorderLevel = (float)($_POST['reorder_level'] ?? 0);
+		
+		if ($id <= 0 || $name === '' || $unit === '') {
+			$_SESSION['flash_inventory'] = ['type' => 'error', 'text' => 'Invalid ingredient data. Name and unit are required.'];
+			$this->redirect('/inventory');
+		}
+		
+		$model = new Ingredient();
+		$ingredient = $model->find($id);
+		if (!$ingredient) {
+			$_SESSION['flash_inventory'] = ['type' => 'error', 'text' => 'Ingredient not found.'];
+			$this->redirect('/inventory');
+		}
+		
+		$model->update($id, $name, $category, $unit, $displayUnit, $displayFactor > 0 ? $displayFactor : 1, $reorderLevel);
+		$logger = new AuditLog();
+		$logger->log(Auth::id() ?? 0, 'update', 'ingredients', [
+			'ingredient_id' => $id,
+			'name' => $name,
+			'category' => $category,
+			'unit' => $unit,
+			'display_unit' => $displayUnit,
+			'display_factor' => $displayFactor,
+			'reorder_level' => $reorderLevel
+		]);
+		$_SESSION['flash_inventory'] = ['type' => 'success', 'text' => 'Ingredient updated successfully.'];
+		$this->redirect('/inventory');
+	}
+
     public function deleteIngredient(): void
     {
         Auth::requireRole(['Owner','Manager','Stock Handler']);
@@ -244,7 +288,7 @@ class InventoryController extends BaseController
 
 	public function import(): void
 	{
-		Auth::requireRole(['Owner','Manager','Stock Handler']);
+		Auth::requireRole(['Owner']);
 		
 		// Handle GET request - show import form
 		if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -602,6 +646,63 @@ class InventoryController extends BaseController
 		}
 		
 		$this->redirect('/inventory');
+	}
+
+	/**
+	 * Export current inventory to CSV
+	 * Only accessible by Owner role
+	 */
+	public function export(): void
+	{
+		Auth::requireRole(['Owner']);
+		
+		$ingredientModel = new Ingredient();
+		$ingredients = $ingredientModel->all();
+		
+		// Set headers for CSV download
+		header('Content-Type: text/csv; charset=utf-8');
+		header('Content-Disposition: attachment; filename="inventory_export_' . date('Y-m-d_His') . '.csv"');
+		header('Pragma: no-cache');
+		header('Expires: 0');
+		
+		// Open output stream
+		$output = fopen('php://output', 'w');
+		
+		// Add BOM for UTF-8 (helps Excel recognize encoding)
+		fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+		
+		// Write CSV headers
+		$headers = [
+			'Name',
+			'Category',
+			'Unit',
+			'Display Unit',
+			'Display Factor',
+			'Quantity',
+			'Reorder Level',
+			'Preferred Supplier',
+			'Restock Quantity'
+		];
+		fputcsv($output, $headers);
+		
+		// Write ingredient data
+		foreach ($ingredients as $ingredient) {
+			$row = [
+				$ingredient['name'] ?? '',
+				$ingredient['category'] ?? '',
+				$ingredient['unit'] ?? '',
+				$ingredient['display_unit'] ?? '',
+				$ingredient['display_factor'] ?? '',
+				$ingredient['quantity'] ?? '0',
+				$ingredient['reorder_level'] ?? '0',
+				$ingredient['preferred_supplier'] ?? '',
+				$ingredient['restock_quantity'] ?? '0'
+			];
+			fputcsv($output, $row);
+		}
+		
+		fclose($output);
+		exit;
 	}
 }
 

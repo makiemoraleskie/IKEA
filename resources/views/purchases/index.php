@@ -7,6 +7,11 @@
 			<p class="text-[10px] md:text-xs text-gray-600">Record and manage ingredient purchases</p>
 		</div>
 	</div>
+	<?php if (!empty($flash)): ?>
+	<div class="mt-3 px-4 py-3 rounded-lg border <?php echo $flash['type']==='success' ? 'border-green-200 bg-green-50 text-green-800' : 'border-red-200 bg-red-50 text-red-700'; ?>">
+		<?php echo htmlspecialchars($flash['text'] ?? ''); ?>
+	</div>
+	<?php endif; ?>
 </div>
 
 <!-- Summary Cards -->
@@ -1201,13 +1206,16 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
       return;
     }
     const deliveryStatus = (btn.dataset.deliveryStatus || '').toLowerCase();
-    if (deliveryStatus !== 'complete'){
-      showReceiptPopup('Finish receiving this purchase before marking it as paid.');
-      return;
+    // Force receipt upload if Delivery Status is Complete
+    if (deliveryStatus === 'complete'){
+      pendingMarkPaidId = purchaseId;
+      markPaidReceiptInput.value = '';
+      markPaidReceiptInput.click();
+    } else {
+      // For non-complete deliveries, allow marking as paid without receipt requirement
+      markPaidPurchaseId.value = String(purchaseId);
+      markPaidForm.submit();
     }
-    pendingMarkPaidId = purchaseId;
-    markPaidReceiptInput.value = '';
-    markPaidReceiptInput.click();
   });
 
   markPaidReceiptInput?.addEventListener('change', ()=>{
