@@ -16,7 +16,7 @@
 <?php
 $baseUrl = defined('BASE_URL') ? BASE_URL : '';
 $canViewCosts = $canViewCosts ?? true;
-$dashboardWidgets = $dashboardWidgets ?? ['low_stock','pending_requests','pending_payments','partial_deliveries','pending_deliveries','inventory_value'];
+$dashboardWidgets = $dashboardWidgets ?? ['low_stock','pending_requests','pending_payments','partial_deliveries'];
 $lowStock = (int)($stats['lowStockCount'] ?? 0);
 $pendingRequests = (int)($stats['pendingRequests'] ?? 0);
 $pendingPayments = (int)($stats['pendingPayments'] ?? 0);
@@ -102,45 +102,6 @@ $cardCopy = [
 			<div class="text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-gray-900 mb-1 md:mb-1.5"><?php echo $partialDeliveries; ?></div>
 			<p class="text-[10px] md:text-xs text-gray-600 mb-2 md:mb-3"><?php echo htmlspecialchars($cardCopy['partialDeliveries']); ?></p>
 			<a href="<?php echo htmlspecialchars($baseUrl); ?>/deliveries?status=partial#recent-deliveries" class="text-[10px] md:text-xs font-semibold text-green-600 hover:text-green-700">Track deliveries ></a>
-
-		</div>
-	</div>
-	<?php endif; ?>
-
-	<!-- Pending Deliveries -->
-
-	<?php if (in_array('pending_deliveries', $dashboardWidgets, true)): ?>
-	<div class="bg-white rounded-lg shadow-none border border-gray-200 p-3 md:p-4 lg:p-5 relative">
-		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
-			<i data-lucide="package" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-green-600"></i>
-		</div>
-		<div class="flex flex-col">
-			<h3 class="text-[9px] md:text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 md:mb-2">AWAITING DELIVERIES</h3>
-			<div class="text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-gray-900 mb-1 md:mb-1.5"><?php echo $pendingDeliveries; ?></div>
-			<p class="text-[10px] md:text-xs text-gray-600 mb-2 md:mb-3"><?php echo htmlspecialchars($cardCopy['pendingDeliveries']); ?></p>
-			<a href="<?php echo htmlspecialchars($baseUrl); ?>/deliveries?status=awaiting#awaiting-deliveries" class="text-[10px] md:text-xs font-semibold text-green-600 hover:text-green-700">Open delivery board ></a>
-
-		</div>
-	</div>
-	<?php endif; ?>
-
-	<!-- Inventory Value -->
-
-	<?php if (in_array('inventory_value', $dashboardWidgets, true)): ?>
-	<div class="bg-white rounded-lg shadow-none border border-gray-200 p-3 md:p-4 lg:p-5 relative">
-		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
-			<span class="text-lg md:text-xl font-bold text-green-600">₱</span>
-		</div>
-		<div class="flex flex-col">
-			<h3 class="text-[9px] md:text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 md:mb-2">INVENTORY VALUE</h3>
-			<?php if ($canViewCosts): ?>
-				<div class="text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-gray-900 mb-1 md:mb-1.5">₱<?php echo number_format($inventoryValue, 2); ?></div>
-				<p class="text-[10px] md:text-xs text-gray-600 mb-2 md:mb-3">estimated replacement value</p>
-				<a href="<?php echo htmlspecialchars($baseUrl); ?>/inventory#inventory-low-stock" class="text-[10px] md:text-xs font-semibold text-green-600 hover:text-green-700">See stock ledger ></a>
-			<?php else: ?>
-				<div class="text-sm md:text-base font-semibold text-gray-500">Hidden</div>
-				<p class="text-[10px] md:text-xs text-gray-500 mb-1.5 md:mb-2">Your role cannot view valuation data.</p>
-			<?php endif; ?>
 
 		</div>
 	</div>

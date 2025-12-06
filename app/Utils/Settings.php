@@ -86,7 +86,7 @@ class Settings
 		if (isset($map[$role]) && is_array($map[$role])) {
 			return $map[$role];
 		}
-		return $map['default'] ?? ['low_stock','pending_requests','pending_payments','partial_deliveries','pending_deliveries','inventory_value'];
+		return $map['default'] ?? ['low_stock','pending_requests','pending_payments','partial_deliveries'];
 	}
 
 	public static function reportSectionsEnabled(): array
