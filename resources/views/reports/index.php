@@ -357,10 +357,6 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 		<?php endif; ?>
 	</div>
 </div>
-<?php else: ?>
-	<div class="bg-white rounded-xl border border-dashed border-gray-300 p-6 text-sm text-gray-600">
-		Purchase reporting is currently disabled by an administrator.
-	</div>
 <?php endif; ?>
 
 <?php if (!empty($sectionsEnabled['consumption'])): ?>
@@ -842,5 +838,3 @@ if (ctx2 && daily.length > 0) {
 		}
 	}
 </style>
-
-
