@@ -13,14 +13,31 @@
 }
 
 body.theme-body {
-
-	background: #ffffff;
-
+	background: #ffffff !important;
 	color: var(--color-text);
 }
 
+body.theme-body[data-theme="dark"],
+body.theme-body[data-theme="system"] {
+	background: #ffffff !important;
+}
+
 .theme-shell {
-	background: transparent;
+	background: #ffffff !important;
+}
+
+body.theme-body .theme-shell {
+	background: #ffffff !important;
+}
+
+main {
+	background-color: #ffffff !important;
+}
+
+body.theme-body main,
+body[data-theme="dark"] main,
+body[data-theme="system"] main {
+	background-color: #ffffff !important;
 }
 
 #sidebar.theme-sidebar {
@@ -177,12 +194,12 @@ body.theme-body {
 }
 
 body[data-theme="dark"] {
-	background: linear-gradient(180deg, #0b1120 0%, #111827 45%, #0f172a 100%);
-	color: #f8fafc;
+	background: #ffffff !important;
+	color: var(--color-text);
 }
 
 body[data-theme="dark"] .theme-shell {
-	background: transparent;
+	background: #ffffff !important;
 }
 
 body[data-theme="dark"] .theme-sidebar {
@@ -248,4 +265,41 @@ body[data-theme="dark"] .bg-blue-50 {
 #userProfileButton:active,
 #userProfileButton:focus {
 	border-color: #e5e7eb !important;
+}
+
+/* Force white background - override all dark mode and other styles */
+html,
+html[data-theme],
+html[data-theme="dark"],
+html[data-theme="light"],
+html[data-theme="system"],
+body,
+body.theme-body,
+body[data-theme],
+body[data-theme="dark"],
+body[data-theme="light"],
+body[data-theme="system"],
+body.theme-body .theme-shell,
+body.theme-body .theme-shell[data-theme],
+body[data-theme] .theme-shell,
+body.theme-body main,
+body[data-theme] main,
+body[data-theme="dark"] main,
+body[data-theme="system"] main,
+body[data-theme="light"] main,
+.theme-shell,
+.theme-shell[data-theme],
+main,
+main[data-theme] {
+	background-color: #ffffff !important;
+	background: #ffffff !important;
+	background-image: none !important;
+}
+
+/* Override any gradient backgrounds */
+body[data-theme="dark"],
+body.theme-body[data-theme="dark"] {
+	background: #ffffff !important;
+	background-color: #ffffff !important;
+	background-image: none !important;
 }

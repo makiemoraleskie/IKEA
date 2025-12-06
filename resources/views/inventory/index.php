@@ -15,14 +15,12 @@ if (!empty($lowStockGroups)) {
 	}
 }
 ?>
-
 <!-- Page Header -->
 <div class="bg-white rounded-2xl shadow-none border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6 max-w-full overflow-x-hidden">
 	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
 		<div class="min-w-0 flex-1">
 			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1 truncate">Inventory Management</h1>
 			<p class="text-[10px] md:text-xs text-gray-600">Track and manage ingredient stock levels</p>
-
 		</div>
 	</div>
 </div>
@@ -1514,7 +1512,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-
 <!-- Add Ingredient Modal -->
 <?php if (in_array(Auth::role(), ['Owner','Manager','Stock Handler'], true)): ?>
 <div id="addIngredientModal" class="fixed inset-0 z-50 hidden">
@@ -1726,43 +1723,9 @@ if (!isset($ingredientSetsEnabled)) {
 						<div class="relative">
 							<input type="number" id="setIngredientQty" min="0.01" step="0.01" class="w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 pr-12 md:pr-16 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm" placeholder="0.00">
 							<span id="setIngredientUnitBadge" class="absolute inset-y-0 right-2 md:right-3 flex items-center text-xs font-semibold text-gray-500">unit</span>
-
 						</div>
-						<p class="text-xs text-gray-500 font-medium mt-1.5">Enter the common name of the ingredient</p>
-					</div>
-					
-					<!-- Base Unit -->
-					<div class="space-y-2.5">
-						<label class="block text-sm font-bold text-gray-700 uppercase tracking-wide">
-							<span class="flex items-center gap-2">
-								<i data-lucide="ruler" class="w-4 h-4 text-[#008000]"></i>
-								Base Unit <span class="text-red-500">*</span>
-							</span>
-						</label>
-						<div class="relative">
-							<select 
-								name="unit" 
-								class="w-full rounded-xl border-2 border-gray-200/80 bg-gradient-to-br from-gray-50/80 to-white px-5 py-4 pr-12 text-gray-900 text-base font-normal transition-all duration-300 hover:border-gray-300 hover:bg-white hover:shadow-md focus:border-gray-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-gray-400/15 focus:shadow-lg appearance-none cursor-pointer" 
-								required
-							>
-								<option value="">Choose a unit...</option>
-								<option value="g">Grams (g)</option>
-								<option value="kg">Kilograms (kg)</option>
-								<option value="ml">Milliliters (ml)</option>
-								<option value="L">Liters (L)</option>
-								<option value="pcs">Pieces (pcs)</option>
-								<option value="cups">Cups</option>
-								<option value="tbsp">Tablespoons (tbsp)</option>
-								<option value="tsp">Teaspoons (tsp)</option>
-							</select>
-							<div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
-								<i data-lucide="chevron-down" class="w-5 h-5 text-gray-400"></i>
-							</div>
-						</div>
-						<p class="text-xs text-gray-500 font-medium mt-1.5">The primary unit for measuring this ingredient</p>
 					</div>
 				</div>
-
 				<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-3">
 					<p class="text-xs text-gray-500">Quantities are stored using each ingredient's base unit.</p>
 					<button type="button" id="setAddIngredientBtn" class="inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 transition-colors text-xs md:text-sm whitespace-nowrap">
@@ -1808,138 +1771,9 @@ if (!isset($ingredientSetsEnabled)) {
 				<div class="rounded-xl border border-dashed border-gray-300 p-4 md:p-6 text-center text-gray-500">
 					<i data-lucide="archive" class="w-8 h-8 mx-auto mb-2 md:mb-3 text-gray-400"></i>
 					<p class="text-xs md:text-sm">No sets defined yet. <?php echo $canManageSets ? 'Use the form to create your first set.' : 'Ask a manager to define sets.'; ?></p>
-
 				</div>
-				<div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/60 backdrop-blur-sm border-2 border-gray-200/60 shadow-sm">
-					<span class="text-sm font-bold text-gray-700"><?php echo count($ingredientSets); ?></span>
-					<span class="text-xs text-gray-500 font-medium uppercase tracking-wide">Sets Defined</span>
-				</div>
-			</div>
-		</div>
-		<div class="p-6 sm:p-8 <?php echo $canManageSets ? 'grid gap-8 lg:grid-cols-2' : ''; ?>">
-			<?php if ($canManageSets): ?>
-			<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/set" id="setBuilderForm" class="space-y-6">
-				<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
-				<input type="hidden" name="set_id" id="setIdField" value="0">
-				
-				<div class="space-y-4">
-					<div>
-						<label class="block text-sm font-bold text-gray-700 uppercase tracking-wide mb-2">
-							<span class="flex items-center gap-2">
-								<i data-lucide="tag" class="w-4 h-4 text-[#008000]"></i>
-								Set Name <span class="text-red-500">*</span>
-							</span>
-						</label>
-						<input id="setNameInput" name="set_name" class="w-full rounded-xl border-2 border-gray-200/80 bg-gradient-to-br from-gray-50/80 to-white px-5 py-4 text-gray-900 placeholder-gray-400 text-base font-normal transition-all duration-300 hover:border-gray-300 hover:bg-white hover:shadow-md focus:border-gray-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-gray-400/15 focus:shadow-lg" placeholder="e.g., Chocolate Cake Kit" required>
-					</div>
-					
-					<div>
-						<label class="block text-sm font-bold text-gray-700 uppercase tracking-wide mb-2">
-							<span class="flex items-center gap-2">
-								<i data-lucide="file-text" class="w-4 h-4 text-[#008000]"></i>
-								Description <span class="text-xs font-normal text-gray-500">(optional)</span>
-							</span>
-						</label>
-						<textarea id="setDescriptionInput" name="set_description" rows="3" class="w-full rounded-xl border-2 border-gray-200/80 bg-gradient-to-br from-gray-50/80 to-white px-5 py-4 text-gray-900 placeholder-gray-400 text-base font-normal transition-all duration-300 hover:border-gray-300 hover:bg-white hover:shadow-md focus:border-gray-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-gray-400/15 focus:shadow-lg" placeholder="Short notes for the team"></textarea>
-					</div>
-				</div>
-				
-				<div class="space-y-4">
-					<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-						<div class="md:col-span-2">
-							<label class="block text-sm font-bold text-gray-700 uppercase tracking-wide mb-2">
-								<span class="flex items-center gap-2">
-									<i data-lucide="package" class="w-4 h-4 text-[#008000]"></i>
-									Ingredient
-								</span>
-							</label>
-							<div class="relative">
-								<select id="setIngredientSelect" class="w-full rounded-xl border-2 border-gray-200/80 bg-gradient-to-br from-gray-50/80 to-white px-5 py-4 pr-12 text-gray-900 text-base font-normal transition-all duration-300 hover:border-gray-300 hover:bg-white hover:shadow-md focus:border-gray-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-gray-400/15 focus:shadow-lg appearance-none cursor-pointer">
-									<option value="">Select ingredient...</option>
-									<?php foreach ($ingredients as $ing): ?>
-										<option value="<?php echo (int)$ing['id']; ?>" data-unit="<?php echo htmlspecialchars($ing['unit']); ?>">
-											<?php echo htmlspecialchars($ing['name'] . ' (' . $ing['unit'] . ')'); ?>
-										</option>
-									<?php endforeach; ?>
-								</select>
-								<div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
-									<i data-lucide="chevron-down" class="w-5 h-5 text-gray-400"></i>
-								</div>
-							</div>
-						</div>
-						<div>
-							<label class="block text-sm font-bold text-gray-700 uppercase tracking-wide mb-2">
-								<span class="flex items-center gap-2">
-									<i data-lucide="hash" class="w-4 h-4 text-[#008000]"></i>
-									Quantity
-								</span>
-							</label>
-							<div class="relative">
-								<input type="number" id="setIngredientQty" min="0.01" step="0.01" class="w-full rounded-xl border-2 border-gray-200/80 bg-gradient-to-br from-gray-50/80 to-white px-5 py-4 pr-20 text-gray-900 placeholder-gray-400 text-base font-normal transition-all duration-300 hover:border-gray-300 hover:bg-white hover:shadow-md focus:border-gray-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-gray-400/15 focus:shadow-lg" placeholder="0.00">
-								<span id="setIngredientUnitBadge" class="absolute inset-y-0 right-0 flex items-center pr-4 text-xs font-bold text-gray-500 pointer-events-none">unit</span>
-							</div>
-						</div>
-					</div>
-					<div class="flex items-center justify-between gap-3 flex-wrap">
-						<p class="text-xs text-gray-500 font-medium">Quantities are stored using each ingredient's base unit</p>
-						<button type="button" id="setAddIngredientBtn" class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-b from-[#00A86B] to-[#008000] text-white rounded-xl font-bold text-sm shadow-md hover:opacity-90 hover:shadow-lg transition-all duration-200">
-							<i data-lucide="plus" class="w-4 h-4"></i>
-							Add to Set
-						</button>
-					</div>
-					<div id="setBuilderError" class="hidden px-5 py-4 text-sm font-semibold text-red-800 bg-gradient-to-r from-red-50 to-red-50/60 border-2 border-gray-300 rounded-xl shadow-sm"></div>
-				</div>
-				
-				<div class="border-2 border-gray-200/80 rounded-2xl overflow-hidden bg-white/50 backdrop-blur-sm">
-					<div class="bg-gradient-to-r from-gray-100/80 to-gray-50/50 px-5 py-4 flex items-center justify-between border-b-2 border-gray-200/60">
-						<h3 class="text-sm font-bold text-gray-700 uppercase tracking-wide">Ingredients in this set</h3>
-						<span id="setComponentCount" class="text-xs font-bold text-gray-600 px-3 py-1 bg-white rounded-full border border-gray-200">0 ingredients</span>
-					</div>
-					<div class="overflow-x-auto">
-						<table class="w-full text-sm">
-							<thead class="bg-white/60">
-								<tr>
-									<th class="px-5 py-3 text-left font-bold text-gray-700 text-xs uppercase tracking-wide">Ingredient</th>
-									<th class="px-5 py-3 text-left font-bold text-gray-700 text-xs uppercase tracking-wide">Quantity</th>
-									<th class="px-5 py-3"></th>
-								</tr>
-							</thead>
-							<tbody id="setComponentsBody" class="divide-y divide-gray-200/60"></tbody>
-						</table>
-						<div id="setComponentsEmpty" class="px-5 py-8 text-center text-sm text-gray-500">
-							<i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 text-gray-300"></i>
-							<p class="font-medium">No ingredients added yet</p>
-							<p class="text-xs text-gray-400 mt-1">Add ingredients above to build your set</p>
-						</div>
-					</div>
-				</div>
-				
-				<input type="hidden" name="components_json" id="setComponentsJson" value="[]">
-				<div class="flex justify-end gap-4 pt-4 border-t-2 border-gray-200/60">
-					<button type="button" id="setEditCancelBtn" class="inline-flex items-center gap-2 px-6 py-3 border-2 border-gray-300 bg-white text-gray-700 font-bold rounded-xl hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-400/20 transition-all duration-200 hidden">
-						<i data-lucide="x" class="w-4 h-4"></i>
-						Cancel Edit
-					</button>
-					<button type="submit" id="setBuilderSubmit" class="inline-flex items-center gap-2.5 px-6 py-3 bg-gradient-to-b from-[#00A86B] to-[#008000] text-white font-bold rounded-xl shadow-md hover:opacity-90 hover:shadow-lg transition-all duration-300">
-						<span class="flex items-center gap-2.5">
-							<i data-lucide="check" class="w-4 h-4"></i>
-							<span id="setBuilderSubmitLabel">Save Set</span>
-						</span>
-					</button>
-				</div>
-			</form>
 			<?php endif; ?>
-			<div class="space-y-4">
-				<?php if (empty($ingredientSets)): ?>
-					<div class="rounded-2xl border-2 border-dashed border-gray-300/60 bg-gradient-to-br from-gray-50/50 to-white p-8 text-center">
-						<div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-							<i data-lucide="archive" class="w-8 h-8 text-gray-400"></i>
-						</div>
-						<p class="text-sm font-semibold text-gray-700 mb-1">No sets defined yet</p>
-						<p class="text-xs text-gray-500"><?php echo $canManageSets ? 'Use the form to create your first set.' : 'Ask a manager to define sets.'; ?></p>
-					</div>
-				<?php endif; ?>
-				<?php foreach ($ingredientSets as $set): 
+			<?php foreach ($ingredientSets as $set): 
 				$componentCount = count($set['components']);
 				$lowComponent = null;
 				foreach ($set['components'] as $component) {
@@ -1962,7 +1796,6 @@ if (!isset($ingredientSetsEnabled)) {
 					}, $set['components']),
 				];
 			?>
-
 			<div class="border rounded-2xl p-4 md:p-5 space-y-3 md:space-y-4 bg-white shadow-none">
 				<div class="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-3 md:gap-4">
 					<div class="flex-1 min-w-0">
@@ -1992,19 +1825,9 @@ if (!isset($ingredientSetsEnabled)) {
 								Delete
 							</button>
 						</form>
-
 					</div>
-					
-					<?php if ($lowComponent): ?>
-						<div class="flex items-start gap-3 px-4 py-3 bg-gradient-to-r from-red-50 to-red-50/60 border-2 border-gray-300 rounded-xl">
-							<i data-lucide="alert-triangle" class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"></i>
-							<p class="text-sm font-semibold text-red-800">
-								<strong><?php echo htmlspecialchars($lowComponent['ingredient_name']); ?></strong> is currently at or below its reorder level.
-							</p>
-						</div>
 					<?php endif; ?>
 				</div>
-
 				<ul class="space-y-1.5 md:space-y-2 text-xs md:text-sm">
 					<?php foreach ($set['components'] as $component): ?>
 						<li class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 sm:gap-2 text-gray-700">
@@ -2024,12 +1847,11 @@ if (!isset($ingredientSetsEnabled)) {
 						<?php echo htmlspecialchars($lowComponent['ingredient_name']); ?> is currently at or below its reorder level.
 					</div>
 				<?php endif; ?>
-
 			</div>
+			<?php endforeach; ?>
 		</div>
 	</div>
 </div>
-
 <?php endif; ?>
 
 <script>
@@ -2060,4 +1882,3 @@ window.INGREDIENTS_DATA = <?php echo json_encode(array_map(function($ing) {
 	];
 }, $ingredients), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
 </script>
-

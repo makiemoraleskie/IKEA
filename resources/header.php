@@ -8,7 +8,7 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '';
 $notifications = [];
 $notificationCount = 0;
 $logoOverride = Settings::logoPath();
-$defaultLogo = BASE_URL . '/resources/views/logo/540473678_1357706066360607_6728109697986200356_n (1).jpg';
+$defaultLogo = BASE_URL . '/public/logo.jpg';
 $activeTheme = $_SESSION['user_theme'] ?? Settings::themeDefault();
 
 if ($user) {
@@ -23,7 +23,8 @@ if ($user) {
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title><?php echo htmlspecialchars($appTitle); ?></title>
-	<link rel="icon" href="<?php echo htmlspecialchars($baseUrl); ?>/public/favicon.ico">
+	<link rel="icon" href="<?php echo htmlspecialchars($baseUrl); ?>/public/logo.jpg" type="image/jpeg">
+	<link rel="shortcut icon" href="<?php echo htmlspecialchars($baseUrl); ?>/public/logo.jpg" type="image/jpeg">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
@@ -31,6 +32,15 @@ if ($user) {
 	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 	<link rel="stylesheet" href="<?php echo htmlspecialchars($baseUrl); ?>/public/css/theme.css">
 	<style>
+		/* Force white background - highest priority */
+		html, body, body.theme-body, body[data-theme], body[data-theme="dark"], body[data-theme="light"], body[data-theme="system"],
+		.theme-shell, body .theme-shell, body[data-theme] .theme-shell,
+		main, body main, body[data-theme] main {
+			background-color: #ffffff !important;
+			background: #ffffff !important;
+			background-image: none !important;
+		}
+		
 		@media (min-width: 768px) and (max-width: 1023px) {
 			#sidebar.sidebar-tablet-hidden {
 				transform: translateX(-100%) !important;
@@ -44,31 +54,37 @@ if ($user) {
 		// Tailwind config placeholder if needed
 	</script>
 	<script>
+		// Force light theme always - prevent dark mode
 		(function(){
-			var storedTheme = '<?php echo $activeTheme; ?>';
-			if (storedTheme !== 'system') {
-				return;
-			}
-			var mediaQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
-			var apply = function(isDark) {
+			function forceLightTheme() {
 				if (document.body) {
-					document.body.setAttribute('data-theme', isDark ? 'dark' : 'light');
-				} else {
-					document.documentElement.dataset.pendingTheme = isDark ? 'dark' : 'light';
+					document.body.setAttribute('data-theme', 'light');
 				}
-			};
-			var isDark = mediaQuery ? mediaQuery.matches : false;
-			apply(isDark);
-			if (mediaQuery && mediaQuery.addEventListener) {
-				mediaQuery.addEventListener('change', function(e){ apply(e.matches); });
-			} else if (mediaQuery && mediaQuery.addListener) {
-				mediaQuery.addListener(function(e){ apply(e.matches); });
+				if (document.documentElement) {
+					document.documentElement.setAttribute('data-theme', 'light');
+					document.documentElement.removeAttribute('data-pending-theme');
+				}
 			}
-			window.addEventListener('DOMContentLoaded', function(){
-				if (document.documentElement.dataset.pendingTheme) {
-					document.body.setAttribute('data-theme', document.documentElement.dataset.pendingTheme);
-				}
-			});
+			
+			// Force immediately
+			forceLightTheme();
+			
+			// Force on DOM ready
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', forceLightTheme);
+			}
+			
+			// Prevent system theme from applying
+			var mediaQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+			if (mediaQuery && mediaQuery.addEventListener) {
+				mediaQuery.addEventListener('change', function(e){ 
+					forceLightTheme(); // Always force light, ignore system preference
+				});
+			} else if (mediaQuery && mediaQuery.addListener) {
+				mediaQuery.addListener(function(e){ 
+					forceLightTheme(); // Always force light, ignore system preference
+				});
+			}
 		})();
 	</script>
 </head>
@@ -461,23 +477,28 @@ if ($user) {
 			(function(){
 				const btn = document.getElementById('themeSwitcher');
 				if (!btn) return;
-				const themes = ['light','dark','system'];
-				const updateIcon = (theme) => {
+				// Force light theme always - prevent dark mode
+				const forceLight = () => {
+					document.body.setAttribute('data-theme', 'light');
+					btn.setAttribute('data-theme', 'light');
 					const icon = btn.querySelector('i');
 					if (icon) {
-						icon.setAttribute('data-lucide', theme === 'dark' ? 'moon' : 'sun');
+						icon.setAttribute('data-lucide', 'sun');
 						if (window.lucide) {
 							window.lucide.createIcons();
 						}
 					}
 				};
+				
+				// Force light on load
+				forceLight();
+				
+				// Override click to always force light
 				btn.addEventListener('click', ()=>{
-					const current = btn.getAttribute('data-theme') || 'system';
-					const index = themes.indexOf(current);
-					const nextTheme = themes[(index + 1) % themes.length];
+					forceLight();
+					const nextTheme = 'light'; // Always use light
 					btn.setAttribute('data-theme', nextTheme);
 					document.body.setAttribute('data-theme', nextTheme);
-					updateIcon(nextTheme);
 
 					const formData = new FormData();
 					formData.append('csrf_token', btn.getAttribute('data-csrf') || '');
@@ -641,8 +662,119 @@ if ($user) {
 			})();
 			</script>
 			
+			<script>
+			// Force white background and light theme always - optimized version
+			(function() {
+				let isApplying = false;
+				
+				function forceWhiteBackground() {
+					// Prevent multiple simultaneous calls
+					if (isApplying) return;
+					isApplying = true;
+					
+					try {
+						// Force light theme first
+						if (document.body && document.body.getAttribute('data-theme') !== 'light') {
+							document.body.setAttribute('data-theme', 'light');
+						}
+						if (document.documentElement && document.documentElement.getAttribute('data-theme') !== 'light') {
+							document.documentElement.setAttribute('data-theme', 'light');
+						}
+						
+						// Only apply styles if body exists
+						if (!document.body) {
+							isApplying = false;
+							return;
+						}
+						
+						// Force on html element
+						if (document.documentElement) {
+							document.documentElement.style.setProperty('background-color', '#ffffff', 'important');
+							document.documentElement.style.setProperty('background', '#ffffff', 'important');
+							document.documentElement.style.setProperty('background-image', 'none', 'important');
+						}
+						
+						// Force on body
+						document.body.style.setProperty('background-color', '#ffffff', 'important');
+						document.body.style.setProperty('background', '#ffffff', 'important');
+						document.body.style.setProperty('background-image', 'none', 'important');
+						
+						// Force on all main elements (only if they exist)
+						const mainElements = document.querySelectorAll('main');
+						if (mainElements.length > 0) {
+							mainElements.forEach(function(main) {
+								main.style.setProperty('background-color', '#ffffff', 'important');
+								main.style.setProperty('background', '#ffffff', 'important');
+								main.style.setProperty('background-image', 'none', 'important');
+							});
+						}
+						
+						// Force on theme-shell wrapper (only if it exists)
+						const shellElements = document.querySelectorAll('.theme-shell');
+						if (shellElements.length > 0) {
+							shellElements.forEach(function(shell) {
+								shell.style.setProperty('background-color', '#ffffff', 'important');
+								shell.style.setProperty('background', '#ffffff', 'important');
+								shell.style.setProperty('background-image', 'none', 'important');
+							});
+						}
+					} catch (e) {
+						console.warn('Error applying white background:', e);
+					} finally {
+						isApplying = false;
+					}
+				}
+				
+				// Run after DOM is ready
+				if (document.readyState === 'loading') {
+					document.addEventListener('DOMContentLoaded', function() {
+						forceWhiteBackground();
+					});
+				} else {
+					// DOM already ready
+					setTimeout(forceWhiteBackground, 0);
+				}
+				
+				// Run after page fully loads
+				window.addEventListener('load', function() {
+					setTimeout(forceWhiteBackground, 100);
+				});
+				
+				// Watch for theme changes and re-apply immediately (more efficient than interval)
+				const observer = new MutationObserver(function(mutations) {
+					let needsUpdate = false;
+					mutations.forEach(function(mutation) {
+						if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+							const newTheme = mutation.target.getAttribute('data-theme');
+							if (newTheme && newTheme !== 'light') {
+								needsUpdate = true;
+							}
+						}
+					});
+					if (needsUpdate) {
+						setTimeout(forceWhiteBackground, 10);
+					}
+				});
+				
+				// Start observing after DOM is ready
+				if (document.body) {
+					observer.observe(document.body, {
+						attributes: true,
+						attributeFilter: ['data-theme']
+					});
+				}
+				
+				if (document.documentElement) {
+					observer.observe(document.documentElement, {
+						attributes: true,
+						attributeFilter: ['data-theme']
+					});
+				}
+			})();
+			</script>
+			
 			<!-- Main Content Area -->
-			<main class="flex-1 overflow-y-auto min-w-0" style="background-color: #ffffff;">
+			<main class="flex-1 overflow-y-auto min-w-0 bg-white" style="background-color: #ffffff !important;">
 				<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 space-y-8 min-w-0">
 	<?php else: ?>
 	<main class="max-w-7xl mx-auto p-4">
