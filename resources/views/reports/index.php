@@ -358,7 +358,6 @@ $uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
 	</div>
 </div>
 <?php endif; ?>
-
 <?php if (!empty($sectionsEnabled['consumption'])): ?>
 	<!-- Consumption Filters Section -->
 	<div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8 overflow-hidden no-print">
