@@ -20,10 +20,10 @@ $consumptionFilters = array_merge([
 ], $consumptionFilters ?? []);
 ?>
 <!-- Page Header -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6 max-w-full overflow-x-hidden">
 	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
-		<div>
-			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1">Purchase Reports</h1>
+		<div class="min-w-0 flex-1">
+			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1 truncate">Purchase Reports</h1>
 			<p class="text-[10px] md:text-xs text-gray-600">Analyze and export purchase data</p>
 		</div>
 	</div>
@@ -32,10 +32,83 @@ $consumptionFilters = array_merge([
 <!-- Filters Section - Moved to Top for Better UX -->
 <section id="purchaseReportSection" class="space-y-8">
 <?php if (!empty($sectionsEnabled['purchase'])): ?>
+<!-- Summary Cards -->
+<?php if (!empty($purchases)): ?>
+<?php 
+// Calculate report statistics
+$totalPurchases = count($purchases);
+$totalCost = array_sum(array_column($purchases, 'cost'));
+$uniqueSuppliers = count(array_unique(array_column($purchases, 'supplier')));
+$uniqueItems = count(array_unique(array_column($purchases, 'item_name')));
+?>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8 max-w-full overflow-x-hidden">
+	<!-- Total Purchases -->
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
+			<i data-lucide="shopping-cart" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-blue-600"></i>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[9px] md:text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 md:mb-2">TOTAL PURCHASES</h3>
+			<div class="text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-gray-900 mb-1 md:mb-1.5"><?php echo $totalPurchases; ?></div>
+			<p class="text-[10px] md:text-xs text-gray-600">All purchase records</p>
+		</div>
+	</div>
+	
+	<!-- Total Cost -->
+	<?php if ($canViewCosts): ?>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
+			<span class="text-lg md:text-xl font-bold text-green-600">₱</span>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[9px] md:text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 md:mb-2">TOTAL COST</h3>
+			<div class="text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-green-600 mb-1 md:mb-1.5">₱<?php echo number_format($totalCost, 2); ?></div>
+			<p class="text-[10px] md:text-xs text-gray-600">Total expenses</p>
+		</div>
+	</div>
+	<?php else: ?>
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
+			<i data-lucide="shield" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-gray-500"></i>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[9px] md:text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 md:mb-2">TOTAL COST</h3>
+			<div class="text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-gray-500 mb-1 md:mb-1.5">Hidden</div>
+			<p class="text-[10px] md:text-xs text-gray-600">Cost visibility restricted</p>
+		</div>
+	</div>
+	<?php endif; ?>
+	
+	<!-- Unique Suppliers -->
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
+			<i data-lucide="truck" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-purple-600"></i>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">SUPPLIERS</h3>
+			<div class="text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-purple-600 mb-1.5 md:mb-2"><?php echo $uniqueSuppliers; ?></div>
+			<p class="text-xs md:text-sm text-gray-600">Unique suppliers</p>
+		</div>
+	</div>
+	
+	<!-- Unique Items -->
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
+			<i data-lucide="package" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-orange-600"></i>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 md:mb-3">ITEMS PURCHASED</h3>
+			<div class="text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-orange-600 mb-1.5 md:mb-2"><?php echo $uniqueItems; ?></div>
+			<p class="text-xs md:text-sm text-gray-600">Unique items</p>
+		</div>
+	</div>
+</div>
+<?php endif; ?>
+
 <!-- Filters Section -->
 <div class="mb-8 no-print">
 	<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-		<div class="bg-gray-100 px-4 md:px-5 lg:px-6 py-3 md:py-4 border-b">
+		<div class="bg-gray-50 px-4 md:px-5 lg:px-6 py-3 md:py-4 border-b">
 			<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
 				<i data-lucide="filter" class="w-3.5 h-3.5 md:w-4 md:h-4 text-green-600"></i>
 				Purchase Filters
@@ -117,6 +190,90 @@ $consumptionFilters = array_merge([
 		</form>
 	</div>
 </div>
+
+<?php else: ?>
+	<div class="bg-white rounded-xl border border-dashed border-gray-300 p-6 text-sm text-gray-600">
+		Purchase reporting is currently disabled by an administrator.
+	</div>
+<?php endif; ?>
+
+<?php if (!empty($sectionsEnabled['consumption'])): ?>
+	<!-- Consumption Filters Section -->
+	<div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8 overflow-hidden no-print max-w-full w-full">
+		<div class="bg-gray-50 px-4 md:px-5 lg:px-6 py-3 md:py-4 border-b">
+			<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
+				<i data-lucide="activity" class="w-3.5 h-3.5 md:w-4 md:h-4 text-green-600"></i>
+				Consumption Filters
+			</h2>
+			<p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Filter ingredient consumption totals.</p>
+		</div>
+		<form method="get" id="consumptionFiltersForm" class="p-4 md:p-5 lg:p-6 space-y-5">
+			<?php foreach (['date_from','date_to','supplier','item_id','category','payment_status'] as $key): ?>
+				<input type="hidden" name="p_<?php echo $key; ?>" value="<?php echo htmlspecialchars($purchaseFilters[$key] ?? ''); ?>">
+			<?php endforeach; ?>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="space-y-2">
+					<label class="block text-sm font-medium text-gray-700">From Date</label>
+					<input type="date" name="c_date_from" value="<?php echo htmlspecialchars($consumptionFilters['date_from']); ?>" class="w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors text-sm" />
+				</div>
+				<div class="space-y-2">
+					<label class="block text-sm font-medium text-gray-700">To Date</label>
+					<input type="date" name="c_date_to" value="<?php echo htmlspecialchars($consumptionFilters['date_to']); ?>" class="w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors text-sm" />
+				</div>
+				<div class="space-y-2">
+					<label class="block text-sm font-medium text-gray-700">Category</label>
+					<select name="c_category" class="w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors text-sm">
+						<option value="">All Categories</option>
+						<?php foreach ($categoriesList as $category): ?>
+							<option value="<?php echo htmlspecialchars($category); ?>" <?php echo ($consumptionFilters['category'] === $category) ? 'selected' : ''; ?>>
+								<?php echo htmlspecialchars($category); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+				<div class="space-y-2">
+					<label class="block text-sm font-medium text-gray-700">Usage Status</label>
+					<select name="c_usage_status" class="w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors text-sm">
+						<option value="">All Statuses</option>
+						<?php foreach ($usageStatuses as $value => $label): ?>
+							<option value="<?php echo htmlspecialchars($value); ?>" <?php echo ($consumptionFilters['usage_status'] === $value) ? 'selected' : ''; ?>>
+								<?php echo htmlspecialchars($label); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+			</div>
+			<div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+				<button type="submit" class="w-full inline-flex items-center justify-center gap-1 md:gap-1.5 bg-emerald-600 text-white px-2.5 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors text-xs md:text-sm">
+					<i data-lucide="search" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+					Apply Filters
+				</button>
+				<div class="w-full">
+					<label class="text-[10px] md:text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">Export As</label>
+					<div class="relative">
+						<select id="consumptionExportSelect" class="w-full appearance-none border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 pr-9 bg-gray-50 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-xs md:text-sm font-medium text-gray-700">
+							<option value="" selected disabled>Select format</option>
+							<option value="pdf">PDF</option>
+							<option value="excel">Excel (.xls)</option>
+							<option value="csv">CSV</option>
+						</select>
+						<span class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-500">
+							<i data-lucide="chevron-down" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+						</span>
+					</div>
+				</div>
+				<button type="button" id="consumptionPrintBtn" class="w-full inline-flex items-center justify-center gap-1 md:gap-1.5 bg-slate-700 text-white px-2.5 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg hover:bg-slate-800 focus:ring-2 focus:ring-slate-600 focus:ring-offset-2 transition-colors text-xs md:text-sm">
+					<i data-lucide="printer" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+					Print Consumption
+				</button>
+			</div>
+		</form>
+	</div>
+<?php else: ?>
+	<div class="bg-white rounded-xl border border-dashed border-gray-300 p-6 text-sm text-gray-600">
+		Consumption reporting is currently disabled by an administrator.
+	</div>
+<?php endif; ?>
 
 <!-- Purchase Details Table -->
 <?php if (!empty($sectionsEnabled['purchase'])): ?>
@@ -289,9 +446,9 @@ $consumptionFilters = array_merge([
 <?php $consumption = $consumption ?? []; ?>
 
 <?php if (!empty($sectionsEnabled['consumption'])): ?>
-<!-- Ingredient Consumption Table -->
-<div id="consumptionReportSection" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
-	<div class="bg-gray-100 px-4 md:px-5 lg:px-6 py-3 md:py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+<!-- Ingredient Consumption Report -->
+<div id="consumptionReportSection" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8 max-w-full w-full">
+	<div class="bg-gray-50 px-4 md:px-5 lg:px-6 py-3 md:py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 		<div>
 			<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
 				<i data-lucide="chef-hat" class="w-3.5 h-3.5 md:w-4 md:h-4 text-green-600"></i>

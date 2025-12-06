@@ -3,10 +3,10 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '';
 $deliveredTotals = $deliveredTotals ?? [];
 ?>
 <!-- Page Header -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6 max-w-full overflow-x-hidden">
 	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
-		<div>
-			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1">Delivery Management</h1>
+		<div class="min-w-0 flex-1">
+			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1 truncate">Delivery Management</h1>
 			<p class="text-[10px] md:text-xs text-gray-600">Record and track ingredient deliveries</p>
 		</div>
 	</div>
@@ -34,7 +34,7 @@ foreach ($deliveries as $d) {
 	}
 }
 ?>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8 max-w-full overflow-x-hidden">
 	<!-- Total Deliveries -->
 	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
 		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
@@ -74,7 +74,7 @@ foreach ($deliveries as $d) {
 <?php endif; ?>
 
 <!-- Record Delivery Form -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-6 md:mb-8 overflow-hidden">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-6 md:mb-8 overflow-hidden max-w-full w-full">
 	<div class="bg-gray-100 px-4 sm:px-6 py-4 border-b">
 		<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
 			<i data-lucide="package-check" class="w-3.5 h-3.5 md:w-4 md:h-4 text-green-600"></i>
@@ -83,42 +83,103 @@ foreach ($deliveries as $d) {
 		<p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Record a delivery for an existing purchase</p>
 	</div>
 	
-    <form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/deliveries" class="p-4 sm:p-6" id="deliveriesForm">
+    <form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/deliveries" class="p-4 sm:p-6 w-full overflow-x-hidden" id="deliveriesForm">
 		<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
         <input type="hidden" name="items_json" id="deliveriesItemsJson" value="[]">
 		
 		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             <!-- Purchase Batch Selection -->
             <div class="space-y-3 md:col-span-3">
-                <label class="block text-sm font-medium text-gray-700">Select Purchase Batch</label>
-                <div class="grid gap-3 lg:grid-cols-2">
-                    <div class="space-y-1">
-                        <input id="batchSearchInput" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors" placeholder="Search supplier, purchaser, or batch ID..." list="batchSearchOptions">
-                        <datalist id="batchSearchOptions">
-                            <?php foreach (($purchaseGroups ?? []) as $g): 
-                                $label = '#' . htmlspecialchars($g['group_id']) . ' — ' . htmlspecialchars($g['supplier']) . ' — ' . htmlspecialchars($g['purchaser_name']);
-                            ?>
-                                <option value="<?php echo $label; ?>"></option>
-                            <?php endforeach; ?>
-                        </datalist>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Select Purchase Batch</label>
+                
+                <!-- Improved Batch Selector -->
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                        <i data-lucide="package-search" class="w-5 h-5 text-gray-400"></i>
                     </div>
-                    <div class="space-y-1">
-                        <select id="batchSelect" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors">
-                            <option value="">Choose a batch</option>
-                            <?php foreach (($purchaseGroups ?? []) as $g): ?>
-                                <option value="<?php echo htmlspecialchars($g['group_id']); ?>"><?php echo '#'.htmlspecialchars($g['group_id']).' — '.htmlspecialchars($g['supplier']).' — '.htmlspecialchars($g['purchaser_name']); ?></option>
-                            <?php endforeach; ?>
-                        </select>
+                    <select id="batchSelect" class="w-full border-2 border-gray-300 rounded-xl pl-12 pr-10 py-3.5 text-sm md:text-base focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors appearance-none bg-white cursor-pointer hover:border-orange-300 shadow-sm">
+                        <option value="">🔍 Search and select a purchase batch...</option>
+                        <?php foreach (($purchaseGroups ?? []) as $g): 
+                            $itemCount = count($g['items'] ?? []);
+                            $remainingQty = ($g['quantity_sum'] ?? 0) - ($g['delivered_sum'] ?? 0);
+                            $hasRemaining = $remainingQty > 0.0001;
+                            $paymentStatus = strtolower($g['payment_status'] ?? 'pending');
+                            $dateFormatted = !empty($g['date_purchased']) ? date('M d, Y', strtotime($g['date_purchased'])) : '—';
+                            
+                            // Create a more readable option text
+                            $optionText = sprintf(
+                                "#%s • %s • %s • %s • %d %s",
+                                htmlspecialchars($g['group_id']),
+                                htmlspecialchars($g['supplier'] ?? '—'),
+                                htmlspecialchars($g['purchaser_name'] ?? '—'),
+                                $dateFormatted,
+                                $itemCount,
+                                $itemCount === 1 ? 'item' : 'items'
+                            );
+                        ?>
+                            <option value="<?php echo htmlspecialchars($g['group_id']); ?>" 
+                                data-supplier="<?php echo htmlspecialchars($g['supplier'] ?? ''); ?>"
+                                data-purchaser="<?php echo htmlspecialchars($g['purchaser_name'] ?? ''); ?>"
+                                data-date="<?php echo htmlspecialchars($g['date_purchased'] ?? ''); ?>"
+                                data-items="<?php echo $itemCount; ?>"
+                                data-remaining="<?php echo $hasRemaining ? 'yes' : 'no'; ?>"
+                                data-payment="<?php echo htmlspecialchars($paymentStatus); ?>">
+                                <?php echo $optionText; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none z-10">
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400"></i>
                     </div>
                 </div>
-                <p class="text-xs text-gray-500" id="batchMeta">After selecting a batch, set per-item received quantities below.</p>
-                <div id="batchHighlight" class="hidden rounded-xl border border-orange-100 bg-orange-50 px-4 py-3 text-sm text-orange-800 space-y-1">
-                    <div class="font-semibold text-orange-900" id="batchMetaSupplier"></div>
-                    <div class="flex flex-wrap gap-3 text-xs text-orange-700">
-                        <span id="batchMetaPurchaser"></span>
-                        <span id="batchMetaDate"></span>
+                
+                <!-- Selected Batch Details Card -->
+                <div id="selectedBatchCard" class="hidden mt-4 rounded-xl border-2 border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 p-4 md:p-5 shadow-sm transition-all duration-300">
+                    <div class="flex items-start gap-3 md:gap-4">
+                        <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-orange-100 flex items-center justify-center">
+                            <i data-lucide="package" class="w-6 h-6 text-orange-600"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-xs font-semibold text-orange-900 uppercase tracking-wide">Selected Batch</span>
+                                <span id="selectedBatchId" class="text-sm font-bold text-orange-700"></span>
+                                <span id="selectedBatchStatus" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold"></span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 text-xs">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="truck" class="w-4 h-4 text-orange-600 flex-shrink-0"></i>
+                                    <div>
+                                        <span class="text-gray-600">Supplier:</span>
+                                        <span id="selectedSupplier" class="ml-1 font-semibold text-gray-900"></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="user" class="w-4 h-4 text-orange-600 flex-shrink-0"></i>
+                                    <div>
+                                        <span class="text-gray-600">Purchaser:</span>
+                                        <span id="selectedPurchaser" class="ml-1 font-semibold text-gray-900"></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="calendar" class="w-4 h-4 text-orange-600 flex-shrink-0"></i>
+                                    <div>
+                                        <span class="text-gray-600">Date:</span>
+                                        <span id="selectedDate" class="ml-1 font-semibold text-gray-900"></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="package-2" class="w-4 h-4 text-orange-600 flex-shrink-0"></i>
+                                    <div>
+                                        <span class="text-gray-600">Items:</span>
+                                        <span id="selectedItems" class="ml-1 font-semibold text-gray-900"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                
+                <p class="text-xs text-gray-500 mt-2" id="batchMeta">Select a batch above to record delivery. Click the batch to open the delivery modal.</p>
             </div>
 			
             <!-- Quantity fields are handled per-row when a batch is chosen -->
@@ -216,12 +277,21 @@ foreach ($deliveries as $d) {
 				
 					<div class="rounded-xl border border-gray-200 p-4 space-y-3">
 					<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-						<div class="space-y-1">
+						<div class="space-y-1 relative">
 							<label class="text-sm font-medium text-gray-700">Select Item</label>
-							<select id="deliveryItemSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-								<option value="">Choose ingredient</option>
-								<!-- Options will be populated dynamically -->
-							</select>
+							<div class="relative">
+								<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+									<i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
+								</div>
+								<input type="text" id="deliveryItemSearch" class="w-full border border-gray-300 rounded-lg pl-10 pr-10 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="Search ingredient..." autocomplete="off">
+								<select id="deliveryItemSelect" class="hidden">
+									<option value="">Choose ingredient</option>
+									<!-- Options will be populated dynamically -->
+								</select>
+								<div id="deliveryItemDropdown" class="hidden absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+									<!-- Filtered options will appear here -->
+								</div>
+							</div>
 						</div>
 						<div class="space-y-1">
 							<label class="text-sm font-medium text-gray-700">Quantity</label>
@@ -280,7 +350,7 @@ foreach ($deliveries as $d) {
 </div>
 
 <?php if (!empty($awaitingPurchases)): ?>
-<div id="awaiting-deliveries" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6 md:mb-8">
+<div id="awaiting-deliveries" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6 md:mb-8 max-w-full w-full">
     <div class="bg-gradient-to-r from-orange-50 to-amber-50 px-4 sm:px-6 py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div>
             <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
@@ -473,7 +543,7 @@ foreach ($deliveries as $d) {
 </div>
 
 <!-- Recent Deliveries Table -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden max-w-full w-full">
 	<div class="bg-gradient-to-r from-gray-50 to-gray-100 px-4 sm:px-6 py-4 border-b">
 		<div class="flex items-center justify-between">
 			<div>
@@ -687,7 +757,6 @@ foreach ($deliveries as $d) {
     ];
   }, ($purchaseGroups ?? [])), JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
   const sel = document.getElementById('batchSelect');
-  const searchInput = document.getElementById('batchSearchInput');
   const box = document.getElementById('batchItemsBox');
   const tableBody = document.querySelector('#batchItemsTable tbody');
   const itemsJson = document.getElementById('deliveriesItemsJson');
@@ -837,15 +906,61 @@ foreach ($deliveries as $d) {
     setBadgeState(badge, status);
   }
 
+  function updateSelectedBatchCard(groupId) {
+    if (!groupId || groupId === '') {
+      if (selectedBatchCard) selectedBatchCard.classList.add('hidden');
+      if (batchMeta) batchMeta.textContent = 'Select a batch above to record delivery. Click the batch to open the delivery modal.';
+      return;
+    }
+    
+    const selectedOption = sel?.querySelector(`option[value="${groupId}"]`);
+    if (!selectedOption || !selectedBatchCard) return;
+    
+    const supplier = selectedOption.dataset.supplier || '—';
+    const purchaser = selectedOption.dataset.purchaser || '—';
+    const date = selectedOption.dataset.date || '—';
+    const items = selectedOption.dataset.items || '0';
+    const hasRemaining = selectedOption.dataset.remaining === 'yes';
+    const paymentStatus = selectedOption.dataset.payment || 'pending';
+    
+    // Format date
+    let formattedDate = '—';
+    if (date && date !== '—') {
+      try {
+        formattedDate = new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      } catch (e) {
+        formattedDate = date;
+      }
+    }
+    
+    // Update card content
+    if (selectedBatchId) selectedBatchId.textContent = '#' + groupId;
+    if (selectedSupplier) selectedSupplier.textContent = supplier;
+    if (selectedPurchaser) selectedPurchaser.textContent = purchaser;
+    if (selectedDate) selectedDate.textContent = formattedDate;
+    if (selectedItems) selectedItems.textContent = `${items} ${items === '1' ? 'item' : 'items'}`;
+    
+    // Update status badge
+    if (selectedBatchStatus) {
+      selectedBatchStatus.className = 'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold';
+      if (hasRemaining) {
+        selectedBatchStatus.textContent = 'Pending Delivery';
+        selectedBatchStatus.classList.add('bg-orange-100', 'text-orange-700', 'border', 'border-orange-200');
+      } else {
+        selectedBatchStatus.textContent = 'Fully Delivered';
+        selectedBatchStatus.classList.add('bg-green-100', 'text-green-700', 'border', 'border-green-200');
+      }
+    }
+    
+    selectedBatchCard.classList.remove('hidden');
+    if (batchMeta) batchMeta.textContent = 'Click the batch selector again or use the button below to open the delivery modal.';
+  }
+
   function render(groupId){
     if (!tableBody) {
       return;
     }
     tableBody.innerHTML='';
-    if (batchHighlight){
-      batchHighlight.classList.add('hidden');
-      if (batchMeta) batchMeta.textContent = 'After selecting a batch, set per-item received quantities below.';
-    }
     if (!groupId || groupId === ''){
       if (box) box.classList.add('hidden');
       if (itemsJson) itemsJson.value='[]';
@@ -860,18 +975,7 @@ foreach ($deliveries as $d) {
     if (!g.items || !Array.isArray(g.items) || g.items.length === 0){ 
       if (box) box.classList.add('hidden'); 
       if (itemsJson) itemsJson.value='[]'; 
-      if (batchHighlight) {
-        batchHighlight.classList.remove('hidden');
-        if (batchMeta) batchMeta.textContent = 'No items available for delivery in this batch.';
-      }
       return; 
-    }
-    if (batchHighlight && g){
-      if (batchMetaSupplier) batchMetaSupplier.textContent = `Supplier: ${g.supplier ?? ''}`;
-      if (batchMetaPurchaser) batchMetaPurchaser.textContent = `Purchaser: ${g.purchaser_name ?? ''}`;
-      if (batchMetaDate) batchMetaDate.textContent = `Ordered: ${g.date_purchased ?? ''}`;
-      if (batchMeta) batchMeta.textContent = 'Review batch details below and record received quantities.';
-      batchHighlight.classList.remove('hidden');
     }
     if (box) {
       box.classList.remove('hidden');
@@ -1039,6 +1143,8 @@ foreach ($deliveries as $d) {
   const deliveryModalClose = deliveryModal?.querySelector('.deliveryModalClose');
   const deliveryModalForm = document.getElementById('deliveryModalForm');
   const deliveryItemSelect = document.getElementById('deliveryItemSelect');
+  const deliveryItemSearch = document.getElementById('deliveryItemSearch');
+  const deliveryItemDropdown = document.getElementById('deliveryItemDropdown');
   const deliveryQuantityInput = document.getElementById('deliveryQuantityInput');
   const deliveryUnitInput = document.getElementById('deliveryUnitInput');
   const deliveryUnitSelect = document.getElementById('deliveryUnitSelect');
@@ -1053,6 +1159,7 @@ foreach ($deliveries as $d) {
   let deliveryItems = [];
   let currentDeliveryGroup = null;
   let lastSelectedUnit = ''; // Track last selected unit for conversion calculations
+  let deliveryIngredientOptions = []; // Store all ingredient options for search
 
   function openDeliveryModal(groupId){
     if (!deliveryModal) {
@@ -1162,41 +1269,71 @@ foreach ($deliveries as $d) {
       });
     }
     
+    // Store all ingredient options for search functionality
+    deliveryIngredientOptions = [];
+    
     // Add ALL ingredients from inventory (not just those matching purchase items)
     if (typeof INGREDIENTS !== 'undefined' && Array.isArray(INGREDIENTS)) {
       INGREDIENTS.forEach(ing => {
-      const opt = document.createElement('option');
-      opt.value = ing.id; // Use ingredient ID as value
-      
-      // Display ingredient name with its unit
       const unitLabel = ing.display_unit || ing.unit || 'unit';
-      opt.textContent = `${ing.name} (${unitLabel})`;
+      const displayText = `${ing.name} (${unitLabel})`;
       
+      // Store matching purchase items for this ingredient (if any)
+      const matchingPurchases = purchaseItemsByIngredient[ing.id] || [];
+      let purchaseData = {};
+      if (matchingPurchases.length > 0) {
+        // Use the first matching purchase item
+        const purchaseItem = matchingPurchases[0];
+        purchaseData = {
+          purchaseId: purchaseItem.purchaseId,
+          purchaseIndex: purchaseItem.index,
+          quantity: purchaseItem.quantity,
+          quantityBase: purchaseItem.quantityBase
+        };
+      } else {
+        purchaseData = {
+          purchaseId: '',
+          purchaseIndex: ''
+        };
+      }
+      
+      // Store option data for search
+      deliveryIngredientOptions.push({
+        id: ing.id,
+        name: ing.name,
+        displayText: displayText,
+        baseUnit: ing.unit || '',
+        displayUnit: ing.display_unit || '',
+        displayFactor: ing.display_factor || 1,
+        supplier: g.supplier || '',
+        ...purchaseData
+      });
+      
+      // Also add to hidden select for backward compatibility
+      const opt = document.createElement('option');
+      opt.value = ing.id;
+      opt.textContent = displayText;
       opt.dataset.ingredientId = ing.id;
       opt.dataset.itemName = ing.name;
       opt.dataset.baseUnit = ing.unit || '';
       opt.dataset.displayUnit = ing.display_unit || '';
       opt.dataset.displayFactor = ing.display_factor || 1;
       opt.dataset.supplier = g.supplier || '';
-      
-      // Store matching purchase items for this ingredient (if any)
-      const matchingPurchases = purchaseItemsByIngredient[ing.id] || [];
-      if (matchingPurchases.length > 0) {
-        // Use the first matching purchase item
-        const purchaseItem = matchingPurchases[0];
-        opt.dataset.purchaseId = purchaseItem.purchaseId;
-        opt.dataset.purchaseIndex = purchaseItem.index;
-        opt.dataset.quantity = purchaseItem.quantity;
-        opt.dataset.quantityBase = purchaseItem.quantityBase;
-      } else {
-        // No matching purchase, but still allow selection
-        opt.dataset.purchaseId = '';
-        opt.dataset.purchaseIndex = '';
+      opt.dataset.purchaseId = purchaseData.purchaseId;
+      opt.dataset.purchaseIndex = purchaseData.purchaseIndex;
+      if (purchaseData.quantity !== undefined) {
+        opt.dataset.quantity = purchaseData.quantity;
+        opt.dataset.quantityBase = purchaseData.quantityBase;
       }
-      
       deliveryItemSelect.appendChild(opt);
       });
     }
+    
+    // Clear search input and show all options
+    if (deliveryItemSearch) {
+      deliveryItemSearch.value = '';
+    }
+    filterDeliveryIngredients('');
     
     renderDeliveryItems();
     
@@ -1223,6 +1360,11 @@ foreach ($deliveries as $d) {
     currentDeliveryGroup = null;
     renderDeliveryItems();
     deliveryItemSelect.value = '';
+    if (deliveryItemSearch) deliveryItemSearch.value = '';
+    if (deliveryItemDropdown) {
+      deliveryItemDropdown.classList.add('hidden');
+      deliveryItemDropdown.innerHTML = '';
+    }
     deliveryQuantityInput.value = '';
     deliveryUnitInput.value = '';
     if (deliveryUnitSelect) {
@@ -1236,6 +1378,86 @@ foreach ($deliveries as $d) {
     if (deliveryUnitSelect) deliveryUnitSelect.disabled = true;
     deliverySupplierInput.readOnly = true;
     if (deliveryBuilderError) deliveryBuilderError.classList.add('hidden');
+  }
+
+  function filterDeliveryIngredients(searchTerm) {
+    if (!deliveryItemDropdown) return;
+    
+    const term = (searchTerm || '').toLowerCase().trim();
+    const filtered = deliveryIngredientOptions.filter(opt => {
+      const nameMatch = opt.name.toLowerCase().includes(term);
+      const unitMatch = (opt.displayUnit || opt.baseUnit || '').toLowerCase().includes(term);
+      return nameMatch || unitMatch;
+    });
+    
+    deliveryItemDropdown.innerHTML = '';
+    
+    if (filtered.length === 0) {
+      deliveryItemDropdown.innerHTML = '<div class="px-4 py-3 text-sm text-gray-500 text-center">No ingredients found</div>';
+      deliveryItemDropdown.classList.remove('hidden');
+      return;
+    }
+    
+    filtered.forEach(opt => {
+      const div = document.createElement('div');
+      div.className = 'px-4 py-2 hover:bg-orange-50 cursor-pointer border-b border-gray-100 last:border-b-0';
+      div.dataset.ingredientId = opt.id;
+      div.innerHTML = `
+        <div class="font-medium text-gray-900">${escapeHtml(opt.name)}</div>
+        <div class="text-xs text-gray-500">${escapeHtml(opt.displayUnit || opt.baseUnit || 'unit')}</div>
+      `;
+      
+      div.addEventListener('click', () => {
+        selectDeliveryIngredient(opt);
+      });
+      
+      deliveryItemDropdown.appendChild(div);
+    });
+    
+    deliveryItemDropdown.classList.remove('hidden');
+  }
+
+  function selectDeliveryIngredient(option) {
+    if (!option || !deliveryItemSelect) return;
+    
+    // Find the matching option element
+    let optElement = deliveryItemSelect.querySelector(`option[value="${option.id}"]`);
+    
+    // If option doesn't exist, create it with all necessary data attributes
+    if (!optElement) {
+      optElement = document.createElement('option');
+      optElement.value = option.id;
+      optElement.textContent = option.displayText;
+      optElement.dataset.ingredientId = option.id;
+      optElement.dataset.itemName = option.name;
+      optElement.dataset.baseUnit = option.baseUnit || '';
+      optElement.dataset.displayUnit = option.displayUnit || '';
+      optElement.dataset.displayFactor = option.displayFactor || 1;
+      optElement.dataset.supplier = option.supplier || '';
+      optElement.dataset.purchaseId = option.purchaseId || '';
+      optElement.dataset.purchaseIndex = option.purchaseIndex || '';
+      if (option.quantity !== undefined) {
+        optElement.dataset.quantity = option.quantity;
+        optElement.dataset.quantityBase = option.quantityBase;
+      }
+      deliveryItemSelect.appendChild(optElement);
+    }
+    
+    // Set the hidden select value to trigger existing change handler
+    deliveryItemSelect.value = option.id;
+    
+    // Update search input to show selected name
+    if (deliveryItemSearch) {
+      deliveryItemSearch.value = option.displayText;
+    }
+    
+    // Hide dropdown
+    if (deliveryItemDropdown) {
+      deliveryItemDropdown.classList.add('hidden');
+    }
+    
+    // Trigger the change event to use existing logic
+    deliveryItemSelect.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
   function showDeliveryError(message){
@@ -1305,6 +1527,51 @@ foreach ($deliveries as $d) {
     }));
     if (deliveryModalItemsJson) deliveryModalItemsJson.value = JSON.stringify(jsonData);
   }
+
+  // Handle search input for ingredient selection
+  if (deliveryItemSearch) {
+    deliveryItemSearch.addEventListener('input', (e) => {
+      const searchTerm = e.target.value;
+      filterDeliveryIngredients(searchTerm);
+    });
+    
+    deliveryItemSearch.addEventListener('focus', () => {
+      if (deliveryItemSearch.value.trim() === '') {
+        filterDeliveryIngredients('');
+      } else {
+        filterDeliveryIngredients(deliveryItemSearch.value);
+      }
+    });
+    
+    deliveryItemSearch.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        // Select first filtered option if available
+        const firstOption = deliveryItemDropdown?.querySelector('[data-ingredient-id]');
+        if (firstOption) {
+          const ingredientId = firstOption.dataset.ingredientId;
+          const option = deliveryIngredientOptions.find(opt => opt.id.toString() === ingredientId);
+          if (option) {
+            selectDeliveryIngredient(option);
+          }
+        }
+      } else if (e.key === 'Escape') {
+        if (deliveryItemDropdown) {
+          deliveryItemDropdown.classList.add('hidden');
+        }
+        deliveryItemSearch.blur();
+      }
+    });
+  }
+  
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (deliveryItemSearch && deliveryItemDropdown) {
+      if (!deliveryItemSearch.contains(e.target) && !deliveryItemDropdown.contains(e.target)) {
+        deliveryItemDropdown.classList.add('hidden');
+      }
+    }
+  });
 
   // Handle item selection
   if (deliveryItemSelect) {
@@ -1643,6 +1910,11 @@ foreach ($deliveries as $d) {
       
       // Clear inputs
       deliveryItemSelect.value = '';
+      if (deliveryItemSearch) deliveryItemSearch.value = '';
+      if (deliveryItemDropdown) {
+        deliveryItemDropdown.classList.add('hidden');
+        deliveryItemDropdown.innerHTML = '';
+      }
       deliveryQuantityInput.value = '';
       deliveryUnitInput.value = '';
       if (deliveryUnitSelect) {
@@ -1706,30 +1978,19 @@ foreach ($deliveries as $d) {
   }
 
 
-  console.log("sel", sel);
-  // Update batch selection to open modal instead of rendering table
+  // Update batch selection to show details and open modal
   if (sel) {
     sel.addEventListener('change', ()=>{ 
       const groupId = sel.value;
+      updateSelectedBatchCard(groupId);
       if (groupId && groupId !== '') {
-        openDeliveryModal(groupId);
+        // Small delay to show the card before opening modal
+        setTimeout(() => {
+          openDeliveryModal(groupId);
+        }, 100);
       } else {
         if (box) box.classList.add('hidden');
         if (itemsJson) itemsJson.value='[]';
-      }
-    });
-  }
-  if (searchInput){
-    searchInput.addEventListener('input', ()=>{
-      if (!searchInput.value){
-        sel.value = '';
-        render('');
-        return;
-      }
-      const match = Array.from(sel.options).find(opt => opt.textContent === searchInput.value);
-      if (match){
-        sel.value = match.value;
-        sel.dispatchEvent(new Event('change'));
       }
     });
   }
@@ -1776,6 +2037,11 @@ foreach ($deliveries as $d) {
     }
   } else {
     applyDeliveryFilter('all');
+  }
+  
+  // Initialize lucide icons for new UI elements
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
   }
 })();
 </script>

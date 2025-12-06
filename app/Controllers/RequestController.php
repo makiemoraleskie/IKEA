@@ -36,13 +36,37 @@ class RequestController extends BaseController
 			$currentStock[(int)$ing['id']] = (float)($ing['quantity'] ?? 0);
 		}
 		
-		// Process batches in reverse chronological order to calculate remaining stock for each
-		// Start from current stock and work backwards, adding back distributed quantities
-		$reverseBatches = array_reverse($batches);
-		foreach ($reverseBatches as $batch) {
-			if (($batch['status'] ?? '') !== 'Distributed') {
-				continue;
+		// Filter only distributed batches
+		$distributedBatches = array_filter($batches, static function($batch) {
+			return (strtolower($batch['status'] ?? '') === 'distributed');
+		});
+		
+		// Sort by date_approved DESC (newest distribution first), then by id DESC as fallback
+		usort($distributedBatches, static function($a, $b) {
+			$aDate = $a['date_approved'] ?? $a['date_requested'] ?? '';
+			$bDate = $b['date_approved'] ?? $b['date_requested'] ?? '';
+			
+			// If both dates are empty, sort by id DESC
+			if (empty($aDate) && empty($bDate)) {
+				return (int)($b['id'] ?? 0) <=> (int)($a['id'] ?? 0);
 			}
+			// If one date is empty, prioritize the one with a date
+			if (empty($aDate)) return 1;
+			if (empty($bDate)) return -1;
+			
+			// Compare dates (DESC order - newest first)
+			$dateCompare = strcmp($bDate, $aDate);
+			if ($dateCompare !== 0) {
+				return $dateCompare;
+			}
+			
+			// If dates are identical, sort by id DESC (higher id = newer batch)
+			return (int)($b['id'] ?? 0) <=> (int)($a['id'] ?? 0);
+		});
+		
+		// Process batches from NEWEST to OLDEST (newest first)
+		// Start from current stock and work backwards, adding back distributed quantities
+		foreach ($distributedBatches as $batch) {
 			$batchId = (int)$batch['id'];
 			$items = $batchItems[$batchId] ?? [];
 			
@@ -61,7 +85,7 @@ class RequestController extends BaseController
 				// So remaining stock = current stock (which is already after the deduction)
 				$batchRemainingStock[$batchId][$itemId] = $currentStock[$itemId] ?? 0;
 				
-				// Add back the distributed quantity for next iteration (working backwards)
+				// Add back the distributed quantity for next iteration (working backwards to older batches)
 				$distributedQty = (float)($req['quantity'] ?? 0);
 				$currentStock[$itemId] = ($currentStock[$itemId] ?? 0) + $distributedQty;
 			}

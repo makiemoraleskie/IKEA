@@ -1,8 +1,8 @@
 <!-- Welcome Banner -->
-<div class="bg-white rounded-2xl shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6">
+<div class="bg-white rounded-2xl shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6 max-w-full overflow-x-hidden">
 	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
-		<div>
-			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1">
+		<div class="min-w-0 flex-1">
+			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1 truncate">
 				Welcome back, <span class="text-green-600"><?php echo htmlspecialchars($user['name'] ?? 'User'); ?>!</span>
 			</h1>
 			<p class="text-[10px] md:text-xs text-gray-600">Full system access enabled</p>
@@ -33,7 +33,7 @@ $cardCopy = [
 ?>
 
 <!-- Dashboard Cards -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8 max-w-full overflow-x-hidden">
 	<!-- Low Stock Items -->
 	<?php if (in_array('low_stock', $dashboardWidgets, true)): ?>
 	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">

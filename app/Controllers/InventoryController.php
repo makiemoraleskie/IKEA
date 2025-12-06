@@ -335,6 +335,8 @@ class InventoryController extends BaseController
 				'boxes' => 'box',
 				'bag' => 'bag',
 				'bags' => 'bag',
+				'sack' => 'sack',
+				'sacks' => 'sack',
 				'l' => 'L',
 				'liter' => 'L',
 				'liters' => 'L',
@@ -403,6 +405,14 @@ class InventoryController extends BaseController
 				$baseQuantity = $quantity * 1000.0;
 			}
 			
+			// Convert sack to g: Just change unit from sack to g, keep quantity as-is
+			if (strtolower($unit) === 'sack') {
+				$baseUnit = 'g';
+				$displayUnit = null; // No display unit needed
+				$displayFactor = 1.0;
+				$baseQuantity = $quantity; // Keep quantity unchanged
+			}
+			
 			// Check if ingredient already exists (case-insensitive)
 			$existing = $ingredientModel->findByName($itemName);
 			
@@ -425,8 +435,15 @@ class InventoryController extends BaseController
 						
 						// Now update with new quantity (in g)
 						$ingredientModel->updateQuantity($existingId, $baseQuantity);
+					} else if ($existingUnit === 'sack') {
+						// Convert existing ingredient from sack to g - just change unit, keep quantity
+						$updateStmt = $db->prepare('UPDATE ingredients SET unit = ?, display_unit = ?, display_factor = ? WHERE id = ?');
+						$updateStmt->execute(['g', null, 1.0, $existingId]);
+						
+						// Update with new quantity (unchanged, just unit changed)
+						$ingredientModel->updateQuantity($existingId, $baseQuantity);
 					} else {
-						// Existing ingredient is not kg, just update quantity
+						// Existing ingredient is not kg or sack, just update quantity
 						$ingredientModel->updateQuantity($existingId, $baseQuantity);
 						
 						// Update unit, display_unit, and display_factor if they changed
