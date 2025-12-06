@@ -120,16 +120,19 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                             <i data-lucide="ruler" class="w-4 h-4 inline-block mr-1"></i>
                             Unit
                         </label>
-                        <select id="unitSelect" class="w-full border-2 border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-colors bg-white">
-                            <option value="">-- Select unit --</option>
-                            <option value="g">g (grams)</option>
-                            <option value="kg">kg (kilograms)</option>
-                            <option value="ml">ml (milliliters)</option>
-                            <option value="L">L (liters)</option>
-                            <option value="pcs">pcs (pieces)</option>
-                            <option value="sack">sack</option>
-                            <option value="box">box</option>
-                        </select>
+                        <div class="flex gap-2">
+                            <select id="unitSelect" class="w-1/2 border-2 border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-colors bg-white">
+                                <option value="">-- Select --</option>
+                                <option value="g">g (grams)</option>
+                                <option value="kg">kg (kilograms)</option>
+                                <option value="ml">ml (milliliters)</option>
+                                <option value="L">L (liters)</option>
+                                <option value="pcs">pcs (pieces)</option>
+                                <option value="sack">sack</option>
+                                <option value="box">box</option>
+                            </select>
+                            <input id="unitInput" type="text" maxlength="32" class="w-1/2 border-2 border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 text-sm focus:ring-2 focus:ring-gray-500 focus:border-gray-500 transition-colors" placeholder="or type unit" />
+                        </div>
                     </div>
                 </div>
                 
@@ -754,6 +757,7 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   const ingInput = document.getElementById('ingInput');
   const qty = document.getElementById('qtyInput');
   const unitSel = document.getElementById('unitSelect');
+  const unitInput = document.getElementById('unitInput');
   const cost = document.getElementById('costInput');
   const addBtn = document.getElementById('addRowBtn');
   const listBody = document.getElementById('purchaseList');
@@ -1089,17 +1093,31 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     });
   }
 
+  function requireReceiptModal(event){
+    const hasFile = !!(receiptInputModal && receiptInputModal.files && receiptInputModal.files.length > 0);
+    if (hasFile){
+      return true;
+    }
+    event?.preventDefault();
+    const msg = 'Upload the receipt image before recording this purchase batch.';
+    showReceiptErrorModal(msg);
+    showReceiptPopup(msg);
+    receiptInputModal?.focus();
+    receiptDropzoneModal?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return false;
+  }
+
   // Modal form submission
   if (batchModalForm){
-    batchModalForm.addEventListener('submit', (event)=>{
-      if (!receiptInputModal || !receiptInputModal.files || receiptInputModal.files.length === 0){
-        event.preventDefault();
-        showReceiptErrorModal('Please upload a receipt before recording the purchase batch.');
-        showReceiptPopup('Upload the receipt image before recording this purchase batch.');
-        return false;
-      }
-    });
+    batchModalForm.addEventListener('submit', requireReceiptModal);
   }
+
+  // Guard the modal submit button to prevent empty receipt submissions
+  recordPurchaseBtnModal?.addEventListener('click', (event)=>{
+    if (!requireReceiptModal(event)){
+      event.stopPropagation();
+    }
+  });
 
   document.addEventListener('click', (event)=>{
     const btn = event.target.closest('.markPaidBtn');
@@ -1311,7 +1329,7 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     }
     
     const quantity = parseFloat(qty.value || '0');
-    const selectedUnit = unitSel.value.trim();
+    const selectedUnit = (unitInput.value || unitSel.value || '').trim();
     const rowCost = parseFloat(cost.value || '0');
     
     if (!quantity || quantity <= 0) {
@@ -1377,6 +1395,7 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     cost.value = '';
     ingInput.value = '';
     unitSel.value = '';
+    if (unitInput) unitInput.value = '';
     hiddenId.value = '';
   });
 
@@ -1506,4 +1525,6 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   window.addEventListener('resize', updateEmptyStateColspan);
 })();
 </script>
+
+
 

@@ -10,6 +10,11 @@ $deliveredTotals = $deliveredTotals ?? [];
 			<p class="text-[10px] md:text-xs text-gray-600">Record and track ingredient deliveries</p>
 		</div>
 	</div>
+    <?php if (!empty($flash)): ?>
+    <div class="mt-3 px-4 py-3 rounded-lg border <?php echo $flash['type']==='success' ? 'border-green-200 bg-green-50 text-green-800' : 'border-red-200 bg-red-50 text-red-700'; ?>">
+        <?php echo htmlspecialchars($flash['text'] ?? ''); ?>
+    </div>
+    <?php endif; ?>
 </div>
 
 <div class="space-y-2">
@@ -216,6 +221,7 @@ foreach ($deliveries as $d) {
 				Record Delivery
 			</button>
 		</div>
+        <div id="deliveryInlineError" class="hidden mt-3 px-4 py-3 rounded-lg border border-red-200 bg-red-50 text-sm text-red-700"></div>
 	</form>
 </div>
 
@@ -589,7 +595,7 @@ foreach ($deliveries as $d) {
                     <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Date Received</th>
                 </tr>
 			</thead>
-			<tbody class="divide-y divide-gray-200">
+			<tbody class="divide-y divide-gray-200" id="recentDeliveriesBody">
 				<?php foreach ($deliveries as $d): ?>
 				<tr class="hover:bg-gray-50 transition-colors" data-delivery-status="<?php echo strtolower($d['delivery_status']); ?>">
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
@@ -788,6 +794,9 @@ foreach ($deliveries as $d) {
   const quickStatusButtons = Array.from(document.querySelectorAll('[data-quick-status]'));
   const quickCloseTargets = Array.from(document.querySelectorAll('[data-quick-cancel]'));
   const quickReceiveButtons = Array.from(document.querySelectorAll('[data-quick-receive]'));
+  const recentDeliveriesBody = document.getElementById('recentDeliveriesBody');
+  const recentDeliveriesEmpty = document.getElementById('deliveryFilterEmpty');
+  const deliveryInlineError = document.getElementById('deliveryInlineError');
   let quickSelection = null;
   let quickStatus = 'complete';
 
@@ -1065,6 +1074,261 @@ foreach ($deliveries as $d) {
       rows.push({ purchase_id: ids[i], quantity: q, unit: units[i] });
     }
     itemsJson.value = JSON.stringify(rows);
+    updateBatchSelectFilter();
+  }
+
+  function getRecordedPurchaseIds(){
+    const recordedIds = new Set();
+    
+    // Get purchase IDs from main form (deliveriesItemsJson)
+    try {
+      const mainFormItems = JSON.parse(itemsJson?.value || '[]');
+      if (Array.isArray(mainFormItems)) {
+        mainFormItems.forEach(item => {
+          if (item.purchase_id) {
+            recordedIds.add(parseInt(item.purchase_id, 10));
+          }
+        });
+      }
+    } catch (e) {
+      console.error('Error parsing deliveriesItemsJson:', e);
+    }
+    
+    // Get purchase IDs from modal form (deliveryItems array)
+    if (Array.isArray(deliveryItems)) {
+      deliveryItems.forEach(item => {
+        if (item.purchaseId) {
+          recordedIds.add(parseInt(item.purchaseId, 10));
+        }
+      });
+    }
+    
+    // Also check deliveryModalItemsJson if it exists
+    try {
+      const modalFormItems = JSON.parse(deliveryModalItemsJson?.value || '[]');
+      if (Array.isArray(modalFormItems)) {
+        modalFormItems.forEach(item => {
+          if (item.purchase_id) {
+            recordedIds.add(parseInt(item.purchase_id, 10));
+          }
+        });
+      }
+    } catch (e) {
+      // Ignore errors for modal form
+    }
+    
+    return Array.from(recordedIds);
+  }
+
+  function updateBatchSelectFilter(){
+    if (!sel) return;
+    
+    const recordedPurchaseIds = getRecordedPurchaseIds();
+    if (recordedPurchaseIds.length === 0) {
+      // No items recorded, show all batches
+      Array.from(sel.options).forEach(opt => {
+        if (opt.value !== '') {
+          opt.style.display = '';
+          opt.disabled = false;
+        }
+      });
+      return;
+    }
+    
+    // Find which group IDs contain the recorded purchase IDs
+    const recordedGroupIds = new Set();
+    GROUPS.forEach(group => {
+      if (group.items && Array.isArray(group.items)) {
+        const hasRecordedPurchase = group.items.some(item => 
+          recordedPurchaseIds.includes(item.purchase_id)
+        );
+        if (hasRecordedPurchase) {
+          recordedGroupIds.add(group.group_id);
+        }
+      }
+    });
+    
+    // Hide/disable options for recorded batches
+    Array.from(sel.options).forEach(opt => {
+      if (opt.value === '') {
+        // Keep the placeholder option visible
+        return;
+      }
+      
+      if (recordedGroupIds.has(opt.value)) {
+        opt.style.display = 'none';
+        opt.disabled = true;
+        
+        // If the currently selected batch is now recorded, reset selection
+        if (sel.value === opt.value) {
+          sel.value = '';
+          updateSelectedBatchCard('');
+          if (box) box.classList.add('hidden');
+          if (itemsJson) itemsJson.value = '[]';
+        }
+      } else {
+        opt.style.display = '';
+        opt.disabled = false;
+      }
+    });
+  }
+
+  function showInlineError(message){
+    const alertBox = document.getElementById('deliveryInlineError');
+    if (alertBox){
+      alertBox.textContent = message;
+      alertBox.classList.remove('hidden');
+    } else {
+      alert(message);
+    }
+  }
+
+  function clearInlineError(){
+    const alertBox = document.getElementById('deliveryInlineError');
+    if (alertBox){
+      alertBox.textContent = '';
+      alertBox.classList.add('hidden');
+    }
+  }
+
+  function collectInlinePayload(){
+    if (!itemsJson) return [];
+    try {
+      const parsed = JSON.parse(itemsJson.value || '[]');
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function buildRecentEntriesFromInline(){
+    if (!sel || !sel.value) return [];
+    const groupId = sel.value;
+    const g = GROUPS.find(x=>x.group_id === groupId);
+    if (!g || !tableBody) return [];
+    const rows = Array.from(tableBody.querySelectorAll('tr'));
+    const entries = [];
+    rows.forEach(row=>{
+      const pidInput = row.querySelector('input[name="purchase_id[]"]');
+      const qtyInput = row.querySelector('input[name="row_qty[]"]');
+      const unitSelect = row.querySelector('select[name="row_unit[]"]');
+      if (!pidInput || !qtyInput || !unitSelect) return;
+      const purchaseId = parseInt(pidInput.value || '0', 10);
+      const qty = parseFloat(qtyInput.value || '0');
+      if (!purchaseId || qty <= 0) return;
+      const unit = unitSelect.value || unitSelect.options[unitSelect.selectedIndex]?.value || '';
+      const item = (g.items || []).find(it => it.purchase_id === purchaseId);
+      const name = item?.item_name || 'Item';
+      const remainingDisplay = item?.remaining_display ?? item?.quantity ?? 0;
+      const status = qty >= (remainingDisplay - 0.0001) ? 'complete' : 'partial';
+      entries.push({
+        batchId: groupId,
+        itemName: name,
+        quantity: qty,
+        unit: unit || item?.purchase_unit || item?.unit || '',
+        status,
+        date: g.date_purchased || new Date().toISOString()
+      });
+    });
+    return entries;
+  }
+
+  function buildRecentEntriesFromModal(){
+    if (!currentDeliveryGroup || !Array.isArray(deliveryItems) || !deliveryItems.length) return [];
+    return deliveryItems.map(di=>{
+      const matched = (currentDeliveryGroup.items || []).find(it => di.purchaseId && it.purchase_id === di.purchaseId);
+      const remainingDisplay = matched?.remaining_display ?? matched?.quantity ?? 0;
+      const status = matched ? (di.quantity >= (remainingDisplay - 0.0001) ? 'complete' : 'partial') : 'partial';
+      return {
+        batchId: currentDeliveryGroup.group_id,
+        itemName: di.itemName || 'Item',
+        quantity: di.quantity || 0,
+        unit: di.unit || matched?.purchase_unit || matched?.unit || '',
+        status,
+        date: currentDeliveryGroup.date_purchased || new Date().toISOString()
+      };
+    });
+  }
+
+  function removeSelectedBatchOption(){
+    if (!sel) return;
+    const currentValue = sel.value;
+    if (!currentValue) return;
+    const opt = sel.querySelector(`option[value="${currentValue}"]`);
+    if (opt){
+      opt.remove();
+    }
+    sel.value = '';
+    updateSelectedBatchCard('');
+    if (box) box.classList.add('hidden');
+    if (itemsJson) itemsJson.value = '[]';
+  }
+
+  function addRecentDeliveryRows(entries){
+    if (!recentDeliveriesBody || !Array.isArray(entries) || entries.length === 0) return;
+    entries.forEach(entry => {
+      const tr = document.createElement('tr');
+      tr.className = 'hover:bg-gray-50 transition-colors';
+      tr.setAttribute('data-delivery-status', entry.status || 'partial');
+      const statusClass = (entry.status === 'complete') ? 'bg-green-100 text-green-800 border-green-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      const statusIcon = (entry.status === 'complete') ? 'check-circle' : 'clock';
+      const qtyText = Number(entry.quantity || 0).toFixed(2);
+      const unitText = entry.unit || 'unit';
+      const nowText = entry.date || new Date().toLocaleString();
+      const batchLabel = entry.batchId ? `#${entry.batchId}` : 'Batch';
+      tr.innerHTML = `
+        <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+              <span class="text-xs font-semibold text-orange-600">—</span>
+            </div>
+          </div>
+        </td>
+        <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+              <span class="text-xs font-semibold text-purple-600">${batchLabel}</span>
+            </div>
+          </div>
+        </td>
+        <td class="px-6 py-4">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+              <i data-lucide="package" class="w-4 h-4 text-blue-600"></i>
+            </div>
+            <div>
+              <div class="font-medium text-gray-900">${entry.itemName || 'Item'}</div>
+              <div class="text-xs text-gray-500">${unitText}</div>
+            </div>
+          </div>
+        </td>
+        <td class="px-6 py-4">
+          <div class="flex items-center gap-2">
+            <span class="font-semibold text-gray-900">${qtyText}</span>
+            <span class="text-gray-500 text-sm">${unitText}</span>
+          </div>
+        </td>
+        <td class="px-6 py-4">
+          <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border ${statusClass}">
+            <i data-lucide="${statusIcon}" class="w-3 h-3"></i>
+            ${entry.status === 'complete' ? 'Complete' : 'Recorded'}
+          </span>
+        </td>
+        <td class="px-6 py-4">
+          <div class="flex items-center gap-2">
+            <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+            <span class="text-gray-600">${nowText}</span>
+          </div>
+        </td>
+      `;
+      recentDeliveriesBody.prepend(tr);
+    });
+    if (recentDeliveriesEmpty){
+      recentDeliveriesEmpty.classList.add('hidden');
+    }
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons({ elements: recentDeliveriesBody.querySelectorAll('i[data-lucide]') });
+    }
   }
 
   quickReceiveButtons.forEach(button => {
@@ -1134,6 +1398,7 @@ foreach ($deliveries as $d) {
     }
     const payload = [{ purchase_id: quickSelection.purchaseId, quantity: qty, unit: quickSelection.unit }];
     itemsJson.value = JSON.stringify(payload);
+    updateBatchSelectFilter();
     closeQuickModal();
     deliveriesForm.submit();
   });
@@ -1293,7 +1558,8 @@ foreach ($deliveries as $d) {
       } else {
         purchaseData = {
           purchaseId: '',
-          purchaseIndex: ''
+          purchaseIndex: '',
+          fallbackPurchaseId: (g.items && g.items.length > 0) ? g.items[0].purchase_id : ''
         };
       }
       
@@ -1321,6 +1587,7 @@ foreach ($deliveries as $d) {
       opt.dataset.supplier = g.supplier || '';
       opt.dataset.purchaseId = purchaseData.purchaseId;
       opt.dataset.purchaseIndex = purchaseData.purchaseIndex;
+      opt.dataset.fallbackPurchaseId = purchaseData.fallbackPurchaseId || '';
       if (purchaseData.quantity !== undefined) {
         opt.dataset.quantity = purchaseData.quantity;
         opt.dataset.quantityBase = purchaseData.quantityBase;
@@ -1378,6 +1645,7 @@ foreach ($deliveries as $d) {
     if (deliveryUnitSelect) deliveryUnitSelect.disabled = true;
     deliverySupplierInput.readOnly = true;
     if (deliveryBuilderError) deliveryBuilderError.classList.add('hidden');
+    updateBatchSelectFilter();
   }
 
   function filterDeliveryIngredients(searchTerm) {
@@ -1436,6 +1704,7 @@ foreach ($deliveries as $d) {
       optElement.dataset.supplier = option.supplier || '';
       optElement.dataset.purchaseId = option.purchaseId || '';
       optElement.dataset.purchaseIndex = option.purchaseIndex || '';
+      optElement.dataset.fallbackPurchaseId = option.fallbackPurchaseId || '';
       if (option.quantity !== undefined) {
         optElement.dataset.quantity = option.quantity;
         optElement.dataset.quantityBase = option.quantityBase;
@@ -1484,6 +1753,7 @@ foreach ($deliveries as $d) {
     if (!deliveryItems.length){
       deliveryEmptyState.classList.remove('hidden');
       if (deliverySubmitBtn) deliverySubmitBtn.disabled = true;
+      updateBatchSelectFilter();
       return;
     }
     deliveryEmptyState.classList.add('hidden');
@@ -1526,6 +1796,7 @@ foreach ($deliveries as $d) {
       supplier: item.supplier
     }));
     if (deliveryModalItemsJson) deliveryModalItemsJson.value = JSON.stringify(jsonData);
+    updateBatchSelectFilter();
   }
 
   // Handle search input for ingredient selection
@@ -1893,10 +2164,17 @@ foreach ($deliveries as $d) {
         return;
       }
       
-      // If there's a matching purchase in the batch, use it; otherwise, we'll create one on the backend
+      // Use matching purchase if available, otherwise fallback to first purchase in the batch
       let purchaseIdInt = null;
       if (purchaseId && purchaseId !== '') {
         purchaseIdInt = parseInt(purchaseId, 10);
+      }
+      if (!purchaseIdInt && currentDeliveryGroup && Array.isArray(currentDeliveryGroup.items) && currentDeliveryGroup.items.length > 0) {
+        purchaseIdInt = parseInt(currentDeliveryGroup.items[0].purchase_id, 10);
+      }
+      if (!purchaseIdInt) {
+        showDeliveryError('Select a purchase batch first, then add the ingredient.');
+        return;
       }
       
       deliveryItems.push({
@@ -1935,6 +2213,7 @@ foreach ($deliveries as $d) {
       
       renderDeliveryItems();
       clearDeliveryError();
+      updateBatchSelectFilter();
       if (typeof lucide !== 'undefined') {
         lucide.createIcons();
       }
@@ -1950,6 +2229,7 @@ foreach ($deliveries as $d) {
       if (index >= 0 && index < deliveryItems.length) {
         deliveryItems.splice(index, 1);
         renderDeliveryItems();
+        updateBatchSelectFilter();
         if (typeof lucide !== 'undefined') {
           lucide.createIcons();
         }
@@ -1973,7 +2253,28 @@ foreach ($deliveries as $d) {
         showDeliveryError('Please add at least one item to record delivery.');
         return;
       }
+      deliverySubmitBtn?.setAttribute('disabled','disabled');
+      deliverySubmitBtn?.classList.add('opacity-60','cursor-not-allowed');
+      addRecentDeliveryRows(buildRecentEntriesFromModal());
+      removeSelectedBatchOption();
       // Form will submit normally with items_json
+    });
+  }
+
+  if (deliveriesForm){
+    deliveriesForm.addEventListener('submit', (e)=>{
+      clearInlineError();
+      sync();
+      const payload = collectInlinePayload();
+      if (!payload.length){
+        e.preventDefault();
+        showInlineError('Add at least one outstanding item with a quantity before recording the delivery.');
+        return;
+      }
+      deliverySubmitBtn?.setAttribute('disabled','disabled');
+      deliverySubmitBtn?.classList.add('opacity-60','cursor-not-allowed');
+      addRecentDeliveryRows(buildRecentEntriesFromInline());
+      removeSelectedBatchOption();
     });
   }
 
@@ -1992,8 +2293,12 @@ foreach ($deliveries as $d) {
         if (box) box.classList.add('hidden');
         if (itemsJson) itemsJson.value='[]';
       }
+      updateBatchSelectFilter();
     });
   }
+
+  // Initialize batch select filter on page load
+  updateBatchSelectFilter();
 
   function applyDeliveryFilter(value){
     if (!filterSelect || deliveryRows.length === 0) return;
