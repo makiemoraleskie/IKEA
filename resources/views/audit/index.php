@@ -222,60 +222,6 @@ foreach ($logs as $log) {
 </div>
 <?php endif; ?>
 
-<?php if (!empty($timeline)): ?>
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-8 overflow-hidden max-w-full w-full">
-	<div class="bg-gradient-to-r from-indigo-50 to-slate-50 px-4 sm:px-6 py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-		<div>
-			<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-				<i data-lucide="activity" class="w-5 h-5 text-indigo-600"></i>
-				Recent Activity Timeline
-			</h2>
-			<p class="text-sm text-gray-600 mt-1">Latest <?php echo count($timeline); ?> actions across all modules.</p>
-		</div>
-		<span class="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 border border-indigo-200">
-			<i data-lucide="clock-3" class="w-3 h-3"></i>
-			Updated <?php echo htmlspecialchars(date('M j, Y g:i A')); ?>
-		</span>
-		<div class="text-xs text-gray-500 bg-white/70 border border-gray-200 rounded-full px-3 py-1 inline-flex items-center gap-2">
-			<i data-lucide="calendar" class="w-3 h-3"></i>
-			<?php echo htmlspecialchars($activeDateLabel); ?>
-		</div>
-	</div>
-	<div class="max-h-[26rem] overflow-y-auto custom-scroll pr-2">
-	<ol class="relative border-l border-gray-200 p-6 space-y-6">
-		<?php foreach ($timeline as $entry): 
-			$action = strtolower((string)$entry['action']);
-			$timelineColor = match(true) {
-				in_array($action, ['delete','remove']) => 'bg-red-500',
-				in_array($action, ['update','edit','modify']) => 'bg-amber-500',
-				in_array($action, ['create','add','insert']) => 'bg-green-500',
-				default => 'bg-blue-500',
-			};
-			$sentence = $formatDetailSentence($entry['details'] ?? '');
-		?>
-		<li class="pl-6">
-			<span class="absolute -left-1.5 mt-1 w-3 h-3 rounded-full <?php echo $timelineColor; ?>"></span>
-			<div class="flex flex-col gap-1">
-				<div class="flex flex-wrap items-center justify-between gap-2">
-					<p class="font-semibold text-gray-900"><?php echo htmlspecialchars($entry['action']); ?> on <?php echo htmlspecialchars($entry['module']); ?></p>
-					<?php 
-					$timelineTimestamp = strtotime((string)$entry['timestamp']);
-					$timelineDate = ($timelineTimestamp !== false) ? date('M j, Y g:i A', $timelineTimestamp) : 'Invalid date';
-					?>
-					<span class="text-xs text-gray-500 font-mono"><?php echo htmlspecialchars($timelineDate); ?></span>
-				</div>
-				<p class="text-sm text-gray-600">By <?php echo htmlspecialchars($entry['user_name'] ?? (string)($entry['user_id'] ?? 'System')); ?></p>
-				<?php if (!empty($sentence)): ?>
-				<p class="text-xs text-gray-500">Details: <?php echo htmlspecialchars($sentence); ?></p>
-				<?php endif; ?>
-			</div>
-		</li>
-		<?php endforeach; ?>
-	</ol>
-	</div>
-</div>
-<?php endif; ?>
-
 <!-- Filters Section -->
 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
 	<div class="bg-gradient-to-r from-slate-50 to-gray-50 px-4 sm:px-6 py-4 border-b">
