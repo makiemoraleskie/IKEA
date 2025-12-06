@@ -1781,6 +1781,19 @@ foreach ($deliveries as $d) {
 </script>
 
 <style>
+	/* Remove focus ring and border color for all input fields */
+	input:focus,
+	select:focus,
+	textarea:focus {
+		outline: none !important;
+		box-shadow: none !important;
+		border-color: rgb(209 213 219) !important; /* Keep gray-300 border color */
+		--tw-ring-offset-shadow: 0 0 #0000 !important;
+		--tw-ring-shadow: 0 0 #0000 !important;
+		--tw-ring-offset-width: 0px !important;
+		--tw-ring-width: 0px !important;
+	}
+
 	/* Remove focus ring and border color for input fields in deliveries page on tablet mode */
 	@media (min-width: 768px) and (max-width: 1023px) {
 		#deliveriesForm input:focus,

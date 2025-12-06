@@ -15,6 +15,19 @@ $currentQuery = http_build_query(array_filter($_GET ?? [], fn($value) => $value 
 .custom-scroll::-webkit-scrollbar-thumb{background:rgba(100,116,139,0.4);border-radius:9999px}
 .custom-scroll::-webkit-scrollbar-track{background:rgba(226,232,240,0.4)}
 
+/* Remove focus ring and border color for all input fields */
+input:focus,
+select:focus,
+textarea:focus {
+	outline: none !important;
+	box-shadow: none !important;
+	border-color: rgb(209 213 219) !important; /* Keep gray-300 border color */
+	--tw-ring-offset-shadow: 0 0 #0000 !important;
+	--tw-ring-shadow: 0 0 #0000 !important;
+	--tw-ring-offset-width: 0px !important;
+	--tw-ring-width: 0px !important;
+}
+
 /* Tablet mode fixes for Clear Logs section */
 @media (min-width: 768px) and (max-width: 1023px) {
 	#clearLogsForm {
