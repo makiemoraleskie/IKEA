@@ -5,6 +5,10 @@ class Delivery extends BaseModel
 {
     public function listAll(): array
     {
+        // Ensure purchase_unit column exists
+        $purchaseModel = new Purchase();
+        $purchaseModel->listAll(); // This will ensure the column exists
+        
         $sql = 'SELECT 
                 d.*,
                 p.id AS purchase_id,
@@ -15,6 +19,8 @@ class Delivery extends BaseModel
                 p.date_purchased,
                 p.item_id,
                 p.quantity AS purchase_quantity,
+                COALESCE(p.purchase_unit, "") AS purchase_unit,
+                COALESCE(p.purchase_quantity, 0) AS purchase_quantity_display,
                 u.name AS purchaser_name,
                 i.name AS item_name,
                 i.unit,
@@ -89,6 +95,10 @@ class Delivery extends BaseModel
 
     public function listOutstandingPurchases(): array
     {
+        // Ensure purchase_unit column exists
+        $purchaseModel = new Purchase();
+        $purchaseModel->listAll(); // This will ensure the column exists
+        
         $sql = 'SELECT 
                     p.id,
                     p.purchaser_id,
@@ -97,6 +107,8 @@ class Delivery extends BaseModel
                     p.quantity,
                     p.supplier,
                     p.date_purchased,
+                    COALESCE(p.purchase_unit, "") AS purchase_unit,
+                    COALESCE(p.purchase_quantity, 0) AS purchase_quantity,
                     u.name AS purchaser_name,
                     i.name AS item_name,
                     i.unit,
@@ -108,7 +120,7 @@ class Delivery extends BaseModel
                 JOIN ingredients i ON p.item_id = i.id
                 LEFT JOIN deliveries d ON d.purchase_id = p.id
                 WHERE p.payment_status = "Pending"
-                GROUP BY p.id, p.purchaser_id, p.payment_status, p.receipt_url, p.quantity, p.supplier, p.date_purchased, u.name, i.name, i.unit, i.display_unit, i.display_factor
+                GROUP BY p.id, p.purchaser_id, p.payment_status, p.receipt_url, p.quantity, p.supplier, p.date_purchased, p.purchase_unit, p.purchase_quantity, u.name, i.name, i.unit, i.display_unit, i.display_factor
                 HAVING delivered_quantity < p.quantity
                 ORDER BY p.date_purchased DESC
                 LIMIT 10';

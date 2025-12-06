@@ -6,12 +6,14 @@
 	<?php else: ?>
 	</main>
 	<?php endif; ?>
-	
 	<?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
+	<script src="<?php echo htmlspecialchars($baseUrl); ?>/public/js/utils.js"></script>
 	<script src="<?php echo htmlspecialchars($baseUrl); ?>/public/js/app.js"></script>
 	<script>
 		// Initialize Lucide icons
-		lucide.createIcons();
+		if (typeof lucide !== 'undefined') {
+			lucide.createIcons();
+		}
 	</script>
 </body>
 </html>

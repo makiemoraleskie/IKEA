@@ -5,12 +5,36 @@ class Purchase extends BaseModel
 {
     public function listAll(): array
 	{
-        $sql = 'SELECT p.*, u.name AS purchaser_name, i.name AS item_name, i.unit, i.display_unit, i.display_factor
+        // Ensure purchase_unit column exists
+        $this->ensurePurchaseUnitColumn();
+        
+        $sql = 'SELECT p.*, u.name AS purchaser_name, i.name AS item_name, i.unit, i.display_unit, i.display_factor,
+                COALESCE(p.purchase_unit, "") AS purchase_unit, COALESCE(p.purchase_quantity, 0) AS purchase_quantity
 			FROM purchases p
 			JOIN users u ON p.purchaser_id = u.id
 			JOIN ingredients i ON p.item_id = i.id
 			ORDER BY p.date_purchased DESC';
 		return $this->db->query($sql)->fetchAll();
+	}
+
+	private function ensurePurchaseUnitColumn(): void
+	{
+		static $ensured = false;
+		if ($ensured) {
+			return;
+		}
+		try {
+			$columns = $this->db->query('SHOW COLUMNS FROM purchases')->fetchAll(PDO::FETCH_COLUMN);
+			if (!in_array('purchase_unit', $columns, true)) {
+				$this->db->exec("ALTER TABLE purchases ADD COLUMN purchase_unit VARCHAR(20) NOT NULL DEFAULT '' AFTER quantity");
+			}
+			if (!in_array('purchase_quantity', $columns, true)) {
+				$this->db->exec("ALTER TABLE purchases ADD COLUMN purchase_quantity DECIMAL(16,4) NOT NULL DEFAULT 0 AFTER purchase_unit");
+			}
+		} catch (\Exception $e) {
+			// Column might already exist or table doesn't exist yet
+		}
+		$ensured = true;
 	}
 
     public function create(
@@ -22,14 +46,21 @@ class Purchase extends BaseModel
         ?string $receiptUrl,
         string $paymentStatus,
         string $paymentType = 'Card',
-        ?float $cashBaseAmount = null
+        ?float $cashBaseAmount = null,
+        string $purchaseUnit = '',
+        float $purchaseQuantity = 0.0
     ): int
 	{
+        $this->ensurePurchaseUnitColumn();
         $paidAt = $paymentStatus === 'Paid' ? date('Y-m-d H:i:s') : null;
+        // If purchase_quantity not provided, use quantity (for backward compatibility)
+        if ($purchaseQuantity <= 0) {
+            $purchaseQuantity = $quantity;
+        }
         $sql = 'INSERT INTO purchases (
-                purchaser_id, item_id, supplier, quantity, cost, receipt_url, payment_status, payment_type, cash_base_amount, date_purchased, paid_at
+                purchaser_id, item_id, supplier, quantity, purchase_unit, purchase_quantity, cost, receipt_url, payment_status, payment_type, cash_base_amount, date_purchased, paid_at
             ) VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?
             )';
 		$stmt = $this->db->prepare($sql);
         $stmt->execute([
@@ -37,6 +68,8 @@ class Purchase extends BaseModel
             $itemId,
             $supplier,
             $quantity,
+            $purchaseUnit,
+            $purchaseQuantity,
             $cost,
             $receiptUrl,
             $paymentStatus,
@@ -116,6 +149,42 @@ class Purchase extends BaseModel
         $sql = 'UPDATE purchases SET payment_status = "Paid", receipt_url = ?, paid_at = NOW() WHERE id = ?';
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$receiptUrl, $id]);
+    }
+
+    public function findByGroupId(string $groupId): array
+    {
+        $sql = 'SELECT * FROM purchases WHERE group_id = ?';
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$groupId]);
+        return $stmt->fetchAll() ?: [];
+    }
+
+    public function deleteByGroupId(string $groupId): int
+    {
+        $sql = 'DELETE FROM purchases WHERE group_id = ?';
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$groupId]);
+        return $stmt->rowCount();
+    }
+
+    public function findByIds(array $ids): array
+    {
+        if (empty($ids)) return [];
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $sql = "SELECT * FROM purchases WHERE id IN ($placeholders)";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(array_values($ids));
+        return $stmt->fetchAll() ?: [];
+    }
+
+    public function deleteByIds(array $ids): int
+    {
+        if (empty($ids)) return 0;
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $sql = "DELETE FROM purchases WHERE id IN ($placeholders)";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(array_values($ids));
+        return $stmt->rowCount();
     }
 }
 

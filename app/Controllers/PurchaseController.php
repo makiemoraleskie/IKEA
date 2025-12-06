@@ -5,24 +5,9 @@ class PurchaseController extends BaseController
 {
 	public function index(): void
 	{
-		Auth::requireRole(['Purchaser','Manager','Owner']);
+		Auth::requireRole(['Purchaser','Manager','Owner','Stock Handler']);
 		$ingredientModel = new Ingredient();
 		$ingredients = $ingredientModel->all();
-		$lowStockItems = $ingredientModel->getLowStockItems();
-		$lowStockGroups = [];
-		foreach ($lowStockItems as $item) {
-			$rawSupplier = trim((string)($item['preferred_supplier'] ?? ''));
-			$displaySupplier = $rawSupplier !== '' ? $rawSupplier : 'Unassigned Supplier';
-			$key = function_exists('mb_strtolower') ? mb_strtolower($displaySupplier) : strtolower($displaySupplier);
-			if (!isset($lowStockGroups[$key])) {
-				$lowStockGroups[$key] = [
-					'label' => $displaySupplier,
-					'items' => [],
-				];
-			}
-			$lowStockGroups[$key]['items'][] = $item;
-		}
-		$lowStockGroups = array_values($lowStockGroups);
         $purchaseModel = new Purchase();
         $purchases = $purchaseModel->listAll();
         $deliveryModel = new Delivery();
@@ -78,14 +63,14 @@ class PurchaseController extends BaseController
             'ingredients' => $ingredients,
             'purchases' => $purchases,
             'purchaseGroups' => array_values($groups),
-            'lowStockGroups' => $lowStockGroups,
             'flash' => $flash,
+            'canViewCosts' => Settings::costVisibleForRole(Auth::role()),
         ]);
 	}
 
 	public function store(): void
 	{
-		Auth::requireRole(['Purchaser','Manager','Owner']);
+		Auth::requireRole(['Purchaser','Manager','Owner','Stock Handler']);
 		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
 			http_response_code(400);
 			echo 'Invalid CSRF token';
@@ -119,7 +104,17 @@ class PurchaseController extends BaseController
                     $iid = (int)($row['item_id'] ?? 0);
                     $q = (float)($row['quantity'] ?? 0);
                     $c = (float)($row['cost'] ?? 0);
-                    if ($iid > 0 && $q > 0 && $c >= 0) { $itemsFromJson[] = [$iid, $q, $c]; }
+                    $name = trim((string)($row['name'] ?? ''));
+                    $unit = trim((string)($row['unit'] ?? ''));
+                    if ($q > 0 && $c >= 0) { 
+                        $itemsFromJson[] = [
+                            'item_id' => $iid,
+                            'quantity' => $q,
+                            'cost' => $c,
+                            'name' => $name,
+                            'unit' => $unit
+                        ]; 
+                    }
                 }
             }
         }
@@ -139,12 +134,24 @@ class PurchaseController extends BaseController
                 $itemIds = array_map('intval', $_POST['item_id'] ?? []);
                 $quantities = array_map('floatval', $_POST['quantity'] ?? []); // already base units from UI
                 $rowCosts = array_map('floatval', $_POST['row_cost'] ?? []);
+                $originalQuantities = array_map('floatval', $_POST['original_quantity'] ?? []);
+                $units = array_map('trim', $_POST['unit'] ?? []);
                 if (empty($itemIds) || empty($quantities) || $supplier === '') { $this->redirect('/purchases'); }
                 for ($z=0; $z < min(count($itemIds), count($quantities), count($rowCosts)); $z++) {
                     $iid = (int)$itemIds[$z];
                     $q = (float)$quantities[$z];
                     $c = (float)$rowCosts[$z];
-                    if ($iid > 0 && $q > 0 && $c >= 0) { $itemsFromJson[] = [$iid, $q, $c]; }
+                    $origQty = (float)($originalQuantities[$z] ?? $q);
+                    $unit = trim((string)($units[$z] ?? ''));
+                    if ($iid > 0 && $q > 0 && $c >= 0) { 
+                        $itemsFromJson[] = [
+                            'item_id' => $iid,
+                            'quantity' => $q,
+                            'cost' => $c,
+                            'original_quantity' => $origQty,
+                            'unit' => $unit
+                        ]; 
+                    }
                 }
             }
         }
@@ -173,8 +180,29 @@ class PurchaseController extends BaseController
                 if (($receiptUpload['size'] ?? 0) > $maxBytes) {
                     $receiptProblem = 'Receipt exceeds the 10MB limit. Please compress the file or upload a PDF scan.';
                 } else {
-                    $finfo = new finfo(FILEINFO_MIME_TYPE);
-                    $mime = $finfo->file($receiptUpload['tmp_name']);
+                    // Try to detect MIME type using finfo if available, otherwise use fallback methods
+                    $mime = null;
+                    if (class_exists('finfo')) {
+                        $finfo = new finfo(FILEINFO_MIME_TYPE);
+                        $mime = $finfo->file($receiptUpload['tmp_name']);
+                    } elseif (function_exists('mime_content_type')) {
+                        $mime = mime_content_type($receiptUpload['tmp_name']);
+                    } else {
+                        // Fallback: use file extension from original filename
+                        $originalName = $receiptUpload['name'] ?? '';
+                        $extensionMap = [
+                            'jpg' => 'image/jpeg',
+                            'jpeg' => 'image/jpeg',
+                            'png' => 'image/png',
+                            'webp' => 'image/webp',
+                            'heic' => 'image/heic',
+                            'heif' => 'image/heif',
+                            'pdf' => 'application/pdf',
+                        ];
+                        $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+                        $mime = $extensionMap[$ext] ?? null;
+                    }
+                    
                     $ext = $allowed[$mime] ?? null;
                     if ($ext === null) {
                         $receiptProblem = 'Unsupported receipt file type. Allowed types: JPG, PNG, WebP, HEIC and PDF.';
@@ -198,16 +226,95 @@ class PurchaseController extends BaseController
         }
 
         $purchaseModel = new Purchase();
+        $ingredientModel = new Ingredient();
         $logger = new AuditLog();
+        
+        // IMPORTANT: Purchase recording does NOT update inventory quantities.
+        // Inventory is only updated when deliveries are confirmed in DeliveryController::store().
+        // This ensures the correct workflow: Purchase → Delivery → Inventory Update
+        
+        // Get a single placeholder ingredient that must exist (created manually or in deliveries)
+        // This is used ONLY for database foreign key constraint - no new ingredients are created here
+        $placeholderIngredient = $ingredientModel->findByName('Purchase Note');
+        if (!$placeholderIngredient) {
+            // If placeholder doesn't exist, try to find any ingredient to use as placeholder
+            $allIngredients = $ingredientModel->all();
+            $placeholderIngredient = !empty($allIngredients) ? $allIngredients[0] : null;
+        }
+        $placeholderId = $placeholderIngredient ? (int)$placeholderIngredient['id'] : 0;
+        
         if ($isBatch) {
-            foreach ($itemsFromJson as [$iid, $qtyBase, $costRow]) {
-                $id = $purchaseModel->create(Auth::id() ?? 0, $iid, $supplier, $qtyBase, $costRow, $receiptUrl, $paymentStatus, $paymentType, $baseAmount);
-                $logger->log(Auth::id() ?? 0, 'create', 'purchases', ['purchase_id' => $id, 'item_id' => $iid, 'quantity' => $qtyBase, 'cost' => $costRow, 'payment_type' => $paymentType, 'base_amount' => $baseAmount]);
+            $processedCount = 0;
+            $skippedCount = 0;
+            
+            foreach ($itemsFromJson as $item) {
+                $iid = (int)($item['item_id'] ?? 0);
+                $qtyBase = (float)($item['quantity'] ?? 0);
+                $costRow = (float)($item['cost'] ?? 0);
+                $itemName = trim((string)($item['name'] ?? ''));
+                $unit = trim((string)($item['unit'] ?? 'pcs'));
+                
+                // If item_id is 0 or invalid, try to find existing ingredient by name
+                // DO NOT create any ingredients - purchases are simple notes
+                if ($iid <= 0 && $itemName !== '') {
+                    $existing = $ingredientModel->findByName($itemName);
+                    if ($existing) {
+                        $iid = (int)$existing['id'];
+                    } else {
+                        // Ingredient doesn't exist - use placeholder if available
+                        // This is ONLY for database foreign key constraint
+                        // The actual item name is stored in purchase_unit field
+                        if ($placeholderId > 0) {
+                            $iid = $placeholderId;
+                            // Don't modify $unit here - we'll store item name and unit separately
+                        } else {
+                            // No placeholder available - skip this item
+                            $skippedCount++;
+                            continue;
+                        }
+                    }
+                }
+                
+                if ($iid > 0 && $qtyBase > 0) {
+                    // Get original quantity from item data (before conversion)
+                    $originalQty = (float)($item['original_quantity'] ?? $item['quantity'] ?? $qtyBase);
+                    // Create purchase record only - do NOT update inventory here
+                    // Inventory will be updated only when delivery is confirmed in DeliveryController
+                    // Store the actual item name in purchase_unit for display purposes when using placeholder
+                    // Format: "itemName|unit" to store both item name and unit separately
+                    if ($iid === $placeholderId && $itemName !== '') {
+                        // Using placeholder - store item name and unit separated by pipe
+                        // Keep original unit value (not modified)
+                        $displayUnit = $itemName . '|' . $unit;
+                    } else {
+                        // Ingredient exists - just store the unit
+                        $displayUnit = $unit;
+                    }
+                    $id = $purchaseModel->create(Auth::id() ?? 0, $iid, $supplier, $qtyBase, $costRow, $receiptUrl, $paymentStatus, $paymentType, $baseAmount, $displayUnit, $originalQty);
+                    $logger->log(Auth::id() ?? 0, 'create', 'purchases', ['purchase_id' => $id, 'item_id' => $iid, 'quantity' => $qtyBase, 'cost' => $costRow, 'payment_type' => $paymentType, 'base_amount' => $baseAmount, 'purchase_unit' => $displayUnit, 'purchase_quantity' => $originalQty]);
+                    $processedCount++;
+                }
+            }
+            
+            // Show success or error based on processed count
+            if ($processedCount > 0) {
+                $msg = "Purchase batch recorded successfully. {$processedCount} item" . ($processedCount > 1 ? 's' : '') . " added.";
+                if ($skippedCount > 0) {
+                    $msg .= " {$skippedCount} item" . ($skippedCount > 1 ? 's' : '') . " skipped (no matching ingredients).";
+                }
+                $_SESSION['flash_purchases'] = ['type' => 'success', 'text' => $msg];
+            } else {
+                $_SESSION['flash_purchases'] = ['type' => 'error', 'text' => 'No valid items to record. Please add items with valid quantities and costs.'];
             }
         } else {
             // Convert to base units based on ingredient base unit and selected UI unit (single item path)
             $ingredientModel = new Ingredient();
             $ingredient = $ingredientModel->find($itemId);
+            if (!$ingredient) {
+                $_SESSION['flash_purchases'] = ['type' => 'error', 'text' => 'Selected ingredient does not exist. Please select a valid ingredient from the list.'];
+                $this->redirect('/purchases');
+                return;
+            }
             $baseUnit = $ingredient['unit'] ?? '';
             $displayUnit = $ingredient['display_unit'] ?? '';
             $displayFactor = (float)($ingredient['display_factor'] ?? 1);
@@ -218,15 +325,19 @@ class PurchaseController extends BaseController
                 $factor = 1000.0;
             }
             $quantity = $quantityInput * $factor;
-            $id = $purchaseModel->create(Auth::id() ?? 0, $itemId, $supplier, $quantity, $cost, $receiptUrl, $paymentStatus, $paymentType, $baseAmount);
-            $logger->log(Auth::id() ?? 0, 'create', 'purchases', ['purchase_id' => $id, 'item_id' => $itemId, 'quantity' => $quantity, 'cost' => $cost, 'payment_type' => $paymentType, 'base_amount' => $baseAmount]);
+            $unitSelected = trim((string)($_POST['unit'] ?? ''));
+            // Create purchase record only - do NOT update inventory here
+            // Inventory will be updated only when delivery is confirmed in DeliveryController
+            $id = $purchaseModel->create(Auth::id() ?? 0, $itemId, $supplier, $quantity, $cost, $receiptUrl, $paymentStatus, $paymentType, $baseAmount, $unitSelected);
+            $logger->log(Auth::id() ?? 0, 'create', 'purchases', ['purchase_id' => $id, 'item_id' => $itemId, 'quantity' => $quantity, 'cost' => $cost, 'payment_type' => $paymentType, 'base_amount' => $baseAmount, 'purchase_unit' => $unitSelected]);
+            $_SESSION['flash_purchases'] = ['type' => 'success', 'text' => 'Purchase recorded successfully.'];
         }
 		$this->redirect('/purchases');
 	}
 
 	public function markPaid(): void
 	{
-		Auth::requireRole(['Purchaser','Manager','Owner']);
+		Auth::requireRole(['Purchaser','Manager','Owner','Stock Handler']);
 		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
 			http_response_code(400);
 			echo 'Invalid CSRF token';
@@ -307,6 +418,46 @@ class PurchaseController extends BaseController
         $_SESSION['flash_purchases'] = ['type' => 'success', 'text' => 'Purchase marked as paid and receipt saved.'];
 		$this->redirect('/purchases');
 	}
+
+    public function delete(): void
+    {
+        Auth::requireRole(['Purchaser','Manager','Owner','Stock Handler']);
+        if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
+            http_response_code(400);
+            echo 'Invalid CSRF token';
+            return;
+        }
+        $idsRaw = trim((string)($_POST['ids'] ?? ''));
+        $ids = array_values(array_filter(array_map('intval', explode(',', $idsRaw)), fn($v)=>$v>0));
+        if (empty($ids)) {
+            $_SESSION['flash_purchases'] = ['type' => 'error', 'text' => 'Invalid purchase selection.'];
+            $this->redirect('/purchases');
+        }
+
+        $purchaseModel = new Purchase();
+        $purchases = $purchaseModel->findByIds($ids);
+        if (empty($purchases)) {
+            $_SESSION['flash_purchases'] = ['type' => 'error', 'text' => 'Purchase records not found.'];
+            $this->redirect('/purchases');
+        }
+
+        // Delete attached receipts (only local uploads under /public/uploads)
+        foreach ($purchases as $p) {
+            $url = (string)($p['receipt_url'] ?? '');
+            if ($url && str_starts_with($url, '/public/uploads/')) {
+                $path = BASE_PATH . $url;
+                if (is_file($path)) {
+                    @unlink($path);
+                }
+            }
+        }
+
+        $deleted = $purchaseModel->deleteByIds($ids);
+        $logger = new AuditLog();
+        $logger->log(Auth::id() ?? 0, 'delete', 'purchases', ['ids' => $ids, 'rows' => $deleted]);
+        $_SESSION['flash_purchases'] = ['type' => 'success', 'text' => 'Purchase group deleted successfully.'];
+        $this->redirect('/purchases');
+    }
 
     private function describeUploadError(int $code): string
     {

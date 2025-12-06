@@ -15,6 +15,7 @@ class Notification extends BaseModel
             user_id INT UNSIGNED NOT NULL,
             message VARCHAR(255) NOT NULL,
             link VARCHAR(255) NULL,
+            level ENUM(\'info\',\'warning\',\'success\',\'danger\') NOT NULL DEFAULT \'info\',
             read_at DATETIME NULL,
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
@@ -22,6 +23,13 @@ class Notification extends BaseModel
             KEY idx_notifications_read (read_at),
             CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+        
+        // Ensure level column exists (for existing tables)
+        $columns = $this->db->query('SHOW COLUMNS FROM notifications')->fetchAll(PDO::FETCH_COLUMN);
+        if (!in_array('level', $columns, true)) {
+            $this->db->exec('ALTER TABLE notifications ADD COLUMN level ENUM(\'info\',\'warning\',\'success\',\'danger\') NOT NULL DEFAULT \'info\' AFTER link');
+        }
+        
         $this->tableEnsured = true;
     }
 

@@ -1,26 +1,24 @@
 <?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
 <!-- Page Header -->
-<div class="bg-white rounded-xl shadow-md border-2 border-gray-200/80 p-3 sm:p-4 mb-4 md:mb-6 relative overflow-hidden">
-	<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-		<div>
-			<h1 class="text-2xl font-bold text-gray-900 tracking-tight">Purchase Transactions</h1>
-			<p class="text-sm sm:text-base text-gray-600 mt-1 font-medium">Record and manage ingredient purchases</p>
-		</div>
-		<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-[#008000] bg-[#008000]/10 rounded-xl hover:bg-[#008000]/20 border border-[#008000]/20 transition-all duration-200 shadow-sm hover:shadow-md">
-			<i data-lucide="arrow-left" class="w-4 h-4"></i>
-			Back to Dashboard
-		</a>
+<div class="flex flex-col gap-3 md:gap-4 md:flex-row md:items-center md:justify-between mb-4 md:mb-6">
+	<div>
+		<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900">Purchase Transactions</h1>
+		<p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Record and manage ingredient purchases</p>
 	</div>
+	<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-1 md:gap-1.5 px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+		<i data-lucide="arrow-left" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+		Back to Dashboard
+	</a>
 </div>
 
 <!-- New Purchase Form -->
 <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8 overflow-hidden">
 	<div class="bg-gradient-to-r from-purple-50 to-indigo-50 px-6 py-4 border-b">
-		<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-			<i data-lucide="shopping-cart" class="w-5 h-5 text-purple-600"></i>
+		<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
+			<i data-lucide="shopping-cart" class="w-3.5 h-3.5 md:w-4 md:h-4 text-purple-600"></i>
 			Record New Purchase
 		</h2>
-		<p class="text-sm text-gray-600 mt-1">Add a new ingredient purchase to the system</p>
+		<p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Add a new ingredient purchase to the system</p>
 	</div>
 	
 	<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/purchases" enctype="multipart/form-data" class="p-6">
@@ -327,7 +325,7 @@
 				<p class="text-2xl font-bold text-blue-600">₱<?php echo number_format(array_sum(array_column($purchases, 'cost')), 2); ?></p>
 			</div>
 			<div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-				<i data-lucide="dollar-sign" class="w-6 h-6 text-blue-600"></i>
+				<span class="text-2xl font-bold text-blue-600">₱</span>
 			</div>
 		</div>
 	</div>

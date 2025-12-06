@@ -3,17 +3,22 @@ $baseUrl = defined('BASE_URL') ? BASE_URL : '';
 $deliveredTotals = $deliveredTotals ?? [];
 ?>
 <!-- Page Header -->
-<div class="bg-white rounded-xl shadow-md border-2 border-gray-200/80 p-3 sm:p-4 mb-4 md:mb-6 relative overflow-hidden">
-	<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6">
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
 		<div>
-			<h1 class="text-2xl font-bold text-gray-900 tracking-tight">Delivery Management</h1>
-			<p class="text-sm sm:text-base text-gray-600 mt-1 font-medium">Record and track ingredient deliveries</p>
+			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1">Delivery Management</h1>
+			<p class="text-[10px] md:text-xs text-gray-600">Record and track ingredient deliveries</p>
 		</div>
-		<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-[#008000] bg-[#008000]/10 rounded-xl hover:bg-[#008000]/20 border border-[#008000]/20 transition-colors">
-			<i data-lucide="arrow-left" class="w-4 h-4"></i>
-			Back to Dashboard
-		</a>
 	</div>
+</div>
+
+<div class="space-y-2">
+				<label class="block text-sm font-medium text-gray-700">Delivery Status</label>
+				<div class="border border-dashed border-green-200 bg-green-50 text-sm text-green-800 rounded-lg px-4 py-3">
+					Status is now auto-calculated when you click <strong class="font-semibold">Record Delivery</strong>. If <em>Receive Now</em> matches the <em>Remaining</em> quantity, the delivery will be marked as <span class="font-semibold">Complete Delivery</span>; otherwise it will be recorded as <span class="font-semibold">Partial Delivery</span>.
+				</div>
+
 </div>
 
 <!-- Summary Cards -->
@@ -31,60 +36,61 @@ foreach ($deliveries as $d) {
 	}
 }
 ?>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8">
 	<!-- Total Deliveries -->
-	<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 p-5 sm:p-6">
-		<div class="flex items-center justify-between">
-			<div>
-				<p class="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Total Deliveries</p>
-				<p class="text-3xl sm:text-4xl font-black text-gray-900 mt-1"><?php echo $totalDeliveries; ?></p>
-			</div>
-			<div class="w-12 h-12 sm:w-14 sm:h-14 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
-				<i data-lucide="truck" class="w-6 h-6 sm:w-7 sm:h-7 text-[#008000]"></i>
-			</div>
+
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
+			<i data-lucide="truck" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-blue-600"></i>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[9px] md:text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 md:mb-2">TOTAL DELIVERIES</h3>
+			<div class="text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-gray-900 mb-1 md:mb-1.5"><?php echo $totalDeliveries; ?></div>
+			<p class="text-[10px] md:text-xs text-gray-600">All delivery records</p>
+
 		</div>
 	</div>
 	
 	<!-- Complete Deliveries -->
-	<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 p-5 sm:p-6">
-		<div class="flex items-center justify-between">
-			<div>
-				<p class="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Complete Deliveries</p>
-				<p class="text-3xl sm:text-4xl font-black text-[#008000] mt-1"><?php echo $completeDeliveries; ?></p>
-			</div>
-			<div class="w-12 h-12 sm:w-14 sm:h-14 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
-				<i data-lucide="check-circle" class="w-6 h-6 sm:w-7 sm:h-7 text-[#008000]"></i>
-			</div>
+
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
+			<i data-lucide="check-circle" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-green-600"></i>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[9px] md:text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 md:mb-2">COMPLETE DELIVERIES</h3>
+			<div class="text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-green-600 mb-1 md:mb-1.5"><?php echo $completeDeliveries; ?></div>
+			<p class="text-[10px] md:text-xs text-gray-600">Fully delivered</p>
+
 		</div>
 	</div>
 	
 	<!-- Partial Deliveries -->
-	<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 p-5 sm:p-6">
-		<div class="flex items-center justify-between">
-			<div>
-				<p class="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">Partial Deliveries</p>
-				<p class="text-3xl sm:text-4xl font-black text-amber-600 mt-1"><?php echo $partialDeliveries; ?></p>
-			</div>
-			<div class="w-12 h-12 sm:w-14 sm:h-14 bg-amber-50 rounded-xl flex items-center justify-center border border-amber-200">
-				<i data-lucide="clock" class="w-6 h-6 sm:w-7 sm:h-7 text-amber-600"></i>
-			</div>
+
+	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
+			<i data-lucide="clock" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-yellow-600"></i>
+		</div>
+		<div class="flex flex-col">
+			<h3 class="text-[9px] md:text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5 md:mb-2">PARTIAL DELIVERIES</h3>
+			<div class="text-xl md:text-2xl lg:text-3xl font-black tracking-tight text-yellow-600 mb-1 md:mb-1.5"><?php echo $partialDeliveries; ?></div>
+			<p class="text-[10px] md:text-xs text-gray-600">Incomplete shipments</p>
+
 		</div>
 	</div>
 </div>
 <?php endif; ?>
 
 <!-- Record Delivery Form -->
-<div class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 mb-6 sm:mb-8 overflow-hidden">
-	<div class="bg-gradient-to-r from-[#008000]/10 via-[#00A86B]/5 to-[#008000]/10 px-4 sm:px-6 py-4 border-b border-gray-200/60">
-		<div class="flex items-center gap-3">
-			<div class="w-10 h-10 bg-[#008000]/20 rounded-xl flex items-center justify-center border border-[#008000]/30">
-				<i data-lucide="package-check" class="w-5 h-5 text-[#008000]"></i>
-			</div>
-			<div>
-				<h2 class="text-xl sm:text-2xl font-bold text-gray-900">Record New Delivery</h2>
-				<p class="text-xs sm:text-sm text-gray-600 mt-0.5">Record a delivery for an existing purchase</p>
-			</div>
-		</div>
+
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-6 md:mb-8 overflow-hidden">
+	<div class="bg-gray-100 px-4 sm:px-6 py-4 border-b">
+		<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
+			<i data-lucide="package-check" class="w-3.5 h-3.5 md:w-4 md:h-4 text-green-600"></i>
+			Record New Delivery
+		</h2>
+		<p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Record a delivery for an existing purchase</p>
+
 	</div>
 	
     <form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/deliveries" class="p-4 sm:p-6" id="deliveriesForm">
@@ -134,13 +140,8 @@ foreach ($deliveries as $d) {
                 <label class="block text-sm font-medium text-gray-700">Unit</label>
                 <select id="deliveryQtyUnit" class="w-full border border-gray-300 rounded-lg px-4 py-3"><option value="">Auto-detect</option></select>
             </div>
-			
-			<div class="space-y-2">
-				<label class="block text-sm font-medium text-gray-700">Delivery Status</label>
-				<div class="border-2 border-dashed border-[#008000]/30 bg-[#008000]/5 text-sm text-[#008000] rounded-lg px-4 py-3">
-					Status is now auto-calculated when you click <strong class="font-semibold">Record Delivery</strong>. If <em>Receive Now</em> matches the <em>Remaining</em> quantity, the delivery will be marked as <span class="font-semibold">Complete Delivery</span>; otherwise it will be recorded as <span class="font-semibold">Partial Delivery</span>.
-				</div>
-			</div>
+
+
 		</div>
 		
         <div id="batchItemsBox" class="mt-4 hidden">
@@ -161,7 +162,9 @@ foreach ($deliveries as $d) {
         </div>
 
         <div class="mt-6 flex justify-end">
-			<button type="submit" class="inline-flex items-center gap-2 bg-gradient-to-b from-[#00A86B] to-[#008000] text-white px-6 py-3 rounded-xl shadow-md hover:opacity-90 hover:shadow-lg focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all font-semibold">
+
+			<button type="submit" class="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
+
 				<i data-lucide="package-check" class="w-4 h-4"></i>
 				Record Delivery
 			</button>
@@ -169,17 +172,138 @@ foreach ($deliveries as $d) {
 	</form>
 </div>
 
+<!-- Delivery Modal -->
+<div id="deliveryModal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4">
+	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+		<div class="flex items-center justify-between px-6 py-4 border-b">
+			<div>
+				<p class="text-xs uppercase tracking-wide text-gray-500">Purchase Batch</p>
+				<p class="text-lg font-semibold text-gray-900" id="deliveryModalBatchLabel">#0</p>
+			</div>
+			<button type="button" class="deliveryModalClose text-gray-500 hover:text-gray-700 text-2xl leading-none" aria-label="Close">&times;</button>
+		</div>
+		<div class="px-6 py-4 space-y-4">
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+				<div class="rounded-xl bg-blue-50 border border-blue-100 p-4">
+					<p class="text-xs uppercase tracking-wide text-blue-700">Supplier</p>
+					<p class="font-semibold text-blue-900 mt-1" id="deliveryModalSupplier">—</p>
+				</div>
+				<div class="rounded-xl bg-emerald-50 border border-emerald-100 p-4">
+					<p class="text-xs uppercase tracking-wide text-emerald-700">Purchaser</p>
+					<p class="font-semibold text-emerald-900 mt-1" id="deliveryModalPurchaser">—</p>
+				</div>
+				<div class="rounded-xl bg-purple-50 border border-purple-100 p-4">
+					<p class="text-xs uppercase tracking-wide text-purple-700">Date Ordered</p>
+					<p class="font-semibold text-purple-900 mt-1" id="deliveryModalDate">—</p>
+				</div>
+			</div>
+			
+			<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/deliveries" id="deliveryModalForm" class="space-y-4">
+				<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+				<input type="hidden" name="items_json" id="deliveryModalItemsJson" value="[]">
+				<input type="hidden" name="action" value="store">
+				
+				<!-- Purchase Items List (Read-only Note) -->
+				<div class="rounded-xl border border-gray-200 overflow-hidden">
+					<div class="bg-gray-50 px-4 py-3 border-b">
+						<h3 class="text-sm font-semibold text-gray-900">Purchase Items</h3>
+						<p class="text-xs text-gray-600 mt-1">Items from this purchase batch</p>
+					</div>
+					<div class="p-4">
+						<div class="overflow-x-auto">
+							<table class="w-full text-sm">
+								<thead class="bg-gray-50">
+									<tr>
+										<th class="text-left px-3 py-2 font-medium text-gray-700">Name</th>
+										<th class="text-left px-3 py-2 font-medium text-gray-700">Quantity</th>
+										<th class="text-left px-3 py-2 font-medium text-gray-700">Unit</th>
+									</tr>
+								</thead>
+								<tbody id="deliveryPurchaseItemsList" class="divide-y divide-gray-200">
+									<!-- Purchase items will be displayed here -->
+								</tbody>
+							</table>
+						</div>
+						<div id="deliveryPurchaseItemsEmpty" class="text-sm text-gray-500 text-center py-4">No items in this purchase batch.</div>
+					</div>
+				</div>
+				
+					<div class="rounded-xl border border-gray-200 p-4 space-y-3">
+					<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+						<div class="space-y-1">
+							<label class="text-sm font-medium text-gray-700">Select Item</label>
+							<select id="deliveryItemSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+								<option value="">Choose ingredient</option>
+								<!-- Options will be populated dynamically -->
+							</select>
+						</div>
+						<div class="space-y-1">
+							<label class="text-sm font-medium text-gray-700">Quantity</label>
+							<input type="number" step="0.01" min="0" id="deliveryQuantityInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="0.00" readonly>
+						</div>
+						<div class="space-y-1">
+							<label class="text-sm font-medium text-gray-700">Unit</label>
+							<input type="text" id="deliveryUnitInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="Unit" readonly>
+							<select id="deliveryUnitSelect" class="hidden w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+								<option value="">Select unit</option>
+							</select>
+							<p id="deliveryUnitHelp" class="hidden text-xs text-gray-500 mt-1"></p>
+						</div>
+						<div class="space-y-1">
+							<label class="text-sm font-medium text-gray-700">Supplier</label>
+							<input type="text" id="deliverySupplierInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="Supplier" readonly>
+						</div>
+						<div class="flex items-end">
+							<button type="button" id="deliveryAddItemBtn" class="w-full inline-flex items-center justify-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
+								<i data-lucide="plus" class="w-4 h-4"></i>
+								Add to Delivery
+							</button>
+						</div>
+					</div>
+					<div id="deliveryBuilderError" class="hidden px-4 py-2 rounded-lg border border-red-200 bg-red-50 text-sm text-red-700"></div>
+				</div>
+				
+				<div class="rounded-xl border border-gray-200 overflow-hidden">
+					<table class="w-full text-sm">
+						<thead class="bg-gray-50">
+							<tr>
+								<th class="text-left px-4 py-2">Item</th>
+								<th class="text-left px-4 py-2">Quantity</th>
+								<th class="text-left px-4 py-2">Unit</th>
+								<th class="text-left px-4 py-2">Supplier</th>
+								<th class="text-left px-4 py-2 w-20">Actions</th>
+							</tr>
+						</thead>
+						<tbody id="deliveryItemsBody" class="divide-y divide-gray-200"></tbody>
+					</table>
+					<div id="deliveryEmptyState" class="px-4 py-6 text-center text-sm text-gray-500">No items added yet. Select ingredients from the inventory above.</div>
+				</div>
+				
+				<div class="flex flex-col sm:flex-row sm:justify-end gap-3">
+					<button type="button" class="deliveryModalClose inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+						Cancel
+					</button>
+					<button type="submit" id="deliverySubmitBtn" class="inline-flex items-center justify-center gap-2 bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+						<i data-lucide="package-check" class="w-4 h-4"></i>
+						Record Delivery
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
 <?php if (!empty($awaitingPurchases)): ?>
-<div id="awaiting-deliveries" class="bg-white rounded-xl shadow-sm border-2 border-gray-200/80 overflow-hidden mb-6 sm:mb-8">
-    <div class="bg-gradient-to-r from-[#008000]/10 via-[#00A86B]/5 to-[#008000]/10 px-4 sm:px-6 py-4 border-b border-gray-200/60 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-[#008000]/20 rounded-xl flex items-center justify-center border border-[#008000]/30">
-                <i data-lucide="truck" class="w-5 h-5 text-[#008000]"></i>
-            </div>
-            <div>
-                <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Awaiting Deliveries</h2>
-                <p class="text-xs sm:text-sm text-gray-600 mt-0.5">Open purchase batches that still need to be delivered</p>
-            </div>
+
+<div id="awaiting-deliveries" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6 md:mb-8">
+    <div class="bg-gradient-to-r from-orange-50 to-amber-50 px-4 sm:px-6 py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+        <div>
+            <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <i data-lucide="truck" class="w-5 h-5 text-orange-600"></i>
+                Awaiting Deliveries
+            </h2>
+            <p class="text-sm text-gray-600 mt-1">Open purchase batches that still need to be delivered</p>
+
         </div>
         <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold bg-amber-50 text-amber-700 border-2 border-amber-200">
             <i data-lucide="alert-triangle" class="w-4 h-4"></i>
@@ -187,26 +311,51 @@ foreach ($deliveries as $d) {
         </span>
     </div>
     <div class="overflow-x-auto">
-        <table class="w-full text-sm min-w-[720px]">
-            <thead class="bg-gray-50">
+        <table class="w-full text-[10px] md:text-xs lg:text-sm" style="min-width: 100%;">
+            <thead class="sticky top-0 bg-white z-10">
                 <tr>
-                    <th class="text-left px-6 py-3 text-gray-700 font-medium">Purchase</th>
-                    <th class="text-left px-6 py-3 text-gray-700 font-medium">Supplier</th>
-                    <th class="text-left px-6 py-3 text-gray-700 font-medium">Item</th>
-                    <th class="text-left px-6 py-3 text-gray-700 font-medium">Ordered</th>
-                    <th class="text-left px-6 py-3 text-gray-700 font-medium">Delivered</th>
-                    <th class="text-left px-6 py-3 text-gray-700 font-medium">Remaining</th>
-                    <th class="text-left px-6 py-3 text-gray-700 font-medium">Action</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Purchase</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Supplier</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Item</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Ordered</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Delivered</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Remaining</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Action</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
                     <?php foreach ($awaitingPurchases as $pending): 
-                    $remaining = max(0, (float)$pending['quantity'] - (float)$pending['delivered_quantity']);
+                    // Calculate remaining in base units (for internal calculations)
+                    $remainingBase = max(0, (float)$pending['quantity'] - (float)$pending['delivered_quantity']);
+                    
+                    // Use purchase_unit and purchase_quantity for display if available
+                    $purchaseUnit = trim((string)($pending['purchase_unit'] ?? ''));
+                    $purchaseQty = (float)($pending['purchase_quantity'] ?? 0);
+                    $purchasedQty = (float)$pending['quantity'];
+                    
+                    // Calculate remaining in purchase unit
+                    if ($purchaseUnit !== '' && $purchaseQty > 0 && $purchasedQty > 0) {
+                        // Calculate conversion factor: purchase_quantity (in purchase_unit) = quantity (in base unit)
+                        $conversionFactor = $purchasedQty / $purchaseQty;
+                        $remainingDisplay = $remainingBase / $conversionFactor;
+                        $displayUnit = $purchaseUnit;
+                        $orderedDisplay = $purchaseQty;
+                        $deliveredDisplay = ($pending['delivered_quantity'] ?? 0) / $conversionFactor;
+                    } else {
+                        // Fallback to base unit
+                        $remainingDisplay = $remainingBase;
+                        $displayUnit = $pending['unit'];
+                        $orderedDisplay = $purchasedQty;
+                        $deliveredDisplay = (float)($pending['delivered_quantity'] ?? 0);
+                    }
+                    
                     $batchTs = substr((string)($pending['date_purchased'] ?? ''),0,19);
                     $batchId = substr(sha1(($pending['purchaser_id']??'').'|'.($pending['supplier']??'').'|'.($pending['payment_status']??'').'|'.($pending['receipt_url']??'').'|'.$batchTs),0,10);
                 ?>
-                <tr class="hover:bg-[#008000]/5 transition-colors">
-                    <td class="px-6 py-4">
+
+                <tr class="hover:bg-orange-50 transition-colors">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
+
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
                                 <span class="text-xs font-semibold text-purple-700">#<?php echo htmlspecialchars($batchId); ?></span>
@@ -217,25 +366,27 @@ foreach ($deliveries as $d) {
                             </div>
                         </div>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-100 text-gray-700 text-xs font-medium">
                             <i data-lucide="factory" class="w-3 h-3"></i>
                             <?php echo htmlspecialchars($pending['supplier']); ?>
                         </span>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <div class="font-medium text-gray-900"><?php echo htmlspecialchars($pending['item_name']); ?></div>
-                        <div class="text-xs text-gray-500">Unit: <?php echo htmlspecialchars($pending['unit']); ?></div>
+                        <div class="text-xs text-gray-500">Unit: <?php echo htmlspecialchars($displayUnit); ?></div>
                     </td>
-                    <td class="px-6 py-4"><?php echo number_format((float)$pending['quantity'], 2); ?> <?php echo htmlspecialchars($pending['unit']); ?></td>
-                    <td class="px-6 py-4 text-gray-600"><?php echo number_format((float)$pending['delivered_quantity'], 2); ?> <?php echo htmlspecialchars($pending['unit']); ?></td>
-                    <td class="px-6 py-4">
-                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border-2 border-amber-200">
+
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm"><?php echo number_format($orderedDisplay, 2); ?> <?php echo htmlspecialchars($displayUnit); ?></td>
+                    <td class="px-6 py-4 text-gray-600"><?php echo number_format($deliveredDisplay, 2); ?> <?php echo htmlspecialchars($displayUnit); ?></td>
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800 border border-orange-200">
+
                             <i data-lucide="alert-triangle" class="w-3 h-3"></i>
-                            <?php echo number_format($remaining, 2); ?> <?php echo htmlspecialchars($pending['unit']); ?>
+                            <?php echo number_format($remainingDisplay, 2); ?> <?php echo htmlspecialchars($displayUnit); ?>
                         </span>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <button
                             type="button"
                             class="inline-flex items-center gap-1 px-3 py-2 bg-gradient-to-b from-[#00A86B] to-[#008000] text-white text-sm rounded-xl shadow-md hover:opacity-90 hover:shadow-lg focus:ring-2 focus:ring-[#008000] focus:ring-offset-2 transition-all font-semibold"
@@ -247,10 +398,16 @@ foreach ($deliveries as $d) {
                             data-date="<?php echo htmlspecialchars($pending['date_purchased']); ?>"
                             data-item="<?php echo htmlspecialchars($pending['item_name']); ?>"
                             data-unit="<?php echo htmlspecialchars($pending['unit']); ?>"
+                            data-purchase-unit="<?php echo htmlspecialchars($displayUnit); ?>"
+                            data-purchase-quantity="<?php echo htmlspecialchars((string)$purchaseQty); ?>"
                             data-display-unit="<?php echo htmlspecialchars($pending['display_unit'] ?? ''); ?>"
                             data-display-factor="<?php echo htmlspecialchars((string)($pending['display_factor'] ?? '')); ?>"
                             data-ordered="<?php echo htmlspecialchars((string)$pending['quantity']); ?>"
+                            data-ordered-display="<?php echo htmlspecialchars((string)$orderedDisplay); ?>"
                             data-delivered="<?php echo htmlspecialchars((string)$pending['delivered_quantity']); ?>"
+                            data-delivered-display="<?php echo htmlspecialchars((string)$deliveredDisplay); ?>"
+                            data-remaining-base="<?php echo htmlspecialchars((string)$remainingBase); ?>"
+                            data-remaining-display="<?php echo htmlspecialchars((string)$remainingDisplay); ?>"
                         >
                             <i data-lucide="clipboard-check" class="w-3 h-3"></i>
                             Receive now
@@ -372,22 +529,22 @@ foreach ($deliveries as $d) {
 		</div>
 	</div>
 	
-	<div class="overflow-x-auto">
-		<table class="w-full text-sm min-w-[700px]">
-			<thead class="bg-gray-50">
+	<div class="overflow-x-auto overflow-y-auto max-h-[500px] md:max-h-[600px]">
+		<table class="w-full text-[10px] md:text-xs lg:text-sm" style="min-width: 100%;">
+			<thead class="sticky top-0 bg-white z-10">
                 <tr>
-                    <th class="text-left px-6 py-3 font-medium text-gray-700">Delivery ID</th>
-                    <th class="text-left px-6 py-3 font-medium text-gray-700">Batch</th>
-                    <th class="text-left px-6 py-3 font-medium text-gray-700">Item</th>
-                    <th class="text-left px-6 py-3 font-medium text-gray-700">Quantity Received</th>
-                    <th class="text-left px-6 py-3 font-medium text-gray-700">Status</th>
-                    <th class="text-left px-6 py-3 font-medium text-gray-700">Date Received</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Delivery ID</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Batch</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Item</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Quantity Received</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Status</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Date Received</th>
                 </tr>
 			</thead>
 			<tbody class="divide-y divide-gray-200">
 				<?php foreach ($deliveries as $d): ?>
 				<tr class="hover:bg-gray-50 transition-colors" data-delivery-status="<?php echo strtolower($d['delivery_status']); ?>">
-					<td class="px-6 py-4">
+					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
 						<div class="flex items-center gap-2">
 							<div class="w-8 h-8 bg-[#008000]/10 rounded-xl flex items-center justify-center border border-[#008000]/20">
 								<span class="text-xs font-semibold text-[#008000]">#<?php echo (int)$d['id']; ?></span>
@@ -395,7 +552,7 @@ foreach ($deliveries as $d) {
 						</div>
 					</td>
 					
-                    <td class="px-6 py-4">
+                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
                                 <?php $ts = substr((string)($d['date_purchased'] ?? ''),0,19); $batchId = substr(sha1(($d['purchaser_id']??'').'|'.($d['supplier']??'').'|'.($d['payment_status']??'').'|'.($d['receipt_url']??'').'|'.$ts),0,10); ?>
@@ -417,9 +574,20 @@ foreach ($deliveries as $d) {
 					</td>
 					
 					<td class="px-6 py-4">
+						<?php
+						// Display quantity_received in the ingredient's base unit
+						// quantity_received is stored in base units, so display it as-is
+						$qtyReceived = (float)$d['quantity_received'];
+						$baseUnit = $d['unit']; // This is the ingredient's base unit
+						
+						// Show in base unit (the unit that was actually used when recording delivery)
+						// If user entered 50000 g, it's stored as 50000 g in base units, so show as 50000.00 g
+						$qtyDisplay = $qtyReceived;
+						$unitDisplay = $baseUnit;
+						?>
 						<div class="flex items-center gap-2">
-							<span class="font-semibold text-gray-900"><?php echo number_format((float)$d['quantity_received'], 2); ?></span>
-							<span class="text-gray-500 text-sm"><?php echo htmlspecialchars($d['unit']); ?></span>
+							<span class="font-semibold text-gray-900"><?php echo number_format($qtyDisplay, 2); ?></span>
+							<span class="text-gray-500 text-sm"><?php echo htmlspecialchars($unitDisplay); ?></span>
 						</div>
 					</td>
 					
@@ -455,7 +623,9 @@ foreach ($deliveries as $d) {
 			<i data-lucide="truck" class="w-16 h-16 mb-4 text-gray-300"></i>
 			<h3 class="text-lg font-medium text-gray-900 mb-2">No Deliveries Found</h3>
 			<p class="text-sm text-gray-600 mb-4">Start by recording your first delivery</p>
-			<button onclick="document.querySelector('form').scrollIntoView({behavior: 'smooth'})" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-b from-[#00A86B] to-[#008000] text-white rounded-xl shadow-md hover:opacity-90 hover:shadow-lg transition-all font-semibold">
+
+			<button onclick="document.querySelector('form').scrollIntoView({behavior: 'smooth'})" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+
 				<i data-lucide="plus" class="w-4 h-4"></i>
 				Record First Delivery
 			</button>
@@ -465,7 +635,24 @@ foreach ($deliveries as $d) {
 </div>
 
 <script>
+
 (function(){
+  // Ingredients lookup from inventory
+  const INGREDIENTS = <?php echo json_encode(array_map(function($ing) {
+    return [
+      'id' => (int)$ing['id'],
+      'name' => $ing['name'],
+      'unit' => $ing['unit'] ?? '',
+      'display_unit' => $ing['display_unit'] ?? '',
+      'display_factor' => (float)($ing['display_factor'] ?? 1),
+    ];
+  }, ($ingredients ?? [])), JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
+  
+  const INGREDIENT_LOOKUP = {};
+  INGREDIENTS.forEach(ing => {
+    INGREDIENT_LOOKUP[ing.id] = ing;
+  });
+  
   const GROUPS = <?php echo json_encode(array_map(function($g) use ($deliveredTotals) {
     $deliveredLookup = [];
     foreach (($g['items'] ?? []) as $p) {
@@ -479,15 +666,46 @@ foreach ($deliveries as $d) {
       'items' => array_values(array_filter(array_map(function($p) use ($deliveredLookup){
         $del = (float)($deliveredLookup[(int)$p['id']] ?? 0);
         $remaining = (float)$p['quantity'] - $del;
-        if ($remaining <= 0) { return null; }
+        // Use a small epsilon to account for floating point precision
+        if ($remaining <= 0.0001) { return null; }
+        // Use purchase_unit and purchase_quantity for display if available
+        $purchaseUnit = trim((string)($p['purchase_unit'] ?? ''));
+        $purchaseQty = (float)($p['purchase_quantity'] ?? 0);
+        $purchasedQty = (float)$p['quantity'];
+        
+        // Calculate display values
+        if ($purchaseUnit !== '' && $purchaseQty > 0 && $purchasedQty > 0) {
+          $conversionFactor = $purchasedQty / $purchaseQty;
+          if ($conversionFactor > 0 && is_finite($conversionFactor)) {
+            $remainingDisplay = $remaining / $conversionFactor;
+            $deliveredDisplay = $del / $conversionFactor;
+            $displayUnit = $purchaseUnit;
+          } else {
+            // Fallback if conversion factor is invalid
+            $remainingDisplay = $remaining;
+            $deliveredDisplay = $del;
+            $displayUnit = $p['unit'];
+          }
+        } else {
+          $remainingDisplay = $remaining;
+          $deliveredDisplay = $del;
+          $displayUnit = $p['unit'];
+        }
+        
         return [
           'purchase_id' => (int)$p['id'],
+          'item_id' => (int)($p['item_id'] ?? 0),
           'item_name' => $p['item_name'],
           'unit' => $p['unit'],
+          'purchase_unit' => $displayUnit,
+          'purchase_quantity' => $purchaseQty,
           'display_unit' => $p['display_unit'],
           'display_factor' => (float)$p['display_factor'],
           'quantity' => (float)$p['quantity'],
+          'quantity_display' => $purchaseQty > 0 ? $purchaseQty : (float)$p['quantity'],
           'delivered' => $del,
+          'delivered_display' => $deliveredDisplay,
+          'remaining_display' => $remainingDisplay,
         ];
       }, $g['items'] ?? [])))
     ];
@@ -627,11 +845,13 @@ foreach ($deliveries as $d) {
   }
 
   function clampInputToRemaining(input){
+    // Function kept for backward compatibility but no longer actively used
+    // to allow free typing in the Receive Now field
     if (!input) return;
     const remaining = parseFloat(input.dataset.remaining || '0') || 0;
     let value = parseFloat(input.value || '0');
     if (!isFinite(value) || value < 0) value = 0;
-    if (remaining > 0 && value > remaining) value = remaining;
+    // Removed the clamp to remaining - allow values greater than remaining
     input.value = value.toFixed(2);
   }
 
@@ -645,22 +865,49 @@ foreach ($deliveries as $d) {
   }
 
   function render(groupId){
+    if (!tableBody) {
+      return;
+    }
     tableBody.innerHTML='';
     if (batchHighlight){
       batchHighlight.classList.add('hidden');
-      batchMeta.textContent = 'After selecting a batch, set per-item received quantities below.';
+      if (batchMeta) batchMeta.textContent = 'After selecting a batch, set per-item received quantities below.';
+    }
+    if (!groupId || groupId === ''){
+      if (box) box.classList.add('hidden');
+      if (itemsJson) itemsJson.value='[]';
+      return;
     }
     const g = GROUPS.find(x=>x.group_id===groupId);
-    if (!g){ box.classList.add('hidden'); itemsJson.value='[]'; return; }
+    if (!g){ 
+      if (box) box.classList.add('hidden'); 
+      if (itemsJson) itemsJson.value='[]'; 
+      return; 
+    }
+    if (!g.items || !Array.isArray(g.items) || g.items.length === 0){ 
+      if (box) box.classList.add('hidden'); 
+      if (itemsJson) itemsJson.value='[]'; 
+      if (batchHighlight) {
+        batchHighlight.classList.remove('hidden');
+        if (batchMeta) batchMeta.textContent = 'No items available for delivery in this batch.';
+      }
+      return; 
+    }
     if (batchHighlight && g){
-      batchMetaSupplier.textContent = `Supplier: ${g.supplier ?? ''}`;
-      batchMetaPurchaser.textContent = `Purchaser: ${g.purchaser_name ?? ''}`;
-      batchMetaDate.textContent = `Ordered: ${g.date_purchased ?? ''}`;
-      batchMeta.textContent = 'Review batch details below and record received quantities.';
+      if (batchMetaSupplier) batchMetaSupplier.textContent = `Supplier: ${g.supplier ?? ''}`;
+      if (batchMetaPurchaser) batchMetaPurchaser.textContent = `Purchaser: ${g.purchaser_name ?? ''}`;
+      if (batchMetaDate) batchMetaDate.textContent = `Ordered: ${g.date_purchased ?? ''}`;
+      if (batchMeta) batchMeta.textContent = 'Review batch details below and record received quantities.';
       batchHighlight.classList.remove('hidden');
     }
+    if (box) {
+      box.classList.remove('hidden');
+    }
     for (const it of g.items){
-      const remaining = Math.max(0, (it.quantity - it.delivered));
+      // Use purchase_unit and purchase_quantity for display if available
+      const remainingBase = Math.max(0, (it.quantity - it.delivered));
+      const remainingDisplay = it.remaining_display !== undefined ? it.remaining_display : remainingBase;
+      const displayUnit = it.purchase_unit || it.unit;
       const tr = document.createElement('tr');
 
       const itemTd = document.createElement('td');
@@ -670,7 +917,7 @@ foreach ($deliveries as $d) {
 
       const remainingTd = document.createElement('td');
       remainingTd.className = 'px-4 py-2 text-gray-600';
-      remainingTd.textContent = `${remaining.toFixed(2)} ${it.unit}`;
+      remainingTd.textContent = `${remainingDisplay.toFixed(2)} ${displayUnit}`;
       tr.appendChild(remainingTd);
 
       const qtyTd = document.createElement('td');
@@ -679,22 +926,24 @@ foreach ($deliveries as $d) {
       qtyInput.type = 'number';
       qtyInput.step = '0.01';
       qtyInput.min = '0';
-      if (remaining > 0){ qtyInput.max = remaining.toFixed(2); }
+      // Remove max constraint to allow free typing
       qtyInput.name = 'row_qty[]';
-      qtyInput.value = remaining.toFixed(2);
-      qtyInput.dataset.remaining = remaining.toFixed(6);
+      qtyInput.value = remainingDisplay.toFixed(2);
+      qtyInput.dataset.remaining = remainingBase.toFixed(6); // Store base for calculations
+      qtyInput.dataset.remainingDisplay = remainingDisplay.toFixed(6); // Store display for UI
+      qtyInput.dataset.displayUnit = displayUnit;
       qtyInput.className = 'w-32 border rounded px-3 py-2';
-      if (remaining <= 0){
+      if (remainingBase <= 0.0001){
         qtyInput.readOnly = true;
         qtyInput.classList.add('bg-gray-100','text-gray-500','cursor-not-allowed');
       }
       qtyInput.addEventListener('input', ()=>{
-        clampInputToRemaining(qtyInput);
+        // Allow free typing - only update status preview and sync
         updateStatusPreview(qtyInput);
         sync();
       });
       qtyInput.addEventListener('blur', ()=>{
-        clampInputToRemaining(qtyInput);
+        // On blur, optionally clamp to remaining if desired, but allow free typing
         updateStatusPreview(qtyInput);
         sync();
       });
@@ -703,7 +952,15 @@ foreach ($deliveries as $d) {
 
       const unitTd = document.createElement('td');
       unitTd.className = 'px-4 py-2';
+      // Use purchase_unit as default, fallback to ingredient unit
+      const defaultUnit = displayUnit || it.unit;
       const unitSel = buildUnitOptions(it.unit, it.display_unit);
+      // Set the selected unit to purchase_unit if available
+      if (displayUnit && unitSel.querySelector(`option[value="${displayUnit}"]`)) {
+        unitSel.value = displayUnit;
+      } else if (defaultUnit && unitSel.querySelector(`option[value="${defaultUnit}"]`)) {
+        unitSel.value = defaultUnit;
+      }
       unitSel.addEventListener('change', sync);
       unitTd.appendChild(unitSel);
       tr.appendChild(unitTd);
@@ -718,7 +975,6 @@ foreach ($deliveries as $d) {
       tableBody.appendChild(tr);
       updateStatusPreview(qtyInput);
     }
-    box.classList.remove('hidden');
     sync();
   }
 
@@ -805,7 +1061,691 @@ foreach ($deliveries as $d) {
     deliveriesForm.submit();
   });
 
-  sel.addEventListener('change', ()=>{ render(sel.value); });
+  // Initialize delivery modal
+  const deliveryModal = document.getElementById('deliveryModal');
+  const deliveryModalClose = deliveryModal?.querySelector('.deliveryModalClose');
+  const deliveryModalForm = document.getElementById('deliveryModalForm');
+  const deliveryItemSelect = document.getElementById('deliveryItemSelect');
+  const deliveryQuantityInput = document.getElementById('deliveryQuantityInput');
+  const deliveryUnitInput = document.getElementById('deliveryUnitInput');
+  const deliveryUnitSelect = document.getElementById('deliveryUnitSelect');
+  const deliveryUnitHelp = document.getElementById('deliveryUnitHelp');
+  const deliverySupplierInput = document.getElementById('deliverySupplierInput');
+  const deliveryAddItemBtn = document.getElementById('deliveryAddItemBtn');
+  const deliveryItemsBody = document.getElementById('deliveryItemsBody');
+  const deliveryEmptyState = document.getElementById('deliveryEmptyState');
+  const deliveryModalItemsJson = document.getElementById('deliveryModalItemsJson');
+  const deliverySubmitBtn = document.getElementById('deliverySubmitBtn');
+  const deliveryBuilderError = document.getElementById('deliveryBuilderError');
+  let deliveryItems = [];
+  let currentDeliveryGroup = null;
+  let lastSelectedUnit = ''; // Track last selected unit for conversion calculations
+
+  function openDeliveryModal(groupId){
+    if (!deliveryModal) {
+      alert('Error: Delivery modal not found. Please refresh the page.');
+      return;
+    }
+    const g = GROUPS.find(x=>x.group_id===groupId);
+    if (!g) {
+      alert('Error: Purchase batch not found. Please refresh the page.');
+      return;
+    }
+    
+    // Allow opening modal even if batch has no items or all items are fully delivered
+    // This enables restocking any ingredient from inventory
+    if (!g.items) {
+      g.items = [];
+    }
+    
+    currentDeliveryGroup = g;
+    deliveryItems = [];
+    
+    // Set modal header info
+    const batchLabelEl = document.getElementById('deliveryModalBatchLabel');
+    const supplierEl = document.getElementById('deliveryModalSupplier');
+    const purchaserEl = document.getElementById('deliveryModalPurchaser');
+    const dateEl = document.getElementById('deliveryModalDate');
+    
+    if (batchLabelEl) batchLabelEl.textContent = '#' + g.group_id;
+    if (supplierEl) supplierEl.textContent = g.supplier || '—';
+    if (purchaserEl) purchaserEl.textContent = g.purchaser_name || '—';
+    if (dateEl) dateEl.textContent = g.date_purchased || '—';
+    
+    // Display purchase items as a note
+    const purchaseItemsList = document.getElementById('deliveryPurchaseItemsList');
+    const purchaseItemsEmpty = document.getElementById('deliveryPurchaseItemsEmpty');
+    
+    if (purchaseItemsList && purchaseItemsEmpty) {
+      purchaseItemsList.innerHTML = '';
+      
+      if (g.items && Array.isArray(g.items) && g.items.length > 0) {
+        purchaseItemsEmpty.classList.add('hidden');
+        
+        g.items.forEach((item) => {
+          const orderedQty = parseFloat(item.purchase_quantity || item.quantity || 0);
+          
+          // Extract item name and unit from purchase_unit
+          let itemName = item.item_name || 'Unknown Item';
+          let displayUnit = item.purchase_unit || item.unit || 'pcs';
+          
+          // Check if purchase_unit contains item name in format "itemName|unit"
+          if (item.purchase_unit && item.purchase_unit.indexOf('|') !== -1) {
+            const parts = item.purchase_unit.split('|');
+            if (parts.length >= 2) {
+              itemName = parts[0].trim();
+              displayUnit = parts[1].trim();
+            }
+          }
+          
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-gray-50';
+          tr.innerHTML = `
+            <td class="px-3 py-2 font-medium text-gray-900">${escapeHtml(itemName)}</td>
+            <td class="px-3 py-2 text-gray-700">${orderedQty.toFixed(2)}</td>
+            <td class="px-3 py-2 text-gray-700">${escapeHtml(displayUnit)}</td>
+          `;
+          purchaseItemsList.appendChild(tr);
+        });
+      } else {
+        purchaseItemsEmpty.classList.remove('hidden');
+      }
+    }
+    
+    // Populate item select dropdown with ALL ingredients from inventory
+    if (!deliveryItemSelect) {
+      alert('Error: Delivery form elements not found. Please refresh the page.');
+      return;
+    }
+    deliveryItemSelect.innerHTML = '<option value="">Choose ingredient</option>';
+    
+    // Create a map of ingredient IDs to purchase items in this batch for linking
+    const purchaseItemsByIngredient = {};
+    if (g.items && Array.isArray(g.items)) {
+      g.items.forEach((item, idx) => {
+      const remainingBase = Math.max(0, (item.quantity - item.delivered));
+      if (remainingBase <= 0.0001) return; // Skip fully delivered items
+      
+      const ingredientId = item.item_id || null;
+      if (!ingredientId) return;
+      
+      if (!purchaseItemsByIngredient[ingredientId]) {
+        purchaseItemsByIngredient[ingredientId] = [];
+      }
+      
+      const remainingDisplay = item.remaining_display !== undefined ? item.remaining_display : remainingBase;
+      const displayUnit = item.purchase_unit || item.unit;
+      
+      purchaseItemsByIngredient[ingredientId].push({
+        index: idx,
+        purchaseId: item.purchase_id,
+        itemName: item.item_name,
+        quantity: remainingDisplay,
+        quantityBase: remainingBase,
+        unit: displayUnit,
+        baseUnit: item.unit,
+        supplier: g.supplier || ''
+      });
+      });
+    }
+    
+    // Add ALL ingredients from inventory (not just those matching purchase items)
+    if (typeof INGREDIENTS !== 'undefined' && Array.isArray(INGREDIENTS)) {
+      INGREDIENTS.forEach(ing => {
+      const opt = document.createElement('option');
+      opt.value = ing.id; // Use ingredient ID as value
+      
+      // Display ingredient name with its unit
+      const unitLabel = ing.display_unit || ing.unit || 'unit';
+      opt.textContent = `${ing.name} (${unitLabel})`;
+      
+      opt.dataset.ingredientId = ing.id;
+      opt.dataset.itemName = ing.name;
+      opt.dataset.baseUnit = ing.unit || '';
+      opt.dataset.displayUnit = ing.display_unit || '';
+      opt.dataset.displayFactor = ing.display_factor || 1;
+      opt.dataset.supplier = g.supplier || '';
+      
+      // Store matching purchase items for this ingredient (if any)
+      const matchingPurchases = purchaseItemsByIngredient[ing.id] || [];
+      if (matchingPurchases.length > 0) {
+        // Use the first matching purchase item
+        const purchaseItem = matchingPurchases[0];
+        opt.dataset.purchaseId = purchaseItem.purchaseId;
+        opt.dataset.purchaseIndex = purchaseItem.index;
+        opt.dataset.quantity = purchaseItem.quantity;
+        opt.dataset.quantityBase = purchaseItem.quantityBase;
+      } else {
+        // No matching purchase, but still allow selection
+        opt.dataset.purchaseId = '';
+        opt.dataset.purchaseIndex = '';
+      }
+      
+      deliveryItemSelect.appendChild(opt);
+      });
+    }
+    
+    renderDeliveryItems();
+    
+    // Show the modal - ensure it's visible
+    deliveryModal.classList.remove('hidden');
+    deliveryModal.classList.add('flex');
+    deliveryModal.style.display = 'flex'; // Force display
+    deliveryModal.style.zIndex = '50'; // Ensure z-index
+    document.body.classList.add('overflow-hidden');
+    
+    // Initialize lucide icons
+    if (typeof lucide !== 'undefined') {
+      setTimeout(() => lucide.createIcons(), 100);
+    }
+  }
+
+  function closeDeliveryModal(){
+    if (!deliveryModal) return;
+    deliveryModal.classList.add('hidden');
+    deliveryModal.classList.remove('flex');
+    deliveryModal.style.display = 'none'; // Force hide
+    document.body.classList.remove('overflow-hidden');
+    deliveryItems = [];
+    currentDeliveryGroup = null;
+    renderDeliveryItems();
+    deliveryItemSelect.value = '';
+    deliveryQuantityInput.value = '';
+    deliveryUnitInput.value = '';
+    if (deliveryUnitSelect) {
+      deliveryUnitSelect.value = '';
+      deliveryUnitSelect.classList.add('hidden');
+    }
+    deliveryUnitInput.classList.remove('hidden');
+    deliverySupplierInput.value = '';
+    deliveryQuantityInput.readOnly = true;
+    deliveryUnitInput.readOnly = true;
+    if (deliveryUnitSelect) deliveryUnitSelect.disabled = true;
+    deliverySupplierInput.readOnly = true;
+    if (deliveryBuilderError) deliveryBuilderError.classList.add('hidden');
+  }
+
+  function showDeliveryError(message){
+    if (!deliveryBuilderError) return;
+    deliveryBuilderError.textContent = message;
+    deliveryBuilderError.classList.remove('hidden');
+  }
+
+  function clearDeliveryError(){
+    if (!deliveryBuilderError) return;
+    deliveryBuilderError.textContent = '';
+    deliveryBuilderError.classList.add('hidden');
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function renderDeliveryItems(){
+    if (!deliveryItemsBody || !deliveryEmptyState) return;
+    deliveryItemsBody.innerHTML = '';
+    if (!deliveryItems.length){
+      deliveryEmptyState.classList.remove('hidden');
+      if (deliverySubmitBtn) deliverySubmitBtn.disabled = true;
+      return;
+    }
+    deliveryEmptyState.classList.add('hidden');
+    if (deliverySubmitBtn) deliverySubmitBtn.disabled = false;
+    
+    deliveryItems.forEach((item, index) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="px-4 py-2">
+          <div class="flex items-center gap-2">
+            <i data-lucide="package" class="w-4 h-4 text-gray-400"></i>
+            <div>
+              <p class="font-medium text-gray-900">${item.itemName}</p>
+            </div>
+          </div>
+        </td>
+        <td class="px-4 py-2 font-semibold text-gray-900">${Number(item.quantity).toFixed(2)}</td>
+        <td class="px-4 py-2 text-gray-600">${item.unit}</td>
+        <td class="px-4 py-2 text-gray-600">${item.supplier}</td>
+        <td class="px-4 py-2">
+          <button type="button" class="inline-flex items-center gap-1 text-red-600 hover:text-red-700 removeDeliveryItem" data-index="${index}">
+            <i data-lucide="trash-2" class="w-3 h-3"></i>Remove
+          </button>
+        </td>
+      `;
+      deliveryItemsBody.appendChild(tr);
+    });
+    
+    // Initialize lucide icons after rendering
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+    
+    // Update hidden JSON input
+    const jsonData = deliveryItems.map(item => ({
+      purchase_id: item.purchaseId,
+      ingredient_id: item.ingredientId,
+      quantity: item.quantity,
+      unit: item.unit,
+      supplier: item.supplier
+    }));
+    if (deliveryModalItemsJson) deliveryModalItemsJson.value = JSON.stringify(jsonData);
+  }
+
+  // Handle item selection
+  if (deliveryItemSelect) {
+    deliveryItemSelect.addEventListener('change', ()=>{
+      const selectedOpt = deliveryItemSelect.options[deliveryItemSelect.selectedIndex];
+      if (!selectedOpt || !selectedOpt.value) {
+        deliveryQuantityInput.value = '';
+        deliveryUnitInput.value = '';
+        if (deliveryUnitSelect) {
+          deliveryUnitSelect.value = '';
+          deliveryUnitSelect.classList.add('hidden');
+        }
+        deliveryUnitInput.classList.remove('hidden');
+        if (deliveryUnitHelp) {
+          deliveryUnitHelp.classList.add('hidden');
+          deliveryUnitHelp.textContent = '';
+        }
+        deliverySupplierInput.value = '';
+        deliveryQuantityInput.readOnly = true;
+        deliveryUnitInput.readOnly = true;
+        if (deliveryUnitSelect) deliveryUnitSelect.disabled = true;
+        deliverySupplierInput.readOnly = true;
+        lastSelectedUnit = '';
+        return;
+      }
+      
+      const ingredientId_ = parseInt(selectedOpt.value, 10);
+      const ingredient = INGREDIENT_LOOKUP[ingredientId_];
+      
+      if (!ingredient) {
+        clearDeliveryError();
+        return;
+      }
+      
+      // Enhanced unit selection: support g/kg, ml/L, and custom display_unit
+      const baseUnit = ingredient.unit || '';
+      const displayUnit = ingredient.display_unit || '';
+      const displayFactor = parseFloat(ingredient.display_factor || 1);
+      
+      // Check if we should show a dropdown for standard conversions or custom display_unit
+      let shouldShowDropdown = false;
+      let dropdownOptions = [];
+      let defaultUnit = baseUnit;
+      
+      // Standard conversions: g/kg
+      if (baseUnit === 'g') {
+        shouldShowDropdown = true;
+        dropdownOptions = [
+          { value: 'g', label: 'g (grams)' },
+          { value: 'kg', label: 'kg (kilograms)' }
+        ];
+        defaultUnit = 'g';
+        lastSelectedUnit = 'g';
+      }
+      // Standard conversions: ml/L
+      else if (baseUnit === 'ml') {
+        shouldShowDropdown = true;
+        dropdownOptions = [
+          { value: 'ml', label: 'ml (milliliters)' },
+          { value: 'L', label: 'L (liters)' }
+        ];
+        defaultUnit = 'ml';
+        lastSelectedUnit = 'ml';
+      }
+      // Custom display_unit with conversion factor
+      else if (displayUnit && displayUnit !== baseUnit && displayFactor > 0 && displayFactor !== 1) {
+        shouldShowDropdown = true;
+        dropdownOptions = [
+          { value: baseUnit, label: `${baseUnit} (base unit)` },
+          { value: displayUnit, label: `${displayUnit} (${displayFactor}x)` }
+        ];
+        defaultUnit = displayUnit; // Default to display unit for better UX
+        lastSelectedUnit = displayUnit;
+      }
+      
+      if (shouldShowDropdown && dropdownOptions.length > 0) {
+        // Show dropdown
+        if (deliveryUnitInput) deliveryUnitInput.classList.add('hidden');
+        if (deliveryUnitSelect) {
+          deliveryUnitSelect.classList.remove('hidden');
+          deliveryUnitSelect.innerHTML = '<option value="">Select unit</option>' + 
+            dropdownOptions.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('');
+          deliveryUnitSelect.disabled = false;
+          deliveryUnitSelect.value = defaultUnit;
+          lastSelectedUnit = defaultUnit;
+        }
+        // Show conversion help text
+        if (deliveryUnitHelp) {
+          let helpText = '';
+          if (baseUnit === 'g') {
+            helpText = '1 kg = 1000 g';
+          } else if (baseUnit === 'ml') {
+            helpText = '1 L = 1000 ml';
+          } else if (displayUnit && displayFactor > 1) {
+            helpText = `1 ${displayUnit} = ${displayFactor} ${baseUnit}`;
+          }
+          if (helpText) {
+            deliveryUnitHelp.textContent = helpText;
+            deliveryUnitHelp.classList.remove('hidden');
+          } else {
+            deliveryUnitHelp.classList.add('hidden');
+          }
+        }
+      } else {
+        // Show regular input for other units
+        if (deliveryUnitInput) deliveryUnitInput.classList.remove('hidden');
+        if (deliveryUnitSelect) deliveryUnitSelect.classList.add('hidden');
+        const unitToShow = displayUnit || baseUnit || '';
+        deliveryUnitInput.value = unitToShow;
+        // Hide help text for manual input
+        if (deliveryUnitHelp) {
+          if (displayUnit && displayUnit !== baseUnit && displayFactor > 1) {
+            deliveryUnitHelp.textContent = `Note: Enter quantity in ${unitToShow}. Conversion: 1 ${displayUnit} = ${displayFactor} ${baseUnit}`;
+            deliveryUnitHelp.classList.remove('hidden');
+          } else {
+            deliveryUnitHelp.classList.add('hidden');
+          }
+        }
+      }
+      
+      // Auto-fill quantity if there's a matching purchase item in this batch
+      const purchaseIndex = selectedOpt.dataset.purchaseIndex;
+      if (purchaseIndex !== undefined && purchaseIndex !== '' && currentDeliveryGroup) {
+        const idx = parseInt(purchaseIndex, 10);
+        const item = currentDeliveryGroup.items[idx];
+        if (item) {
+          const remainingBase = Math.max(0, (item.quantity - item.delivered));
+          let remainingDisplay = item.remaining_display !== undefined ? item.remaining_display : remainingBase;
+          
+          // Convert quantity based on selected unit in dropdown
+          if (deliveryUnitSelect && !deliveryUnitSelect.classList.contains('hidden')) {
+            const selectedUnit = deliveryUnitSelect.value || defaultUnit;
+            
+            // g/kg conversion
+            if (baseUnit === 'g') {
+              if (selectedUnit === 'kg' && remainingDisplay >= 1000) {
+                remainingDisplay = remainingDisplay / 1000; // Convert grams to kg
+              }
+            }
+            // ml/L conversion
+            else if (baseUnit === 'ml') {
+              if (selectedUnit === 'L' && remainingDisplay >= 1000) {
+                remainingDisplay = remainingDisplay / 1000; // Convert ml to L
+              }
+            }
+            // Custom display_unit conversion
+            else if (displayUnit && displayFactor > 0) {
+              if (selectedUnit === displayUnit && remainingDisplay >= displayFactor) {
+                remainingDisplay = remainingDisplay / displayFactor; // Convert to display unit
+              }
+            }
+          }
+          
+          deliveryQuantityInput.value = remainingDisplay.toFixed(2);
+        } else {
+          deliveryQuantityInput.value = '';
+        }
+      } else {
+        deliveryQuantityInput.value = '';
+      }
+      
+      deliverySupplierInput.value = selectedOpt.dataset.supplier || currentDeliveryGroup?.supplier || '';
+      deliveryQuantityInput.readOnly = false;
+      if (deliveryUnitInput && !deliveryUnitInput.classList.contains('hidden')) {
+        deliveryUnitInput.readOnly = false;
+      }
+      if (deliveryUnitSelect && !deliveryUnitSelect.classList.contains('hidden')) {
+        deliveryUnitSelect.disabled = false;
+      }
+      deliverySupplierInput.readOnly = false;
+      clearDeliveryError();
+    });
+  }
+
+  // Handle unit selection change for all conversion types (g/kg, ml/L, custom)
+  if (deliveryUnitSelect) {
+    deliveryUnitSelect.addEventListener('change', ()=>{
+      const selectedOpt = deliveryItemSelect?.options[deliveryItemSelect?.selectedIndex];
+      if (!selectedOpt || !selectedOpt.value) return;
+      
+      const ingredientId_ = parseInt(selectedOpt.value, 10);
+      const ingredient = INGREDIENT_LOOKUP[ingredientId_];
+      if (!ingredient) return;
+      
+      const baseUnit = ingredient.unit || '';
+      const displayUnit = ingredient.display_unit || '';
+      const displayFactor = parseFloat(ingredient.display_factor || 1);
+      const selectedUnit = deliveryUnitSelect.value;
+      const currentQty = parseFloat(deliveryQuantityInput?.value || '0');
+      
+      if (currentQty > 0 && lastSelectedUnit && lastSelectedUnit !== selectedUnit) {
+        let convertedQty = currentQty;
+        
+        // g/kg conversion
+        if (baseUnit === 'g') {
+          if (lastSelectedUnit === 'g' && selectedUnit === 'kg') {
+            convertedQty = currentQty / 1000; // Convert grams to kg
+          } else if (lastSelectedUnit === 'kg' && selectedUnit === 'g') {
+            convertedQty = currentQty * 1000; // Convert kg to grams
+          }
+        }
+        // ml/L conversion
+        else if (baseUnit === 'ml') {
+          if (lastSelectedUnit === 'ml' && selectedUnit === 'L') {
+            convertedQty = currentQty / 1000; // Convert ml to L
+          } else if (lastSelectedUnit === 'L' && selectedUnit === 'ml') {
+            convertedQty = currentQty * 1000; // Convert L to ml
+          }
+        }
+        // Custom display_unit conversion
+        else if (displayUnit && displayFactor > 0) {
+          if (lastSelectedUnit === baseUnit && selectedUnit === displayUnit) {
+            convertedQty = currentQty / displayFactor; // Convert base to display unit
+          } else if (lastSelectedUnit === displayUnit && selectedUnit === baseUnit) {
+            convertedQty = currentQty * displayFactor; // Convert display to base unit
+          }
+        }
+        
+        deliveryQuantityInput.value = convertedQty.toFixed(2);
+      }
+      
+      lastSelectedUnit = selectedUnit;
+    });
+  }
+
+  // Handle add item button
+  if (deliveryAddItemBtn) {
+    deliveryAddItemBtn.addEventListener('click', ()=>{
+      const selectedOpt = deliveryItemSelect?.options[deliveryItemSelect?.selectedIndex];
+      if (!selectedOpt || !selectedOpt.value) {
+        showDeliveryError('Please select an ingredient.');
+        return;
+      }
+      
+      const ingredientId_ = parseInt(selectedOpt.value, 10);
+      const ingredient = INGREDIENT_LOOKUP[ingredientId_];
+      
+      if (!ingredient) {
+        showDeliveryError('Please select a valid ingredient.');
+        return;
+      }
+      
+      let quantity = parseFloat(deliveryQuantityInput?.value || '0');
+      let unit = '';
+      
+      // Get unit from either dropdown (for conversions) or input field
+      const baseUnit = ingredient.unit || '';
+      const displayUnit = ingredient.display_unit || '';
+      const displayFactor = parseFloat(ingredient.display_factor || 1);
+      
+      // Check if dropdown is visible (means we have a conversion scenario)
+      if (deliveryUnitSelect && !deliveryUnitSelect.classList.contains('hidden')) {
+        unit = (deliveryUnitSelect?.value || '').trim();
+        
+        // g/kg conversion
+        if (baseUnit === 'g') {
+          if (unit === 'kg') {
+            quantity = quantity * 1000; // Convert kg to grams
+            unit = 'g'; // Store as grams in base unit
+          } else {
+            unit = 'g'; // Already in grams
+          }
+        }
+        // ml/L conversion
+        else if (baseUnit === 'ml') {
+          if (unit === 'L') {
+            quantity = quantity * 1000; // Convert L to ml
+            unit = 'ml'; // Store as ml in base unit
+          } else {
+            unit = 'ml'; // Already in ml
+          }
+        }
+        // Custom display_unit conversion
+        else if (displayUnit && displayFactor > 0) {
+          if (unit === displayUnit) {
+            quantity = quantity * displayFactor; // Convert display unit to base unit
+            unit = baseUnit; // Store in base unit
+          } else {
+            unit = baseUnit; // Already in base unit
+          }
+        }
+      } else {
+        // Manual input - use as-is (backend will handle conversion if needed)
+        unit = (deliveryUnitInput?.value || '').trim();
+        
+        // Validate unit format (should not be empty and should be reasonable length)
+        if (!unit || unit.length > 32) {
+          showDeliveryError('Please enter a valid unit name (max 32 characters).');
+          return;
+        }
+        
+        // Warn if unit doesn't match expected display_unit (optional warning, not blocking)
+        if (displayUnit && unit !== displayUnit && unit !== baseUnit) {
+          // Allow it but show a note - backend will handle conversion
+          console.log(`Note: Unit "${unit}" may not match expected unit "${displayUnit}" or base unit "${baseUnit}". Backend will attempt conversion.`);
+        }
+      }
+      
+      const supplier = (deliverySupplierInput?.value || '').trim();
+      
+      if (!quantity || quantity <= 0) {
+        showDeliveryError('Please enter a valid quantity.');
+        return;
+      }
+      if (!unit) {
+        showDeliveryError('Please select or enter a unit.');
+        return;
+      }
+      
+      // Find matching purchase item for this ingredient in the current batch (if any)
+      const purchaseId = selectedOpt.dataset.purchaseId;
+      const purchaseIndex = selectedOpt.dataset.purchaseIndex;
+      
+      // Check if this ingredient already added (by ingredient ID)
+      const ingredientId = parseInt(selectedOpt.value, 10);
+      const existing = deliveryItems.find(entry => entry.ingredientId === ingredientId);
+      if (existing) {
+        showDeliveryError('This ingredient has already been added. Remove it first to modify.');
+        return;
+      }
+      
+      // If there's a matching purchase in the batch, use it; otherwise, we'll create one on the backend
+      let purchaseIdInt = null;
+      if (purchaseId && purchaseId !== '') {
+        purchaseIdInt = parseInt(purchaseId, 10);
+      }
+      
+      deliveryItems.push({
+        purchaseId: purchaseIdInt, // May be null if no matching purchase
+        ingredientId: ingredientId,
+        itemName: ingredient.name,
+        quantity: quantity,
+        unit: unit,
+        supplier: supplier || currentDeliveryGroup?.supplier || ''
+      });
+      
+      // Clear inputs
+      deliveryItemSelect.value = '';
+      deliveryQuantityInput.value = '';
+      deliveryUnitInput.value = '';
+      if (deliveryUnitSelect) {
+        deliveryUnitSelect.value = '';
+        deliveryUnitSelect.classList.add('hidden');
+      }
+      deliveryUnitInput.classList.remove('hidden');
+      if (deliveryUnitHelp) {
+        deliveryUnitHelp.classList.add('hidden');
+        deliveryUnitHelp.textContent = '';
+      }
+      deliverySupplierInput.value = '';
+      deliveryQuantityInput.readOnly = true;
+      deliveryUnitInput.readOnly = true;
+      if (deliveryUnitSelect) deliveryUnitSelect.disabled = true;
+      deliverySupplierInput.readOnly = true;
+      lastSelectedUnit = '';
+      
+      renderDeliveryItems();
+      clearDeliveryError();
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    });
+  }
+  
+  // Handle remove item
+  if (deliveryItemsBody) {
+    deliveryItemsBody.addEventListener('click', (e)=>{
+      const btn = e.target.closest('.removeDeliveryItem');
+      if (!btn) return;
+      const index = parseInt(btn.dataset.index || '-1', 10);
+      if (index >= 0 && index < deliveryItems.length) {
+        deliveryItems.splice(index, 1);
+        renderDeliveryItems();
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
+      }
+    });
+  }
+
+  // Handle modal close
+  if (deliveryModalClose) {
+    deliveryModalClose.addEventListener('click', closeDeliveryModal);
+    deliveryModal?.addEventListener('click', (e)=>{
+      if (e.target === deliveryModal) closeDeliveryModal();
+    });
+  }
+
+  // Handle modal form submission
+  if (deliveryModalForm) {
+    deliveryModalForm.addEventListener('submit', (e)=>{
+      if (deliveryItems.length === 0) {
+        e.preventDefault();
+        showDeliveryError('Please add at least one item to record delivery.');
+        return;
+      }
+      // Form will submit normally with items_json
+    });
+  }
+
+
+  console.log("sel", sel);
+  // Update batch selection to open modal instead of rendering table
+  if (sel) {
+    sel.addEventListener('change', ()=>{ 
+      const groupId = sel.value;
+      if (groupId && groupId !== '') {
+        openDeliveryModal(groupId);
+      } else {
+        if (box) box.classList.add('hidden');
+        if (itemsJson) itemsJson.value='[]';
+      }
+    });
+  }
   if (searchInput){
     searchInput.addEventListener('input', ()=>{
       if (!searchInput.value){
@@ -866,5 +1806,44 @@ foreach ($deliveries as $d) {
   }
 })();
 </script>
+
+<style>
+	/* Remove focus ring and border color for all input fields */
+	input:focus,
+	select:focus,
+	textarea:focus {
+		outline: none !important;
+		box-shadow: none !important;
+		border-color: rgb(209 213 219) !important; /* Keep gray-300 border color */
+		--tw-ring-offset-shadow: 0 0 #0000 !important;
+		--tw-ring-shadow: 0 0 #0000 !important;
+		--tw-ring-offset-width: 0px !important;
+		--tw-ring-width: 0px !important;
+	}
+
+	/* Remove focus ring and border color for input fields in deliveries page on tablet mode */
+	@media (min-width: 768px) and (max-width: 1023px) {
+		#deliveriesForm input:focus,
+		#deliveriesForm select:focus,
+		#deliveriesForm textarea:focus,
+		#deliveryModal input:focus,
+		#deliveryModal select:focus,
+		#deliveryModal textarea:focus,
+		#receiveQuickModal input:focus,
+		#receiveQuickModal select:focus,
+		#receiveQuickModal textarea:focus,
+		#awaiting-deliveries input:focus,
+		#awaiting-deliveries select:focus,
+		#awaiting-deliveries textarea:focus {
+			outline: none !important;
+			box-shadow: none !important;
+			border-color: rgb(209 213 219) !important; /* Keep gray-300 border color */
+			--tw-ring-offset-shadow: 0 0 #0000 !important;
+			--tw-ring-shadow: 0 0 #0000 !important;
+			--tw-ring-offset-width: 0px !important;
+			--tw-ring-width: 0px !important;
+		}
+	}
+</style>
 
 

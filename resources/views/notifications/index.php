@@ -1,14 +1,11 @@
 <?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
-<div class="bg-white rounded-xl shadow-md border-2 border-gray-200/80 p-3 sm:p-4 mb-4 md:mb-6 relative overflow-hidden">
-	<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-		<div>
-			<h1 class="text-2xl font-bold text-gray-900 tracking-tight">Notifications</h1>
-			<p class="text-sm sm:text-base text-gray-600 mt-1 font-medium">Review all recent updates and alerts</p>
+<!-- Page Header -->
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6 max-w-full overflow-x-hidden">
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
+		<div class="min-w-0 flex-1">
+			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1 truncate">Notifications</h1>
+			<p class="text-[10px] md:text-xs text-gray-600">Review all recent updates and alerts</p>
 		</div>
-		<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-[#008000] bg-[#008000]/10 rounded-xl hover:bg-[#008000]/20 border border-[#008000]/20 transition-all duration-200 shadow-sm hover:shadow-md">
-			<i data-lucide="arrow-left" class="w-4 h-4"></i>
-			Back to Dashboard
-		</a>
 	</div>
 </div>
 
@@ -21,14 +18,14 @@
 </div>
 <?php endif; ?>
 
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden max-w-full w-full">
 	<div class="bg-gradient-to-r from-indigo-50 to-blue-50 px-6 py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 		<div>
-			<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-				<i data-lucide="bell" class="w-5 h-5 text-indigo-600"></i>
+			<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
+				<i data-lucide="bell" class="w-3.5 h-3.5 md:w-4 md:h-4 text-indigo-600"></i>
 				Activity Feed
 			</h2>
-			<p class="text-sm text-gray-600 mt-1">Latest 50 notifications for your account.</p>
+			<p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Latest 50 notifications for your account.</p>
 		</div>
 		<div class="flex flex-wrap items-center gap-3 text-sm text-gray-500">
 			<span><?php echo count($notifications ?? []); ?> entries</span>
@@ -41,14 +38,19 @@
 	</div>
 	<div class="divide-y divide-gray-100">
 		<?php if (!empty($notifications)): ?>
-			<?php foreach ($notifications as $note): 
-				$level = $note['level'] ?? 'info';
-				$messageText = trim((string)($note['message'] ?? ''));
-				if ($messageText === '' && !empty($note['details'])) {
-					$messageText = trim((string)$note['details']);
+			<?php foreach ($notifications as $note):
+				$level = strtolower(trim((string)($note['level'] ?? 'info')));
+				$title = trim((string)($note['title'] ?? ''));
+				$body = trim((string)($note['body'] ?? ''));
+				if ($body === '' && isset($note['message'])) {
+					$body = trim((string)$note['message']);
 				}
-				$linkTarget = trim((string)($note['link'] ?? ''));
+				if ($body === '' && isset($note['description'])) {
+					$body = trim((string)$note['description']);
+				}
 				$createdAt = !empty($note['created_at']) ? (string)$note['created_at'] : null;
+				$linkTarget = trim((string)($note['link'] ?? ''));
+				$typeLabel = $note['type'] ?? '';
 				$accentMap = [
 					'success' => 'text-green-700 bg-green-50 border border-green-200',
 					'warning' => 'text-amber-700 bg-amber-50 border border-amber-200',
@@ -61,18 +63,28 @@
 					'danger' => 'alert-octagon',
 					'info' => 'bell-ring',
 				];
+				$icon = $note['icon'] ?? ($iconMap[$level] ?? $iconMap['info']);
+				$accent = $note['accent'] ?? ($accentMap[$level] ?? $accentMap['info']);
+				if ($title === '') {
+					$title = ucfirst($level);
+				}
 			?>
 			<div class="flex items-start gap-4 px-6 py-4">
-				<span class="inline-flex items-center justify-center w-10 h-10 rounded-full <?php echo $accentMap[$level] ?? $accentMap['info']; ?>">
-					<i data-lucide="<?php echo $iconMap[$level] ?? $iconMap['info']; ?>" class="w-4 h-4"></i>
+				<span class="inline-flex items-center justify-center w-10 h-10 rounded-full <?php echo htmlspecialchars($accent); ?>">
+					<i data-lucide="<?php echo htmlspecialchars($icon); ?>" class="w-4 h-4"></i>
 				</span>
 				<div class="flex-1">
-					<p class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars(ucfirst($level)); ?></p>
-					<p class="text-sm text-gray-600 mt-1"><?php echo htmlspecialchars($messageText !== '' ? $messageText : 'No description provided.'); ?></p>
+					<div class="flex items-center gap-3">
+						<p class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($title); ?></p>
+						<?php if ($typeLabel !== ''): ?>
+							<span class="inline-flex items-center text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500"><?php echo htmlspecialchars(strtoupper($typeLabel)); ?></span>
+						<?php endif; ?>
+					</div>
+					<p class="text-sm text-gray-600 mt-1"><?php echo htmlspecialchars($body !== '' ? $body : 'No additional details available.'); ?></p>
 					<p class="text-xs text-gray-400 mt-1"><?php echo htmlspecialchars($createdAt ? date('M j, Y g:i A', strtotime($createdAt)) : date('M j, Y g:i A')); ?></p>
 					<?php if ($linkTarget !== ''): ?>
 					<a href="<?php echo htmlspecialchars($linkTarget); ?>" class="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 mt-2">
-						View related page
+						Open related page
 						<i data-lucide="arrow-up-right" class="w-3 h-3"></i>
 					</a>
 					<?php endif; ?>

@@ -25,9 +25,10 @@ class NotificationController extends BaseController
 			$this->redirect('/notifications');
 			return;
 		}
-		$items = $model->listLatest($userId, 50);
+		$feedBuilder = new NotificationFeed();
+		$notifications = $feedBuilder->compose(Auth::user(), $userId, defined('BASE_URL') ? BASE_URL : '', 50, true);
 		$this->render('notifications/index.php', [
-			'notifications' => $items,
+			'notifications' => $notifications,
 			'flash' => $_SESSION['flash_notifications'] ?? null,
 		]);
 		unset($_SESSION['flash_notifications']);

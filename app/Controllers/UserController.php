@@ -42,6 +42,9 @@ class UserController extends BaseController
 			$this->redirect('/users');
 		}
 		$id = $userModel->create($name, $role, $email, $passwordHash);
+		$security = new UserSecurity();
+		$security->setStatus($id, 'active');
+		$security->bumpSession($id);
 		$logger = new AuditLog();
 		$logger->log(Auth::id() ?? 0, 'create', 'users', ['user_id' => $id, 'email' => $email]);
 		$_SESSION['flash_users'] = ['type' => 'success', 'text' => 'User created successfully.'];
@@ -64,6 +67,8 @@ class UserController extends BaseController
 		}
 		$userModel = new User();
 		$userModel->resetPassword($id, password_hash($password, PASSWORD_DEFAULT));
+		$security = new UserSecurity();
+		$security->bumpSession($id);
 		$logger = new AuditLog();
 		$logger->log(Auth::id() ?? 0, 'reset_password', 'users', ['user_id' => $id]);
 		$_SESSION['flash_users'] = ['type' => 'success', 'text' => 'Password updated.'];
@@ -127,6 +132,8 @@ class UserController extends BaseController
 			$this->redirect('/users');
 		}
 		$userModel->deleteUser($id);
+		$security = new UserSecurity();
+		$security->clearSession($id);
 		$logger = new AuditLog();
 		$logger->log(Auth::id() ?? 0, 'delete', 'users', ['user_id' => $id, 'email' => $existing['email']]);
 		$_SESSION['flash_users'] = ['type' => 'success', 'text' => 'User deleted.'];

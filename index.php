@@ -16,6 +16,7 @@ spl_autoload_register(function (string $className): void {
 	$paths = [
 		BASE_PATH . '/app/Controllers/' . $className . '.php',
 		BASE_PATH . '/app/Models/' . $className . '.php',
+		BASE_PATH . '/app/Services/' . $className . '.php',
 		BASE_PATH . '/app/Utils/' . $className . '.php',
 	];
 	foreach ($paths as $path) {

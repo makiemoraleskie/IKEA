@@ -1,37 +1,22 @@
 <?php $baseUrl = defined('BASE_URL') ? BASE_URL : ''; ?>
-<div class="bg-white rounded-xl shadow-md border-2 border-gray-200/80 p-3 sm:p-4 mb-4 md:mb-6 relative overflow-hidden">
-	<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-		<div>
-			<h1 class="text-2xl font-bold text-gray-900 tracking-tight">User Management</h1>
-			<p class="text-sm sm:text-base text-gray-600 mt-1 font-medium">Create and manage commissary accounts</p>
+
+<!-- Page Header -->
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6 max-w-full overflow-x-hidden">
+	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
+		<div class="min-w-0 flex-1">
+			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1 truncate">User Management</h1>
+			<p class="text-[10px] md:text-xs text-gray-600">Create and manage commissary accounts</p>
 		</div>
-		<a href="<?php echo htmlspecialchars($baseUrl); ?>/dashboard" class="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-[#008000] bg-[#008000]/10 rounded-xl hover:bg-[#008000]/20 border border-[#008000]/20 transition-colors">
-			<i data-lucide="arrow-left" class="w-4 h-4"></i>
-			Back to Dashboard
-		</a>
 	</div>
 </div>
 
-<?php if (!empty($flash)): ?>
-	<div class="mb-6 rounded-xl px-4 py-3 border flex items-center gap-3 <?php echo ($flash['type'] ?? '') === 'error' ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-800'; ?>">
-		<i data-lucide="<?php echo ($flash['type'] ?? '') === 'error' ? 'alert-octagon' : 'check-circle'; ?>" class="w-5 h-5"></i>
-		<p class="text-sm font-medium"><?php echo htmlspecialchars($flash['text'] ?? ''); ?></p>
-	</div>
-<?php endif; ?>
+<div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-4 sm:p-6 mb-6 max-w-full overflow-x-hidden">
+	<div class="flex flex-col gap-1 mb-4">
+		<h2 class="text-sm md:text-base font-semibold text-gray-900">Create User</h2>
+		<p class="text-[10px] md:text-xs text-gray-600">Invite a teammate with appropriate access level</p>
 
-<div class="bg-white border-2 border-gray-200/80 rounded-xl shadow-sm p-4 sm:p-6 mb-6 sm:mb-8 overflow-hidden">
-	<div class="bg-gradient-to-r from-[#008000]/10 via-[#00A86B]/5 to-[#008000]/10 px-4 sm:px-6 py-4 -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 mb-6 border-b border-gray-200/60">
-		<div class="flex items-center gap-3">
-			<div class="w-10 h-10 bg-[#008000]/20 rounded-xl flex items-center justify-center border border-[#008000]/30">
-				<i data-lucide="user-plus" class="w-5 h-5 text-[#008000]"></i>
-			</div>
-			<div>
-				<h2 class="text-xl sm:text-2xl font-bold text-gray-900">Create User</h2>
-				<p class="text-xs sm:text-sm text-gray-600 mt-0.5">Invite a teammate with appropriate access level</p>
-			</div>
-		</div>
 	</div>
-	<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/users" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+	<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/users" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end w-full overflow-x-hidden">
 		<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 		<div>
 			<label class="block text-sm font-medium text-gray-700 mb-1.5">Name</label>
@@ -62,16 +47,13 @@
 	</form>
 </div>
 
-<div class="bg-white border-2 border-gray-200/80 rounded-xl shadow-sm overflow-hidden">
-	<div class="bg-gradient-to-r from-[#008000]/10 via-[#00A86B]/5 to-[#008000]/10 px-4 sm:px-6 py-4 border-b border-gray-200/60 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-		<div class="flex items-center gap-3">
-			<div class="w-10 h-10 bg-[#008000]/20 rounded-xl flex items-center justify-center border border-[#008000]/30">
-				<i data-lucide="users" class="w-5 h-5 text-[#008000]"></i>
-			</div>
-			<div>
-				<h2 class="text-xl sm:text-2xl font-bold text-gray-900">Users</h2>
-				<p class="text-xs sm:text-sm text-gray-600 mt-0.5">Existing accounts and quick resets</p>
-			</div>
+
+<div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+	<div class="px-4 sm:px-6 py-4 border-b flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+		<div>
+			<h2 class="text-sm md:text-base font-semibold text-gray-900">Users</h2>
+			<p class="text-[10px] md:text-xs text-gray-600">Existing accounts and quick resets</p>
+
 		</div>
 		<span class="text-xs sm:text-sm text-gray-600 font-semibold"><?php echo count($users); ?> total</span>
 	</div>
@@ -192,11 +174,8 @@
 		});
 	});
 	document.querySelectorAll('.deleteUserForm').forEach(form => {
-		form.addEventListener('submit', (event) => {
-			if (!confirm('Delete this user account? This action cannot be undone.')) {
-				event.preventDefault();
-			}
-		});
+		form.setAttribute('data-confirm', 'Are you sure you want to delete this user account? This action cannot be undone.');
+		form.setAttribute('data-confirm-type', 'danger');
 	});
 })();
 </script>

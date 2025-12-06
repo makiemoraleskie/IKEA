@@ -15,12 +15,9 @@ class DeliveryController extends BaseController
 			$deliveredTotals[(int)$p['id']] = $deliveryModel->getDeliveredTotal((int)$p['id']);
 		}
         // Build grouped purchases for selection (same grouping key as purchases page)
+        // Show ALL purchases (both Paid and Pending) so users can record deliveries immediately
         $groups = [];
         foreach ($purchases as $p) {
-			$status = strtoupper((string)($p['payment_status'] ?? ''));
-			if ($status !== 'PAID') {
-				continue;
-			}
             $ts = substr((string)($p['date_purchased'] ?? $p['created_at'] ?? ''), 0, 19);
             $key = ($p['purchaser_id'] ?? '') . '|' . ($p['supplier'] ?? '') . '|' . ($p['payment_status'] ?? '') . '|' . ($p['receipt_url'] ?? '') . '|' . $ts;
             if (!isset($groups[$key])) {
@@ -54,6 +51,9 @@ class DeliveryController extends BaseController
         });
 
         $awaitingPurchases = $deliveryModel->listOutstandingPurchases();
+        
+        $ingredientModel = new Ingredient();
+        $ingredients = $ingredientModel->all();
 
         $this->render('deliveries/index.php', [
             'purchases' => $purchases,
@@ -61,6 +61,7 @@ class DeliveryController extends BaseController
             'deliveries' => $deliveries,
             'deliveredTotals' => $deliveredTotals,
             'awaitingPurchases' => $awaitingPurchases,
+            'ingredients' => $ingredients,
         ]);
 	}
 
@@ -84,9 +85,65 @@ class DeliveryController extends BaseController
 
         foreach ($rows as $row) {
             $purchaseId = (int)($row['purchase_id'] ?? 0);
+            $ingredientId = (int)($row['ingredient_id'] ?? 0);
             $quantityInput = (float)($row['quantity'] ?? 0);
             $quantityUnit = (string)($row['unit'] ?? '');
-            if ($purchaseId <= 0 || $quantityInput <= 0) { continue; }
+            
+            if ($quantityInput <= 0) { continue; }
+            
+            // If no purchase_id provided, create a purchase automatically for restocking
+            if ($purchaseId <= 0) {
+                if ($ingredientId <= 0) { continue; }
+                
+                // Get ingredient to convert quantity to base units
+                $item = $ingredientModel->find($ingredientId);
+                if (!$item) { continue; }
+                
+                $baseUnit = $item['unit'] ?? '';
+                $displayUnit = $item['display_unit'] ?? '';
+                $displayFactor = (float)($item['display_factor'] ?? 1);
+                $factor = 1.0;
+                
+                // Convert to base unit
+                if ($displayUnit && $quantityUnit === $displayUnit && $displayFactor > 0) {
+                    $factor = $displayFactor;
+                } elseif ($baseUnit === 'g' && $quantityUnit === 'kg') {
+                    $factor = 1000.0;
+                } elseif ($baseUnit === 'kg' && $quantityUnit === 'g') {
+                    $factor = 0.001;
+                } elseif ($baseUnit === 'ml' && $quantityUnit === 'L') {
+                    $factor = 1000.0;
+                } elseif ($baseUnit === 'L' && $quantityUnit === 'ml') {
+                    $factor = 0.001;
+                } elseif ($quantityUnit === $baseUnit) {
+                    $factor = 1.0;
+                }
+                
+                $quantityBase = $quantityInput * $factor;
+                
+                // Create a purchase record for this restocking delivery
+                $supplier = trim((string)($row['supplier'] ?? 'Restock'));
+                $purchaseId = $purchaseModel->create(
+                    Auth::id() ?? 0,
+                    $ingredientId,
+                    $supplier,
+                    $quantityBase, // Store in base units
+                    0.0, // No cost for restocking
+                    null, // No receipt
+                    'Paid', // Mark as paid since it's a direct restock
+                    'Card',
+                    null,
+                    $quantityUnit, // Store the unit user entered
+                    $quantityInput // Store the original quantity
+                );
+                $logger->log(Auth::id() ?? 0, 'create', 'purchases', [
+                    'purchase_id' => $purchaseId,
+                    'item_id' => $ingredientId,
+                    'quantity' => $quantityBase,
+                    'auto_created_for_restock' => true
+                ]);
+            }
+            
             $purchase = $purchaseModel->find($purchaseId);
             if (!$purchase) { continue; }
 
@@ -96,11 +153,28 @@ class DeliveryController extends BaseController
             $displayUnit = $item['display_unit'] ?? '';
             $displayFactor = (float)($item['display_factor'] ?? 1);
             $factor = 1.0;
+            
+            // Handle unit conversion to base unit for storage and inventory
+            // This ensures the exact amount entered (in any unit) is properly converted and added to inventory
             if ($displayUnit && $quantityUnit === $displayUnit && $displayFactor > 0) {
                 $factor = $displayFactor;
-            } elseif (($baseUnit === 'g' && $quantityUnit === 'kg') || ($baseUnit === 'ml' && $quantityUnit === 'L')) {
-                $factor = 1000.0;
+            } elseif ($baseUnit === 'g' && $quantityUnit === 'kg') {
+                $factor = 1000.0; // 1 kg = 1000 g
+            } elseif ($baseUnit === 'kg' && $quantityUnit === 'g') {
+                $factor = 0.001; // 1 g = 0.001 kg
+            } elseif ($baseUnit === 'ml' && $quantityUnit === 'L') {
+                $factor = 1000.0; // 1 L = 1000 ml
+            } elseif ($baseUnit === 'L' && $quantityUnit === 'ml') {
+                $factor = 0.001; // 1 ml = 0.001 L
+            } elseif ($quantityUnit === $baseUnit) {
+                $factor = 1.0; // Same unit, no conversion needed
+            } else {
+                // If unit doesn't match any known conversion, assume it's already in base unit
+                // This handles cases where user enters a unit that matches the base unit
+                $factor = 1.0;
             }
+            // Convert to base unit: if user enters 50 kg and base is g, this becomes 50000 g
+            // If user enters 50000 g and base is g, this stays 50000 g
             $quantityReceived = $quantityInput * $factor;
             $purchaseQuantity = (float)($purchase['quantity'] ?? 0);
             if (!array_key_exists($purchaseId, $deliveredCache)) {
@@ -108,20 +182,31 @@ class DeliveryController extends BaseController
             }
             $deliveredSoFar = $deliveredCache[$purchaseId];
             $remainingBefore = max(0.0, $purchaseQuantity - $deliveredSoFar);
-            if ($remainingBefore <= 0.0) { continue; }
-
-            if ($quantityReceived >= $remainingBefore - 0.0001) {
+            
+            // Determine delivery status based on remaining quantity
+            // But always add the exact amount entered to inventory
+            if ($remainingBefore <= 0.0) {
+                // Purchase already fully delivered, but still allow adding to inventory
                 $deliveryStatus = 'Complete';
-                $quantityReceived = $remainingBefore;
+            } elseif ($quantityReceived >= $remainingBefore - 0.0001) {
+                $deliveryStatus = 'Complete';
             } else {
                 $deliveryStatus = 'Partial';
             }
+            
+            // Store delivery: use the exact entered amount (converted to base units)
+            // Don't clamp to remaining - allow over-delivery
             $deliveryId = $deliveryModel->create($purchaseId, $quantityReceived, $deliveryStatus);
             $deliveredCache[$purchaseId] += $quantityReceived;
 
-            // Stock-in update
+            // IMPORTANT: This is the ONLY place where inventory quantities are updated after a purchase.
+            // PurchaseController::store() does NOT update inventory - only delivery confirmation does.
+            // Stock-in update: Add the exact converted amount to inventory
+            // If user enters 50 kg (base unit is g), this adds 50000 g to inventory
+            // If user enters 50000 g (base unit is g), this adds 50000 g to inventory
             if ($item) {
-                $newQty = (float)$item['quantity'] + $quantityReceived;
+                $currentQty = (float)$item['quantity'];
+                $newQty = $currentQty + $quantityReceived;
                 $ingredientModel->updateQuantity((int)$purchase['item_id'], $newQty);
             }
 

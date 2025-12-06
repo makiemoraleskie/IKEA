@@ -21,7 +21,7 @@ abstract class BaseController
 		
 		// Login page layout without sidebar
 		?><!doctype html>
-		<html lang="en">
+		<html lang="en" data-theme="light">
 		<head>
 			<meta charset="utf-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -31,8 +31,9 @@ abstract class BaseController
 			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 			<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 			<script src="https://cdn.tailwindcss.com"></script>
+			<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 		</head>
-		<body class="bg-gray-50">
+		<body class="bg-gray-50" data-theme="light">
 			<?php include $basePath . '/resources/views/' . ltrim($viewPath, '/'); ?>
 		</body>
 		</html><?php
