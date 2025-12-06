@@ -2060,3 +2060,4 @@ window.INGREDIENTS_DATA = <?php echo json_encode(array_map(function($ing) {
 	];
 }, $ingredients), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
 </script>
+

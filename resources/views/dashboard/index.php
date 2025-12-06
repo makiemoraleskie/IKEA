@@ -11,10 +11,6 @@
 		</div>
 	</div>
 	
-	<!-- Welcome message -->
-	<div class="relative z-10 pr-24 sm:pr-28">
-		<h1 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 tracking-tight leading-tight">Welcome back,<br/><span class="bg-gradient-to-r from-[#008000] to-[#00A86B] bg-clip-text text-transparent"><?php echo htmlspecialchars($user['name'] ?? 'User'); ?></span>!</h1>
-	</div>
 </div>
 
 <?php

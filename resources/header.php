@@ -642,7 +642,7 @@ if ($user) {
 			</script>
 			
 			<!-- Main Content Area -->
-			<main class="flex-1 overflow-y-auto min-w-0" style="background-color: #f9fafb;">
+			<main class="flex-1 overflow-y-auto min-w-0" style="background-color: #ffffff;">
 				<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 space-y-8 min-w-0">
 	<?php else: ?>
 	<main class="max-w-7xl mx-auto p-4">
