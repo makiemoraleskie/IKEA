@@ -41,40 +41,40 @@ function formatDate($dateString) {
 
 <!-- New Request Modal -->
 <div id="newRequestModal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[99999] hidden items-center justify-center p-4" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; z-index: 99999 !important;">
-	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
-		<div class="flex items-center justify-between px-3 md:px-4 lg:px-5 py-3 md:py-3.5 border-b">
+	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-y-auto">
+		<div class="flex items-center justify-between px-5 md:px-6 py-4 md:py-4.5 border-b">
 			<div>
-				<h2 class="text-xs md:text-sm font-semibold text-gray-900 flex items-center gap-1">
-					<i data-lucide="plus-circle" class="w-3 h-3 md:w-3.5 md:h-3.5 text-green-600"></i>
+				<h2 class="text-lg md:text-xl font-semibold text-gray-900 flex items-center gap-2">
+					<i data-lucide="plus-circle" class="w-5 h-5 md:w-5 md:h-5 text-green-600"></i>
 					New Batch Request
 				</h2>
-				<p class="text-[9px] md:text-[10px] text-gray-600 mt-0.5">Describe what you need and when it's required.</p>
+				<p class="text-sm md:text-base text-gray-600 mt-1">Describe what you need and when it's required.</p>
 			</div>
 			<button type="button" id="closeNewRequestModal" class="text-gray-500 hover:text-gray-700 text-lg md:text-xl leading-none" aria-label="Close">&times;</button>
 		</div>
-		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests" class="p-3 md:p-4 lg:p-5 space-y-3 md:space-y-4 lg:space-y-5 w-full overflow-x-hidden">
+		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests" class="p-5 md:p-6 lg:p-7 space-y-5 md:space-y-6 w-full overflow-x-hidden">
 			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
 				<div class="space-y-1">
-					<label class="block text-[10px] md:text-xs font-medium text-gray-700">Name</label>
-					<input name="requester_name" class="w-full border border-gray-300 rounded-lg px-2 md:px-2.5 py-2 md:py-2 text-[10px] md:text-xs focus:ring-2 focus:ring-gray-500 md:focus:ring-0 focus:outline-none" placeholder="e.g., Juan Dela Cruz" required>
+					<label class="block text-sm md:text-base font-medium text-gray-700">Name</label>
+					<input name="requester_name" class="w-full border border-gray-300 rounded-lg px-3.5 md:px-4 py-2.5 md:py-3 text-sm md:text-base focus:ring-2 focus:ring-gray-500 md:focus:ring-0 focus:outline-none" placeholder="e.g., Juan Dela Cruz" required>
 				</div>
 				<div class="space-y-1">
-					<label class="block text-[10px] md:text-xs font-medium text-gray-700">Date Needed</label>
-					<input type="date" name="request_date" class="w-full border border-gray-300 rounded-lg px-2 md:px-2.5 py-2 md:py-2 text-[10px] md:text-xs focus:ring-2 focus:ring-gray-500 md:focus:ring-0 focus:outline-none" required>
+					<label class="block text-sm md:text-base font-medium text-gray-700">Date Needed</label>
+					<input type="date" name="request_date" class="w-full border border-gray-300 rounded-lg px-3.5 md:px-4 py-2.5 md:py-3 text-sm md:text-base focus:ring-2 focus:ring-gray-500 md:focus:ring-0 focus:outline-none" required>
 				</div>
 			</div>
 			<div class="space-y-1">
-				<label class="block text-[10px] md:text-xs font-medium text-gray-700">Ingredients / Notes</label>
-				<textarea name="ingredients_note" rows="3" class="w-full border border-gray-300 rounded-lg px-2 md:px-2.5 py-2 md:py-2 text-[10px] md:text-xs focus:ring-2 focus:ring-gray-500 md:focus:ring-0 focus:outline-none" placeholder="List ingredients, quantities, or any prep instructions" required></textarea>
-				<p class="text-[9px] md:text-[10px] text-gray-500">Detailed quantities will be captured later during the Prepare step.</p>
+				<label class="block text-sm md:text-base font-medium text-gray-700">Ingredients / Notes</label>
+				<textarea name="ingredients_note" rows="4" class="w-full border border-gray-300 rounded-lg px-3.5 md:px-4 py-2.5 md:py-3 text-sm md:text-base focus:ring-2 focus:ring-gray-500 md:focus:ring-0 focus:outline-none" placeholder="List ingredients, quantities, or any prep instructions" required></textarea>
+				<p class="text-xs md:text-sm text-gray-500">Detailed quantities will be captured later during the Prepare step.</p>
 			</div>
 			<div class="flex justify-end gap-2">
-				<button type="button" id="cancelNewRequestBtn" class="inline-flex items-center justify-center px-2.5 md:px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors text-[10px] md:text-xs">
+				<button type="button" id="cancelNewRequestBtn" class="inline-flex items-center justify-center px-3.5 md:px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors text-sm md:text-base">
 					Cancel
 				</button>
-					<button type="submit" class="inline-flex items-center gap-1 bg-green-600 text-white px-2.5 md:px-3 py-1.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 md:focus:ring-0 md:focus:ring-offset-0 transition-colors text-[10px] md:text-xs">
-					<i data-lucide="send" class="w-3 h-3 md:w-3.5 md:h-3.5"></i>
+					<button type="submit" class="inline-flex items-center gap-1 bg-green-600 text-white px-3.5 md:px-4 py-2.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 md:focus:ring-0 md:focus:ring-offset-0 transition-colors text-sm md:text-base">
+					<i data-lucide="send" class="w-5 h-5 md:w-5 md:h-5"></i>
 					Submit Request
 				</button>
 			</div>

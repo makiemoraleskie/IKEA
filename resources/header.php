@@ -9,7 +9,7 @@ $notifications = [];
 $notificationCount = 0;
 $logoOverride = Settings::logoPath();
 $defaultLogo = BASE_URL . '/resources/views/logo/540473678_1357706066360607_6728109697986200356_n (1).jpg';
-$activeTheme = $_SESSION['user_theme'] ?? Settings::themeDefault();
+$activeTheme = 'light';
 
 if ($user) {
 	$feedBuilder = new NotificationFeed();

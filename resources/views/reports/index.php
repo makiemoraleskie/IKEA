@@ -836,4 +836,12 @@ if (ctx2 && daily.length > 0) {
 			--tw-ring-width: 0px !important;
 		}
 	}
+	/* Remove shadows on cards */
+	.shadow-sm,
+	.shadow-md,
+	.shadow-lg,
+	.shadow-xl,
+	.shadow-2xl {
+		box-shadow: none !important;
+	}
 </style>

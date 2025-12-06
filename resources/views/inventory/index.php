@@ -16,11 +16,82 @@ if (!empty($lowStockGroups)) {
 }
 ?>
 <!-- Page Header -->
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6 max-w-full overflow-x-hidden">
+<div class="bg-white rounded-2xl shadow-none border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6 max-w-full overflow-x-hidden">
 	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
 		<div class="min-w-0 flex-1">
 			<h1 class="text-base md:text-lg lg:text-xl font-bold text-gray-900 mb-0.5 md:mb-1 truncate">Inventory Management</h1>
 			<p class="text-[10px] md:text-xs text-gray-600">Track and manage ingredient stock levels</p>
+		</div>
+	</div>
+</div>
+
+<!-- Import CSV Modal -->
+<div id="importCsvModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+	<div class="fixed inset-0 bg-gray-900/80 backdrop-blur-sm" data-import-dismiss></div>
+	<div class="relative z-10 flex min-h-full items-center justify-center px-4 py-8">
+		<div class="w-full max-w-4xl bg-white rounded-2xl shadow-none border border-gray-200 overflow-hidden max-h-[90vh] flex flex-col">
+			<div class="flex items-start justify-between gap-3 px-5 py-4 border-b bg-gray-100">
+				<div>
+					<p class="text-md uppercase tracking-[0.25em] text-blue-500 font-semibold">Inventory Import</p>
+					<p class="text-sm text-gray-600 mt-1">Select a CSV file containing inventory data</p>
+				</div>
+			</div>
+			
+			<div class="p-5 overflow-y-auto">
+				<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/import" enctype="multipart/form-data" class="space-y-4">
+					<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+
+					<div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+						<div class="flex items-start gap-3">
+							<i data-lucide="info" class="w-5 h-5 text-amber-600 mt-0.5"></i>
+							<div class="flex-1">
+								<h3 class="text-sm font-semibold text-amber-900 mb-2">CSV Format Requirements</h3>
+								<ul class="text-xs text-amber-800 space-y-1 list-disc list-inside">
+									<li>Row 1: Date headers (will be skipped)</li>
+									<li>Row 2: Column headers (NEW STOCK, DEDUCTION, REMAIN) - will be skipped</li>
+									<li>Row 3+: Item name, Unit, then date columns (NEW STOCK, DEDUCTION, REMAIN)</li>
+									<li>Item name must be in the first column</li>
+									<li>Unit must be in the second column</li>
+									<li>The system will use the latest REMAIN value (rightmost non-empty REMAIN column)</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					
+					<div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+						<div class="flex items-start gap-3">
+							<i data-lucide="lightbulb" class="w-5 h-5 text-blue-600 mt-0.5"></i>
+							<div class="flex-1">
+								<h3 class="text-sm font-semibold text-blue-900 mb-2">Import Behavior</h3>
+								<ul class="text-xs text-blue-800 space-y-1 list-disc list-inside">
+									<li>If an ingredient with the same name exists, its quantity will be updated</li>
+									<li>If an ingredient doesn't exist, it will be created with the imported quantity</li>
+									<li>Units will be normalized automatically (e.g., "Pack" → "pack", "Kg" → "kg")</li>
+									<li>Empty rows and rows with missing data will be skipped</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					
+					<div class="space-y-3">
+						<label class="block text-sm font-medium text-gray-700">CSV File</label>
+						<div class="flex items-center gap-2">
+							<input type="file" name="csv_file" accept=".csv" required class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-gray-300 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer">
+						</div>
+						<p class="text-xs text-gray-500">Only CSV files are allowed. Maximum file size: 10MB</p>
+					</div>
+					
+					<div class="flex justify-end gap-3">
+						<button type="button" class="inline-flex items-center gap-2 px-5 py-2.5 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-300 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors" data-import-dismiss>
+							Cancel
+						</button>
+						<button type="submit" class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
+							<i data-lucide="upload" class="w-4 h-4"></i>
+							Import Inventory
+						</button>
+					</div>
+				</form>
+			</div>
 		</div>
 	</div>
 </div>
@@ -37,7 +108,7 @@ foreach ($ingredients as $ing) {
 <?php if (!empty($ingredients)): ?>
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-6 md:mb-8 max-w-full overflow-x-hidden">
 	<!-- Total Ingredients -->
-	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+	<div class="bg-white rounded-lg shadow-none border border-gray-200 p-3 md:p-4 lg:p-5 relative">
 		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
 			<i data-lucide="layers" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-blue-600"></i>
 		</div>
@@ -49,7 +120,7 @@ foreach ($ingredients as $ing) {
 	</div>
 	
 	<!-- Low Stock Items -->
-	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+	<div class="bg-white rounded-lg shadow-none border border-gray-200 p-3 md:p-4 lg:p-5 relative">
 		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
 			<i data-lucide="alert-triangle" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-red-500"></i>
 		</div>
@@ -61,7 +132,7 @@ foreach ($ingredients as $ing) {
 	</div>
 	
 	<!-- In Stock Items -->
-	<div class="bg-white rounded-lg shadow-md border border-gray-200 p-3 md:p-4 lg:p-5 relative">
+	<div class="bg-white rounded-lg shadow-none border border-gray-200 p-3 md:p-4 lg:p-5 relative">
 		<div class="absolute top-2.5 md:top-3 right-2.5 md:right-3">
 			<i data-lucide="check-circle" class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-green-600"></i>
 		</div>
@@ -87,10 +158,14 @@ foreach ($ingredients as $ing) {
 			Add Ingredient
 		</button>
 		<?php endif; ?>
-		<a href="<?php echo htmlspecialchars($baseUrl); ?>/inventory/import" class="inline-flex items-center gap-1 md:gap-1.5 bg-green-600 text-white px-2.5 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-xs md:text-sm">
+		<button 
+			type="button" 
+			id="openImportCsvModal"
+			class="inline-flex items-center gap-1 md:gap-1.5 bg-green-600 text-white px-2.5 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-xs md:text-sm"
+		>
 			<i data-lucide="upload" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
 			Import CSV
-		</a>
+		</button>
 		<?php if (in_array(Auth::role(), ['Owner','Manager'], true)): ?>
 		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/migrate-kg-to-g" class="inline-block" data-confirm="This will convert all ingredients with base unit 'kg' to 'g'. Quantities will be multiplied by 1000. This action cannot be undone. Continue?">
 			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
@@ -105,7 +180,7 @@ foreach ($ingredients as $ing) {
 </div>
 
 <!-- Inventory Table -->
-<div id="inventory-low-stock" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden max-w-full w-full">
+<div id="inventory-low-stock" class="bg-white rounded-lg shadow-none border border-gray-200 overflow-hidden max-w-full w-full">
 	<div class="px-4 md:px-6 py-3 md:py-4 border-b">
 		<div class="flex flex-col gap-3 md:gap-4 md:flex-row md:items-center md:justify-between">
 			<div>
@@ -279,21 +354,21 @@ foreach ($ingredients as $ing) {
 <div id="purchaseListModal" class="fixed inset-0 z-50 hidden">
 	<div class="absolute inset-0 bg-gray-900/70 backdrop-blur-md" data-purchase-list-dismiss style="backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);"></div>
 	<div class="relative z-10 flex min-h-full items-center justify-center px-4 py-8">
-		<div class="w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col max-h-[85vh] relative">
+		<div class="w-full max-w-4xl bg-white rounded-2xl shadow-none border border-gray-200 flex flex-col max-h-[85vh] relative">
 			<button type="button" class="absolute top-4 right-4 z-10 inline-flex items-center justify-center w-8 h-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors" data-purchase-list-dismiss aria-label="Close">
 				<i data-lucide="x" class="w-5 h-5"></i>
 			</button>
-			<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 px-6 py-5 border-b">
-				<div>
+			<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 md:gap-5 px-6 py-6 pr-16 border-b">
+				<div class="space-y-1 w-full">
 					<p class="text-xs uppercase tracking-[0.35em] text-rose-400 font-semibold">Low Stock</p>
-					<h2 class="text-2xl font-semibold text-gray-900">Purchase Preparation List</h2>
-					<p class="text-sm text-gray-600 mt-1">Ingredients at or below their reorder level, grouped by supplier.</p>
+					<h2 class="text-lg font-semibold text-gray-900">Purchase Preparation List</h2>
+					<p class="text-xs text-gray-600">Ingredients at or below their reorder level, grouped by supplier.</p>
 				</div>
-				<div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+				<div class="flex flex-wrap items-center gap-3 md:gap-4 w-full lg:w-auto">
 					<?php if (!empty($supplierFilterOptions)): ?>
-					<div class="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm text-gray-700">
+					<div class="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm text-gray-700 w-full sm:w-auto md:w-64">
 						<i data-lucide="filter" class="w-4 h-4 text-gray-500"></i>
-						<select id="purchaseListSupplierFilter" class="bg-transparent border-none focus:border-none focus:ring-0 text-sm text-gray-900">
+						<select id="purchaseListSupplierFilter" class="bg-transparent border-none focus:border-none focus:ring-0 text-sm text-gray-900 flex-1">
 							<option value="">All suppliers</option>
 							<?php foreach ($supplierFilterOptions as $key => $label): ?>
 								<option value="<?php echo htmlspecialchars($key); ?>"><?php echo htmlspecialchars($label); ?></option>
@@ -301,7 +376,7 @@ foreach ($ingredients as $ing) {
 						</select>
 					</div>
 					<?php endif; ?>
-					<button type="button" id="purchaseListPrint" class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-rose-600 text-white text-[12px] font-semibold shadow-sm hover:bg-rose-700 focus:ring-2 focus:ring-rose-500 focus:ring-offset-2">
+					<button type="button" id="purchaseListPrint" class="inline-flex items-center justify-center gap-2 px-4 md:px-5 py-2.5 rounded-lg bg-rose-600 text-white text-[12px] font-semibold shadow-sm hover:bg-rose-700 focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 w-full sm:w-auto">
 						<i data-lucide="printer" class="w-4 h-4"></i>
 						Print List
 					</button>
@@ -314,7 +389,7 @@ foreach ($ingredients as $ing) {
 						$items = $group['items'] ?? [];
 						$supplierKey = function_exists('mb_strtolower') ? mb_strtolower($supplier) : strtolower($supplier);
 					?>
-					<section class="border rounded-2xl p-4 sm:p-6 shadow-sm bg-white" data-supplier="<?php echo htmlspecialchars($supplierKey); ?>">
+					<section class="border rounded-2xl p-4 sm:p-6 shadow-none bg-white" data-supplier="<?php echo htmlspecialchars($supplierKey); ?>">
 						<div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
 							<div>
 								<p class="text-xs uppercase tracking-wide text-gray-500">Supplier</p>
@@ -368,6 +443,54 @@ foreach ($ingredients as $ing) {
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+	// Import CSV modal
+	(function(){
+		const importOpenBtn = document.getElementById('openImportCsvModal');
+		const modal = document.getElementById('importCsvModal');
+		const dismissEls = modal ? modal.querySelectorAll('[data-import-dismiss]') : [];
+		
+		const clearOpenImportParam = () => {
+			const params = new URLSearchParams(window.location.search);
+			if (params.has('openImport')) {
+				params.delete('openImport');
+				const query = params.toString();
+				const newUrl = window.location.pathname + (query ? `?${query}` : '') + window.location.hash;
+				window.history.replaceState({}, '', newUrl);
+			}
+		};
+		
+		const toggleModal = (show) => {
+			if (!modal) return;
+			modal.classList.toggle('hidden', !show);
+			document.body.classList.toggle('overflow-hidden', show);
+			if (show && window.lucide) {
+				window.lucide.createIcons({ elements: modal.querySelectorAll('i[data-lucide]') });
+			}
+			if (!show) {
+				// Reset file input when closing
+				const fileInput = modal.querySelector('input[type="file"]');
+				if (fileInput) fileInput.value = '';
+				clearOpenImportParam();
+			}
+		};
+		
+		const params = new URLSearchParams(window.location.search);
+		
+		// Open via button
+		importOpenBtn?.addEventListener('click', () => toggleModal(true));
+		
+		// Auto-open when ?openImport=1
+		if (params.get('openImport') === '1') {
+			toggleModal(true);
+			clearOpenImportParam();
+		}
+		
+		dismissEls.forEach(el => el.addEventListener('click', () => toggleModal(false)));
+		modal?.addEventListener('click', (e) => {
+			if (e.target === modal) toggleModal(false);
+		});
+	})();
+	
 	const modal = document.getElementById('purchaseListModal');
 	const openBtn = document.getElementById('inventoryPurchaseListBtn');
 	const printBtn = document.getElementById('purchaseListPrint');
@@ -442,7 +565,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <div id="deleteIngredientModal" class="fixed inset-0 z-50 hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 50 !important;">
     <div class="fixed inset-0 bg-black/50" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
     <div class="relative z-10 flex items-center justify-center p-4 overflow-x-hidden" style="min-height: 100vh;">
-        <div class="bg-white rounded-xl shadow-xl max-w-sm w-full mx-auto">
+        <div class="bg-white rounded-xl shadow-none max-w-sm w-full mx-auto">
             <div class="p-4 md:p-5">
                 <div class="flex items-center gap-3 mb-3">
                     <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -1293,6 +1416,44 @@ document.addEventListener('DOMContentLoaded', function() {
 			overflow-wrap: break-word;
 			word-break: break-word;
 		}
+		/* Tablet tuning for inventory table */
+		@media (min-width: 768px) and (max-width: 1023px) {
+			/* Let table breathe and scroll instead of clipping */
+			#inventory-low-stock .overflow-x-auto {
+				overflow-x: auto !important;
+			}
+			#inventory-low-stock table {
+				table-layout: auto !important;
+				width: 100% !important;
+				min-width: 100% !important;
+			}
+			#inventoryTableBody td,
+			#inventoryTableBody th {
+				padding-left: 0.5rem !important;
+				padding-right: 0.5rem !important;
+				padding-top: 0.5rem !important;
+				padding-bottom: 0.5rem !important;
+				font-size: 11px !important;
+			}
+			#inventoryTableBody .text-xs,
+			#inventoryTableBody .text-[10px],
+			#inventoryTableBody .text-[9px] {
+				font-size: 11px !important;
+			}
+			#inventoryTableBody .text-sm {
+				font-size: 12px !important;
+			}
+			#inventoryTableBody .w-8.h-8 {
+				width: 1.75rem !important;
+				height: 1.75rem !important;
+			}
+			#inventoryTableBody .w-3\.5.h-3\.5,
+			#inventoryTableBody .w-3.h-3,
+			#inventoryTableBody .w-4.h-4 {
+				width: 0.9rem !important;
+				height: 0.9rem !important;
+			}
+		}
 		/* Reduce padding on tablet for better fit */
 		@media (min-width: 768px) and (max-width: 1023px) {
 			#inventoryTableBody td,
@@ -1356,7 +1517,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div id="addIngredientModal" class="fixed inset-0 z-50 hidden">
 	<div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" data-add-ingredient-dismiss></div>
 	<div class="relative z-10 flex min-h-full items-center justify-center px-4 py-8">
-		<div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col max-h-[90vh]">
+		<div class="w-full max-w-3xl bg-white rounded-2xl shadow-none border border-gray-200 flex flex-col max-h-[90vh]">
 			<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-4 px-4 md:px-5 lg:px-6 py-4 md:py-5 border-b">
 				<div>
 					<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
@@ -1520,7 +1681,7 @@ if (!isset($ingredientSetsEnabled)) {
 }
 ?>
 <?php if ($ingredientSetsEnabled === true): ?>
-<div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-6 md:mb-8 overflow-hidden max-w-full w-full">
+<div class="bg-white rounded-2xl shadow-none border border-gray-200 mb-6 md:mb-8 overflow-hidden max-w-full w-full">
 	<div class="bg-gradient-to-r from-indigo-50 to-blue-50 px-4 md:px-5 lg:px-6 py-3 md:py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 		<div>
 			<h2 class="text-lg md:text-xl font-semibold text-gray-900 flex items-center gap-2">
@@ -1635,7 +1796,7 @@ if (!isset($ingredientSetsEnabled)) {
 					}, $set['components']),
 				];
 			?>
-			<div class="border rounded-2xl p-4 md:p-5 space-y-3 md:space-y-4 bg-white shadow-sm">
+			<div class="border rounded-2xl p-4 md:p-5 space-y-3 md:space-y-4 bg-white shadow-none">
 				<div class="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-3 md:gap-4">
 					<div class="flex-1 min-w-0">
 						<div class="flex flex-col sm:flex-row sm:items-center gap-2 md:gap-3 flex-wrap">

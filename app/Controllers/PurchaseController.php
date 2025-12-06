@@ -419,6 +419,46 @@ class PurchaseController extends BaseController
 		$this->redirect('/purchases');
 	}
 
+    public function delete(): void
+    {
+        Auth::requireRole(['Purchaser','Manager','Owner','Stock Handler']);
+        if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
+            http_response_code(400);
+            echo 'Invalid CSRF token';
+            return;
+        }
+        $idsRaw = trim((string)($_POST['ids'] ?? ''));
+        $ids = array_values(array_filter(array_map('intval', explode(',', $idsRaw)), fn($v)=>$v>0));
+        if (empty($ids)) {
+            $_SESSION['flash_purchases'] = ['type' => 'error', 'text' => 'Invalid purchase selection.'];
+            $this->redirect('/purchases');
+        }
+
+        $purchaseModel = new Purchase();
+        $purchases = $purchaseModel->findByIds($ids);
+        if (empty($purchases)) {
+            $_SESSION['flash_purchases'] = ['type' => 'error', 'text' => 'Purchase records not found.'];
+            $this->redirect('/purchases');
+        }
+
+        // Delete attached receipts (only local uploads under /public/uploads)
+        foreach ($purchases as $p) {
+            $url = (string)($p['receipt_url'] ?? '');
+            if ($url && str_starts_with($url, '/public/uploads/')) {
+                $path = BASE_PATH . $url;
+                if (is_file($path)) {
+                    @unlink($path);
+                }
+            }
+        }
+
+        $deleted = $purchaseModel->deleteByIds($ids);
+        $logger = new AuditLog();
+        $logger->log(Auth::id() ?? 0, 'delete', 'purchases', ['ids' => $ids, 'rows' => $deleted]);
+        $_SESSION['flash_purchases'] = ['type' => 'success', 'text' => 'Purchase group deleted successfully.'];
+        $this->redirect('/purchases');
+    }
+
     private function describeUploadError(int $code): string
     {
         return match ($code) {

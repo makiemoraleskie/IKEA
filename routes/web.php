@@ -34,6 +34,7 @@ return [
 		'/requests/prepare' => ['RequestController', 'prepare'],
 		'/purchases' => ['PurchaseController', 'store'],
 		'/purchases/mark-paid' => ['PurchaseController', 'markPaid'],
+		'/purchases/delete' => ['PurchaseController', 'delete'],
 		'/deliveries' => ['DeliveryController', 'store'],
 		// removed force-delete feature routes
 		'/inventory' => ['InventoryController', 'store'],
