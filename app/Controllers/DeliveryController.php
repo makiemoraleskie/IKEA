@@ -14,6 +14,8 @@ class DeliveryController extends BaseController
 		foreach ($purchases as $p) {
 			$deliveredTotals[(int)$p['id']] = $deliveryModel->getDeliveredTotal((int)$p['id']);
 		}
+        $hidePurchaseIds = $_SESSION['deliveries_hide_purchase_ids'] ?? [];
+        unset($_SESSION['deliveries_hide_purchase_ids']);
         // Build grouped purchases for selection (same grouping key as purchases page)
         // Show ALL purchases (both Paid and Pending) so users can record deliveries immediately
         $groups = [];
@@ -50,10 +52,26 @@ class DeliveryController extends BaseController
             return false;
         });
 
+        // Additionally hide any groups containing purchase IDs flagged after submission
+        if (!empty($hidePurchaseIds)) {
+            $hideSet = array_map('intval', $hidePurchaseIds);
+            $groups = array_filter($groups, static function(array $group) use ($hideSet): bool {
+                foreach ($group['items'] as $item) {
+                    if (in_array((int)$item['id'], $hideSet, true)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+        }
+
         $awaitingPurchases = $deliveryModel->listOutstandingPurchases();
         
         $ingredientModel = new Ingredient();
         $ingredients = $ingredientModel->all();
+
+        $flash = $_SESSION['flash_deliveries'] ?? null;
+        unset($_SESSION['flash_deliveries']);
 
         $this->render('deliveries/index.php', [
             'purchases' => $purchases,
@@ -62,6 +80,7 @@ class DeliveryController extends BaseController
             'deliveredTotals' => $deliveredTotals,
             'awaitingPurchases' => $awaitingPurchases,
             'ingredients' => $ingredients,
+            'flash' => $flash,
         ]);
 	}
 
@@ -75,13 +94,18 @@ class DeliveryController extends BaseController
 		}
         $itemsJson = trim((string)($_POST['items_json'] ?? ''));
         $rows = json_decode($itemsJson, true);
-        if (!is_array($rows) || empty($rows)) { $this->redirect('/deliveries'); }
+        if (!is_array($rows) || empty($rows)) { 
+            $_SESSION['flash_deliveries'] = ['type' => 'error', 'text' => 'No delivery items were submitted. Select a batch and enter at least one quantity.'];
+            $this->redirect('/deliveries'); 
+        }
 
         $purchaseModel = new Purchase();
         $deliveryModel = new Delivery();
         $ingredientModel = new Ingredient();
         $logger = new AuditLog();
         $deliveredCache = [];
+        $processed = 0;
+        $processedPurchaseIds = [];
 
         foreach ($rows as $row) {
             $purchaseId = (int)($row['purchase_id'] ?? 0);
@@ -90,65 +114,21 @@ class DeliveryController extends BaseController
             $quantityUnit = (string)($row['unit'] ?? '');
             
             if ($quantityInput <= 0) { continue; }
-            
-            // If no purchase_id provided, create a purchase automatically for restocking
             if ($purchaseId <= 0) {
-                if ($ingredientId <= 0) { continue; }
-                
-                // Get ingredient to convert quantity to base units
-                $item = $ingredientModel->find($ingredientId);
-                if (!$item) { continue; }
-                
-                $baseUnit = $item['unit'] ?? '';
-                $displayUnit = $item['display_unit'] ?? '';
-                $displayFactor = (float)($item['display_factor'] ?? 1);
-                $factor = 1.0;
-                
-                // Convert to base unit
-                if ($displayUnit && $quantityUnit === $displayUnit && $displayFactor > 0) {
-                    $factor = $displayFactor;
-                } elseif ($baseUnit === 'g' && $quantityUnit === 'kg') {
-                    $factor = 1000.0;
-                } elseif ($baseUnit === 'kg' && $quantityUnit === 'g') {
-                    $factor = 0.001;
-                } elseif ($baseUnit === 'ml' && $quantityUnit === 'L') {
-                    $factor = 1000.0;
-                } elseif ($baseUnit === 'L' && $quantityUnit === 'ml') {
-                    $factor = 0.001;
-                } elseif ($quantityUnit === $baseUnit) {
-                    $factor = 1.0;
-                }
-                
-                $quantityBase = $quantityInput * $factor;
-                
-                // Create a purchase record for this restocking delivery
-                $supplier = trim((string)($row['supplier'] ?? 'Restock'));
-                $purchaseId = $purchaseModel->create(
-                    Auth::id() ?? 0,
-                    $ingredientId,
-                    $supplier,
-                    $quantityBase, // Store in base units
-                    0.0, // No cost for restocking
-                    null, // No receipt
-                    'Paid', // Mark as paid since it's a direct restock
-                    'Card',
-                    null,
-                    $quantityUnit, // Store the unit user entered
-                    $quantityInput // Store the original quantity
-                );
-                $logger->log(Auth::id() ?? 0, 'create', 'purchases', [
-                    'purchase_id' => $purchaseId,
-                    'item_id' => $ingredientId,
-                    'quantity' => $quantityBase,
-                    'auto_created_for_restock' => true
-                ]);
+                $_SESSION['flash_deliveries'] = ['type' => 'error', 'text' => 'Select a purchase batch before recording a delivery.'];
+                $this->redirect('/deliveries');
             }
-            
             $purchase = $purchaseModel->find($purchaseId);
-            if (!$purchase) { continue; }
+            if (!$purchase) {
+                $_SESSION['flash_deliveries'] = ['type' => 'error', 'text' => 'Referenced purchase batch was not found. Please refresh and try again.'];
+                $this->redirect('/deliveries');
+            }
 
-            // Convert to base unit
-            $item = $ingredientModel->find((int)$purchase['item_id']);
+            $item = $ingredientModel->find((int)$ingredientId);
+            if (!$item) {
+                $_SESSION['flash_deliveries'] = ['type' => 'error', 'text' => 'Selected ingredient was not found in inventory.'];
+                $this->redirect('/deliveries');
+            }
             $baseUnit = $item['unit'] ?? '';
             $displayUnit = $item['display_unit'] ?? '';
             $displayFactor = (float)($item['display_factor'] ?? 1);
@@ -196,8 +176,17 @@ class DeliveryController extends BaseController
             
             // Store delivery: use the exact entered amount (converted to base units)
             // Don't clamp to remaining - allow over-delivery
-            $deliveryId = $deliveryModel->create($purchaseId, $quantityReceived, $deliveryStatus);
+            $deliveryId = $deliveryModel->create($purchaseId, $ingredientId, $quantityReceived, $deliveryStatus, $quantityUnit);
             $deliveredCache[$purchaseId] += $quantityReceived;
+
+            // Auto-populate preferred_supplier from purchase if ingredient doesn't have one
+            // This helps build supplier data over time without manual entry
+            if ($item && empty($item['preferred_supplier']) && !empty($purchase['supplier'])) {
+                $purchaseSupplier = trim((string)$purchase['supplier']);
+                if ($purchaseSupplier !== '') {
+                    $ingredientModel->updateMeta((int)$item['id'], $purchaseSupplier, (float)($item['restock_quantity'] ?? 0));
+                }
+            }
 
             // IMPORTANT: This is the ONLY place where inventory quantities are updated after a purchase.
             // PurchaseController::store() does NOT update inventory - only delivery confirmation does.
@@ -207,10 +196,18 @@ class DeliveryController extends BaseController
             if ($item) {
                 $currentQty = (float)$item['quantity'];
                 $newQty = $currentQty + $quantityReceived;
-                $ingredientModel->updateQuantity((int)$purchase['item_id'], $newQty);
+                $ingredientModel->updateQuantity((int)$item['id'], $newQty);
             }
 
-            $logger->log(Auth::id() ?? 0, 'create', 'deliveries', ['delivery_id' => $deliveryId, 'purchase_id' => $purchaseId, 'quantity_received' => $quantityReceived]);
+            $logger->log(Auth::id() ?? 0, 'create', 'deliveries', ['delivery_id' => $deliveryId, 'purchase_id' => $purchaseId, 'ingredient_id' => $ingredientId, 'quantity_received' => $quantityReceived, 'unit' => $quantityUnit]);
+            $processed++;
+            $processedPurchaseIds[] = $purchaseId;
+        }
+        if ($processed === 0) {
+            $_SESSION['flash_deliveries'] = ['type' => 'error', 'text' => 'No delivery rows were processed. Ensure quantities are greater than zero.'];
+        } else {
+            $_SESSION['flash_deliveries'] = ['type' => 'success', 'text' => 'Delivery recorded successfully. Inventory has been updated.'];
+            $_SESSION['deliveries_hide_purchase_ids'] = array_values(array_unique($processedPurchaseIds));
         }
         $this->redirect('/deliveries');
 	}

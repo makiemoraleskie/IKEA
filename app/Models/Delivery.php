@@ -5,9 +5,7 @@ class Delivery extends BaseModel
 {
     public function listAll(): array
     {
-        // Ensure purchase_unit column exists
-        $purchaseModel = new Purchase();
-        $purchaseModel->listAll(); // This will ensure the column exists
+        $this->ensureDeliveryColumns();
         
         $sql = 'SELECT 
                 d.*,
@@ -17,29 +15,29 @@ class Delivery extends BaseModel
                 p.payment_status,
                 p.receipt_url,
                 p.date_purchased,
-                p.item_id,
                 p.quantity AS purchase_quantity,
                 COALESCE(p.purchase_unit, "") AS purchase_unit,
                 COALESCE(p.purchase_quantity, 0) AS purchase_quantity_display,
                 u.name AS purchaser_name,
                 i.name AS item_name,
-                i.unit,
+                i.unit AS ingredient_unit,
                 i.display_unit,
                 i.display_factor
             FROM deliveries d
             JOIN purchases p ON d.purchase_id = p.id
             JOIN users u ON p.purchaser_id = u.id
-            JOIN ingredients i ON p.item_id = i.id
+            LEFT JOIN ingredients i ON d.ingredient_id = i.id
             ORDER BY d.date_received DESC';
         return $this->db->query($sql)->fetchAll();
     }
 
-	public function create(int $purchaseId, float $quantityReceived, string $deliveryStatus): int
+	public function create(int $purchaseId, int $ingredientId, float $quantityReceived, string $deliveryStatus, string $unit): int
 	{
-		$sql = 'INSERT INTO deliveries (purchase_id, quantity_received, delivery_status, date_received)
-			VALUES (?, ?, ?, NOW())';
+        $this->ensureDeliveryColumns();
+		$sql = 'INSERT INTO deliveries (purchase_id, ingredient_id, quantity_received, unit, delivery_status, date_received)
+			VALUES (?, ?, ?, ?, ?, NOW())';
 		$stmt = $this->db->prepare($sql);
-		$stmt->execute([$purchaseId, $quantityReceived, $deliveryStatus]);
+		$stmt->execute([$purchaseId, $ingredientId, $quantityReceived, $unit, $deliveryStatus]);
 		return (int)$this->db->lastInsertId();
 	}
 
@@ -95,9 +93,9 @@ class Delivery extends BaseModel
 
     public function listOutstandingPurchases(): array
     {
-        // Ensure purchase_unit column exists
+        $this->ensureDeliveryColumns();
         $purchaseModel = new Purchase();
-        $purchaseModel->listAll(); // This will ensure the column exists
+        $purchaseModel->listAll(); // ensure purchase columns
         
         $sql = 'SELECT 
                     p.id,
@@ -125,6 +123,26 @@ class Delivery extends BaseModel
                 ORDER BY p.date_purchased DESC
                 LIMIT 10';
         return $this->db->query($sql)->fetchAll();
+    }
+
+    private function ensureDeliveryColumns(): void
+    {
+        static $ensured = false;
+        if ($ensured) {
+            return;
+        }
+        try {
+            $columns = $this->db->query('SHOW COLUMNS FROM deliveries')->fetchAll(PDO::FETCH_COLUMN);
+            if (!in_array('ingredient_id', $columns, true)) {
+                $this->db->exec("ALTER TABLE deliveries ADD COLUMN ingredient_id INT NOT NULL DEFAULT 0 AFTER purchase_id");
+            }
+            if (!in_array('unit', $columns, true)) {
+                $this->db->exec("ALTER TABLE deliveries ADD COLUMN unit VARCHAR(32) NOT NULL DEFAULT '' AFTER quantity_received");
+            }
+        } catch (\Exception $e) {
+            // ignore if cannot alter (likely already exists)
+        }
+        $ensured = true;
     }
 }
 

@@ -10,6 +10,11 @@ $deliveredTotals = $deliveredTotals ?? [];
 			<p class="text-[10px] md:text-xs text-gray-600">Record and track ingredient deliveries</p>
 		</div>
 	</div>
+    <?php if (!empty($flash)): ?>
+    <div class="mt-3 px-4 py-3 rounded-lg border <?php echo $flash['type']==='success' ? 'border-green-200 bg-green-50 text-green-800' : 'border-red-200 bg-red-50 text-red-700'; ?>">
+        <?php echo htmlspecialchars($flash['text'] ?? ''); ?>
+    </div>
+    <?php endif; ?>
 </div>
 
 <div class="space-y-2">
@@ -155,6 +160,7 @@ foreach ($deliveries as $d) {
 				Record Delivery
 			</button>
 		</div>
+        <div id="deliveryInlineError" class="hidden mt-3 px-4 py-3 rounded-lg border border-red-200 bg-red-50 text-sm text-red-700"></div>
 	</form>
 </div>
 
@@ -216,12 +222,19 @@ foreach ($deliveries as $d) {
 				
 					<div class="rounded-xl border border-gray-200 p-4 space-y-3">
 					<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-						<div class="space-y-1">
+						<div class="space-y-1 relative">
 							<label class="text-sm font-medium text-gray-700">Select Item</label>
-							<select id="deliveryItemSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-								<option value="">Choose ingredient</option>
-								<!-- Options will be populated dynamically -->
-							</select>
+							<div class="relative">
+								<input type="text" id="deliveryItemSearch" class="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="Search ingredient..." autocomplete="off">
+								<i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
+								<select id="deliveryItemSelect" class="hidden">
+									<option value="">Choose ingredient</option>
+									<!-- Options will be populated dynamically -->
+								</select>
+								<div id="deliveryItemDropdown" class="hidden absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+									<!-- Filtered options will be populated here -->
+								</div>
+							</div>
 						</div>
 						<div class="space-y-1">
 							<label class="text-sm font-medium text-gray-700">Quantity</label>
@@ -279,127 +292,6 @@ foreach ($deliveries as $d) {
 	</div>
 </div>
 
-<?php if (!empty($awaitingPurchases)): ?>
-<div id="awaiting-deliveries" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6 md:mb-8">
-    <div class="bg-gradient-to-r from-orange-50 to-amber-50 px-4 sm:px-6 py-4 border-b flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div>
-            <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                <i data-lucide="truck" class="w-5 h-5 text-orange-600"></i>
-                Awaiting Deliveries
-            </h2>
-            <p class="text-sm text-gray-600 mt-1">Open purchase batches that still need to be delivered</p>
-        </div>
-        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800 border border-orange-200">
-            <i data-lucide="alert-triangle" class="w-4 h-4"></i>
-            <?php echo count($awaitingPurchases); ?> outstanding
-        </span>
-    </div>
-    <div class="overflow-x-auto">
-        <table class="w-full text-[10px] md:text-xs lg:text-sm" style="min-width: 100%;">
-            <thead class="sticky top-0 bg-white z-10">
-                <tr>
-                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Purchase</th>
-                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Supplier</th>
-                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Item</th>
-                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Ordered</th>
-                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Delivered</th>
-                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Remaining</th>
-                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 text-gray-700 font-medium bg-white text-[10px] md:text-xs lg:text-sm">Action</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                    <?php foreach ($awaitingPurchases as $pending): 
-                    // Calculate remaining in base units (for internal calculations)
-                    $remainingBase = max(0, (float)$pending['quantity'] - (float)$pending['delivered_quantity']);
-                    
-                    // Use purchase_unit and purchase_quantity for display if available
-                    $purchaseUnit = trim((string)($pending['purchase_unit'] ?? ''));
-                    $purchaseQty = (float)($pending['purchase_quantity'] ?? 0);
-                    $purchasedQty = (float)$pending['quantity'];
-                    
-                    // Calculate remaining in purchase unit
-                    if ($purchaseUnit !== '' && $purchaseQty > 0 && $purchasedQty > 0) {
-                        // Calculate conversion factor: purchase_quantity (in purchase_unit) = quantity (in base unit)
-                        $conversionFactor = $purchasedQty / $purchaseQty;
-                        $remainingDisplay = $remainingBase / $conversionFactor;
-                        $displayUnit = $purchaseUnit;
-                        $orderedDisplay = $purchaseQty;
-                        $deliveredDisplay = ($pending['delivered_quantity'] ?? 0) / $conversionFactor;
-                    } else {
-                        // Fallback to base unit
-                        $remainingDisplay = $remainingBase;
-                        $displayUnit = $pending['unit'];
-                        $orderedDisplay = $purchasedQty;
-                        $deliveredDisplay = (float)($pending['delivered_quantity'] ?? 0);
-                    }
-                    
-                    $batchTs = substr((string)($pending['date_purchased'] ?? ''),0,19);
-                    $batchId = substr(sha1(($pending['purchaser_id']??'').'|'.($pending['supplier']??'').'|'.($pending['payment_status']??'').'|'.($pending['receipt_url']??'').'|'.$batchTs),0,10);
-                ?>
-                <tr class="hover:bg-orange-50 transition-colors">
-                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                                <span class="text-xs font-semibold text-purple-700">#<?php echo htmlspecialchars($batchId); ?></span>
-                            </div>
-                            <div>
-                                <div class="font-medium text-gray-900"><?php echo htmlspecialchars($pending['purchaser_name']); ?></div>
-                                <div class="text-xs text-gray-500">Placed: <?php echo htmlspecialchars($pending['date_purchased']); ?></div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
-                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-gray-100 text-gray-700 text-xs font-medium">
-                            <i data-lucide="factory" class="w-3 h-3"></i>
-                            <?php echo htmlspecialchars($pending['supplier']); ?>
-                        </span>
-                    </td>
-                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
-                        <div class="font-medium text-gray-900"><?php echo htmlspecialchars($pending['item_name']); ?></div>
-                        <div class="text-xs text-gray-500">Unit: <?php echo htmlspecialchars($displayUnit); ?></div>
-                    </td>
-                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm"><?php echo number_format($orderedDisplay, 2); ?> <?php echo htmlspecialchars($displayUnit); ?></td>
-                    <td class="px-6 py-4 text-gray-600"><?php echo number_format($deliveredDisplay, 2); ?> <?php echo htmlspecialchars($displayUnit); ?></td>
-                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
-                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800 border border-orange-200">
-                            <i data-lucide="alert-triangle" class="w-3 h-3"></i>
-                            <?php echo number_format($remainingDisplay, 2); ?> <?php echo htmlspecialchars($displayUnit); ?>
-                        </span>
-                    </td>
-                    <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
-                        <button
-                            type="button"
-                            class="inline-flex items-center gap-1 px-3 py-2 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors"
-                            data-quick-receive
-                            data-purchase-id="<?php echo (int)$pending['id']; ?>"
-                            data-batch-label="<?php echo htmlspecialchars('#' . $batchId); ?>"
-                            data-supplier="<?php echo htmlspecialchars($pending['supplier']); ?>"
-                            data-purchaser="<?php echo htmlspecialchars($pending['purchaser_name']); ?>"
-                            data-date="<?php echo htmlspecialchars($pending['date_purchased']); ?>"
-                            data-item="<?php echo htmlspecialchars($pending['item_name']); ?>"
-                            data-unit="<?php echo htmlspecialchars($pending['unit']); ?>"
-                            data-purchase-unit="<?php echo htmlspecialchars($displayUnit); ?>"
-                            data-purchase-quantity="<?php echo htmlspecialchars((string)$purchaseQty); ?>"
-                            data-display-unit="<?php echo htmlspecialchars($pending['display_unit'] ?? ''); ?>"
-                            data-display-factor="<?php echo htmlspecialchars((string)($pending['display_factor'] ?? '')); ?>"
-                            data-ordered="<?php echo htmlspecialchars((string)$pending['quantity']); ?>"
-                            data-ordered-display="<?php echo htmlspecialchars((string)$orderedDisplay); ?>"
-                            data-delivered="<?php echo htmlspecialchars((string)$pending['delivered_quantity']); ?>"
-                            data-delivered-display="<?php echo htmlspecialchars((string)$deliveredDisplay); ?>"
-                            data-remaining-base="<?php echo htmlspecialchars((string)$remainingBase); ?>"
-                            data-remaining-display="<?php echo htmlspecialchars((string)$remainingDisplay); ?>"
-                        >
-                            <i data-lucide="clipboard-check" class="w-3 h-3"></i>
-                            Receive now
-                        </button>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-</div>
-<?php endif; ?>
 
 <!-- Quick Receive Modal -->
 <div id="receiveQuickModal" class="fixed inset-0 z-50 hidden items-center justify-center px-4 py-8">
@@ -519,7 +411,7 @@ foreach ($deliveries as $d) {
                     <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Date Received</th>
                 </tr>
 			</thead>
-			<tbody class="divide-y divide-gray-200">
+			<tbody class="divide-y divide-gray-200" id="recentDeliveriesBody">
 				<?php foreach ($deliveries as $d): ?>
 				<tr class="hover:bg-gray-50 transition-colors" data-delivery-status="<?php echo strtolower($d['delivery_status']); ?>">
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
@@ -719,6 +611,9 @@ foreach ($deliveries as $d) {
   const quickStatusButtons = Array.from(document.querySelectorAll('[data-quick-status]'));
   const quickCloseTargets = Array.from(document.querySelectorAll('[data-quick-cancel]'));
   const quickReceiveButtons = Array.from(document.querySelectorAll('[data-quick-receive]'));
+  const recentDeliveriesBody = document.getElementById('recentDeliveriesBody');
+  const recentDeliveriesEmpty = document.getElementById('deliveryFilterEmpty');
+  const deliveryInlineError = document.getElementById('deliveryInlineError');
   let quickSelection = null;
   let quickStatus = 'complete';
 
@@ -961,6 +856,261 @@ foreach ($deliveries as $d) {
       rows.push({ purchase_id: ids[i], quantity: q, unit: units[i] });
     }
     itemsJson.value = JSON.stringify(rows);
+    updateBatchSelectFilter();
+  }
+
+  function getRecordedPurchaseIds(){
+    const recordedIds = new Set();
+    
+    // Get purchase IDs from main form (deliveriesItemsJson)
+    try {
+      const mainFormItems = JSON.parse(itemsJson?.value || '[]');
+      if (Array.isArray(mainFormItems)) {
+        mainFormItems.forEach(item => {
+          if (item.purchase_id) {
+            recordedIds.add(parseInt(item.purchase_id, 10));
+          }
+        });
+      }
+    } catch (e) {
+      console.error('Error parsing deliveriesItemsJson:', e);
+    }
+    
+    // Get purchase IDs from modal form (deliveryItems array)
+    if (Array.isArray(deliveryItems)) {
+      deliveryItems.forEach(item => {
+        if (item.purchaseId) {
+          recordedIds.add(parseInt(item.purchaseId, 10));
+        }
+      });
+    }
+    
+    // Also check deliveryModalItemsJson if it exists
+    try {
+      const modalFormItems = JSON.parse(deliveryModalItemsJson?.value || '[]');
+      if (Array.isArray(modalFormItems)) {
+        modalFormItems.forEach(item => {
+          if (item.purchase_id) {
+            recordedIds.add(parseInt(item.purchase_id, 10));
+          }
+        });
+      }
+    } catch (e) {
+      // Ignore errors for modal form
+    }
+    
+    return Array.from(recordedIds);
+  }
+
+  function updateBatchSelectFilter(){
+    if (!sel) return;
+    
+    const recordedPurchaseIds = getRecordedPurchaseIds();
+    if (recordedPurchaseIds.length === 0) {
+      // No items recorded, show all batches
+      Array.from(sel.options).forEach(opt => {
+        if (opt.value !== '') {
+          opt.style.display = '';
+          opt.disabled = false;
+        }
+      });
+      return;
+    }
+    
+    // Find which group IDs contain the recorded purchase IDs
+    const recordedGroupIds = new Set();
+    GROUPS.forEach(group => {
+      if (group.items && Array.isArray(group.items)) {
+        const hasRecordedPurchase = group.items.some(item => 
+          recordedPurchaseIds.includes(item.purchase_id)
+        );
+        if (hasRecordedPurchase) {
+          recordedGroupIds.add(group.group_id);
+        }
+      }
+    });
+    
+    // Hide/disable options for recorded batches
+    Array.from(sel.options).forEach(opt => {
+      if (opt.value === '') {
+        // Keep the placeholder option visible
+        return;
+      }
+      
+      if (recordedGroupIds.has(opt.value)) {
+        opt.style.display = 'none';
+        opt.disabled = true;
+        
+        // If the currently selected batch is now recorded, reset selection
+        if (sel.value === opt.value) {
+          sel.value = '';
+          updateSelectedBatchCard('');
+          if (box) box.classList.add('hidden');
+          if (itemsJson) itemsJson.value = '[]';
+        }
+      } else {
+        opt.style.display = '';
+        opt.disabled = false;
+      }
+    });
+  }
+
+  function showInlineError(message){
+    const alertBox = document.getElementById('deliveryInlineError');
+    if (alertBox){
+      alertBox.textContent = message;
+      alertBox.classList.remove('hidden');
+    } else {
+      alert(message);
+    }
+  }
+
+  function clearInlineError(){
+    const alertBox = document.getElementById('deliveryInlineError');
+    if (alertBox){
+      alertBox.textContent = '';
+      alertBox.classList.add('hidden');
+    }
+  }
+
+  function collectInlinePayload(){
+    if (!itemsJson) return [];
+    try {
+      const parsed = JSON.parse(itemsJson.value || '[]');
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function buildRecentEntriesFromInline(){
+    if (!sel || !sel.value) return [];
+    const groupId = sel.value;
+    const g = GROUPS.find(x=>x.group_id === groupId);
+    if (!g || !tableBody) return [];
+    const rows = Array.from(tableBody.querySelectorAll('tr'));
+    const entries = [];
+    rows.forEach(row=>{
+      const pidInput = row.querySelector('input[name="purchase_id[]"]');
+      const qtyInput = row.querySelector('input[name="row_qty[]"]');
+      const unitSelect = row.querySelector('select[name="row_unit[]"]');
+      if (!pidInput || !qtyInput || !unitSelect) return;
+      const purchaseId = parseInt(pidInput.value || '0', 10);
+      const qty = parseFloat(qtyInput.value || '0');
+      if (!purchaseId || qty <= 0) return;
+      const unit = unitSelect.value || unitSelect.options[unitSelect.selectedIndex]?.value || '';
+      const item = (g.items || []).find(it => it.purchase_id === purchaseId);
+      const name = item?.item_name || 'Item';
+      const remainingDisplay = item?.remaining_display ?? item?.quantity ?? 0;
+      const status = qty >= (remainingDisplay - 0.0001) ? 'complete' : 'partial';
+      entries.push({
+        batchId: groupId,
+        itemName: name,
+        quantity: qty,
+        unit: unit || item?.purchase_unit || item?.unit || '',
+        status,
+        date: g.date_purchased || new Date().toISOString()
+      });
+    });
+    return entries;
+  }
+
+  function buildRecentEntriesFromModal(){
+    if (!currentDeliveryGroup || !Array.isArray(deliveryItems) || !deliveryItems.length) return [];
+    return deliveryItems.map(di=>{
+      const matched = (currentDeliveryGroup.items || []).find(it => di.purchaseId && it.purchase_id === di.purchaseId);
+      const remainingDisplay = matched?.remaining_display ?? matched?.quantity ?? 0;
+      const status = matched ? (di.quantity >= (remainingDisplay - 0.0001) ? 'complete' : 'partial') : 'partial';
+      return {
+        batchId: currentDeliveryGroup.group_id,
+        itemName: di.itemName || 'Item',
+        quantity: di.quantity || 0,
+        unit: di.unit || matched?.purchase_unit || matched?.unit || '',
+        status,
+        date: currentDeliveryGroup.date_purchased || new Date().toISOString()
+      };
+    });
+  }
+
+  function removeSelectedBatchOption(){
+    if (!sel) return;
+    const currentValue = sel.value;
+    if (!currentValue) return;
+    const opt = sel.querySelector(`option[value="${currentValue}"]`);
+    if (opt){
+      opt.remove();
+    }
+    sel.value = '';
+    updateSelectedBatchCard('');
+    if (box) box.classList.add('hidden');
+    if (itemsJson) itemsJson.value = '[]';
+  }
+
+  function addRecentDeliveryRows(entries){
+    if (!recentDeliveriesBody || !Array.isArray(entries) || entries.length === 0) return;
+    entries.forEach(entry => {
+      const tr = document.createElement('tr');
+      tr.className = 'hover:bg-gray-50 transition-colors';
+      tr.setAttribute('data-delivery-status', entry.status || 'partial');
+      const statusClass = (entry.status === 'complete') ? 'bg-green-100 text-green-800 border-green-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      const statusIcon = (entry.status === 'complete') ? 'check-circle' : 'clock';
+      const qtyText = Number(entry.quantity || 0).toFixed(2);
+      const unitText = entry.unit || 'unit';
+      const nowText = entry.date || new Date().toLocaleString();
+      const batchLabel = entry.batchId ? `#${entry.batchId}` : 'Batch';
+      tr.innerHTML = `
+        <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+              <span class="text-xs font-semibold text-orange-600">—</span>
+            </div>
+          </div>
+        </td>
+        <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+              <span class="text-xs font-semibold text-purple-600">${batchLabel}</span>
+            </div>
+          </div>
+        </td>
+        <td class="px-6 py-4">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+              <i data-lucide="package" class="w-4 h-4 text-blue-600"></i>
+            </div>
+            <div>
+              <div class="font-medium text-gray-900">${entry.itemName || 'Item'}</div>
+              <div class="text-xs text-gray-500">${unitText}</div>
+            </div>
+          </div>
+        </td>
+        <td class="px-6 py-4">
+          <div class="flex items-center gap-2">
+            <span class="font-semibold text-gray-900">${qtyText}</span>
+            <span class="text-gray-500 text-sm">${unitText}</span>
+          </div>
+        </td>
+        <td class="px-6 py-4">
+          <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border ${statusClass}">
+            <i data-lucide="${statusIcon}" class="w-3 h-3"></i>
+            ${entry.status === 'complete' ? 'Complete' : 'Recorded'}
+          </span>
+        </td>
+        <td class="px-6 py-4">
+          <div class="flex items-center gap-2">
+            <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+            <span class="text-gray-600">${nowText}</span>
+          </div>
+        </td>
+      `;
+      recentDeliveriesBody.prepend(tr);
+    });
+    if (recentDeliveriesEmpty){
+      recentDeliveriesEmpty.classList.add('hidden');
+    }
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons({ elements: recentDeliveriesBody.querySelectorAll('i[data-lucide]') });
+    }
   }
 
   quickReceiveButtons.forEach(button => {
@@ -1030,6 +1180,7 @@ foreach ($deliveries as $d) {
     }
     const payload = [{ purchase_id: quickSelection.purchaseId, quantity: qty, unit: quickSelection.unit }];
     itemsJson.value = JSON.stringify(payload);
+    updateBatchSelectFilter();
     closeQuickModal();
     deliveriesForm.submit();
   });
@@ -1039,6 +1190,8 @@ foreach ($deliveries as $d) {
   const deliveryModalClose = deliveryModal?.querySelector('.deliveryModalClose');
   const deliveryModalForm = document.getElementById('deliveryModalForm');
   const deliveryItemSelect = document.getElementById('deliveryItemSelect');
+  const deliveryItemSearch = document.getElementById('deliveryItemSearch');
+  const deliveryItemDropdown = document.getElementById('deliveryItemDropdown');
   const deliveryQuantityInput = document.getElementById('deliveryQuantityInput');
   const deliveryUnitInput = document.getElementById('deliveryUnitInput');
   const deliveryUnitSelect = document.getElementById('deliveryUnitSelect');
@@ -1053,6 +1206,87 @@ foreach ($deliveries as $d) {
   let deliveryItems = [];
   let currentDeliveryGroup = null;
   let lastSelectedUnit = ''; // Track last selected unit for conversion calculations
+  let deliveryIngredientOptions = []; // Store all ingredient options for search
+
+  function filterDeliveryIngredients(searchTerm) {
+    if (!deliveryItemDropdown) return;
+    
+    const term = (searchTerm || '').toLowerCase().trim();
+    const filtered = deliveryIngredientOptions.filter(opt => {
+      const nameMatch = opt.name.toLowerCase().includes(term);
+      const unitMatch = (opt.displayUnit || opt.baseUnit || '').toLowerCase().includes(term);
+      return nameMatch || unitMatch;
+    });
+    
+    deliveryItemDropdown.innerHTML = '';
+    
+    if (filtered.length === 0) {
+      deliveryItemDropdown.innerHTML = '<div class="px-4 py-3 text-sm text-gray-500 text-center">No ingredients found</div>';
+      deliveryItemDropdown.classList.remove('hidden');
+      return;
+    }
+    
+    filtered.forEach(opt => {
+      const div = document.createElement('div');
+      div.className = 'px-4 py-2 hover:bg-orange-50 cursor-pointer border-b border-gray-100 last:border-b-0';
+      div.dataset.ingredientId = opt.id;
+      div.innerHTML = `
+        <div class="font-medium text-gray-900">${escapeHtml(opt.name)}</div>
+        <div class="text-xs text-gray-500">${escapeHtml(opt.displayUnit || opt.baseUnit || 'unit')}</div>
+      `;
+      
+      div.addEventListener('click', () => {
+        selectDeliveryIngredient(opt);
+      });
+      
+      deliveryItemDropdown.appendChild(div);
+    });
+    
+    deliveryItemDropdown.classList.remove('hidden');
+  }
+
+  function selectDeliveryIngredient(option) {
+    if (!option || !deliveryItemSelect) return;
+    
+    // Find the matching option element
+    let optElement = deliveryItemSelect.querySelector(`option[value="${option.id}"]`);
+    
+    // If option doesn't exist, create it with all necessary data attributes
+    if (!optElement) {
+      optElement = document.createElement('option');
+      optElement.value = option.id;
+      optElement.textContent = option.displayText;
+      optElement.dataset.ingredientId = option.id;
+      optElement.dataset.itemName = option.name;
+      optElement.dataset.baseUnit = option.baseUnit || '';
+      optElement.dataset.displayUnit = option.displayUnit || '';
+      optElement.dataset.displayFactor = option.displayFactor || 1;
+      optElement.dataset.supplier = option.supplier || '';
+      optElement.dataset.purchaseId = option.purchaseId || '';
+      optElement.dataset.purchaseIndex = option.purchaseIndex || '';
+      if (option.quantity !== undefined) {
+        optElement.dataset.quantity = option.quantity;
+        optElement.dataset.quantityBase = option.quantityBase;
+      }
+      deliveryItemSelect.appendChild(optElement);
+    }
+    
+    // Set the hidden select value to trigger existing change handler
+    deliveryItemSelect.value = option.id;
+    
+    // Update search input to show selected name
+    if (deliveryItemSearch) {
+      deliveryItemSearch.value = option.displayText;
+    }
+    
+    // Hide dropdown
+    if (deliveryItemDropdown) {
+      deliveryItemDropdown.classList.add('hidden');
+    }
+    
+    // Trigger the change event to use existing logic
+    deliveryItemSelect.dispatchEvent(new Event('change', { bubbles: true }));
+  }
 
   function openDeliveryModal(groupId){
     if (!deliveryModal) {
@@ -1126,11 +1360,12 @@ foreach ($deliveries as $d) {
     }
     
     // Populate item select dropdown with ALL ingredients from inventory
-    if (!deliveryItemSelect) {
+    if (!deliveryItemSelect || !deliveryItemSearch) {
       alert('Error: Delivery form elements not found. Please refresh the page.');
       return;
     }
     deliveryItemSelect.innerHTML = '<option value="">Choose ingredient</option>';
+    deliveryIngredientOptions = [];
     
     // Create a map of ingredient IDs to purchase items in this batch for linking
     const purchaseItemsByIngredient = {};
@@ -1195,7 +1430,30 @@ foreach ($deliveries as $d) {
       }
       
       deliveryItemSelect.appendChild(opt);
+      
+      // Also add to searchable options array
+      deliveryIngredientOptions.push({
+        id: ing.id,
+        name: ing.name,
+        baseUnit: ing.unit || '',
+        displayUnit: ing.display_unit || '',
+        displayFactor: ing.display_factor || 1,
+        displayText: `${ing.name} (${unitLabel})`,
+        supplier: g.supplier || '',
+        purchaseId: opt.dataset.purchaseId || '',
+        purchaseIndex: opt.dataset.purchaseIndex || '',
+        quantity: opt.dataset.quantity || undefined,
+        quantityBase: opt.dataset.quantityBase || undefined
       });
+      });
+    }
+    
+    // Reset search input
+    if (deliveryItemSearch) {
+      deliveryItemSearch.value = '';
+    }
+    if (deliveryItemDropdown) {
+      deliveryItemDropdown.classList.add('hidden');
     }
     
     renderDeliveryItems();
@@ -1223,6 +1481,12 @@ foreach ($deliveries as $d) {
     currentDeliveryGroup = null;
     renderDeliveryItems();
     deliveryItemSelect.value = '';
+    if (deliveryItemSearch) {
+      deliveryItemSearch.value = '';
+    }
+    if (deliveryItemDropdown) {
+      deliveryItemDropdown.classList.add('hidden');
+    }
     deliveryQuantityInput.value = '';
     deliveryUnitInput.value = '';
     if (deliveryUnitSelect) {
@@ -1236,6 +1500,7 @@ foreach ($deliveries as $d) {
     if (deliveryUnitSelect) deliveryUnitSelect.disabled = true;
     deliverySupplierInput.readOnly = true;
     if (deliveryBuilderError) deliveryBuilderError.classList.add('hidden');
+    updateBatchSelectFilter();
   }
 
   function showDeliveryError(message){
@@ -1262,6 +1527,7 @@ foreach ($deliveries as $d) {
     if (!deliveryItems.length){
       deliveryEmptyState.classList.remove('hidden');
       if (deliverySubmitBtn) deliverySubmitBtn.disabled = true;
+      updateBatchSelectFilter();
       return;
     }
     deliveryEmptyState.classList.add('hidden');
@@ -1304,13 +1570,65 @@ foreach ($deliveries as $d) {
       supplier: item.supplier
     }));
     if (deliveryModalItemsJson) deliveryModalItemsJson.value = JSON.stringify(jsonData);
+    updateBatchSelectFilter();
   }
+
+  // Handle search input for ingredient selection
+  if (deliveryItemSearch) {
+    deliveryItemSearch.addEventListener('input', (e) => {
+      const searchTerm = e.target.value;
+      filterDeliveryIngredients(searchTerm);
+    });
+    
+    deliveryItemSearch.addEventListener('focus', () => {
+      if (deliveryItemSearch.value.trim() === '') {
+        filterDeliveryIngredients('');
+      } else {
+        filterDeliveryIngredients(deliveryItemSearch.value);
+      }
+    });
+    
+    deliveryItemSearch.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        // Select first filtered option if available
+        const firstOption = deliveryItemDropdown?.querySelector('[data-ingredient-id]');
+        if (firstOption) {
+          const ingredientId = firstOption.dataset.ingredientId;
+          const option = deliveryIngredientOptions.find(opt => opt.id.toString() === ingredientId);
+          if (option) {
+            selectDeliveryIngredient(option);
+          }
+        }
+      } else if (e.key === 'Escape') {
+        if (deliveryItemDropdown) {
+          deliveryItemDropdown.classList.add('hidden');
+        }
+        deliveryItemSearch.blur();
+      }
+    });
+  }
+  
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (deliveryItemSearch && deliveryItemDropdown) {
+      if (!deliveryItemSearch.contains(e.target) && !deliveryItemDropdown.contains(e.target)) {
+        deliveryItemDropdown.classList.add('hidden');
+      }
+    }
+  });
 
   // Handle item selection
   if (deliveryItemSelect) {
     deliveryItemSelect.addEventListener('change', ()=>{
       const selectedOpt = deliveryItemSelect.options[deliveryItemSelect.selectedIndex];
       if (!selectedOpt || !selectedOpt.value) {
+        if (deliveryItemSearch) {
+          deliveryItemSearch.value = '';
+        }
+        if (deliveryItemDropdown) {
+          deliveryItemDropdown.classList.add('hidden');
+        }
         deliveryQuantityInput.value = '';
         deliveryUnitInput.value = '';
         if (deliveryUnitSelect) {
@@ -1626,10 +1944,17 @@ foreach ($deliveries as $d) {
         return;
       }
       
-      // If there's a matching purchase in the batch, use it; otherwise, we'll create one on the backend
+      // Use matching purchase if available, otherwise fallback to first purchase in the batch
       let purchaseIdInt = null;
       if (purchaseId && purchaseId !== '') {
         purchaseIdInt = parseInt(purchaseId, 10);
+      }
+      if (!purchaseIdInt && currentDeliveryGroup && Array.isArray(currentDeliveryGroup.items) && currentDeliveryGroup.items.length > 0) {
+        purchaseIdInt = parseInt(currentDeliveryGroup.items[0].purchase_id, 10);
+      }
+      if (!purchaseIdInt) {
+        showDeliveryError('Select a purchase batch first, then add the ingredient.');
+        return;
       }
       
       deliveryItems.push({
@@ -1643,6 +1968,12 @@ foreach ($deliveries as $d) {
       
       // Clear inputs
       deliveryItemSelect.value = '';
+      if (deliveryItemSearch) {
+        deliveryItemSearch.value = '';
+      }
+      if (deliveryItemDropdown) {
+        deliveryItemDropdown.classList.add('hidden');
+      }
       deliveryQuantityInput.value = '';
       deliveryUnitInput.value = '';
       if (deliveryUnitSelect) {
@@ -1663,6 +1994,7 @@ foreach ($deliveries as $d) {
       
       renderDeliveryItems();
       clearDeliveryError();
+      updateBatchSelectFilter();
       if (typeof lucide !== 'undefined') {
         lucide.createIcons();
       }
@@ -1678,6 +2010,7 @@ foreach ($deliveries as $d) {
       if (index >= 0 && index < deliveryItems.length) {
         deliveryItems.splice(index, 1);
         renderDeliveryItems();
+        updateBatchSelectFilter();
         if (typeof lucide !== 'undefined') {
           lucide.createIcons();
         }
@@ -1701,7 +2034,28 @@ foreach ($deliveries as $d) {
         showDeliveryError('Please add at least one item to record delivery.');
         return;
       }
+      deliverySubmitBtn?.setAttribute('disabled','disabled');
+      deliverySubmitBtn?.classList.add('opacity-60','cursor-not-allowed');
+      addRecentDeliveryRows(buildRecentEntriesFromModal());
+      removeSelectedBatchOption();
       // Form will submit normally with items_json
+    });
+  }
+
+  if (deliveriesForm){
+    deliveriesForm.addEventListener('submit', (e)=>{
+      clearInlineError();
+      sync();
+      const payload = collectInlinePayload();
+      if (!payload.length){
+        e.preventDefault();
+        showInlineError('Add at least one outstanding item with a quantity before recording the delivery.');
+        return;
+      }
+      deliverySubmitBtn?.setAttribute('disabled','disabled');
+      deliverySubmitBtn?.classList.add('opacity-60','cursor-not-allowed');
+      addRecentDeliveryRows(buildRecentEntriesFromInline());
+      removeSelectedBatchOption();
     });
   }
 
@@ -1717,6 +2071,7 @@ foreach ($deliveries as $d) {
         if (box) box.classList.add('hidden');
         if (itemsJson) itemsJson.value='[]';
       }
+      updateBatchSelectFilter();
     });
   }
   if (searchInput){
@@ -1733,6 +2088,9 @@ foreach ($deliveries as $d) {
       }
     });
   }
+
+  // Initialize batch select filter on page load
+  updateBatchSelectFilter();
 
   function applyDeliveryFilter(value){
     if (!filterSelect || deliveryRows.length === 0) return;
@@ -1766,14 +2124,6 @@ foreach ($deliveries as $d) {
       window.history.replaceState({}, '', newUrl);
       applyDeliveryFilter(value);
     });
-    if (statusParam === 'awaiting'){
-      const awaiting = document.getElementById('awaiting-deliveries');
-      if (awaiting){
-        awaiting.classList.add('ring-2','ring-orange-200','ring-offset-2');
-        awaiting.scrollIntoView({behavior:'smooth'});
-        setTimeout(()=> awaiting.classList.remove('ring-2','ring-offset-2','ring-orange-200'), 2000);
-      }
-    }
   } else {
     applyDeliveryFilter('all');
   }
@@ -1804,10 +2154,7 @@ foreach ($deliveries as $d) {
 		#deliveryModal textarea:focus,
 		#receiveQuickModal input:focus,
 		#receiveQuickModal select:focus,
-		#receiveQuickModal textarea:focus,
-		#awaiting-deliveries input:focus,
-		#awaiting-deliveries select:focus,
-		#awaiting-deliveries textarea:focus {
+		#receiveQuickModal textarea:focus {
 			outline: none !important;
 			box-shadow: none !important;
 			border-color: rgb(209 213 219) !important; /* Keep gray-300 border color */

@@ -35,10 +35,9 @@ class DashboardController extends BaseController
 		}
 		$stats['lowStockCount'] = $low;
 
-		// Pending requests
+		// Pending requests (count batches, not individual requests)
 		$requestModel = new RequestModel();
-		$pending = $requestModel->listAll('Pending');
-		$stats['pendingRequests'] = count($pending);
+		$stats['pendingRequests'] = $requestModel->countBatchesByStatus('Pending');
 
 		// Pending deliveries
 		$deliveryModel = new Delivery();
