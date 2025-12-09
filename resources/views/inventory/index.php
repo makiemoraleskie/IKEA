@@ -1116,9 +1116,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 	
 	function renderRow(ing) {
-		const barColor = ing.low ? 'bg-red-500' : (ing.percentage >= 50 ? 'bg-green-500' : 'bg-amber-500');
-		const stockBarColor = ing.low ? 'bg-red-500' : (ing.stockPercentage > 200 ? 'bg-green-500' : 'bg-yellow-500');
-		const progressWidth = Math.max(0, Math.min(100, ing.stockPercentage));
 		const rowClass = `inventory-row hover:bg-gray-50 transition-colors ${ing.low ? 'bg-red-50' : ''} ${isCompactView ? 'compact-view' : ''}`;
 		
 		return `
@@ -1132,9 +1129,11 @@ document.addEventListener('DOMContentLoaded', function() {
 				</td>
 				<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
 					<div class="space-y-1">
-						<div class="flex items-center gap-1 md:gap-1.5 lg:gap-2 flex-wrap">
-							<span class="font-semibold text-gray-900 text-[10px] md:text-xs lg:text-sm">${formatNumber(ing.quantity)}</span>
-							<span class="text-gray-500 text-[9px] md:text-[10px] lg:text-xs">${escapeHtml(ing.unit || '')}</span>
+						<div class="flex flex-col leading-tight gap-0.5">
+							<span class="inline-flex items-center gap-1 md:gap-1.5">
+								<span class="font-semibold text-green-700 text-[10px] md:text-xs lg:text-sm">${formatNumber(ing.quantity)}</span>
+								<span class="text-gray-500 text-[9px] md:text-[10px] lg:text-xs">${escapeHtml(ing.unit || '')}</span>
+							</span>
 							${(() => {
 								// Show converted display unit if available
 								if (ing.display_unit && ing.display_factor && ing.display_factor > 0) {
@@ -1144,10 +1143,6 @@ document.addEventListener('DOMContentLoaded', function() {
 								return '';
 							})()}
 						</div>
-						<div class="w-full bg-gray-200 rounded-full h-1 md:h-1.5 lg:h-2 overflow-hidden">
-							<div class="h-full ${barColor} transition-all duration-300" style="width: ${ing.percentage}%"></div>
-						</div>
-						<p class="text-[9px] md:text-[10px] lg:text-xs text-gray-500">${formatNumber(ing.percentage, 0)}% of recommended (${formatNumber(ing.recommendedQty)} ${escapeHtml(ing.unit || '')})</p>
 					</div>
 				</td>
 				<td class="hidden lg:table-cell px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">

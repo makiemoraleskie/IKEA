@@ -52,11 +52,11 @@ function formatDate($dateString) {
 			</div>
 			<button type="button" id="closeNewRequestModal" class="text-gray-500 hover:text-gray-700 text-lg md:text-xl leading-none" aria-label="Close">&times;</button>
 		</div>
-		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests" class="p-5 md:p-6 lg:p-7 space-y-5 md:space-y-6 w-full overflow-x-hidden">
+		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests" class="p-3 md:p-6 lg:p-7 space-y-5 md:space-y-6 w-full overflow-x-hidden">
 			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
 				<div class="space-y-1">
-					<label class="block text-sm md:text-base font-medium text-gray-700">Name</label>
+					<label class="block text-sm md:text-base font-medium text-gray-700">Requester Name</label>
 					<input name="requester_name" class="w-full border border-gray-300 rounded-lg px-3.5 md:px-4 py-2.5 md:py-3 text-sm md:text-base focus:ring-2 focus:ring-gray-500 md:focus:ring-0 focus:outline-none" placeholder="e.g., Juan Dela Cruz" required>
 				</div>
 				<div class="space-y-1">
@@ -65,7 +65,7 @@ function formatDate($dateString) {
 				</div>
 			</div>
 			<div class="space-y-1">
-				<label class="block text-sm md:text-base font-medium text-gray-700">Ingredients / Notes</label>
+				<label class="block text-sm md:text-base font-medium text-gray-700">Ingredients / Items</label>
 				<textarea name="ingredients_note" rows="4" class="w-full border border-gray-300 rounded-lg px-3.5 md:px-4 py-2.5 md:py-3 text-sm md:text-base focus:ring-2 focus:ring-gray-500 md:focus:ring-0 focus:outline-none" placeholder="List ingredients, quantities, or any prep instructions" required></textarea>
 				<p class="text-xs md:text-sm text-gray-500">Detailed quantities will be captured later during the Prepare step.</p>
 			</div>
@@ -93,7 +93,7 @@ function formatDate($dateString) {
                     <i data-lucide="clipboard-list" class="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-600"></i>
                     Batch Requests History
                 </h2>
-                <p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">View and manage all ingredient requests</p>
+                <p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">View and manage all Ingredient/Items requests</p>
             </div>
             <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 md:gap-2 text-xs md:text-sm text-gray-600">
                 <label for="requestStatusFilter" class="whitespace-nowrap">Filter status:</label>
@@ -113,8 +113,8 @@ function formatDate($dateString) {
 		<table class="w-full text-[10px] md:text-xs lg:text-sm" style="min-width: 100%;">
 			<thead class="sticky top-0 bg-white z-10">
 				<tr>
-					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Requested Name</th>
-					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Requested Ingredient</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Requester</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Details</th>
 					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Date Needed</th>
 					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Status</th>
 				</tr>
@@ -129,7 +129,7 @@ function formatDate($dateString) {
 						</div>
 					</td>
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
-                        <button type="button" class="text-green-600 hover:text-green-700 text-[10px] md:text-xs lg:text-sm font-medium viewBatchDetails" data-batch="<?php echo (int)$b['id']; ?>" data-status="<?php echo htmlspecialchars($b['status'] ?? ''); ?>">View details</button>
+                        <button type="button" class="text-green-600 hover:text-green-700 text-[10px] md:text-xs lg:text-sm font-semibold viewBatchDetails" data-batch="<?php echo (int)$b['id']; ?>" data-status="<?php echo htmlspecialchars($b['status'] ?? ''); ?>">View</button>
 					</td>
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-gray-600 text-[10px] md:text-xs lg:text-sm">
 						<?php 
@@ -198,8 +198,8 @@ function formatDate($dateString) {
 
 							<!-- Requested Items Section -->
 							<?php if (!empty($b['custom_ingredients'])): ?>
+							<p class="text-xs font-semibold tracking-wide text-gray-500 mb-2 mt-3 md:mb-3">Requested Ingredients/Items</p>
 							<div class="p-3 md:p-4 border border-gray-200 rounded-lg">
-								<p class="text-xs uppercase tracking-wide text-gray-500 mb-2 md:mb-3">Requested Items</p>
 								<ul class="grid grid-cols-1 md:grid-cols-2 gap-2">
 									<?php 
 									$ingredientLines = explode("\n", trim($b['custom_ingredients']));
@@ -224,14 +224,13 @@ function formatDate($dateString) {
 							?>
 							<div class="space-y-3 md:space-y-4 pt-2 border-t border-gray-100">
 								<div class="flex items-center gap-1.5 md:gap-2">
-									<i data-lucide="list-checks" class="w-4 h-4 md:w-5 md:h-5 text-green-600"></i>
-									<h3 class="text-xs md:text-xs font-bold text-gray-900 tracking-wide">Items In Batch</h3>
+									<h3 class="text-semibold md:text-sm text-gray-900 tracking-wide mt-3">Items In Batch</h3>
 								</div>
-								<div class="overflow-x-auto rounded-lg border border-gray-200">
+								<div class="overflow-x-auto overflow-y-auto max-h-[320px] md:max-h-[380px] rounded-lg border border-gray-200">
 									<table class="w-full text-xs md:text-sm">
-										<thead class="bg-gray-100">
+										<thead class="bg-green-100">
 											<tr>
-												<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Ingredient</th>
+												<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Ingredient/Item</th>
 												<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm">Quantity</th>
 												<th class="text-left px-2.5 md:px-3 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm"><?php echo $isDistributed ? 'Remaining Stock' : 'Actions'; ?></th>
 											</tr>
@@ -258,7 +257,7 @@ function formatDate($dateString) {
 													</div>
 												</td>
 												<td class="px-2.5 md:px-3 py-2 md:py-2.5">
-													<span class="font-bold text-gray-900 text-xs md:text-sm"><?php echo htmlspecialchars($it['quantity']); ?> <?php echo htmlspecialchars($it['unit']); ?></span>
+													<span class="text-red-600 text-xs md:text-sm">- <?php echo htmlspecialchars($it['quantity']); ?> <?php echo htmlspecialchars($it['unit']); ?></span>
 												</td>
 												<td class="px-2.5 md:px-3 py-2 md:py-2.5">
 													<?php if ($isDistributed): 
@@ -289,7 +288,7 @@ function formatDate($dateString) {
 															$stockDisplay = number_format($stockValue, 2) . ' ' . $baseUnit;
 														}
 													?>
-														<span class="font-semibold text-gray-900 text-xs md:text-sm"><?php echo htmlspecialchars($stockDisplay); ?></span>
+														<span class="text-green-600 text-xs md:text-sm"><?php echo htmlspecialchars($stockDisplay); ?></span>
 													<?php else: ?>
 														<button type="button" class="text-red-600 hover:text-red-700 text-[10px] md:text-xs font-medium">Remove</button>
 													<?php endif; ?>
@@ -350,6 +349,12 @@ function formatDate($dateString) {
 							$ingredientLines = array_filter(array_map('trim', explode("\n", $batch['custom_ingredients'])));
 							$ingredientCount = count($ingredientLines);
 						}
+						$dateNeededRaw = !empty($batch['custom_request_date'])
+							? substr((string)$batch['custom_request_date'], 0, 10)
+							: substr((string)($batch['date_requested'] ?? ''), 0, 10);
+						$dateNeededFormatted = ($dateNeededRaw && strtotime($dateNeededRaw)) 
+							? date('F j', strtotime($dateNeededRaw)) 
+							: ($dateNeededRaw ?: '—');
 					?>
 					<tr class="hover:bg-gray-50 transition-colors">
 						<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
@@ -365,7 +370,7 @@ function formatDate($dateString) {
 							<?php endif; ?>
 						</td>
 						<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-gray-600 text-[10px] md:text-xs lg:text-sm">
-							<?php echo htmlspecialchars(formatDate($batch['date_requested'])); ?>
+							<?php echo htmlspecialchars($dateNeededFormatted); ?>
 						</td>
 						<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
 							<span class="inline-flex items-center gap-0.5 md:gap-1 px-2 md:px-2.5 lg:px-3 py-0.5 md:py-1 text-[9px] md:text-[10px] lg:text-xs font-semibold rounded-full text-orange-600 whitespace-nowrap">To Prepare</span>
@@ -378,7 +383,7 @@ function formatDate($dateString) {
 									data-items="<?php echo $metaItems; ?>"
 									data-requester="<?php echo htmlspecialchars($batch['custom_requester'] ?: ($batch['staff_name'] ?? '')); ?>"
 									data-notes="<?php echo htmlspecialchars($batch['custom_ingredients'] ?? ''); ?>"
-									data-date="<?php echo htmlspecialchars($batch['custom_request_date'] ?: substr((string)($batch['date_requested'] ?? ''), 0, 10)); ?>"
+									data-date="<?php echo htmlspecialchars($dateNeededFormatted); ?>"
 									data-staff="<?php echo htmlspecialchars($batch['staff_name'] ?? ''); ?>"
 									data-staff-id="<?php echo (int)($batch['staff_id'] ?? 0); ?>">
 									Prepare
@@ -472,7 +477,7 @@ function formatDate($dateString) {
 							<div class="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-3 md:gap-4 pb-4 border-b border-gray-200">
 								<div class="flex-1">
 									<?php if (!empty($b['custom_requester'])): ?>
-									<p class="text-sm text-gray-600 mb-2">Request Name: <span class="font-semibold text-gray-900"><?php echo htmlspecialchars($b['custom_requester']); ?></span></p>
+									<p class="text-sm font-semibold tracking-wide text-gray-500 mb-2">Request Name: <span class="font-semibold text-gray-900"><?php echo htmlspecialchars($b['custom_requester']); ?></span></p>
 									<?php endif; ?>
 									<div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4 request-info-section">
 										<div>
@@ -502,7 +507,7 @@ function formatDate($dateString) {
 							<!-- Requested Items Section -->
 							<?php if (!empty($b['custom_ingredients'])): ?>
 							<div class="p-3 md:p-4 border border-gray-200 rounded-lg">
-								<p class="text-xs uppercase tracking-wide text-gray-500 mb-2 md:mb-3">Requested Items</p>
+								<p class="text-xs tracking-wide text-gray-500 mb-2 md:mb-3">Requested Ingredient/Items</p>
 								<ul class="grid grid-cols-1 md:grid-cols-2 gap-2">
 									<?php 
 									$ingredientLines = explode("\n", trim($b['custom_ingredients']));
@@ -529,9 +534,9 @@ function formatDate($dateString) {
 							<div class="space-y-3 md:space-y-4 pt-2 border-t border-gray-100">
 								<div class="flex items-center gap-1.5 md:gap-2">
 									<i data-lucide="list-checks" class="w-4 h-4 md:w-5 md:h-5 text-green-600"></i>
-									<h3 class="text-xs md:text-xs font-bold text-gray-900 tracking-wide">Items In Batch</h3>
+									<h3 class="text-xs md:text-xs font-semibold text-gray-900 tracking-wide">Items In Batch</h3>
 								</div>
-								<div class="overflow-x-auto rounded-lg border border-gray-200">
+								<div class="overflow-x-auto overflow-y-auto max-h-[320px] md:max-h-[380px] rounded-lg border border-gray-200">
 									<table class="w-full text-xs md:text-sm">
 										<thead class="bg-gray-100">
 											<tr>
@@ -562,7 +567,7 @@ function formatDate($dateString) {
 													</div>
 												</td>
 												<td class="px-2.5 md:px-3 py-2 md:py-2.5">
-													<span class="font-bold text-gray-900 text-xs md:text-sm"><?php echo htmlspecialchars($it['quantity']); ?> <?php echo htmlspecialchars($it['unit']); ?></span>
+													<span class="text-gray-900 text-xs md:text-sm">- <?php echo htmlspecialchars($it['quantity']); ?> <?php echo htmlspecialchars($it['unit']); ?></span>
 												</td>
 												<td class="px-2.5 md:px-3 py-2 md:py-2.5">
 													<?php if ($isDistributed): 
@@ -593,7 +598,7 @@ function formatDate($dateString) {
 															$stockDisplay = number_format($stockValue, 2) . ' ' . $baseUnit;
 														}
 													?>
-														<span class="font-semibold text-gray-900 text-xs md:text-sm"><?php echo htmlspecialchars($stockDisplay); ?></span>
+														<span class="text-gray-900 text-xs md:text-sm"><?php echo htmlspecialchars($stockDisplay); ?></span>
 													<?php else: ?>
 														<button type="button" class="text-red-600 hover:text-red-700 text-[10px] md:text-xs font-medium">Remove</button>
 													<?php endif; ?>
@@ -665,26 +670,26 @@ function formatDate($dateString) {
 </div>
 
 <div id="prepareModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; z-index: 99999 !important;">
-	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-y-auto">
 		<div class="px-3 md:px-4 lg:px-5 py-3 border-b">
 			<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-3">
 				<div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4">
 					<div>
-						<p class="text-[9px] uppercase tracking-wide text-gray-500">Batch</p>
+						<p class="text-[10px] font-semibold uppercase tracking-wide text-gray-500">Batch</p>
 						<p class="text-sm font-semibold text-gray-900" id="prepareModalBatchLabel">#0</p>
 					</div>
+						<div>
+							<p class="text-[10px] uppercase tracking-wide text-gray-500">Requested By</p>
+							<p class="text-[12px] font-semibold text-gray-900 mt-0.5" id="prepareModalStaff">—</p>
+						</div>
 					<div class="flex flex-wrap items-center gap-2 md:gap-3">
 						<div>
-							<p class="text-[9px] uppercase tracking-wide text-gray-500">Request Name</p>
-							<p class="text-[10px] md:text-xs font-semibold text-gray-900 mt-0.5" id="prepareModalRequestName">—</p>
+							<p class="text-[10px] uppercase tracking-wide text-gray-500">Requester</p>
+							<p class="text-[12px] font-semibold text-gray-900 mt-0.5" id="prepareModalRequestName">—</p>
 						</div>
 						<div>
-							<p class="text-[9px] uppercase tracking-wide text-gray-500">Date Needed</p>
-							<p class="text-[10px] md:text-xs font-semibold text-gray-900 mt-0.5" id="prepareModalRequestDate">—</p>
-						</div>
-						<div>
-							<p class="text-[9px] uppercase tracking-wide text-gray-500">Requested By</p>
-							<p class="text-[10px] md:text-xs font-semibold text-gray-900 mt-0.5" id="prepareModalStaff">—</p>
+							<p class="text-[10px] uppercase tracking-wide text-gray-500">Date Needed</p>
+							<p class="text-[12px] font-semibold text-gray-900 mt-0.5" id="prepareModalRequestDate">—</p>
 						</div>
 					</div>
 				</div>
@@ -692,8 +697,8 @@ function formatDate($dateString) {
 			</div>
 		</div>
 		<div class="px-3 md:px-4 lg:px-5 py-3 space-y-3">
+			<p class="text-[12px] font-semibold tracking-wide text-gray-500 mb-2">Requested Ingredients/Items</p>
 			<div class="p-2.5 md:p-3 border border-gray-200 rounded-lg">
-				<p class="text-[10px] uppercase tracking-wide text-gray-500 mb-2">Requested Ingredients</p>
 				<ul class="grid grid-cols-1 md:grid-cols-2 gap-1.5" id="prepareModalNotes">
 					<li class="text-[10px] md:text-xs text-gray-700">—</li>
 				</ul>
@@ -703,9 +708,9 @@ function formatDate($dateString) {
 				<input type="hidden" name="batch_id" id="prepareModalBatchId">
 				<input type="hidden" name="action" id="prepareModalAction" value="save">
 				<div class="rounded-xl border border-gray-200 p-2.5 md:p-3 space-y-2.5">
-					<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2.5 md:gap-3">
-						<div class="space-y-1 md:col-span-2 lg:col-span-2">
-							<label class="text-[10px] md:text-xs font-medium text-gray-700">Ingredient</label>
+					<div class="space-y-2.5">
+						<div class="space-y-1">
+							<label class="text-[10px] md:text-xs font-medium text-gray-700">Ingredients/Items</label>
 							<div class="relative">
 								<div class="absolute left-2 top-1/2 transform -translate-y-1/2 z-10">
 									<i data-lucide="search" class="w-3 h-3 text-gray-400"></i>
@@ -735,21 +740,23 @@ function formatDate($dateString) {
 								</div>
 							</div>
 						</div>
-						<div class="space-y-1">
-							<label class="text-[10px] md:text-xs font-medium text-gray-700">Quantity</label>
-							<input type="number" step="0.01" min="0.01" id="prepareQuantityInput" class="w-full border border-gray-300 rounded-lg px-2 py-2 text-[10px] md:text-xs focus:outline-none" placeholder="0.00">
-						</div>
-						<div class="space-y-1">
-							<label class="text-[10px] md:text-xs font-medium text-gray-700">Unit</label>
-							<select id="prepareUnitSelect" class="w-full border border-gray-300 rounded-lg px-2 py-2 text-[10px] md:text-xs focus:outline-none">
-								<option value="">Base unit</option>
-							</select>
-						</div>
-						<div class="flex items-end">
-					<button type="button" id="prepareAddItemBtn" class="w-full inline-flex items-center justify-center gap-1 bg-green-600 text-white px-2 md:px-2.5 py-1.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 text-[10px] md:text-xs">
-						<i data-lucide="plus" class="w-3 h-3"></i>
-						Add
-					</button>
+						<div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+							<div class="space-y-1">
+								<label class="text-[10px] md:text-xs font-medium text-gray-700">Quantity</label>
+								<input type="number" step="0.01" min="0.01" id="prepareQuantityInput" class="w-full border border-gray-300 rounded-lg px-2 py-2 text-[10px] md:text-xs focus:outline-none" placeholder="0.00">
+							</div>
+							<div class="space-y-1">
+								<label class="text-[10px] md:text-xs font-medium text-gray-700">Unit</label>
+								<select id="prepareUnitSelect" class="w-full border border-gray-300 rounded-lg px-2 py-2 text-[10px] md:text-xs focus:outline-none">
+									<option value="">Base unit</option>
+								</select>
+							</div>
+							<div class="flex items-end">
+								<button type="button" id="prepareAddItemBtn" class="w-full inline-flex items-center justify-center gap-1 bg-green-600 text-white px-2 md:px-2.5 py-2 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 text-[10px] md:text-xs">
+									<i data-lucide="plus" class="w-3 h-3"></i>
+									Add
+								</button>
+							</div>
 						</div>
 					</div>
 					<div id="prepareBuilderError" class="hidden px-3 py-1.5 rounded-lg border border-red-200 bg-red-50 text-[10px] md:text-xs text-red-700"></div>
@@ -758,7 +765,7 @@ function formatDate($dateString) {
 					<table class="w-full text-[10px] md:text-xs">
 						<thead class="bg-gray-100">
 							<tr>
-								<th class="text-left px-2 md:px-2.5 py-1.5 font-semibold text-gray-900 text-[10px] md:text-xs">Ingredient</th>
+								<th class="text-left px-2 md:px-2.5 py-1.5 font-semibold text-gray-900 text-[10px] md:text-xs">Ingredients/Items</th>
 								<th class="text-left px-2 md:px-2.5 py-1.5 font-semibold text-gray-900 text-[10px] md:text-xs">Quantity</th>
 								<th class="text-left px-2 md:px-2.5 py-1.5 font-semibold text-gray-900 text-[10px] md:text-xs">Actions</th>
 							</tr>
@@ -917,7 +924,8 @@ function formatDate($dateString) {
 			overlay.className = 'batch-detail-overlay fixed inset-0 bg-black/60 backdrop-blur-md z-[99999] flex items-center justify-center p-4';
 			overlay.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; z-index: 99999 !important;';
 			const modal = document.createElement('div');
-			modal.className = 'bg-white rounded-2xl shadow-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto';
+			// Match sizing with "Add Batch Request" modal (max-w-4xl, max-h-[85vh]) and avoid whole-modal scroll
+			modal.className = 'bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden';
 			modal.innerHTML = `
 				<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-3 px-3 md:px-4 lg:px-5 py-3 border-b border-gray-200">
 					<div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4">
