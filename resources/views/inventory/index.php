@@ -158,32 +158,44 @@ foreach ($ingredients as $ing) {
 			Add Ingredient
 		</button>
 		<?php endif; ?>
-		<?php if (Auth::role() === 'Owner'): ?>
-		<button 
-			type="button" 
-			id="openImportCsvModal"
-			class="inline-flex items-center gap-1 md:gap-1.5 bg-green-600 text-white px-2.5 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-xs md:text-sm"
-		>
-			<i data-lucide="upload" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
-			Import CSV
-		</button>
-		<a 
-			href="<?php echo htmlspecialchars($baseUrl); ?>/inventory/export"
-			class="inline-flex items-center gap-1 md:gap-1.5 bg-blue-600 text-white px-2.5 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors text-xs md:text-sm"
-		>
-			<i data-lucide="download" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
-			Export CSV
-		</a>
-		<?php endif; ?>
-		<?php if (in_array(Auth::role(), ['Owner','Manager'], true)): ?>
-		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/migrate-kg-to-g" class="inline-block" data-confirm="This will convert all ingredients with base unit 'kg' to 'g'. Quantities will be multiplied by 1000. This action cannot be undone. Continue?">
-			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
-			<button type="submit" class="inline-flex items-center gap-1 md:gap-1.5 bg-purple-600 text-white px-2.5 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors text-xs md:text-sm">
-				<i data-lucide="refresh-cw" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
-				<span class="hidden sm:inline">Convert kg → g</span>
-				<span class="sm:hidden">Convert</span>
+		<?php if ($inventoryActionsVisible): ?>
+			<?php if (Auth::role() === 'Owner'): ?>
+			<button 
+				type="button" 
+				id="openImportCsvModal"
+				class="inline-flex items-center gap-1 md:gap-1.5 bg-green-600 text-white px-2.5 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-xs md:text-sm"
+			>
+				<i data-lucide="upload" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+				Import CSV
 			</button>
-		</form>
+			<a 
+				href="<?php echo htmlspecialchars($baseUrl); ?>/inventory/export"
+				class="inline-flex items-center gap-1 md:gap-1.5 bg-blue-600 text-white px-2.5 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors text-xs md:text-sm"
+			>
+				<i data-lucide="download" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+				Export CSV
+			</a>
+			<?php endif; ?>
+			<?php if (in_array(Auth::role(), ['Owner','Manager'], true)): ?>
+			<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/migrate-kg-to-g" class="inline-block" data-confirm="This will convert all ingredients with base unit 'kg' to 'g'. Quantities will be multiplied by 1000. This action cannot be undone. Continue?">
+				<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+				<button type="submit" class="inline-flex items-center gap-1 md:gap-1.5 bg-purple-600 text-white px-2.5 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors text-xs md:text-sm">
+					<i data-lucide="refresh-cw" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+					<span class="hidden sm:inline">Convert kg → g</span>
+					<span class="sm:hidden">Convert</span>
+				</button>
+			</form>
+			<?php endif; ?>
+			<?php if (Auth::role() === 'Owner'): ?>
+			<button 
+				type="button" 
+				id="openImportCsvModal2"
+				class="inline-flex items-center gap-1 md:gap-1.5 bg-emerald-700 text-white px-2.5 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg hover:bg-emerald-800 focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 transition-colors text-xs md:text-sm"
+			>
+				<i data-lucide="upload" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+				Import CSV 2
+			</button>
+			<?php endif; ?>
 		<?php endif; ?>
 	</div>
 </div>
@@ -454,7 +466,7 @@ foreach ($ingredients as $ing) {
 document.addEventListener('DOMContentLoaded', function () {
 	// Import CSV modal
 	(function(){
-		const importOpenBtn = document.getElementById('openImportCsvModal');
+		const importOpenBtns = Array.from(document.querySelectorAll('#openImportCsvModal, #openImportCsvModal2'));
 		const modal = document.getElementById('importCsvModal');
 		const dismissEls = modal ? modal.querySelectorAll('[data-import-dismiss]') : [];
 		
@@ -485,8 +497,8 @@ document.addEventListener('DOMContentLoaded', function () {
 		
 		const params = new URLSearchParams(window.location.search);
 		
-		// Open via button
-		importOpenBtn?.addEventListener('click', () => toggleModal(true));
+		// Open via button(s)
+		importOpenBtns.forEach(btn => btn.addEventListener('click', () => toggleModal(true)));
 		
 		// Auto-open when ?openImport=1
 		if (params.get('openImport') === '1') {

@@ -378,6 +378,22 @@ $widgetsByRole = function (string $role) use ($widgetSettings, $dashboardWidgets
 						<p class="text-[11px] text-gray-500">Files are named automatically (backup_YYYY-MM-DD.ext).</p>
 					</form>
 					<hr class="border-gray-100">
+					<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/admin/settings/save" class="space-y-3">
+						<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+						<input type="hidden" name="section" value="inventory_actions">
+						<input type="hidden" name="inventory_actions_visible" value="<?php echo $settings['inventoryActionsVisible'] ? '0' : '1'; ?>">
+						<label class="text-sm font-semibold text-gray-700">Inventory actions visibility</label>
+						<button class="w-full inline-flex items-center justify-center gap-2 <?php echo $settings['inventoryActionsVisible'] ? 'bg-red-500 hover:bg-red-600' : 'bg-emerald-600 hover:bg-emerald-700'; ?> text-white px-4 py-2 rounded-lg focus:ring-2 focus:ring-offset-2 focus:ring-<?php echo $settings['inventoryActionsVisible'] ? 'red' : 'emerald'; ?>-500">
+							<i data-lucide="<?php echo $settings['inventoryActionsVisible'] ? 'eye-off' : 'eye'; ?>" class="w-4 h-4"></i>
+							<?php if ($settings['inventoryActionsVisible']): ?>
+								Hide inventory import buttons
+							<?php else: ?>
+								Show inventory import buttons
+							<?php endif; ?>
+						</button>
+						<p class="text-[11px] text-gray-500">Toggles visibility of Import/Export/Convert controls on the Inventory page. Hidden by default.</p>
+					</form>
+					<hr class="border-gray-100">
 					<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/admin/settings/backup/import" enctype="multipart/form-data" class="space-y-3">
 						<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 						<label class="text-sm font-semibold text-gray-700">Import initial inventory (CSV)</label>

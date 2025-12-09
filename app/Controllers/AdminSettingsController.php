@@ -39,6 +39,7 @@ class AdminSettingsController extends BaseController
 				'themeDefault' => Settings::themeDefault(),
 				'dashboardWidgets' => Settings::getJson('display.dashboard_widgets', []),
 				'ingredientSetsEnabled' => Settings::get('features.ingredient_sets_enabled', '1') === '1',
+				'inventoryActionsVisible' => Settings::get('inventory.actions_visible', '0') === '1',
 			],
 			'flash' => $flash,
 		]);
@@ -128,6 +129,13 @@ class AdminSettingsController extends BaseController
 				Settings::set('display.theme_default', $theme, $userId);
 				Settings::setJson('display.dashboard_widgets', $widgetSettings, $userId);
 				$_SESSION['flash_admin_settings'] = ['type' => 'success', 'text' => 'Display preferences saved.'];
+				break;
+			case 'inventory_actions':
+				$visible = $_POST['inventory_actions_visible'] ?? '0';
+				$visible = $visible === '1' ? '1' : '0';
+				Settings::set('inventory.actions_visible', $visible, $userId);
+				$state = $visible === '1' ? 'shown' : 'hidden';
+				$_SESSION['flash_admin_settings'] = ['type' => 'success', 'text' => "Inventory action buttons are now {$state}."];
 				break;
 			default:
 				$_SESSION['flash_admin_settings'] = ['type' => 'error', 'text' => 'Unknown settings section.'];
@@ -254,7 +262,18 @@ class AdminSettingsController extends BaseController
 				$newQty = max(0.0, (float)$existing['quantity'] + $quantity);
 				$this->updateIngredient($existing['id'], $newQty, $reorder, $category, $displayUnit, $displayFactor);
 			} else {
-				$id = $ingredientModel->create($name, $unit, $reorder, $displayUnit ?: null, $displayFactor > 0 ? $displayFactor : 1, null, 0, $category ?: null);
+				// Mark new ingredients as in inventory even if starting quantity is zero
+				$id = $ingredientModel->create(
+					$name,
+					$unit,
+					$reorder,
+					$displayUnit ?: null,
+					$displayFactor > 0 ? $displayFactor : 1,
+					null,
+					0,
+					$category ?: null,
+					true // in_inventory
+				);
 				if ($quantity > 0) {
 					$ingredientModel->updateQuantity($id, $quantity);
 				}

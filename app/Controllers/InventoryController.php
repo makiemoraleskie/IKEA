@@ -37,11 +37,14 @@ class InventoryController extends BaseController
 			$ingredientSets = $setModel->listWithComponents();
 		}
 		
+		$inventoryActionsVisible = Settings::get('inventory.actions_visible', '0') === '1';
+		
 		$this->render('inventory/index.php', [
 			'ingredients' => $ingredients,
 			'ingredientSets' => $ingredientSets,
 			'ingredientSetsEnabled' => $ingredientSetsEnabled,
 			'lowStockGroups' => $lowStockGroups,
+			'inventoryActionsVisible' => $inventoryActionsVisible,
             'flash' => $_SESSION['flash_inventory'] ?? null,
 		]);
         unset($_SESSION['flash_inventory']);
@@ -331,10 +334,28 @@ class InventoryController extends BaseController
 			$this->redirect('/inventory/import');
 			return;
 		}
-		
-		// Skip first two rows (date row and header row)
-		fgetcsv($handle, 0, ',', '"', '\\'); // Row 1: dates
-		fgetcsv($handle, 0, ',', '"', '\\'); // Row 2: headers
+
+		// Detect format: legacy (date + triplets) vs export (simple headers)
+		$firstRow = fgetcsv($handle, 0, ',', '"', '\\');
+		if ($firstRow === false) {
+			$_SESSION['flash_inventory_import'] = ['type' => 'error', 'messages' => ['CSV file appears empty.']];
+			$this->redirect('/inventory/import');
+			return;
+		}
+
+		$normalizeHeader = function ($value): string {
+			$value = (string)$value;
+			$value = str_replace("\xEF\xBB\xBF", '', $value); // strip BOM if present
+			return strtolower(trim($value));
+		};
+
+		$firstHeaders = array_map($normalizeHeader, $firstRow);
+		$isExportFormat = in_array('name', $firstHeaders, true) && in_array('quantity', $firstHeaders, true);
+
+		// Legacy: skip second row (headers) because first row is dates
+		if (!$isExportFormat) {
+			fgetcsv($handle, 0, ',', '"', '\\'); // Row 2: legacy headers
+		}
 		
 		$ingredientModel = new Ingredient();
 		$logger = new AuditLog();
@@ -391,124 +412,149 @@ class InventoryController extends BaseController
 			return $unitMap[$lower] ?? $unit;
 		};
 		
-		$rowNum = 2; // Track row number for error reporting
+		$rowNum = $isExportFormat ? 1 : 2; // Track row number for error reporting
+
 		while (($row = fgetcsv($handle, 0, ',', '"', '\\')) !== false) {
 			$rowNum++;
-			
+
 			// Skip empty rows
-			if (empty($row) || (count($row) < 2) || empty(trim($row[0] ?? ''))) {
+			if (empty($row)) {
 				$stats['skipped']++;
 				continue;
 			}
-			
-			$itemName = trim($row[0] ?? '');
-			$unit = trim($row[1] ?? '');
-			
-			if (empty($itemName) || empty($unit)) {
-				$stats['skipped']++;
-				continue;
-			}
-			
-			// Normalize unit
-			$unit = $normalizeUnit($unit);
-			
-			// Find the last REMAIN value (rightmost non-empty REMAIN column)
-			// Pattern: Item (0), Unit (1), [Date1: NEW STOCK (2), DEDUCTION (3), REMAIN (4)], [Date2: NEW STOCK (5), DEDUCTION (6), REMAIN (7)], ...
-			// REMAIN columns are at positions: 4, 7, 10, 13, ... (every 3rd column starting from position 4)
-			// Formula: position = 4 + (n * 3) where n >= 0
-			$lastRemain = null;
-			
-			// Start from the end and work backwards
-			// Check if position matches REMAIN pattern: (position - 4) % 3 == 0 and position >= 4
-			for ($i = count($row) - 1; $i >= 4; $i--) {
-				$offset = $i - 4;
-				// Check if this position is a REMAIN column (every 3rd column starting from 4)
-				if ($offset >= 0 && ($offset % 3) === 0) {
-					$remainValue = trim($row[$i] ?? '');
-					if ($remainValue !== '' && is_numeric($remainValue)) {
-						$lastRemain = (float)$remainValue;
-						break;
+
+			if ($isExportFormat) {
+				// Simple export format: header row + data rows
+				$data = array_combine($firstHeaders, array_map('trim', $row));
+				if ($data === false) {
+					$stats['skipped']++;
+					continue;
+				}
+				$itemName = trim((string)($data['name'] ?? ''));
+				$unit = trim((string)($data['unit'] ?? ''));
+				if ($itemName === '' || $unit === '') {
+					$stats['skipped']++;
+					continue;
+				}
+				$quantity = (float)($data['quantity'] ?? 0);
+				$displayUnit = trim((string)($data['display unit'] ?? $data['display_unit'] ?? ''));
+				$displayFactor = (float)($data['display factor'] ?? $data['display_factor'] ?? 1);
+				$reorder = (float)($data['reorder level'] ?? $data['reorder_level'] ?? 0);
+				$preferred = trim((string)($data['preferred supplier'] ?? $data['preferred_supplier'] ?? ''));
+				$restockQty = (float)($data['restock quantity'] ?? $data['restock_quantity'] ?? 0);
+				$category = trim((string)($data['category'] ?? ''));
+			} else {
+				// Legacy format: date row + header row already skipped
+				if ((count($row) < 2) || empty(trim($row[0] ?? ''))) {
+					$stats['skipped']++;
+					continue;
+				}
+				$itemName = trim($row[0] ?? '');
+				$unit = trim($row[1] ?? '');
+				if ($itemName === '' || $unit === '') {
+					$stats['skipped']++;
+					continue;
+				}
+				// Find the last REMAIN value (rightmost non-empty REMAIN column)
+				$lastRemain = null;
+				for ($i = count($row) - 1; $i >= 4; $i--) {
+					$offset = $i - 4;
+					if ($offset >= 0 && ($offset % 3) === 0) { // REMAIN column
+						$remainValue = trim($row[$i] ?? '');
+						if ($remainValue !== '' && is_numeric($remainValue)) {
+							$lastRemain = (float)$remainValue;
+							break;
+						}
 					}
 				}
+				$quantity = $lastRemain !== null ? $lastRemain : 0.0;
+				$displayUnit = null;
+				$displayFactor = 1.0;
+				$reorder = 0.0;
+				$preferred = '';
+				$restockQty = 0.0;
+				$category = '';
 			}
-			
-			// Default to 0 if no remain value found
-			$quantity = $lastRemain !== null ? $lastRemain : 0.0;
-			
-			// Convert kg to g: If unit is kg, convert to g as base unit
+
+			// Normalize unit
+			$unit = $normalizeUnit($unit);
+
+			// Convert kg to g
 			$baseUnit = $unit;
-			$displayUnit = null;
-			$displayFactor = 1.0;
 			$baseQuantity = $quantity;
-			
+			$baseDisplayUnit = $displayUnit ?: null;
+			$baseDisplayFactor = $displayFactor > 0 ? $displayFactor : 1.0;
+
 			if (strtolower($unit) === 'kg') {
-				// Convert kg to g: multiply quantity by 1000
 				$baseUnit = 'g';
-				$displayUnit = 'kg';
-				$displayFactor = 1000.0;
+				$baseDisplayUnit = 'kg';
+				$baseDisplayFactor = 1000.0;
 				$baseQuantity = $quantity * 1000.0;
 			}
-			
-			// Convert sack to g: Just change unit from sack to g, keep quantity as-is
+
 			if (strtolower($unit) === 'sack') {
 				$baseUnit = 'g';
-				$displayUnit = null; // No display unit needed
-				$displayFactor = 1.0;
-				$baseQuantity = $quantity; // Keep quantity unchanged
+				$baseDisplayUnit = null;
+				$baseDisplayFactor = 1.0;
+				$baseQuantity = $quantity;
 			}
-			
+
 			// Check if ingredient already exists (case-insensitive)
 			$existing = $ingredientModel->findByName($itemName);
-			
+
 			try {
 				$db = Database::getConnection();
 				if ($existing) {
-					// Update existing ingredient
 					$existingId = (int)$existing['id'];
 					$existingUnit = strtolower($existing['unit'] ?? '');
-					
-					// If existing ingredient has kg base unit, convert it too
+
+					// Convert existing kg base to g if needed
 					if ($existingUnit === 'kg') {
-						// Convert existing quantity from kg to g
 						$existingQuantity = (float)($existing['quantity'] ?? 0);
 						$existingQuantityG = $existingQuantity * 1000.0;
-						
-						// Update to g base unit with kg display unit
 						$updateStmt = $db->prepare('UPDATE ingredients SET unit = ?, quantity = ?, display_unit = ?, display_factor = ? WHERE id = ?');
 						$updateStmt->execute(['g', $existingQuantityG, 'kg', 1000.0, $existingId]);
-						
-						// Now update with new quantity (in g)
 						$ingredientModel->updateQuantity($existingId, $baseQuantity);
 					} else if ($existingUnit === 'sack') {
-						// Convert existing ingredient from sack to g - just change unit, keep quantity
 						$updateStmt = $db->prepare('UPDATE ingredients SET unit = ?, display_unit = ?, display_factor = ? WHERE id = ?');
 						$updateStmt->execute(['g', null, 1.0, $existingId]);
-						
-						// Update with new quantity (unchanged, just unit changed)
 						$ingredientModel->updateQuantity($existingId, $baseQuantity);
 					} else {
-						// Existing ingredient is not kg or sack, just update quantity
 						$ingredientModel->updateQuantity($existingId, $baseQuantity);
-						
-						// Update unit, display_unit, and display_factor if they changed
 						if (strtolower($existing['unit'] ?? '') !== strtolower($baseUnit)) {
 							$updateStmt = $db->prepare('UPDATE ingredients SET unit = ?, display_unit = ?, display_factor = ? WHERE id = ?');
-							$updateStmt->execute([$baseUnit, $displayUnit, $displayFactor, $existingId]);
+							$updateStmt->execute([$baseUnit, $baseDisplayUnit, $baseDisplayFactor, $existingId]);
 						}
 					}
-					
+
+					// Update optional fields if provided (only in export/simple format)
+					if ($isExportFormat) {
+						$updateStmt = $db->prepare('UPDATE ingredients SET reorder_level = ?, category = ?, preferred_supplier = ?, restock_quantity = ? WHERE id = ?');
+						$updateStmt->execute([$reorder, $category, $preferred, $restockQty, $existingId]);
+					}
+
 					$stats['updated']++;
 					$logger->log($userId, 'update', 'ingredients', [
 						'ingredient_id' => $existingId,
 						'name' => $itemName,
 						'quantity' => $baseQuantity,
 						'unit' => $baseUnit,
-						'display_unit' => $displayUnit,
+						'display_unit' => $baseDisplayUnit,
 						'source' => 'csv_import',
 					]);
 				} else {
-					// Create new ingredient with g base unit and kg display unit (if applicable)
-					$id = $ingredientModel->create($itemName, $baseUnit, 0.0, $displayUnit, $displayFactor, null, 0.0, null, true);
+					// Create new ingredient
+					$id = $ingredientModel->create(
+						$itemName,
+						$baseUnit,
+						$isExportFormat ? $reorder : 0.0,
+						$baseDisplayUnit,
+						$baseDisplayFactor,
+						$isExportFormat ? $preferred : null,
+						$isExportFormat ? $restockQty : 0.0,
+						$isExportFormat ? $category : null,
+						true
+					);
 					$ingredientModel->updateQuantity($id, $baseQuantity);
 					$stats['created']++;
 					$logger->log($userId, 'create', 'ingredients', [
@@ -516,7 +562,7 @@ class InventoryController extends BaseController
 						'name' => $itemName,
 						'quantity' => $baseQuantity,
 						'unit' => $baseUnit,
-						'display_unit' => $displayUnit,
+						'display_unit' => $baseDisplayUnit,
 						'source' => 'csv_import',
 					]);
 				}
