@@ -86,9 +86,7 @@ if ($user) {
 					</div>
 				</div>
 				<div class="flex items-center gap-2">
-					<button type="button" id="sidebarToggleTablet" class="hidden md:inline-flex lg:hidden items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none transition-colors" aria-label="Toggle sidebar">
-						<i data-lucide="menu" class="w-4 h-4 md:w-5 md:h-5"></i>
-					</button>
+					<button type="button" id="sidebarToggleTablet" class="hidden" aria-label="Toggle sidebar"></button>
 					<button type="button" id="sidebarClose" class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none" aria-label="Close navigation">
 						<i data-lucide="x" class="w-4 h-4 md:w-5 md:h-5"></i>
 					</button>
@@ -154,12 +152,8 @@ if ($user) {
 					</div>
 					<div class="flex w-full flex-col gap-3 sm:flex-row sm:items-center md:w-auto md:ml-auto">
 						<div class="flex items-center justify-between gap-3 w-full sm:w-auto">
-							<button id="sidebarToggle" class="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 focus:outline-none" aria-label="Toggle navigation">
-								<i data-lucide="menu" class="w-5 h-5"></i>
-							</button>
-							<button id="sidebarShowTablet" class="hidden items-center justify-center w-10 h-10 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 focus:outline-none transition-colors" aria-label="Show sidebar">
-								<i data-lucide="menu" class="w-5 h-5"></i>
-							</button>
+							<button id="sidebarToggle" class="hidden" aria-label="Toggle navigation"></button>
+							<button id="sidebarShowTablet" class="hidden" aria-label="Show sidebar"></button>
 						</div>
 						<div class="flex items-center gap-3">
 							<!-- Notification Bell -->
@@ -282,12 +276,34 @@ if ($user) {
 					panel.classList.add('hidden');
 					btn.setAttribute('aria-expanded', 'false');
 				}
+
+				function positionPanel() {
+					if (window.innerWidth >= 1024) {
+						panel.style.position = 'absolute';
+						panel.style.right = '0';
+						panel.style.left = '';
+						panel.style.width = '';
+						panel.style.top = '';
+						return;
+					}
+					const rect = btn.getBoundingClientRect();
+					const padding = 16;
+					const maxWidth = Math.min(400, window.innerWidth - (padding * 2));
+					const left = Math.max(padding, Math.min(rect.left, window.innerWidth - maxWidth - padding));
+					panel.style.position = 'fixed';
+					panel.style.width = maxWidth + 'px';
+					panel.style.left = left + 'px';
+					panel.style.right = 'auto';
+					panel.style.top = (rect.bottom + 8) + 'px';
+				}
+
 				btn.addEventListener('click', (event) => {
 					event.stopPropagation();
 					const isOpen = btn.getAttribute('aria-expanded') === 'true';
 					if (isOpen) {
 						closePanel();
 					} else {
+						positionPanel();
 						panel.classList.remove('hidden');
 						btn.setAttribute('aria-expanded', 'true');
 					}
@@ -297,6 +313,11 @@ if ($user) {
 						closePanel();
 					}
 				});
+				window.addEventListener('resize', () => {
+					if (btn.getAttribute('aria-expanded') === 'true') {
+						positionPanel();
+					}
+				});
 			})();
 			(function(){
 				const sidebar = document.getElementById('sidebar');
@@ -304,7 +325,7 @@ if ($user) {
 				const toggleTablet = document.getElementById('sidebarToggleTablet');
 				const showTablet = document.getElementById('sidebarShowTablet');
 				const closeBtn = document.getElementById('sidebarClose');
-				if (!sidebar || !toggle) return;
+				if (!sidebar) return;
 				
 				const openSidebar = ()=>{
 					sidebar.classList.remove('-translate-x-full');

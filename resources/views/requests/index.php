@@ -20,6 +20,40 @@ function formatDate($dateString) {
 	}
 }
 ?>
+<style>
+/* Slightly larger typography and controls inside Prepare modal for readability */
+#prepareModal .prepare-modal-card .text-\[9px\],
+#prepareModal .prepare-modal-card .text-\[10px\],
+#prepareModal .prepare-modal-card .text-\[12px\],
+#prepareModal .prepare-modal-card .text-xs { font-size: 13px !important; }
+#prepareModal .prepare-modal-card .text-sm { font-size: 14px !important; }
+#prepareModal .prepare-modal-card input,
+#prepareModal .prepare-modal-card select,
+#prepareModal .prepare-modal-card textarea { font-size: 14px !important; }
+#prepareModal .prepare-modal-card button { font-size: 14px !important; padding-top: 0.65rem; padding-bottom: 0.65rem; }
+
+/* Remove focus ring/border highlight on the status filter */
+#requestStatusFilter:focus {
+	outline: none !important;
+	box-shadow: none !important;
+	border-color: inherit !important;
+}
+
+/* Keep table width stable while vertical scrollbar appears/disappears */
+.table-scroll-stable {
+	scrollbar-gutter: stable;
+}
+
+/* Larger typography and controls inside Edit Request modal */
+#editRequestModal .edit-modal-card .text-\[9px\],
+#editRequestModal .edit-modal-card .text-\[10px\],
+#editRequestModal .edit-modal-card .text-xs { font-size: 13px !important; }
+#editRequestModal .edit-modal-card .text-sm,
+#editRequestModal .edit-modal-card .text-base { font-size: 14px !important; }
+#editRequestModal .edit-modal-card input,
+#editRequestModal .edit-modal-card textarea { font-size: 14px !important; padding: 0.75rem 1rem !important; }
+#editRequestModal .edit-modal-card button { font-size: 14px !important; padding: 0.75rem 1.1rem !important; }
+</style>
 <!-- Page Header -->
 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6 max-w-full overflow-x-hidden">
 	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-4">
@@ -95,33 +129,47 @@ function formatDate($dateString) {
                 </h2>
                 <p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">View and manage all Ingredient/Items requests</p>
             </div>
-            <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 md:gap-2 text-xs md:text-sm text-gray-600">
-                <label for="requestStatusFilter" class="whitespace-nowrap">Filter status:</label>
-                <select id="requestStatusFilter" data-default="<?php echo htmlspecialchars($statusFilter); ?>" class="w-full sm:w-auto border border-gray-300 rounded-lg px-2 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="all">All</option>
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
+            <div class="flex flex-col md:flex-col lg:flex-row lg:items-center lg:flex-wrap gap-2 md:gap-3 text-xs md:text-sm text-gray-600 w-full">
+                <div class="flex flex-col md:flex-col lg:flex-row lg:items-center gap-1.5 md:gap-2 w-full lg:w-auto">
+                    <label for="requestStatusFilter" class="whitespace-nowrap">Status:</label>
+                    <select id="requestStatusFilter" data-default="<?php echo htmlspecialchars($statusFilter); ?>" class="w-full lg:w-48 border border-gray-300 rounded-lg px-2 md:px-2.5 py-1 md:py-1.5 text-[11px] md:text-xs">
+                        <option value="all">All</option>
+                        <option value="pending">Pending</option>
+                        <option value="rejected">Rejected</option>
 						<option value="to prepare">To Prepare</option>
 						<option value="distributed">Distributed</option>
-                </select>
+                    </select>
+                </div>
+                <div class="flex flex-col md:flex-col lg:flex-row lg:items-center gap-1.5 md:gap-2 w-full lg:w-auto">
+                    <label class="whitespace-nowrap">Date:</label>
+                    <div class="flex flex-col md:flex-col lg:flex-row lg:items-center gap-1.5 md:gap-2 w-full">
+                        <input type="date" id="requestDateFrom" class="border border-gray-300 rounded-lg px-2 md:px-2.5 py-1 md:py-1.5 text-[11px] md:text-xs w-full lg:w-44">
+                        <span class="text-gray-400 text-[11px] md:text-xs lg:inline hidden">–</span>
+                        <input type="date" id="requestDateTo" class="border border-gray-300 rounded-lg px-2 md:px-2.5 py-1 md:py-1.5 text-[11px] md:text-xs w-full lg:w-44">
+                    </div>
+                </div>
             </div>
         </div>
 	</div>
 	
-	<div class="overflow-x-auto overflow-y-auto max-h-[500px] md:max-h-[600px]">
+	<div class="overflow-x-auto overflow-y-auto max-h-[500px] md:max-h-[600px] table-scroll-stable">
 		<table class="w-full text-[10px] md:text-xs lg:text-sm" style="min-width: 100%;">
 			<thead class="sticky top-0 bg-white z-10">
 				<tr>
-					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Requester</th>
-					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Details</th>
-					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Date Needed</th>
-					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Status</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-green-100 text-[10px] md:text-xs lg:text-sm">Requester</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-green-100 text-[10px] md:text-xs lg:text-sm">Details</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-green-100 text-[10px] md:text-xs lg:text-sm">Date Needed</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-green-100 text-[10px] md:text-xs lg:text-sm">Status</th>
 				</tr>
 			</thead>
 			<tbody class="divide-y divide-gray-200">
 				<?php foreach ($batches as $b): $items = $batchItems[(int)$b['id']] ?? []; ?>
-				<tr class="transition-colors" data-status="<?php echo strtolower($b['status'] ?? ''); ?>" data-detail-id="batch-<?php echo (int)$b['id']; ?>">
+				<?php 
+				$dateNeededRaw = !empty($b['custom_request_date'])
+					? substr((string)$b['custom_request_date'], 0, 10)
+					: substr((string)($b['date_requested'] ?? ''), 0, 10);
+				?>
+				<tr class="transition-colors" data-status="<?php echo strtolower($b['status'] ?? ''); ?>" data-detail-id="batch-<?php echo (int)$b['id']; ?>" data-date-needed="<?php echo htmlspecialchars($dateNeededRaw); ?>">
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
 						<div>
 							<p class="text-[10px] md:text-xs lg:text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($b['custom_requester'] ?: ($b['staff_name'] ?? '')); ?></p>
@@ -133,31 +181,30 @@ function formatDate($dateString) {
 					</td>
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-gray-600 text-[10px] md:text-xs lg:text-sm">
 						<?php 
-						$dateNeeded = !empty($b['custom_request_date']) ? $b['custom_request_date'] : (substr($b['date_requested'], 0, 10));
-						echo htmlspecialchars(formatDate($dateNeeded)); 
+						echo htmlspecialchars(formatDate($dateNeededRaw)); 
 						?>
 					</td>
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
 						<?php 
 						$status = strtolower($b['status'] ?? '');
 						$statusText = match($status) {
-							'distributed' => 'Done',
+							'distributed' => 'Distributed',
 							'to prepare' => 'Preparing',
 							'pending' => 'Pending',
 							'rejected' => 'Rejected',
 							'approved' => 'Approved',
 							default => htmlspecialchars($b['status'] ?? '')
 						};
-						$statusColor = match($status) {
-							'distributed' => 'text-green-600',
-							'to prepare' => 'text-orange-600',
-							'pending' => 'text-gray-700',
-							'rejected' => 'text-red-600',
-							'approved' => 'text-blue-800',
-							default => 'text-gray-700'
+						$statusClass = match($status) {
+							'distributed' => 'bg-green-100 text-green-800 border-green-200',
+							'to prepare' => 'bg-amber-100 text-amber-800 border-amber-200',
+							'pending' => 'bg-amber-50 text-amber-700 border-amber-200',
+							'rejected' => 'bg-red-100 text-red-800 border-red-200',
+							'approved' => 'bg-blue-100 text-blue-800 border-blue-200',
+							default => 'bg-gray-100 text-gray-700 border-gray-200'
 						};
 						?>
-						<span class="inline-flex items-center gap-1 px-2 md:px-2.5 lg:px-3 py-1 md:py-1.5 rounded-lg text-[9px] md:text-[10px] lg:text-xs font-semibold <?php echo $statusColor; ?> whitespace-nowrap">
+						<span class="inline-flex items-center px-2 md:px-2.5 lg:px-3 py-1 md:py-1.5 rounded-lg text-[9px] md:text-[10px] lg:text-xs font-semibold border whitespace-nowrap <?php echo $statusClass; ?>">
 							<?php echo htmlspecialchars($statusText); ?>
 						</span>
 					</td>
@@ -187,6 +234,7 @@ function formatDate($dateString) {
 									'Distributed' => 'bg-green-100 text-green-800 border-green-200',
 									'Rejected' => 'bg-red-100 text-red-800 border-red-200',
 									'To Prepare' => 'bg-amber-100 text-amber-800 border-amber-200',
+									'Pending' => 'bg-amber-50 text-amber-700 border-amber-200',
 									default => 'bg-gray-100 text-gray-700 border-gray-200'
 								};
 								?>
@@ -327,7 +375,7 @@ function formatDate($dateString) {
 		</div>
 		<span class="text-xs md:text-sm text-gray-500"><?php echo count($toPrepareBatches ?? []); ?> batch<?php echo (count($toPrepareBatches ?? []) === 1) ? '' : 'es'; ?></span>
 	</div>
-	<div class="overflow-x-auto overflow-y-auto max-h-[500px] md:max-h-[600px]">
+	<div class="overflow-x-auto overflow-y-auto max-h-[500px] md:max-h-[600px] table-scroll-stable">
 		<?php if (!empty($toPrepareBatches)): ?>
 			<table class="w-full text-[10px] md:text-xs lg:text-sm" style="min-width: 100%;">
 				<thead class="sticky top-0 bg-white z-10">
@@ -418,11 +466,11 @@ function formatDate($dateString) {
 	</div>
 	<div class="overflow-x-auto">
 		<table class="w-full text-[10px] md:text-xs lg:text-sm" style="min-width: 100%;">
-			<thead class="bg-gray-50">
+			<thead class="bg-green-100">
 				<tr>
 					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 text-[10px] md:text-xs lg:text-sm">Batch ID</th>
-					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 text-[10px] md:text-xs lg:text-sm">Request Name</th>
-					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 text-[10px] md:text-xs lg:text-sm">Ingredients</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 text-[10px] md:text-xs lg:text-sm">Requester</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 text-[10px] md:text-xs lg:text-sm">Ingredient/Items</th>
 					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 text-[10px] md:text-xs lg:text-sm">Date Requested</th>
 					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 text-[10px] md:text-xs lg:text-sm">Status</th>
 				</tr>
@@ -464,8 +512,18 @@ function formatDate($dateString) {
 					</td>
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-gray-600 text-[10px] md:text-xs lg:text-sm"><?php echo htmlspecialchars(formatDate($b['date_requested'])); ?></td>
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
-						<span class="inline-flex items-center gap-0.5 md:gap-1 px-2 md:px-2.5 lg:px-3 py-0.5 md:py-1 rounded-full text-[9px] md:text-[10px] lg:text-xs font-medium border bg-gray-100 text-gray-700 border-gray-200 whitespace-nowrap">
-							<i data-lucide="clock" class="w-2.5 h-2.5 md:w-3 md:h-3"></i>
+						<?php 
+						$statusLower = strtolower($b['status'] ?? '');
+						$statusClass = match($statusLower) {
+							'distributed' => 'bg-green-100 text-green-800 border-green-200',
+							'to prepare' => 'bg-amber-100 text-amber-800 border-amber-200',
+							'pending' => 'bg-amber-50 text-amber-700 border-amber-200',
+							'rejected' => 'bg-red-100 text-red-800 border-red-200',
+							'approved' => 'bg-blue-100 text-blue-800 border-blue-200',
+							default => 'bg-gray-100 text-gray-700 border-gray-200'
+						};
+						?>
+						<span class="inline-flex items-center px-2 md:px-2.5 lg:px-3 py-0.5 md:py-1 rounded-full text-[9px] md:text-[10px] lg:text-xs font-medium border whitespace-nowrap <?php echo $statusClass; ?>">
 							<?php echo htmlspecialchars($b['status']); ?>
 						</span>
 					</td>
@@ -627,41 +685,41 @@ function formatDate($dateString) {
 
 
 <!-- Edit Request Modal -->
-<div id="editRequestModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-	<div class="bg-white rounded-2xl shadow-xl max-w-xl w-full max-h-[90vh] overflow-y-auto">
-		<div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-3 md:px-4 lg:px-5 py-3 md:py-3.5 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-3">
-			<h2 class="text-xs md:text-sm font-semibold text-gray-900 flex items-center gap-1">
-				<i data-lucide="edit" class="w-3 h-3 md:w-3.5 md:h-3.5 text-blue-600"></i>
+<div id="editRequestModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;">
+	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-y-auto edit-modal-card">
+		<div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 md:px-6 lg:px-7 py-4 md:py-4.5 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-3">
+			<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1.5">
+				<i data-lucide="edit" class="w-4 h-4 md:w-5 md:h-5 text-blue-600"></i>
 				Edit Request
 			</h2>
 			<button type="button" id="closeEditModal" class="text-gray-400 hover:text-gray-600 transition-colors shrink-0">
-				<i data-lucide="x" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+				<i data-lucide="x" class="w-4 h-4 md:w-5 md:h-5"></i>
 			</button>
 		</div>
-		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests/update" class="p-3 md:p-4 space-y-2.5 md:space-y-3">
+		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests/update" class="p-4 md:p-6 lg:p-7 space-y-4 md:space-y-5">
 			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 			<input type="hidden" name="batch_id" id="editBatchId" value="">
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
 				<div class="space-y-1">
 					<label class="block text-[10px] md:text-xs font-medium text-gray-700">Name</label>
-					<input name="requester_name" id="editRequesterName" class="w-full border border-gray-300 rounded-lg px-2 md:px-2.5 py-2 text-[10px] md:text-xs focus:ring-2 focus:ring-blue-500 md:focus:ring-0 focus:outline-none" placeholder="e.g., malupiton" required>
+					<input name="requester_name" id="editRequesterName" class="w-full border border-gray-300 rounded-lg px-3.5 md:px-4 py-2.5 md:py-3 text-sm md:text-base focus:ring-2 focus:ring-blue-500 md:focus:ring-0 focus:outline-none" placeholder="e.g., malupiton" required>
 				</div>
 				<div class="space-y-1">
 					<label class="block text-[10px] md:text-xs font-medium text-gray-700">Date Needed</label>
-					<input type="date" name="request_date" id="editRequestDate" class="w-full border border-gray-300 rounded-lg px-2 md:px-2.5 py-2 text-[10px] md:text-xs focus:ring-2 focus:ring-blue-500 md:focus:ring-0 focus:outline-none" required>
+					<input type="date" name="request_date" id="editRequestDate" class="w-full border border-gray-300 rounded-lg px-3.5 md:px-4 py-2.5 md:py-3 text-sm md:text-base focus:ring-2 focus:ring-blue-500 md:focus:ring-0 focus:outline-none" required>
 				</div>
 			</div>
 			<div class="space-y-1">
 				<label class="block text-[10px] md:text-xs font-medium text-gray-700">Ingredients / Notes</label>
-				<textarea name="ingredients_note" id="editIngredientsNote" rows="3" class="w-full border border-gray-300 rounded-lg px-2 md:px-2.5 py-2 text-[10px] md:text-xs focus:ring-2 focus:ring-blue-500 md:focus:ring-0 focus:outline-none" placeholder="List ingredients, quantities, or any prep instructions" required></textarea>
+				<textarea name="ingredients_note" id="editIngredientsNote" rows="3" class="w-full border border-gray-300 rounded-lg px-3.5 md:px-4 py-2.5 md:py-3 text-sm md:text-base focus:ring-2 focus:ring-blue-500 md:focus:ring-0 focus:outline-none" placeholder="List ingredients, quantities, or any prep instructions" required></textarea>
 				<p class="text-[9px] md:text-[10px] text-gray-500">Detailed quantities will be captured later during the Prepare step.</p>
 			</div>
 			<div class="flex justify-end gap-2">
-				<button type="button" id="cancelEditModal" class="inline-flex items-center gap-1 px-2.5 md:px-3 py-1.5 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 md:focus:ring-0 md:focus:ring-offset-0 transition-colors text-[10px] md:text-xs">
+				<button type="button" id="cancelEditModal" class="inline-flex items-center gap-1 px-3.5 md:px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 md:focus:ring-0 md:focus:ring-offset-0 transition-colors text-sm md:text-base">
 					Cancel
 				</button>
-				<button type="submit" class="inline-flex items-center gap-1 bg-blue-600 text-white px-2.5 md:px-3 py-1.5 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 md:focus:ring-0 md:focus:ring-offset-0 transition-colors text-[10px] md:text-xs">
-					<i data-lucide="save" class="w-3 h-3 md:w-3.5 md:h-3.5"></i>
+				<button type="submit" class="inline-flex items-center gap-1 bg-blue-600 text-white px-3.5 md:px-4 py-2 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 md:focus:ring-0 md:focus:ring-offset-0 transition-colors text-sm md:text-base">
+					<i data-lucide="save" class="w-4 h-4 md:w-5 md:h-5"></i>
 					Save Changes
 				</button>
 			</div>
@@ -670,7 +728,7 @@ function formatDate($dateString) {
 </div>
 
 <div id="prepareModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; z-index: 99999 !important;">
-	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-y-auto">
+	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-y-auto prepare-modal-card">
 		<div class="px-3 md:px-4 lg:px-5 py-3 border-b">
 			<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-3">
 				<div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4">
@@ -809,15 +867,38 @@ function formatDate($dateString) {
 	}, {});
 
 	const statusFilterSelect = document.getElementById('requestStatusFilter');
+	const dateFromInput = document.getElementById('requestDateFrom');
+	const dateToInput = document.getElementById('requestDateTo');
 	const requestRows = Array.from(document.querySelectorAll('tr[data-status]'));
 	const requestsFilterEmpty = document.getElementById('requestsFilterEmpty');
 
-	function applyRequestFilter(value){
-		const normalized = value && value !== 'all' ? value.toLowerCase() : 'all';
+	function withinDateRange(rowDateStr, fromStr, toStr){
+		if (!rowDateStr) return true;
+		const rowDate = new Date(rowDateStr + 'T00:00:00');
+		if (Number.isNaN(rowDate.getTime())) return true;
+		if (fromStr){
+			const fromDate = new Date(fromStr + 'T00:00:00');
+			if (!Number.isNaN(fromDate.getTime()) && rowDate < fromDate) return false;
+		}
+		if (toStr){
+			const toDate = new Date(toStr + 'T23:59:59');
+			if (!Number.isNaN(toDate.getTime()) && rowDate > toDate) return false;
+		}
+		return true;
+	}
+
+	function applyRequestFilter(){
+		const statusValue = (statusFilterSelect?.value || 'all').toLowerCase();
+		const normalized = statusValue && statusValue !== 'all' ? statusValue : 'all';
+		const fromStr = dateFromInput?.value || '';
+		const toStr = dateToInput?.value || '';
 		let visible = 0;
 		requestRows.forEach(row => {
 			const status = (row.getAttribute('data-status') || '').toLowerCase();
-			const matches = normalized === 'all' || status === normalized;
+			const rowDateStr = row.getAttribute('data-date-needed') || '';
+			const statusMatches = normalized === 'all' || status === normalized;
+			const dateMatches = withinDateRange(rowDateStr, fromStr, toStr);
+			const matches = statusMatches && dateMatches;
 			row.classList.toggle('hidden', !matches);
 			const detailId = row.getAttribute('data-detail-id');
 			if (detailId){
@@ -836,7 +917,7 @@ function formatDate($dateString) {
 	if (statusFilterSelect){
 		const initial = (statusFilterSelect.dataset.default || 'all').toLowerCase();
 		statusFilterSelect.value = initial;
-		applyRequestFilter(initial);
+		applyRequestFilter();
 		statusFilterSelect.addEventListener('change', ()=>{
 			const value = (statusFilterSelect.value || 'all').toLowerCase();
 			const params = new URLSearchParams(window.location.search);
@@ -848,10 +929,17 @@ function formatDate($dateString) {
 			const query = params.toString();
 			const newUrl = window.location.pathname + (query ? `?${query}` : '') + window.location.hash;
 			window.history.replaceState({}, '', newUrl);
-			applyRequestFilter(value);
+			applyRequestFilter();
 		});
 	} else {
-		applyRequestFilter('all');
+		applyRequestFilter();
+	}
+
+	if (dateFromInput) {
+		dateFromInput.addEventListener('change', applyRequestFilter);
+	}
+	if (dateToInput) {
+		dateToInput.addEventListener('change', applyRequestFilter);
 	}
 
 	const detailButtons = document.querySelectorAll('.viewBatchDetails');
@@ -925,7 +1013,8 @@ function formatDate($dateString) {
 			overlay.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; z-index: 99999 !important;';
 			const modal = document.createElement('div');
 			// Match sizing with "Add Batch Request" modal (max-w-4xl, max-h-[85vh]) and avoid whole-modal scroll
-			modal.className = 'bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden';
+			// Make the modal flex with a scrollable body so actions stay visible on small screens
+			modal.className = 'bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden';
 			modal.innerHTML = `
 				<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-3 px-3 md:px-4 lg:px-5 py-3 border-b border-gray-200">
 					<div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4">
@@ -946,7 +1035,7 @@ function formatDate($dateString) {
 						<i data-lucide="x" class="w-4 h-4"></i>
 					</button>
 				</div>
-				<div class="px-3 md:px-4 lg:px-5 py-3 md:py-4">${cardClone.innerHTML}</div>
+				<div class="flex-1 overflow-y-auto px-3 md:px-4 lg:px-5 py-3 md:py-4">${cardClone.innerHTML}</div>
 				${showActions ? `
 				<div class="px-3 md:px-4 lg:px-5 py-3 border-t border-gray-200 flex items-center justify-end gap-2">
 					<form method="post" action="${baseUrl}/requests/approve" class="inline">
@@ -1107,6 +1196,8 @@ function formatDate($dateString) {
 		const batchIdInput = document.getElementById('prepareModalBatchId');
 		const errorBox = document.getElementById('prepareBuilderError');
 		let items = [];
+		let requestedItemIds = [];
+		let requestedNameLines = [];
 		
 		// Escape HTML function
 		const escapeHtml = (text) => {
@@ -1251,6 +1342,10 @@ function formatDate($dateString) {
 			const json = button.getAttribute('data-items') || '[]';
 			try {
 				const parsed = JSON.parse(json);
+				// Track the originally requested item ids for validation on distribute
+				requestedItemIds = parsed
+					.map(item => Number(item.item_id || item.id || 0))
+					.filter(id => id > 0);
 				items = parsed.map(item => ({
 					id: Number(item.item_id || item.id),
 					name: item.item_name || INGREDIENT_LOOKUP[item.item_id || item.id]?.name || 'Ingredient',
@@ -1259,6 +1354,7 @@ function formatDate($dateString) {
 				})).filter(item => item.id && item.quantity > 0);
 			} catch (err) {
 				items = [];
+				requestedItemIds = [];
 			}
 			document.getElementById('prepareModalBatchLabel').textContent = '#' + (button.getAttribute('data-batch') || '0');
 			document.getElementById('prepareModalRequestName').textContent = button.getAttribute('data-requester') || '—';
@@ -1269,6 +1365,7 @@ function formatDate($dateString) {
 			const notesContainer = document.getElementById('prepareModalNotes');
 			const notes = button.getAttribute('data-notes') || '';
 			notesContainer.innerHTML = '';
+			requestedNameLines = [];
 			if (notes && notes !== '—') {
 				const ingredientLines = notes.split('\n').filter(line => line.trim() !== '');
 				if (ingredientLines.length > 0) {
@@ -1283,6 +1380,7 @@ function formatDate($dateString) {
 						li.appendChild(bullet);
 						li.appendChild(text);
 						notesContainer.appendChild(li);
+						requestedNameLines.push(line.trim().toLowerCase());
 					});
 				} else {
 					const li = document.createElement('li');
@@ -1329,6 +1427,8 @@ function formatDate($dateString) {
 			if (ingredientSearch) ingredientSearch.value = '';
 			if (ingredientDropdown) ingredientDropdown.classList.add('hidden');
 			errorBox.classList.add('hidden');
+			requestedItemIds = [];
+			requestedNameLines = [];
 		}
 
 		function showBuilderError(message){
@@ -1773,6 +1873,30 @@ function formatDate($dateString) {
 					showBuilderError('Add at least one ingredient before submitting.');
 					return;
 				}
+
+				// When distributing, ensure all originally requested items are present
+				if (action === 'distribute' && requestedItemIds.length > 0) {
+					const currentIds = items.map(i => i.id);
+					const missing = requestedItemIds.filter(id => !currentIds.includes(id));
+					if (missing.length) {
+						const missingNames = missing.map(id => INGREDIENT_LOOKUP[id]?.name || `Item #${id}`).join(', ');
+						showBuilderError(`Add all requested items before distributing. Missing: ${missingNames}.`);
+						return;
+					}
+				}
+				
+				// Additionally validate using the free-text requested ingredients list (always enforce if present)
+				if (action === 'distribute' && requestedNameLines.length > 0) {
+					const currentNames = items.map(i => (i.name || '').toLowerCase());
+					const missingByName = requestedNameLines.filter(req => {
+						return !currentNames.some(n => n.includes(req) || req.includes(n));
+					});
+					if (missingByName.length) {
+						showBuilderError(`Add all requested items before distributing. Missing: ${missingByName.join(', ')}.`);
+						return;
+					}
+				}
+
 				clearBuilderError();
 				actionInput.value = action;
 				form.submit();
