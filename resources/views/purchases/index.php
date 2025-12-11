@@ -409,7 +409,7 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
 	
 	<div class="overflow-x-auto overflow-y-auto max-h-[500px] md:max-h-[600px] w-full">
         <table class="w-full text-[10px] md:text-xs lg:text-sm" style="min-width: 100%;">
-			<thead class="sticky top-0 bg-white z-10">
+			<thead class="top-0 bg-white z-10">
 				<tr>
 					<th class="hidden lg:table-cell text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Purchaser</th>
                     <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Supplier</th>

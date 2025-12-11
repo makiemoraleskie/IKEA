@@ -167,7 +167,7 @@ if ($user) {
 										<span class="absolute -top-1 -right-1 w-4 h-4 bg-gray-300 text-gray-700 text-[10px] rounded-full flex items-center justify-center">0</span>
 									<?php endif; ?>
 								</button>
-								<div id="notificationPanel" class="hidden absolute right-0 mt-3 w-screen max-w-xs sm:max-w-sm max-h-[26rem] overflow-y-auto bg-white border border-gray-200 rounded-xl shadow-xl z-50">
+								<div id="notificationPanel" class="hidden absolute right-0 top-full mt-3 w-screen max-w-xs sm:max-w-sm bg-white border border-gray-200 rounded-xl shadow-xl overflow-y-auto" style="z-index:120;">
 									<div class="px-4 py-3 border-b flex items-center justify-between gap-4">
 										<div>
 											<p class="text-sm font-semibold text-gray-900">Notifications</p>
@@ -278,23 +278,21 @@ if ($user) {
 				}
 
 				function positionPanel() {
-					if (window.innerWidth >= 1024) {
-						panel.style.position = 'absolute';
-						panel.style.right = '0';
-						panel.style.left = '';
-						panel.style.width = '';
-						panel.style.top = '';
-						return;
-					}
 					const rect = btn.getBoundingClientRect();
 					const padding = 16;
 					const maxWidth = Math.min(400, window.innerWidth - (padding * 2));
 					const left = Math.max(padding, Math.min(rect.left, window.innerWidth - maxWidth - padding));
+					const top = rect.bottom + window.scrollY + 10;
+					const availableHeight = Math.max(240, window.innerHeight - (rect.bottom + 10) - padding);
+					
 					panel.style.position = 'fixed';
 					panel.style.width = maxWidth + 'px';
 					panel.style.left = left + 'px';
 					panel.style.right = 'auto';
-					panel.style.top = (rect.bottom + 8) + 'px';
+					panel.style.top = top + 'px';
+					panel.style.maxHeight = availableHeight + 'px';
+					panel.style.overflowY = 'auto';
+					panel.style.zIndex = '60';
 				}
 
 				btn.addEventListener('click', (event) => {

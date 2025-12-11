@@ -316,29 +316,29 @@ foreach ($ingredients as $ing) {
 				<col class="col-status">
 				<?php endif; ?>
 			</colgroup>
-			<thead class="sticky top-0 bg-white z-10">
+			<thead class="top-0 bg-white z-10">
 				<tr>
-					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors sortable bg-white text-[10px] md:text-xs lg:text-sm" data-sort="name">
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 cursor-pointer bg-green-100 hover:bg-green-200 transition-colors sortable bg-white text-[10px] md:text-xs lg:text-sm" data-sort="name">
 						<div class="flex items-center gap-1 md:gap-1.5 lg:gap-2">
-							<span>Ingredient</span>
+							<span>Ingredient/Items</span>
 							<i data-lucide="arrow-up-down" class="w-2.5 h-2.5 md:w-3 md:h-3 text-gray-400"></i>
 						</div>
 					</th>
-					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors sortable bg-white text-[10px] md:text-xs lg:text-sm" data-sort="stock">
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 cursor-pointer bg-green-100 hover:bg-green-200 transition-colors sortable bg-white text-[10px] md:text-xs lg:text-sm" data-sort="stock">
 						<div class="flex items-center gap-1 md:gap-1.5 lg:gap-2">
 							<span>Current Stock</span>
 							<i data-lucide="arrow-up-down" class="w-2.5 h-2.5 md:w-3 md:h-3 text-gray-400"></i>
 						</div>
 					</th>
-					<th class="hidden lg:table-cell text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors sortable bg-white text-[10px] md:text-xs lg:text-sm" data-sort="reorder">
+					<th class="hidden lg:table-cell text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 cursor-pointer bg-green-100 hover:bg-green-200 transition-colors sortable bg-white text-[10px] md:text-xs lg:text-sm" data-sort="reorder">
 						<div class="flex items-center gap-1 md:gap-1.5 lg:gap-2">
 							<span>Reorder Level</span>
 							<i data-lucide="arrow-up-down" class="w-2.5 h-2.5 md:w-3 md:h-3 text-gray-400"></i>
 						</div>
 					</th>
-					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Status</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-green-100 hover:bg-green-200 transition-colors text-[10px] md:text-xs lg:text-sm">Status</th>
 					<?php if ($canManageInventory): ?>
-					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Action</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-green-100 hover:bg-green-200 transition-colors text-[10px] md:text-xs lg:text-sm">Action</th>
 					<?php endif; ?>
 				</tr>
 			</thead>

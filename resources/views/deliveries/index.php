@@ -165,30 +165,33 @@ foreach ($deliveries as $d) {
 </div>
 
 <!-- Delivery Modal -->
-<div id="deliveryModal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4">
-	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-		<div class="flex items-center justify-between px-6 py-4 border-b">
-			<div>
+<div id="deliveryModal" class="fixed inset-0 z-50 hidden items-center justify-center px-4 py-8">
+	<div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" data-delivery-close></div>
+	<div class="relative w-full max-w-5xl bg-white rounded-2xl shadow-2xl border border-gray-200 max-h-[90vh] overflow-hidden flex flex-col">
+		<div class="flex flex-wrap items-center justify-between gap-4 px-6 py-4 border-b bg-gray-100 sticky top-0 z-10">
+			<div class="space-y-1">
 				<p class="text-xs uppercase tracking-wide text-gray-500">Purchase Batch</p>
 				<p class="text-lg font-semibold text-gray-900" id="deliveryModalBatchLabel">#0</p>
+				<div class="flex flex-wrap items-center gap-3 text-sm text-gray-700">
+					<div class="flex items-center gap-1">
+						<span class="text-[11px] uppercase tracking-wide text-gray-500">Supplier</span>
+						<span class="font-semibold text-gray-900" id="deliveryModalSupplier">—</span>
+					</div>
+					<div class="flex items-center gap-1">
+						<span class="text-[11px] uppercase tracking-wide text-gray-500">Purchaser</span>
+						<span class="font-semibold text-gray-900" id="deliveryModalPurchaser">—</span>
+					</div>
+					<div class="flex items-center gap-1">
+						<span class="text-[11px] uppercase tracking-wide text-gray-500">Date Ordered</span>
+						<span class="font-semibold text-gray-900" id="deliveryModalDate">—</span>
+					</div>
+				</div>
 			</div>
-			<button type="button" class="deliveryModalClose text-gray-500 hover:text-gray-700 text-2xl leading-none" aria-label="Close">&times;</button>
+			<button type="button" class="deliveryModalClose inline-flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200 text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:ring-2 focus:ring-gray-300" aria-label="Close" data-delivery-close>
+				<i data-lucide="x" class="w-4 h-4"></i>
+			</button>
 		</div>
-		<div class="px-6 py-4 space-y-4">
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-				<div class="rounded-xl bg-blue-50 border border-blue-100 p-4">
-					<p class="text-xs uppercase tracking-wide text-blue-700">Supplier</p>
-					<p class="font-semibold text-blue-900 mt-1" id="deliveryModalSupplier">—</p>
-				</div>
-				<div class="rounded-xl bg-emerald-50 border border-emerald-100 p-4">
-					<p class="text-xs uppercase tracking-wide text-emerald-700">Purchaser</p>
-					<p class="font-semibold text-emerald-900 mt-1" id="deliveryModalPurchaser">—</p>
-				</div>
-				<div class="rounded-xl bg-purple-50 border border-purple-100 p-4">
-					<p class="text-xs uppercase tracking-wide text-purple-700">Date Ordered</p>
-					<p class="font-semibold text-purple-900 mt-1" id="deliveryModalDate">—</p>
-				</div>
-			</div>
+		<div class="overflow-y-auto px-6 py-5 space-y-5">
 			
 			<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/deliveries" id="deliveryModalForm" class="space-y-4">
 				<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
@@ -197,14 +200,14 @@ foreach ($deliveries as $d) {
 				
 				<!-- Purchase Items List (Read-only Note) -->
 				<div class="rounded-xl border border-gray-200 overflow-hidden">
-					<div class="bg-gray-50 px-4 py-3 border-b">
+					<div class="bg-gray-100 px-4 py-3 border-b">
 						<h3 class="text-sm font-semibold text-gray-900">Purchase Items</h3>
 						<p class="text-xs text-gray-600 mt-1">Items from this purchase batch</p>
 					</div>
-					<div class="p-4">
+
 						<div class="overflow-x-auto">
 							<table class="w-full text-sm">
-								<thead class="bg-gray-50">
+								<thead class="bg-gray-100">
 									<tr>
 										<th class="text-left px-3 py-2 font-medium text-gray-700">Name</th>
 										<th class="text-left px-3 py-2 font-medium text-gray-700">Quantity</th>
@@ -220,73 +223,76 @@ foreach ($deliveries as $d) {
 					</div>
 				</div>
 				
-					<div class="rounded-xl border border-gray-200 p-4 space-y-3">
-					<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-						<div class="space-y-1 relative">
-							<label class="text-sm font-medium text-gray-700">Select Item</label>
-							<div class="relative">
-								<input type="text" id="deliveryItemSearch" class="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="Search ingredient..." autocomplete="off">
-								<i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
-								<select id="deliveryItemSelect" class="hidden">
-									<option value="">Choose ingredient</option>
-									<!-- Options will be populated dynamically -->
-								</select>
-								<div id="deliveryItemDropdown" class="hidden absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-									<!-- Filtered options will be populated here -->
-								</div>
-							</div>
-						</div>
-						<div class="space-y-1">
-							<label class="text-sm font-medium text-gray-700">Quantity</label>
-							<input type="number" step="0.01" min="0" id="deliveryQuantityInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="0.00" readonly>
-						</div>
-						<div class="space-y-1">
-							<label class="text-sm font-medium text-gray-700">Unit</label>
-							<input type="text" id="deliveryUnitInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="Unit" readonly>
-							<select id="deliveryUnitSelect" class="hidden w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-								<option value="">Select unit</option>
-							</select>
-							<p id="deliveryUnitHelp" class="hidden text-xs text-gray-500 mt-1"></p>
-						</div>
-						<div class="space-y-1">
-							<label class="text-sm font-medium text-gray-700">Supplier</label>
-							<input type="text" id="deliverySupplierInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="Supplier" readonly>
-						</div>
-						<div class="flex items-end">
-							<button type="button" id="deliveryAddItemBtn" class="w-full inline-flex items-center justify-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
-								<i data-lucide="plus" class="w-4 h-4"></i>
-								Add to Delivery
-							</button>
-						</div>
-					</div>
-					<div id="deliveryBuilderError" class="hidden px-4 py-2 rounded-lg border border-red-200 bg-red-50 text-sm text-red-700"></div>
-				</div>
-				
-				<div class="rounded-xl border border-gray-200 overflow-hidden">
-					<table class="w-full text-sm">
-						<thead class="bg-gray-50">
-							<tr>
-								<th class="text-left px-4 py-2">Item</th>
-								<th class="text-left px-4 py-2">Quantity</th>
-								<th class="text-left px-4 py-2">Unit</th>
-								<th class="text-left px-4 py-2">Supplier</th>
-								<th class="text-left px-4 py-2 w-20">Actions</th>
-							</tr>
-						</thead>
-						<tbody id="deliveryItemsBody" class="divide-y divide-gray-200"></tbody>
-					</table>
-					<div id="deliveryEmptyState" class="px-4 py-6 text-center text-sm text-gray-500">No items added yet. Select ingredients from the inventory above.</div>
-				</div>
-				
-				<div class="flex flex-col sm:flex-row sm:justify-end gap-3">
-					<button type="button" class="deliveryModalClose inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-						Cancel
-					</button>
-					<button type="submit" id="deliverySubmitBtn" class="inline-flex items-center justify-center gap-2 bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-						<i data-lucide="package-check" class="w-4 h-4"></i>
-						Record Delivery
-					</button>
-				</div>
+        <div class="p-4">
+          <div class="rounded-xl border border-gray-200 p-4 space-y-3">
+            <div class="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 items-end">
+              <div class="space-y-1 relative">
+                <label class="text-sm font-medium text-gray-700">Select Item</label>
+                <div class="relative">
+                  <input type="text" id="deliveryItemSearch" class="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="Search ingredient..." autocomplete="off">
+                  <i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
+                  <select id="deliveryItemSelect" class="hidden">
+                    <option value="">Choose ingredient</option>
+                    <!-- Options will be populated dynamically -->
+                  </select>
+                  <div id="deliveryItemDropdown" class="hidden absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    <!-- Filtered options will be populated here -->
+                  </div>
+                </div>
+              </div>
+              <div class="space-y-1">
+                <label class="text-sm font-medium text-gray-700">Quantity</label>
+                <input type="number" step="0.01" min="0" id="deliveryQuantityInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="0.00" readonly>
+              </div>
+              <div class="space-y-1">
+                <label class="text-sm font-medium text-gray-700">Unit</label>
+                <input type="text" id="deliveryUnitInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="Unit" readonly>
+                <select id="deliveryUnitSelect" class="hidden w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                  <option value="">Select unit</option>
+                </select>
+                <p id="deliveryUnitHelp" class="hidden text-xs text-gray-500 mt-1"></p>
+              </div>
+              <div class="space-y-1">
+                <label class="text-sm font-medium text-gray-700">Supplier</label>
+                <input type="text" id="deliverySupplierInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="Supplier" readonly>
+              </div>
+              <div class="flex md:justify-end">
+                <button type="button" id="deliveryAddItemBtn" class="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-green-600 text-white px-5 py-3 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                  <i data-lucide="plus" class="w-4 h-4"></i>
+                  Add to Delivery
+                </button>
+              </div>
+            </div>
+            <div id="deliveryBuilderError" class="hidden px-4 py-2 rounded-lg border border-red-200 bg-red-50 text-sm text-red-700"></div>
+          </div>
+
+          <br>
+          <div class="rounded-xl border border-gray-200 overflow-hidden">
+            <table class="w-full text-sm">
+              <thead class="bg-gray-100">
+                <tr>
+                  <th class="text-left px-4 py-2">Ingredient/Item</th>
+                  <th class="text-left px-4 py-2">Quantity</th>
+                  <th class="text-left px-4 py-2">Unit</th>
+                  <th class="text-left px-4 py-2">Supplier</th>
+                  <th class="text-left px-4 py-2 w-20">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="deliveryItemsBody" class="divide-y divide-gray-200"></tbody>
+            </table>
+            <div id="deliveryEmptyState" class="px-4 py-6 text-center text-sm text-gray-500">No items added yet. Select ingredients from the inventory above.</div>
+          </div>
+				  <br>
+          <div class="flex flex-col sm:flex-row sm:justify-end gap-3">
+            <button type="button" class="deliveryModalClose inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2" data-delivery-close>
+              Cancel
+            </button>
+            <button type="submit" id="deliverySubmitBtn" class="inline-flex items-center justify-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+              <i data-lucide="package-check" class="w-4 h-4"></i>
+              Record Delivery
+            </button>
+          </div>
+        </div>
 			</form>
 		</div>
 	</div>
@@ -399,9 +405,16 @@ foreach ($deliveries as $d) {
 		</div>
 	</div>
 	
+	<?php
+	// Build ingredient lookup for fallbacks when delivery row is missing name/unit
+	$ingredientLookup = [];
+	foreach (($ingredients ?? []) as $ing) {
+		$ingredientLookup[(int)($ing['id'] ?? 0)] = $ing;
+	}
+	?>
 	<div class="overflow-x-auto overflow-y-auto max-h-[500px] md:max-h-[600px]">
 		<table class="w-full text-[10px] md:text-xs lg:text-sm" style="min-width: 100%;">
-			<thead class="sticky top-0 bg-white z-10">
+			<thead class="top-0 bg-white z-10">
                 <tr>
                     <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Delivery ID</th>
                     <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Batch</th>
@@ -413,6 +426,11 @@ foreach ($deliveries as $d) {
 			</thead>
 			<tbody class="divide-y divide-gray-200" id="recentDeliveriesBody">
 				<?php foreach ($deliveries as $d): ?>
+				<?php
+					$ingredient = $ingredientLookup[(int)($d['item_id'] ?? 0)] ?? null;
+					$itemName = $d['item_name'] ?? ($ingredient['name'] ?? '');
+					$unitDisplay = $d['unit'] ?? ($ingredient['unit'] ?? '');
+				?>
 				<tr class="hover:bg-gray-50 transition-colors" data-delivery-status="<?php echo strtolower($d['delivery_status']); ?>">
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
 						<div class="flex items-center gap-2">
@@ -437,8 +455,8 @@ foreach ($deliveries as $d) {
 								<i data-lucide="package" class="w-4 h-4 text-blue-600"></i>
 							</div>
 							<div>
-								<div class="font-medium text-gray-900"><?php echo htmlspecialchars($d['item_name']); ?></div>
-								<div class="text-xs text-gray-500"><?php echo htmlspecialchars($d['unit']); ?></div>
+								<div class="font-medium text-gray-900"><?php echo htmlspecialchars($itemName); ?></div>
+								<div class="text-xs text-gray-500"><?php echo htmlspecialchars($unitDisplay); ?></div>
 							</div>
 						</div>
 					</td>
@@ -448,7 +466,7 @@ foreach ($deliveries as $d) {
 						// Display quantity_received in the ingredient's base unit
 						// quantity_received is stored in base units, so display it as-is
 						$qtyReceived = (float)$d['quantity_received'];
-						$baseUnit = $d['unit']; // This is the ingredient's base unit
+						$baseUnit = $unitDisplay; // This is the ingredient's base unit (fallback to ingredient unit)
 						
 						// Show in base unit (the unit that was actually used when recording delivery)
 						// If user entered 50000 g, it's stored as 50000 g in base units, so show as 50000.00 g
@@ -1537,12 +1555,7 @@ foreach ($deliveries as $d) {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td class="px-4 py-2">
-          <div class="flex items-center gap-2">
-            <i data-lucide="package" class="w-4 h-4 text-gray-400"></i>
-            <div>
-              <p class="font-medium text-gray-900">${item.itemName}</p>
-            </div>
-          </div>
+          <p class="font-medium text-gray-900">${item.itemName}</p>
         </td>
         <td class="px-4 py-2 font-semibold text-gray-900">${Number(item.quantity).toFixed(2)}</td>
         <td class="px-4 py-2 text-gray-600">${item.unit}</td>
@@ -2021,8 +2034,13 @@ foreach ($deliveries as $d) {
   // Handle modal close
   if (deliveryModalClose) {
     deliveryModalClose.addEventListener('click', closeDeliveryModal);
-    deliveryModal?.addEventListener('click', (e)=>{
-      if (e.target === deliveryModal) closeDeliveryModal();
+  }
+  if (deliveryModal) {
+    deliveryModal.addEventListener('click', (e)=>{
+      const target = e.target;
+      if (target === deliveryModal || target.closest('[data-delivery-close]')) {
+        closeDeliveryModal();
+      }
     });
   }
 

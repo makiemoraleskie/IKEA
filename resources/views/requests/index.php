@@ -154,7 +154,7 @@ function formatDate($dateString) {
 	
 	<div class="overflow-x-auto overflow-y-auto max-h-[500px] md:max-h-[600px] table-scroll-stable">
 		<table class="w-full text-[10px] md:text-xs lg:text-sm" style="min-width: 100%;">
-			<thead class="sticky top-0 bg-white z-10">
+			<thead class="top-0 bg-white z-10">
 				<tr>
 					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-green-100 text-[10px] md:text-xs lg:text-sm">Requester</th>
 					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-green-100 text-[10px] md:text-xs lg:text-sm">Details</th>
