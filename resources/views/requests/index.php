@@ -848,6 +848,35 @@ function formatDate($dateString) {
 	</div>
 </div>
 
+<!-- Distribute Confirmation Modal -->
+<div id="distributeConfirmModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100000] hidden items-center justify-center p-4" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; z-index: 100000 !important;">
+	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+		<div class="px-5 md:px-6 py-4 md:py-5 border-b">
+			<div class="flex items-center gap-3">
+				<div class="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+					<i data-lucide="send" class="w-5 h-5 text-green-600"></i>
+				</div>
+				<div>
+					<h3 class="text-lg md:text-xl font-semibold text-gray-900">Confirm Distribution</h3>
+					<p class="text-sm md:text-base text-gray-600 mt-1">Are you sure you want to distribute the selected items?</p>
+				</div>
+			</div>
+		</div>
+		<div class="px-5 md:px-6 py-4 md:py-5">
+			<div class="flex flex-col sm:flex-row sm:justify-end gap-2.5 md:gap-3">
+				<button type="button" id="distributeConfirmCancel" class="inline-flex items-center justify-center gap-1.5 border border-gray-300 text-gray-700 px-4 md:px-5 py-2 md:py-2.5 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 text-sm md:text-base transition-colors">
+					<i data-lucide="x" class="w-4 h-4"></i>
+					No, Cancel
+				</button>
+				<button type="button" id="distributeConfirmYes" class="inline-flex items-center justify-center gap-1.5 bg-green-600 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 text-sm md:text-base transition-colors">
+					<i data-lucide="check" class="w-4 h-4"></i>
+					Yes, Distribute
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script>
 (function(){
 	const INGREDIENTS = <?php echo json_encode(array_map(function($i){
@@ -1441,6 +1470,82 @@ function formatDate($dateString) {
 			errorBox.classList.add('hidden');
 		}
 
+		// Custom confirmation modal function
+		function showDistributeConfirmation() {
+			return new Promise((resolve) => {
+				const confirmModal = document.getElementById('distributeConfirmModal');
+				if (!confirmModal) {
+					resolve(false);
+					return;
+				}
+
+				const yesBtn = document.getElementById('distributeConfirmYes');
+				const cancelBtn = document.getElementById('distributeConfirmCancel');
+
+				// Show modal
+				confirmModal.classList.remove('hidden');
+				confirmModal.classList.add('flex');
+				document.body.classList.add('overflow-hidden');
+
+				// Initialize icons if lucide is available
+				if (typeof lucide !== 'undefined') {
+					lucide.createIcons();
+				}
+
+				let resolved = false;
+
+				// Handle Escape key
+				const handleEscape = (e) => {
+					if (e.key === 'Escape' && !resolved) {
+						closeModal();
+						resolved = true;
+						resolve(false);
+					}
+				};
+				document.addEventListener('keydown', handleEscape);
+
+				// Close modal function
+				const closeModal = () => {
+					if (resolved) return;
+					confirmModal.classList.add('hidden');
+					confirmModal.classList.remove('flex');
+					document.body.classList.remove('overflow-hidden');
+					document.removeEventListener('keydown', handleEscape);
+					confirmModal.removeEventListener('click', overlayClick);
+					yesBtn.removeEventListener('click', yesClick);
+					cancelBtn.removeEventListener('click', cancelClick);
+				};
+
+				// Close on overlay click
+				const overlayClick = (e) => {
+					if (e.target === confirmModal && !resolved) {
+						closeModal();
+						resolved = true;
+						resolve(false);
+					}
+				};
+				confirmModal.addEventListener('click', overlayClick);
+
+				// Yes button handler
+				const yesClick = () => {
+					if (resolved) return;
+					closeModal();
+					resolved = true;
+					resolve(true);
+				};
+				yesBtn.addEventListener('click', yesClick);
+
+				// Cancel button handler
+				const cancelClick = () => {
+					if (resolved) return;
+					closeModal();
+					resolved = true;
+					resolve(false);
+				};
+				cancelBtn.addEventListener('click', cancelClick);
+			});
+		}
+
 		function renderItems(){
 			itemsBody.innerHTML = '';
 			dynamicInputs.innerHTML = '';
@@ -1867,32 +1972,17 @@ function formatDate($dateString) {
 		});
 
 		modal.querySelectorAll('.prepareSubmitBtn').forEach(btn => {
-			btn.addEventListener('click', ()=>{
+			btn.addEventListener('click', async ()=>{
 				const action = btn.getAttribute('data-action') || 'save';
 				if (!items.length){
 					showBuilderError('Add at least one ingredient before submitting.');
 					return;
 				}
 
-				// When distributing, ensure all originally requested items are present
-				if (action === 'distribute' && requestedItemIds.length > 0) {
-					const currentIds = items.map(i => i.id);
-					const missing = requestedItemIds.filter(id => !currentIds.includes(id));
-					if (missing.length) {
-						const missingNames = missing.map(id => INGREDIENT_LOOKUP[id]?.name || `Item #${id}`).join(', ');
-						showBuilderError(`Add all requested items before distributing. Missing: ${missingNames}.`);
-						return;
-					}
-				}
-				
-				// Additionally validate using the free-text requested ingredients list (always enforce if present)
-				if (action === 'distribute' && requestedNameLines.length > 0) {
-					const currentNames = items.map(i => (i.name || '').toLowerCase());
-					const missingByName = requestedNameLines.filter(req => {
-						return !currentNames.some(n => n.includes(req) || req.includes(n));
-					});
-					if (missingByName.length) {
-						showBuilderError(`Add all requested items before distributing. Missing: ${missingByName.join(', ')}.`);
+				// For distribute action, show custom confirmation modal
+				if (action === 'distribute') {
+					const confirmed = await showDistributeConfirmation();
+					if (!confirmed) {
 						return;
 					}
 				}
