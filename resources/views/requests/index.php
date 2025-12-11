@@ -464,7 +464,7 @@ function formatDate($dateString) {
 		</h2>
 		<p class="text-xs md:text-sm text-gray-600 mt-0.5 md:mt-1">Track the status of your submitted requests</p>
 	</div>
-	<div class="overflow-x-auto">
+	<div class="overflow-x-auto overflow-y-auto max-h-[420px] md:max-h-[520px] table-scroll-stable">
 		<table class="w-full text-[10px] md:text-xs lg:text-sm" style="min-width: 100%;">
 			<thead class="bg-green-100">
 				<tr>

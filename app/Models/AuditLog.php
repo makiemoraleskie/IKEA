@@ -29,8 +29,13 @@ class AuditLog extends BaseModel
 		}
 		if ($where) { $sql .= ' WHERE ' . implode(' AND ', $where); }
 		$sql .= ' ORDER BY a.timestamp DESC';
-		$limit = isset($filters['limit']) ? max(20, min((int)$filters['limit'], 500)) : 200;
-		$sql .= ' LIMIT ' . $limit;
+		$limit = $filters['_limit_effective'] ?? ($filters['limit'] ?? 200);
+		$limit = ($limit === 'all') ? 0 : (int)$limit;
+		$maxLimit = 5000;
+		if ($limit > 0) {
+			$limit = max(20, min($limit, $maxLimit));
+			$sql .= ' LIMIT ' . $limit;
+		}
 		$stmt = $this->db->prepare($sql);
 		$stmt->execute($params);
 		return $stmt->fetchAll();

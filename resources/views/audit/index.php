@@ -64,7 +64,7 @@ textarea:focus {
 $limitReached = $limitReached ?? false;
 $users = $users ?? [];
 $modules = $modules ?? [];
-$timeline = array_slice($logs, 0, 10);
+$timeline = $logs; // show all fetched logs (limit controlled by query)
 
 $formatDetailSentence = static function ($rawDetails): ?string {
 	if ($rawDetails === null || $rawDetails === '') {
@@ -282,8 +282,13 @@ foreach ($logs as $log) {
 			<div class="space-y-2">
 				<label class="block text-sm font-medium text-gray-700">Show entries</label>
 				<select name="limit" class="w-full border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+					<?php 
+						$limitValue = $filters['limit'] ?? 200;
+						$isAll = ((string)$limitValue === 'all' || (int)$limitValue === 0);
+					?>
+					<option value="all" <?php echo $isAll ? 'selected' : ''; ?>>All (no limit)</option>
 					<?php foreach ([50,100,200,500] as $lim): ?>
-						<option value="<?php echo $lim; ?>" <?php echo ((int)($filters['limit'] ?? 200) === $lim) ? 'selected' : ''; ?>><?php echo $lim; ?></option>
+						<option value="<?php echo $lim; ?>" <?php echo (!$isAll && (int)$limitValue === $lim) ? 'selected' : ''; ?>><?php echo $lim; ?></option>
 					<?php endforeach; ?>
 				</select>
 			</div>
@@ -619,8 +624,10 @@ foreach ($logs as $log) {
 			}
 			const fullDate = el.getAttribute('data-full-date') || '';
 			const relative = formatRelativeTime(timestamp);
-			el.textContent = relative;
-			el.title = fullDate; // Show full date on hover
+			// Show exact timestamp and keep relative time in parentheses for context
+			const suffix = relative && relative !== 'Invalid date' ? ` (${relative})` : '';
+			el.textContent = fullDate ? `${fullDate}${suffix}` : relative;
+			el.title = fullDate || relative; // Show exact time on hover
 		});
 	}
 	

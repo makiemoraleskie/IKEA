@@ -387,7 +387,7 @@ foreach ($ingredients as $ing) {
 				</div>
 				<div class="flex flex-wrap items-center gap-3 md:gap-4 w-full lg:w-auto">
 					<?php if (!empty($supplierFilterOptions)): ?>
-					<div class="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm text-gray-700 w-full sm:w-auto md:w-64">
+					<div class="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg bg-gray-100 text-sm text-gray-700 w-full sm:w-auto md:w-64">
 						<i data-lucide="filter" class="w-4 h-4 text-gray-500"></i>
 						<select id="purchaseListSupplierFilter" class="bg-transparent border-none focus:border-none focus:ring-0 text-sm text-gray-900 flex-1">
 							<option value="">All suppliers</option>
@@ -420,13 +420,12 @@ foreach ($ingredients as $ing) {
 						</div>
 						<div class="mt-4 overflow-x-auto">
 							<table class="w-full text-xs md:text-sm min-w-[520px]">
-								<thead class="bg-gray-50">
+								<thead class="bg-gray-100">
 									<tr>
 										<th class="text-left px-3 md:px-4 py-1.5 md:py-2 font-medium text-gray-700 text-[11px] md:text-xs lg:text-sm">Ingredient</th>
 										<th class="text-left px-3 md:px-4 py-1.5 md:py-2 font-medium text-gray-700 text-[11px] md:text-xs lg:text-sm">Status</th>
 										<th class="text-left px-3 md:px-4 py-1.5 md:py-2 font-medium text-gray-700 text-[11px] md:text-xs lg:text-sm">On Hand</th>
 										<th class="text-left px-3 md:px-4 py-1.5 md:py-2 font-medium text-gray-700 text-[11px] md:text-xs lg:text-sm">Reorder Level</th>
-										<th class="text-left px-3 md:px-4 py-1.5 md:py-2 font-medium text-gray-700 text-[11px] md:text-xs lg:text-sm">Recommended Qty</th>
 									</tr>
 								</thead>
 								<tbody class="divide-y divide-gray-100">
@@ -440,7 +439,6 @@ foreach ($ingredients as $ing) {
 										</td>
 										<td class="px-3 md:px-4 py-1.5 md:py-2 text-gray-700 text-xs md:text-sm lg:text-base"><?php echo number_format((float)$item['quantity'], 2); ?> <?php echo htmlspecialchars($item['unit']); ?></td>
 										<td class="px-3 md:px-4 py-1.5 md:py-2 text-gray-700 text-xs md:text-sm lg:text-base"><?php echo number_format((float)$item['reorder_level'], 2); ?> <?php echo htmlspecialchars($item['unit']); ?></td>
-										<td class="px-3 md:px-4 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm lg:text-base"><?php echo number_format((float)$item['recommended_qty'], 2); ?> <?php echo htmlspecialchars($item['unit']); ?></td>
 									</tr>
 									<?php endforeach; ?>
 								</tbody>
