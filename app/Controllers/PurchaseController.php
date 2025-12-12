@@ -249,49 +249,43 @@ class PurchaseController extends BaseController
             
             foreach ($itemsFromJson as $item) {
                 $iid = (int)($item['item_id'] ?? 0);
-                $qtyBase = (float)($item['quantity'] ?? 0);
                 $costRow = (float)($item['cost'] ?? 0);
                 $itemName = trim((string)($item['name'] ?? ''));
                 $unit = trim((string)($item['unit'] ?? 'pcs'));
                 
-                // If item_id is 0 or invalid, try to find existing ingredient by name
-                // DO NOT create any ingredients - purchases are simple notes
+                // Get quantity exactly as entered (no conversions for batch purchases)
+                $qtyBase = (float)($item['quantity'] ?? 0);
+                $originalQty = (float)($item['original_quantity'] ?? $item['quantity'] ?? $qtyBase);
+                
+                // For batch purchases, always use the quantity exactly as entered
+                // If item_id is 0, this is a free-form item - use placeholder
                 if ($iid <= 0 && $itemName !== '') {
-                    $existing = $ingredientModel->findByName($itemName);
-                    if ($existing) {
-                        $iid = (int)$existing['id'];
+                    // Free-form item - use placeholder if available
+                    // This is ONLY for database foreign key constraint
+                    if ($placeholderId > 0) {
+                        $iid = $placeholderId;
                     } else {
-                        // Ingredient doesn't exist - use placeholder if available
-                        // This is ONLY for database foreign key constraint
-                        // The actual item name is stored in purchase_unit field
-                        if ($placeholderId > 0) {
-                            $iid = $placeholderId;
-                            // Don't modify $unit here - we'll store item name and unit separately
-                        } else {
-                            // No placeholder available - skip this item
-                            $skippedCount++;
-                            continue;
-                        }
+                        // No placeholder available - skip this item
+                        $skippedCount++;
+                        continue;
                     }
                 }
                 
-                if ($iid > 0 && $qtyBase > 0) {
-                    // Get original quantity from item data (before conversion)
-                    $originalQty = (float)($item['original_quantity'] ?? $item['quantity'] ?? $qtyBase);
+                if ($iid > 0 && $originalQty > 0) {
                     // Create purchase record only - do NOT update inventory here
                     // Inventory will be updated only when delivery is confirmed in DeliveryController
                     // Store the actual item name in purchase_unit for display purposes when using placeholder
                     // Format: "itemName|unit" to store both item name and unit separately
                     if ($iid === $placeholderId && $itemName !== '') {
                         // Using placeholder - store item name and unit separated by pipe
-                        // Keep original unit value (not modified)
                         $displayUnit = $itemName . '|' . $unit;
                     } else {
                         // Ingredient exists - just store the unit
                         $displayUnit = $unit;
                     }
-                    $id = $purchaseModel->create(Auth::id() ?? 0, $iid, $supplier, $qtyBase, $costRow, $receiptUrl, $paymentStatus, $paymentType, $baseAmount, $displayUnit, $originalQty);
-                    $logger->log(Auth::id() ?? 0, 'create', 'purchases', ['purchase_id' => $id, 'item_id' => $iid, 'quantity' => $qtyBase, 'cost' => $costRow, 'payment_type' => $paymentType, 'base_amount' => $baseAmount, 'purchase_unit' => $displayUnit, 'purchase_quantity' => $originalQty]);
+                    // Store the original quantity exactly as entered (no conversions)
+                    $id = $purchaseModel->create(Auth::id() ?? 0, $iid, $supplier, $originalQty, $costRow, $receiptUrl, $paymentStatus, $paymentType, $baseAmount, $displayUnit, $originalQty);
+                    $logger->log(Auth::id() ?? 0, 'create', 'purchases', ['purchase_id' => $id, 'item_id' => $iid, 'quantity' => $originalQty, 'cost' => $costRow, 'payment_type' => $paymentType, 'base_amount' => $baseAmount, 'purchase_unit' => $displayUnit, 'purchase_quantity' => $originalQty]);
                     $processedCount++;
                 }
             }

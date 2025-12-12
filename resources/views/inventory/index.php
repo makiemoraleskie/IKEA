@@ -831,6 +831,17 @@ document.addEventListener('DOMContentLoaded', function() {
 				submitIcon.setAttribute('data-lucide', 'plus');
 				if (window.lucide) window.lucide.createIcons();
 			}
+			
+			// Reset display unit dropdown
+			const displayUnitSelect = document.getElementById('displayUnitSelect');
+			const displayFactorContainer = document.getElementById('displayFactorContainer');
+			if (displayUnitSelect) {
+				displayUnitSelect.innerHTML = '<option value="">Select base unit first</option>';
+				displayUnitSelect.disabled = true;
+			}
+			if (displayFactorContainer) {
+				displayFactorContainer.style.display = 'none';
+			}
 		}
 	};
 	
@@ -857,9 +868,28 @@ document.addEventListener('DOMContentLoaded', function() {
 			// Populate form fields
 			document.querySelector('input[name="name"]').value = editData.name || '';
 			document.querySelector('input[name="category"]').value = editData.category || '';
-			document.querySelector('select[name="unit"]').value = editData.unit || '';
-			document.querySelector('input[name="display_unit"]').value = editData.display_unit || '';
-			document.querySelector('input[name="display_factor"]').value = editData.display_factor || '1';
+			
+			// Set base unit and trigger change to populate display units
+			const baseUnitSelect = document.getElementById('baseUnitSelect');
+			if (baseUnitSelect) {
+				baseUnitSelect.value = editData.unit || '';
+				// Trigger change event to populate display unit options
+				baseUnitSelect.dispatchEvent(new Event('change'));
+				
+				// Set display unit after options are populated
+				setTimeout(() => {
+					const displayUnitSelect = document.getElementById('displayUnitSelect');
+					if (displayUnitSelect && editData.display_unit) {
+						displayUnitSelect.value = editData.display_unit;
+						displayUnitSelect.dispatchEvent(new Event('change'));
+					}
+					const displayFactorInput = document.getElementById('displayFactorInput');
+					if (displayFactorInput) {
+						displayFactorInput.value = editData.display_factor || '1';
+					}
+				}, 50);
+			}
+			
 			document.querySelector('input[name="reorder_level"]').value = editData.reorder_level || '0';
 		}
 		
@@ -898,6 +928,129 @@ document.addEventListener('DOMContentLoaded', function() {
 			closeModal();
 		}
 	});
+	
+	// Display Unit Dynamic Population based on Base Unit
+	const baseUnitSelect = document.getElementById('baseUnitSelect');
+	const displayUnitSelect = document.getElementById('displayUnitSelect');
+	const displayFactorContainer = document.getElementById('displayFactorContainer');
+	const displayFactorInput = document.getElementById('displayFactorInput');
+	const displayFactorHelp = document.getElementById('displayFactorHelp');
+	
+	if (baseUnitSelect && displayUnitSelect) {
+		// Mapping of base units to their possible display units
+		const unitMapping = {
+			'pcs': ['pack', 'bundle', 'dozen', 'half-dozen', 'set', 'box', 'carton', 'sleeve', 'case', 'roll', 'pair'],
+			'g': ['mg', 'cg', 'dg', 'sachet', 'pack', 'bag'],
+			'kg': ['g', 'mg', 'sack'],
+			'ml': ['drops', 'tsp', 'tbsp', 'fl oz', 'sachet', 'bottle', 'gallon'],
+			'L': ['ml', 'cups', 'pints', 'gallons'],
+			'cups': ['tbsp', 'tsp', 'ml', 'L'],
+			'tbsp': ['tsp', 'ml'],
+			'tsp': ['drops', 'ml']
+		};
+		
+		// Display units that require custom factor input
+		const unitsRequiringFactor = {
+			'pcs': ['pack', 'bundle', 'dozen', 'half-dozen', 'set', 'box', 'carton', 'sleeve', 'case', 'roll', 'pair'],
+			'g': ['sachet', 'pack', 'bag'],
+			'kg': ['sack'],
+			'ml': ['sachet', 'bottle', 'gallon'],
+			'L': ['gallons'],
+			'cups': [],
+			'tbsp': [],
+			'tsp': ['drops']
+		};
+		
+		// Standard conversion factors for known unit pairs
+		const standardFactors = {
+			'g': { 'kg': 1000, 'mg': 0.001, 'cg': 0.01, 'dg': 0.1 },
+			'kg': { 'g': 0.001, 'mg': 0.000001 },
+			'ml': { 'L': 1000, 'tsp': 4.92892, 'tbsp': 14.7868, 'fl oz': 29.5735 },
+			'L': { 'ml': 0.001, 'cups': 0.236588, 'pints': 0.473176, 'gallons': 3.78541 },
+			'cups': { 'tbsp': 16, 'tsp': 48, 'ml': 236.588, 'L': 0.236588 },
+			'tbsp': { 'tsp': 3, 'ml': 14.7868 },
+			'tsp': { 'ml': 4.92892, 'drops': 98.6 },
+			'pcs': { 'dozen': 12, 'half-dozen': 6 }
+		};
+		
+		function updateDisplayUnitOptions() {
+			const selectedBaseUnit = baseUnitSelect.value;
+			displayUnitSelect.innerHTML = '<option value="">None (use base unit)</option>';
+			
+			if (!selectedBaseUnit) {
+				displayUnitSelect.disabled = true;
+				if (displayFactorContainer) displayFactorContainer.style.display = 'none';
+				return;
+			}
+			
+			displayUnitSelect.disabled = false;
+			const availableUnits = unitMapping[selectedBaseUnit] || [];
+			
+			availableUnits.forEach(unit => {
+				const option = document.createElement('option');
+				option.value = unit;
+				option.textContent = unit.charAt(0).toUpperCase() + unit.slice(1).replace(/-/g, '-');
+				displayUnitSelect.appendChild(option);
+			});
+			
+			// Reset display factor when base unit changes
+			if (displayFactorContainer) displayFactorContainer.style.display = 'none';
+			if (displayFactorInput) displayFactorInput.value = '1';
+		}
+		
+		function updateDisplayFactorVisibility() {
+			const selectedBaseUnit = baseUnitSelect.value;
+			const selectedDisplayUnit = displayUnitSelect.value;
+			
+			if (!selectedBaseUnit || !selectedDisplayUnit) {
+				if (displayFactorContainer) displayFactorContainer.style.display = 'none';
+				return;
+			}
+			
+			// Check if this combination requires a custom factor
+			const requiresFactor = unitsRequiringFactor[selectedBaseUnit]?.includes(selectedDisplayUnit) || false;
+			
+			if (requiresFactor) {
+				if (displayFactorContainer) displayFactorContainer.style.display = 'block';
+				if (displayFactorHelp) {
+					displayFactorHelp.textContent = `Enter how many ${selectedBaseUnit} are in 1 ${selectedDisplayUnit} (e.g., 24 for pack where 1 pack = 24 pcs)`;
+				}
+				// Set default value if it's a known standard
+				if (displayFactorInput && standardFactors[selectedBaseUnit]?.[selectedDisplayUnit]) {
+					displayFactorInput.value = standardFactors[selectedBaseUnit][selectedDisplayUnit];
+				} else if (displayFactorInput) {
+					displayFactorInput.value = '1';
+				}
+			} else {
+				// For standard conversions, set factor automatically if known
+				if (standardFactors[selectedBaseUnit]?.[selectedDisplayUnit]) {
+					if (displayFactorContainer) displayFactorContainer.style.display = 'block';
+					if (displayFactorInput) displayFactorInput.value = standardFactors[selectedBaseUnit][selectedDisplayUnit];
+					if (displayFactorHelp) {
+						displayFactorHelp.textContent = `Standard conversion: 1 ${selectedDisplayUnit} = ${standardFactors[selectedBaseUnit][selectedDisplayUnit]} ${selectedBaseUnit}`;
+					}
+				} else {
+					// For simple unit conversions or no conversion, hide factor
+					if (displayFactorContainer) displayFactorContainer.style.display = 'none';
+					if (displayFactorInput) displayFactorInput.value = '1';
+				}
+			}
+		}
+		
+		baseUnitSelect.addEventListener('change', function() {
+			updateDisplayUnitOptions();
+			updateDisplayFactorVisibility();
+		});
+		
+		displayUnitSelect.addEventListener('change', function() {
+			updateDisplayFactorVisibility();
+		});
+		
+		// Initialize on page load if base unit is already selected (edit mode)
+		if (baseUnitSelect.value) {
+			updateDisplayUnitOptions();
+		}
+	}
 });
 
 // ============================================
@@ -1646,7 +1799,7 @@ document.addEventListener('DOMContentLoaded', function() {
 					
 					<div class="space-y-1.5 md:space-y-2">
 						<label class="block text-xs md:text-sm font-medium text-gray-700">Base Unit <span class="text-red-500">*</span></label>
-						<select name="unit" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm" required>
+						<select name="unit" id="baseUnitSelect" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm" required>
 							<option value="">Select unit</option>
 							<option value="g">Grams (g)</option>
 							<option value="kg">Kilograms (kg)</option>
@@ -1670,23 +1823,25 @@ document.addEventListener('DOMContentLoaded', function() {
 								</span>
 							</span>
 						</label>
-						<input name="display_unit" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" placeholder="kg, L (optional)" />
+						<select name="display_unit" id="displayUnitSelect" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" disabled>
+							<option value="">Select base unit first</option>
+						</select>
 						<p class="text-[10px] md:text-xs text-gray-500">Optional: How it appears in reports</p>
 					</div>
 					
-					<div class="space-y-1.5 md:space-y-2">
+					<div class="space-y-1.5 md:space-y-2" id="displayFactorContainer" style="display: none;">
 						<label class="block text-xs md:text-sm font-medium text-gray-700 flex items-center gap-1">
 							Display Factor
 							<span class="group relative">
 								<i data-lucide="help-circle" class="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400 cursor-help"></i>
 								<span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-56 p-2 bg-gray-900 text-white text-[10px] md:text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-									Conversion factor (e.g., 1000 for g→kg, 24 for pcs→boxes)
+									Conversion factor (e.g., 1000 for g→kg, 24 for pcs→pack where 1 pack = 24 pcs)
 									<span class="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></span>
 								</span>
 							</span>
 						</label>
-						<input type="number" step="0.01" min="0.01" name="display_factor" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" value="1" />
-						<p class="text-[10px] md:text-xs text-gray-500">Conversion factor (e.g., 1000 for g→kg)</p>
+						<input type="number" step="0.01" min="0.01" name="display_factor" id="displayFactorInput" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" value="1" />
+						<p class="text-[10px] md:text-xs text-gray-500" id="displayFactorHelp">Conversion factor (e.g., 1000 for g→kg)</p>
 					</div>
 					
 					<div class="space-y-1.5 md:space-y-2">

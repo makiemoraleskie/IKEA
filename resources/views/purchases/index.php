@@ -1249,14 +1249,24 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     const items = [];
     listBody.querySelectorAll('tr[data-id]').forEach(tr=>{
       const itemId = parseInt(tr.getAttribute('data-id')||'0',10) || 0;
-      const qty = parseFloat(tr.querySelector('input[name="quantity[]"]').value || '0') || 0;
       const cost = parseFloat(tr.querySelector('input[name="row_cost[]"]').value || '0') || 0;
       const name = tr.querySelector('td:first-child')?.textContent?.trim() || '';
       const unit = tr.querySelector('td:nth-child(3)')?.textContent?.trim() || '';
-      // Get original quantity (displayed quantity before conversion)
+      // Get original quantity (displayed quantity - what user entered, before any conversion)
       const qtyDisp = tr.querySelector('.qtyDisp');
-      const originalQty = qtyDisp ? parseFloat(qtyDisp.textContent || '0') : qty;
-      if (qty>0) items.push({ item_id:itemId, quantity:qty, cost:cost, name:name, unit:unit, original_quantity:originalQty });
+      const originalQty = qtyDisp ? parseFloat(qtyDisp.textContent || '0') : 0;
+      // For batch purchases, use the original quantity exactly as entered (no conversions)
+      // Set item_id to 0 to prevent backend from applying any ingredient-based conversions
+      if (originalQty > 0) {
+        items.push({ 
+          item_id: 0, // Free-form item, no ingredient connection
+          quantity: originalQty, // Store exactly what user entered
+          cost: cost, 
+          name: name, 
+          unit: unit, 
+          original_quantity: originalQty 
+        });
+      }
     });
     const itemsJsonStr = JSON.stringify(items);
     if (itemsJson) itemsJson.value = itemsJsonStr;

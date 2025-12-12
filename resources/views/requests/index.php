@@ -1636,6 +1636,12 @@ function formatDate($dateString) {
 			// Always show base unit first
 			unitSelect.appendChild(opt(baseUnit || 'pcs', baseUnit || 'pcs'));
 			
+			// Add display unit if it exists and is different from base unit
+			if (displayUnit && displayUnit.toLowerCase() !== (baseUnit || '').toLowerCase()) {
+				const displayLabel = displayUnit.charAt(0).toUpperCase() + displayUnit.slice(1);
+				unitSelect.appendChild(opt(displayUnit, displayLabel));
+			}
+			
 			// Add weight conversions (g/kg) for any ingredient
 			if (baseUnit !== 'g' && baseUnit !== 'kg') {
 				unitSelect.appendChild(opt('g','g'));
@@ -1734,6 +1740,17 @@ function formatDate($dateString) {
 						baseQuantity = quantity;
 					}
 				} else {
+					baseQuantity = quantity;
+				}
+			} else if (chosenUnit.toLowerCase() === (ingredient.display_unit || '').toLowerCase() && baseUnit !== chosenUnit) {
+				// User selected display_unit (e.g., "pack" when base is "pcs")
+				// display_factor means: 1 display_unit = display_factor * base_unit
+				// Example: 1 pack = 24 pcs (display_factor = 24)
+				// So: quantity in display_unit * factor = base quantity
+				if (ingredient.display_factor && ingredient.display_factor > 0) {
+					baseQuantity = quantity * ingredient.display_factor;
+				} else {
+					// No factor set, assume 1:1
 					baseQuantity = quantity;
 				}
 			}
