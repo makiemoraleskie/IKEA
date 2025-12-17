@@ -16,8 +16,18 @@
 
 <!-- Summary Cards -->
 <?php 
+// Calculate pending count using the same data source as the display (purchaseGroups)
+// This ensures consistency - if it shows "Paid" in the table, it won't be counted as pending
 $pendingCount = 0;
-if (!empty($purchases)) {
+if (isset($purchaseGroups) && !empty($purchaseGroups)) {
+	foreach ($purchaseGroups as $g) {
+		// Count as pending only if payment_status is 'Pending' (controller already updates this based on current_balance)
+		if (($g['payment_status'] ?? '') === 'Pending') {
+			$pendingCount++;
+		}
+	}
+} elseif (!empty($purchases)) {
+	// Fallback: count raw purchases with Pending status
 	foreach ($purchases as $p) {
 		if (($p['payment_status'] ?? '') === 'Pending') {
 			$pendingCount++;
@@ -80,6 +90,7 @@ if (!empty($purchases)) {
 <!-- New Batch Purchase Form -->
 <?php 
 $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
+if (!in_array(Auth::role(), ['Stock Handler'], true)):
 ?>
 <div class="bg-white rounded-2xl shadow-none border border-gray-200 mb-6 md:mb-8 overflow-hidden w-full">
     <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-4 md:px-5 lg:px-6 py-3 md:py-4 border-b">
@@ -272,6 +283,7 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                             <select name="payment_type" id="paymentTypeModal" class="w-full border-2 border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors bg-white">
                                 <option value="Card">Card</option>
                                 <option value="Cash">Cash</option>
+                                <option value="N/A">N/A</option>
                             </select>
                         </div>
                     </div>
@@ -337,6 +349,40 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                 </button>
             </div>
         </form>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
+<!-- Record Purchase Confirmation Modal -->
+<div id="recordPurchaseConfirmModal" class="fixed inset-0 z-[60] hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 60 !important;">
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
+    <div class="relative z-10 flex min-h-full items-center justify-center p-4 overflow-x-hidden">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full max-w-[calc(100vw-2rem)] mx-auto">
+        <div class="p-6">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-sm md:text-base font-semibold text-gray-900">Record Purchase Batch</h3>
+                    <p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Are you sure you want to record this purchase batch?</p>
+                </div>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-3 md:p-4 mb-4 space-y-2">
+                <p class="text-xs md:text-sm text-gray-700">This will create a new purchase batch and update the inventory records.</p>
+                <p class="text-xs text-gray-500">Make sure all information is correct before proceeding.</p>
+            </div>
+            <div class="flex justify-end gap-2 md:gap-3">
+                <button type="button" id="cancelRecordPurchaseBtn" class="inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium text-xs md:text-sm">
+                    Cancel
+                </button>
+                <button type="button" id="confirmRecordPurchaseBtn" class="inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-xs md:text-sm">
+                    <i data-lucide="check" class="w-4 h-4 mr-1.5"></i>
+                    Confirm & Record
+                </button>
+            </div>
+        </div>
         </div>
     </div>
 </div>
@@ -461,22 +507,17 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                         </div>
                     </td>
                     <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
-                        <?php if (Auth::role() !== 'Purchaser'): ?>
-                            <a href="<?php echo htmlspecialchars($baseUrl); ?>/deliveries" class="inline-flex items-center gap-1 px-3 py-2 bg-gray-600 text-white text-[10px] md:text-xs lg:text-sm rounded-lg hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors" data-stop-row-modal>
-                                <i data-lucide="truck" class="w-3 h-3 md:w-3.5 md:h-3.5"></i>
-                                Deliveries
-                            </a>
-                        <?php else: ?>
-                            <span class="inline-flex items-center gap-1 px-3 py-2 bg-gray-300 text-gray-500 text-[10px] md:text-xs lg:text-sm rounded-lg cursor-not-allowed" title="Not available for Purchaser role" data-stop-row-modal>
-                                <i data-lucide="truck" class="w-3 h-3 md:w-3.5 md:h-3.5"></i>
-                                Deliveries
-                            </span>
+                        <?php if (($g['payment_status'] ?? '') === 'Pending'): ?>
+                            <button type="button" class="recordPaymentBtn inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-[10px] md:text-xs lg:text-sm rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors" data-purchase-group-id="<?php echo htmlspecialchars($g['group_id']); ?>" data-purchase-id="<?php echo (int)$g['first_id']; ?>" data-total-cost="<?php echo number_format((float)$g['cost_sum'], 2, '.', ''); ?>" data-current-balance="<?php echo number_format((float)($g['current_balance'] ?? $g['cost_sum']), 2, '.', ''); ?>" data-supplier="<?php echo htmlspecialchars($g['supplier']); ?>" data-stop-row-modal>
+                                <i data-lucide="dollar-sign" class="w-3 h-3 md:w-3.5 md:h-3.5"></i>
+                                Record Payment
+                            </button>
                         <?php endif; ?>
                     </td>
                 </tr>
                 <!-- Hidden modal content for this group -->
                 <tr class="hidden" data-payment-status="<?php echo strtolower($g['payment_status'] ?? ''); ?>" data-detail-row="true"><td colspan="5">
-                    <div id="modal-content-<?php echo htmlspecialchars($g['group_id']); ?>" data-pay-type="<?php echo htmlspecialchars($g['payment_type'] ?? ''); ?>" data-cash-base="<?php echo isset($g['cash_base_amount']) ? number_format((float)$g['cash_base_amount'],2,'.','') : ''; ?>">
+                    <div id="modal-content-<?php echo htmlspecialchars($g['group_id']); ?>" data-pay-type="<?php echo htmlspecialchars($g['payment_type'] ?? ''); ?>" data-cash-base="<?php echo isset($g['cash_base_amount']) ? number_format((float)$g['cash_base_amount'],2,'.','') : ''; ?>" data-cost-sum="<?php echo number_format((float)$g['cost_sum'], 2, '.', ''); ?>" data-current-balance="<?php echo number_format((float)($g['current_balance'] ?? $g['cost_sum']), 2, '.', ''); ?>">
                         <div class="mb-4 space-y-3" data-top-info>
                             <div data-batch-id-container>
                                 <div class="text-sm text-gray-600">Batch ID</div>
@@ -600,19 +641,27 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
                                         <i data-lucide="<?php echo ($g['payment_status']==='Paid')?'check-circle':'clock'; ?>" class="w-3 h-3"></i>
                                         <?php echo htmlspecialchars($g['payment_status']); ?>
                                     </span>
-                                    <?php if (($g['payment_status'] ?? '') === 'Pending'): ?>
+                                    <div class="space-y-2">
+                                        <?php if (($g['payment_status'] ?? '') === 'Pending'): ?>
+                                            <div class="text-[11px] text-gray-600">
+                                                <span class="font-medium">Current Balance:</span> 
+                                                <span class="text-red-600 font-semibold">₱<?php echo number_format((float)($g['current_balance'] ?? $g['cost_sum']), 2); ?></span>
+                                            </div>
+                                        <?php elseif (!empty($g['paid_at'])): ?>
+                                            <span class="text-[11px] text-gray-500" data-paid-at="<?php echo htmlspecialchars($g['paid_at']); ?>">Paid on <?php echo htmlspecialchars(date('M j, Y g:i A', strtotime($g['paid_at']))); ?></span>
+                                        <?php elseif (($g['payment_status'] ?? '') === 'Paid'): ?>
+                                            <span class="text-[11px] text-gray-500">Fully Paid</span>
+                                        <?php endif; ?>
                                         <button
                                             type="button"
-                                            class="markPaidBtn inline-flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-[11px] font-semibold rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+                                            class="viewTransactionsBtn inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-[11px] font-semibold rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                                            data-purchase-group-id="<?php echo htmlspecialchars($g['group_id']); ?>"
                                             data-purchase-id="<?php echo (int)$g['first_id']; ?>"
-                                            data-delivery-status="<?php echo strtolower($deliveryStatus); ?>"
                                         >
-                                            <i data-lucide="check" class="w-3 h-3"></i>
-                                            Set to Paid
+                                            <i data-lucide="list" class="w-3 h-3"></i>
+                                            View Transactions
                                         </button>
-                                    <?php elseif (!empty($g['paid_at'])): ?>
-                                        <span class="text-[11px] text-gray-500" data-paid-at="<?php echo htmlspecialchars($g['paid_at']); ?>">Paid on <?php echo htmlspecialchars(date('M j, Y g:i A', strtotime($g['paid_at']))); ?></span>
-                                    <?php endif; ?>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -668,7 +717,195 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
     </div>
 </div>
 
+<!-- Confirm Record Payment Modal -->
+<div id="confirmRecordPaymentModal" class="fixed inset-0 z-[70] hidden overflow-hidden">
+    <div class="fixed inset-0 bg-gray-900/70 backdrop-blur-sm" data-confirm-record-payment-dismiss></div>
+    <div class="fixed inset-0 flex items-center justify-center px-4 py-8 pointer-events-none">
+        <div class="bg-white rounded-xl shadow-none border border-gray-200 max-w-md w-full mx-auto pointer-events-auto">
+            <div class="p-4 md:p-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="help-circle" class="w-5 h-5 text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-sm md:text-base font-semibold text-gray-900">Confirm Payment</h3>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <p class="text-xs md:text-sm text-gray-700" id="confirmRecordPaymentMessage">Are you sure you want to record this payment?</p>
+                </div>
+                <div class="flex justify-end gap-2">
+                    <button type="button" id="confirmRecordPaymentCancelBtn" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-xs md:text-sm">
+                        Cancel
+                    </button>
+                    <button type="button" id="confirmRecordPaymentConfirmBtn" class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-xs md:text-sm">
+                        Yes, Record Payment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Record Payment Modal -->
+<div id="recordPaymentModal" class="fixed inset-0 z-50 hidden overflow-hidden">
+    <div class="fixed inset-0 bg-gray-900/70 backdrop-blur-sm" data-record-payment-dismiss></div>
+    <div class="fixed inset-0 flex items-center justify-center px-4 py-8 pointer-events-none overflow-y-auto">
+        <div class="bg-white rounded-xl shadow-none border border-gray-200 max-w-2xl w-full mx-auto pointer-events-auto my-8">
+            <div class="p-4 md:p-5 lg:p-6">
+                <div class="flex items-center justify-between mb-4 md:mb-6">
+                    <h2 class="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-2">
+                        <i data-lucide="dollar-sign" class="w-5 h-5 text-blue-600"></i>
+                        Record Payment
+                    </h2>
+                    <button type="button" id="closeRecordPaymentModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                
+                <form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/purchases/record-payment" id="recordPaymentForm" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+                    <input type="hidden" name="purchase_id" id="recordPaymentPurchaseId" value="0">
+                    <input type="hidden" name="purchase_group_id" id="recordPaymentGroupId" value="">
+                    
+                    <div class="space-y-4 md:space-y-5">
+                        <!-- Payment Type -->
+                        <div>
+                            <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">
+                                <i data-lucide="wallet" class="w-3.5 h-3.5 md:w-4 md:h-4 inline-block mr-1"></i>
+                                Payment Type <span class="text-red-500">*</span>
+                            </label>
+                            <select name="payment_type" id="recordPaymentType" class="w-full border-2 border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white" required>
+                                <option value="Cash">Cash</option>
+                                <option value="Card">Card</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Other Payment Type Input -->
+                        <div id="otherPaymentTypeContainer" class="hidden">
+                            <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">
+                                Specify Payment Type <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="payment_type_other" id="recordPaymentTypeOther" class="w-full border-2 border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Enter payment type" />
+                        </div>
+                        
+                        <!-- Amount -->
+                        <div>
+                            <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">
+                                <i data-lucide="currency" class="w-3.5 h-3.5 md:w-4 md:h-4 inline-block mr-1"></i>
+                                Amount <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-2.5 md:left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-xs md:text-sm">₱</span>
+                                <input type="number" step="0.01" min="0.01" name="amount" id="recordPaymentAmount" class="w-full border-2 border-gray-300 rounded-lg pl-7 md:pl-8 pr-2.5 md:pr-4 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="0.00" required />
+                            </div>
+                        </div>
+                        
+                        <!-- Due Amount (Read-only) -->
+                        <div>
+                            <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">
+                                <i data-lucide="file-text" class="w-3.5 h-3.5 md:w-4 md:h-4 inline-block mr-1"></i>
+                                Due Amount
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-2.5 md:left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-xs md:text-sm">₱</span>
+                                <input type="text" id="recordPaymentDueAmount" class="w-full border-2 border-gray-200 rounded-lg pl-7 md:pl-8 pr-2.5 md:pr-4 py-1.5 md:py-2 text-xs md:text-sm bg-gray-50 font-semibold" readonly />
+                            </div>
+                        </div>
+                        
+                        <!-- Supplier (Read-only) -->
+                        <div>
+                            <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">
+                                <i data-lucide="truck" class="w-3.5 h-3.5 md:w-4 md:h-4 inline-block mr-1"></i>
+                                Supplier
+                            </label>
+                            <input type="text" id="recordPaymentSupplier" class="w-full border-2 border-gray-200 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm bg-gray-50 font-semibold" readonly />
+                        </div>
+                        
+                        <!-- Timestamp (Read-only) -->
+                        <div>
+                            <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">
+                                <i data-lucide="clock" class="w-3.5 h-3.5 md:w-4 md:h-4 inline-block mr-1"></i>
+                                Timestamp
+                            </label>
+                            <input type="text" id="recordPaymentTimestamp" class="w-full border-2 border-gray-200 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm bg-gray-50 font-semibold" readonly />
+                        </div>
+                        
+                        <!-- Receipt Upload -->
+                        <div>
+                            <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2">
+                                <i data-lucide="file-text" class="w-3.5 h-3.5 md:w-4 md:h-4 inline-block mr-1"></i>
+                                Receipt Upload <span class="text-red-500">*</span>
+                            </label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-2.5 md:p-3 text-center hover:border-blue-400 transition-colors bg-gray-50/50" id="recordPaymentReceiptDropzone">
+                                <input type="file" name="receipt" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf" class="hidden" id="recordPaymentReceiptInput" />
+                                <label for="recordPaymentReceiptInput" class="cursor-pointer flex flex-col items-center gap-1">
+                                    <i data-lucide="upload" class="w-5 h-5 md:w-6 md:h-6 text-gray-400"></i>
+                                    <p class="text-[10px] md:text-xs text-gray-600 font-medium">Click to upload receipt</p>
+                                    <p class="text-[9px] md:text-[10px] text-gray-500">JPG, PNG, WebP, HEIC, PDF (max 10MB)</p>
+                                </label>
+                                <div id="recordPaymentReceiptSelected" class="mt-2 hidden text-left bg-white border border-gray-200 rounded-lg px-3 py-2 flex items-center justify-between gap-3">
+                                    <div class="min-w-0 flex-1">
+                                        <p id="recordPaymentReceiptFileName" class="text-xs font-medium text-gray-800 truncate"></p>
+                                        <p id="recordPaymentReceiptFileSize" class="text-[10px] text-gray-500"></p>
+                                    </div>
+                                    <button type="button" id="recordPaymentReceiptClearBtn" class="text-xs text-red-600 hover:text-red-700 hover:underline whitespace-nowrap">Remove</button>
+                                </div>
+                                <p id="recordPaymentReceiptError" class="mt-2 text-xs md:text-sm font-medium text-red-600 hidden bg-red-50 border border-red-200 rounded px-3 py-2"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 md:mt-6 flex flex-col sm:flex-row justify-end gap-2 md:gap-3 pt-4 border-t">
+                        <button type="button" id="cancelRecordPaymentBtn" class="w-full sm:w-auto inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium text-xs md:text-sm">
+                            Cancel
+                        </button>
+                        <button type="submit" id="submitRecordPaymentBtn" class="w-full sm:w-auto inline-flex items-center justify-center gap-1 md:gap-1.5 bg-blue-600 text-white px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-semibold shadow-sm disabled:opacity-60 disabled:cursor-not-allowed text-xs md:text-sm">
+                            <i data-lucide="check" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
+                            <span class="whitespace-nowrap">Record Payment</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Transactions Modal -->
+<div id="viewTransactionsModal" class="fixed inset-0 z-[60] hidden overflow-hidden" style="z-index: 60 !important;">
+    <div class="fixed inset-0 bg-gray-900/70 backdrop-blur-sm" data-view-transactions-dismiss style="z-index: 60 !important;"></div>
+    <div class="fixed inset-0 flex items-center justify-center px-4 py-8 pointer-events-none overflow-y-auto" style="z-index: 61 !important;">
+        <div class="bg-white rounded-xl shadow-none border border-gray-200 max-w-4xl w-full mx-auto pointer-events-auto my-8" style="z-index: 62 !important;">
+            <div class="p-4 md:p-5 lg:p-6">
+                <div class="flex items-center justify-between mb-4 md:mb-6">
+                    <h2 class="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-2">
+                        <i data-lucide="list" class="w-5 h-5 text-blue-600"></i>
+                        Payment Transactions
+                    </h2>
+                    <button type="button" id="closeViewTransactionsModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                
+                <div id="transactionsContent" class="space-y-4">
+                    <div class="text-center py-8 text-gray-500">
+                        <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
+                        <p>Loading transactions...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
 #purchaseForm {
   box-sizing: border-box;
   width: 100%;
@@ -749,6 +986,7 @@ $paymentFilter = strtolower((string)($_GET['payment'] ?? 'all'));
 </style>
 <script>
 (function(){
+console.log('[Purchase Modal] Script starting, DOM ready state:', document.readyState);
 const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=>(int)$i['id'],'name'=>$i['name'],'unit'=>$i['unit'],'display_unit'=>$i['display_unit'] ?? '', 'display_factor'=>(float)($i['display_factor'] ?? 1)]; }, $ingredients), JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES); ?>;
   const hiddenId = document.getElementById('ingIdHidden');
   const ingInput = document.getElementById('ingInput');
@@ -764,9 +1002,39 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   const alertOkBtn = document.getElementById('alertOkBtn');
   const alertDismiss = alertModal ? alertModal.querySelectorAll('[data-alert-dismiss]') : [];
   
-  function showAlert(message) {
+  function showAlert(message, type = 'notice') {
     if (!alertModal || !alertMessage) return;
     alertMessage.textContent = message;
+    
+    // Update styling based on type
+    const iconContainer = alertModal.querySelector('.w-10.h-10');
+    const icon = iconContainer?.querySelector('i[data-lucide]');
+    const title = alertModal.querySelector('h3');
+    
+    if (type === 'success') {
+      if (iconContainer) {
+        iconContainer.className = 'w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0';
+      }
+      if (icon) {
+        icon.setAttribute('data-lucide', 'check-circle');
+        icon.className = 'w-5 h-5 text-green-600';
+      }
+      if (title) {
+        title.textContent = 'Success';
+      }
+    } else {
+      if (iconContainer) {
+        iconContainer.className = 'w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0';
+      }
+      if (icon) {
+        icon.setAttribute('data-lucide', 'alert-circle');
+        icon.className = 'w-5 h-5 text-yellow-600';
+      }
+      if (title) {
+        title.textContent = 'Notice';
+      }
+    }
+    
     alertModal.classList.remove('hidden');
     document.body.classList.add('overflow-hidden');
     if (window.lucide?.createIcons) {
@@ -774,10 +1042,17 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     }
   }
   
+  let alertReloadCallback = null;
+  
   function hideAlert() {
     if (alertModal) {
       alertModal.classList.add('hidden');
       document.body.classList.remove('overflow-hidden');
+    }
+    // Execute reload callback if set
+    if (alertReloadCallback) {
+      alertReloadCallback();
+      alertReloadCallback = null;
     }
   }
   
@@ -1176,6 +1451,11 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     if (hasFile){
       return true;
     }
+    // Receipt is optional for Delivery purchases
+    const purchaseType = purchaseTypeModal?.value || '';
+    if (purchaseType === 'delivery') {
+      return true;
+    }
     event?.preventDefault();
     const msg = 'Upload the receipt image before recording this purchase batch.';
     showReceiptErrorModal(msg);
@@ -1185,15 +1465,57 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     return false;
   }
 
+  // Record Purchase Confirmation Modal
+  const recordPurchaseConfirmModal = document.getElementById('recordPurchaseConfirmModal');
+  const confirmRecordPurchaseBtn = document.getElementById('confirmRecordPurchaseBtn');
+  const cancelRecordPurchaseBtn = document.getElementById('cancelRecordPurchaseBtn');
+
+  function showRecordPurchaseConfirmation() {
+    if (!recordPurchaseConfirmModal) return false;
+    recordPurchaseConfirmModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+    if (window.lucide) {
+      window.lucide.createIcons({ elements: recordPurchaseConfirmModal.querySelectorAll('i[data-lucide]') });
+    }
+    return true;
+  }
+
+  function hideRecordPurchaseConfirmation() {
+    if (!recordPurchaseConfirmModal) return;
+    recordPurchaseConfirmModal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+  }
+
+  confirmRecordPurchaseBtn?.addEventListener('click', () => {
+    hideRecordPurchaseConfirmation();
+    if (batchModalForm) {
+      batchModalForm.submit();
+    }
+  });
+
+  cancelRecordPurchaseBtn?.addEventListener('click', hideRecordPurchaseConfirmation);
+
+  recordPurchaseConfirmModal?.addEventListener('click', (event) => {
+    if (event.target === recordPurchaseConfirmModal || event.target.classList.contains('bg-black')) {
+      hideRecordPurchaseConfirmation();
+    }
+  });
+
   // Modal form submission
   if (batchModalForm){
-    batchModalForm.addEventListener('submit', requireReceiptModal);
+    batchModalForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (requireReceiptModal(event)) {
+        showRecordPurchaseConfirmation();
+      }
+    });
   }
 
   // Guard the modal submit button to prevent empty receipt submissions
   recordPurchaseBtnModal?.addEventListener('click', (event)=>{
-    if (!requireReceiptModal(event)){
-      event.stopPropagation();
+    event.preventDefault();
+    if (requireReceiptModal(event)) {
+      showRecordPurchaseConfirmation();
     }
   });
 
@@ -1295,7 +1617,10 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   if (baseAmount){ baseAmount.addEventListener('input', recalcTotal); }
   if (baseAmountModal){ baseAmountModal.addEventListener('input', recalcTotal); }
   if (payType){
-    const toggle = ()=>{ cashFields.classList.toggle('hidden', payType.value !== 'Cash'); recalcTotal(); };
+    const toggle = ()=>{ 
+      if (cashFields) cashFields.classList.toggle('hidden', payType.value !== 'Cash'); 
+      recalcTotal(); 
+    };
     payType.addEventListener('change', toggle); toggle();
   }
   if (paymentTypeModal){
@@ -1319,7 +1644,43 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     purchaseTypeSel.addEventListener('change', syncPaymentStatus);
   }
   if (purchaseTypeModal){
-    purchaseTypeModal.addEventListener('change', syncPaymentStatus);
+    purchaseTypeModal.addEventListener('change', ()=>{
+      syncPaymentStatus();
+      // Auto-set Payment Type to N/A when Delivery is selected
+      if (purchaseTypeModal.value === 'delivery') {
+        if (paymentTypeModal) {
+          paymentTypeModal.value = 'N/A';
+          paymentTypeModal.disabled = true;
+          paymentTypeModal.classList.add('bg-gray-100', 'cursor-not-allowed');
+          // Hide cash fields if visible
+          if (cashFieldsModal) cashFieldsModal.classList.add('hidden');
+        }
+        // Make receipt optional for Delivery
+        if (receiptUploadModal) {
+          receiptUploadModal.removeAttribute('required');
+        }
+      } else {
+        // Re-enable Payment Type for non-Delivery
+        if (paymentTypeModal) {
+          paymentTypeModal.disabled = false;
+          paymentTypeModal.classList.remove('bg-gray-100', 'cursor-not-allowed');
+          // Reset to Card if it was N/A
+          if (paymentTypeModal.value === 'N/A') {
+            paymentTypeModal.value = 'Card';
+          }
+        }
+        // Make receipt required for non-Delivery
+        if (receiptUploadModal) {
+          receiptUploadModal.setAttribute('required', 'required');
+        }
+      }
+      // Trigger payment type change to update cash fields
+      if (paymentTypeModal) {
+        paymentTypeModal.dispatchEvent(new Event('change'));
+      }
+    });
+    // Initialize on page load
+    purchaseTypeModal.dispatchEvent(new Event('change'));
   }
   syncPaymentStatus();
 
@@ -1415,83 +1776,85 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     recalcTotal();
   }
 
-  addBtn.addEventListener('click', ()=>{
-    const ingredientName = ingInput.value.trim();
-    if (!ingredientName) {
-      showAlert('Please enter an ingredient name');
-      return;
-    }
-    
-    const quantity = parseFloat(qty.value || '0');
-    const selectedUnit = (unitInput.value || unitSel.value || '').trim();
-    const rowCost = parseFloat(cost.value || '0');
-    
-    if (!quantity || quantity <= 0) {
-      showAlert('Please enter a valid quantity');
-      return;
-    }
-    if (!selectedUnit) {
-      showAlert('Please enter or select a unit');
-      return;
-    }
-    if (isNaN(rowCost) || rowCost < 0) {
-      showAlert('Please enter a valid cost');
-      return;
-    }
-    
-    // Try to find matching ingredient by name (case-insensitive)
-    let itemId = parseInt(hiddenId.value || '0', 10);
-    let ingr = null;
-    let baseUnit = '';
-    let dispUnit = '';
-    let dispFactor = 1;
-    
-    // If no ID from hidden field, try to find by name
-    if (!itemId) {
-      const nameLower = ingredientName.toLowerCase();
-      ingr = INGREDIENTS.find(x => x.name.toLowerCase() === nameLower);
+  if (addBtn) {
+    addBtn.addEventListener('click', ()=>{
+      const ingredientName = ingInput.value.trim();
+      if (!ingredientName) {
+        showAlert('Please enter an ingredient name');
+        return;
+      }
+      
+      const quantity = parseFloat(qty.value || '0');
+      const selectedUnit = (unitInput.value || unitSel.value || '').trim();
+      const rowCost = parseFloat(cost.value || '0');
+      
+      if (!quantity || quantity <= 0) {
+        showAlert('Please enter a valid quantity');
+        return;
+      }
+      if (!selectedUnit) {
+        showAlert('Please enter or select a unit');
+        return;
+      }
+      if (isNaN(rowCost) || rowCost < 0) {
+        showAlert('Please enter a valid cost');
+        return;
+      }
+      
+      // Try to find matching ingredient by name (case-insensitive)
+      let itemId = parseInt(hiddenId.value || '0', 10);
+      let ingr = null;
+      let baseUnit = '';
+      let dispUnit = '';
+      let dispFactor = 1;
+      
+      // If no ID from hidden field, try to find by name
+      if (!itemId) {
+        const nameLower = ingredientName.toLowerCase();
+        ingr = INGREDIENTS.find(x => x.name.toLowerCase() === nameLower);
+        if (ingr) {
+          itemId = ingr.id;
+        }
+      } else {
+        ingr = INGREDIENTS.find(x=>x.id===itemId);
+      }
+      
+      // If ingredient found, use its unit info; otherwise use the entered unit as base
       if (ingr) {
-        itemId = ingr.id;
+        baseUnit = ingr.unit || selectedUnit;
+        dispUnit = ingr.display_unit || '';
+        dispFactor = parseFloat(String(ingr.display_factor || '1')) || 1;
+      } else {
+        // New ingredient - use entered unit as base unit
+        baseUnit = selectedUnit;
       }
-    } else {
-      ingr = INGREDIENTS.find(x=>x.id===itemId);
-    }
-    
-    // If ingredient found, use its unit info; otherwise use the entered unit as base
-    if (ingr) {
-      baseUnit = ingr.unit || selectedUnit;
-      dispUnit = ingr.display_unit || '';
-      dispFactor = parseFloat(String(ingr.display_factor || '1')) || 1;
-    } else {
-      // New ingredient - use entered unit as base unit
-      baseUnit = selectedUnit;
-    }
-    
-    // Calculate conversion factor
-    let factor = 1;
-    if (ingr) {
-      if (dispUnit && selectedUnit === dispUnit) {
-        factor = dispFactor;
-      } else if ((baseUnit === 'g' && selectedUnit === 'kg') || (baseUnit === 'ml' && selectedUnit === 'L')) {
-        factor = 1000;
-      } else if ((baseUnit === 'kg' && selectedUnit === 'g') || (baseUnit === 'L' && selectedUnit === 'ml')) {
-        factor = 0.001;
+      
+      // Calculate conversion factor
+      let factor = 1;
+      if (ingr) {
+        if (dispUnit && selectedUnit === dispUnit) {
+          factor = dispFactor;
+        } else if ((baseUnit === 'g' && selectedUnit === 'kg') || (baseUnit === 'ml' && selectedUnit === 'L')) {
+          factor = 1000;
+        } else if ((baseUnit === 'kg' && selectedUnit === 'g') || (baseUnit === 'L' && selectedUnit === 'ml')) {
+          factor = 0.001;
+        }
       }
-    }
-    
-    const baseQty = quantity * factor;
-    // Store ingredient name and ID (0 if not found - backend will create it)
-    // Pass original quantity (before conversion) for display
-    addRow(itemId || 0, ingredientName, baseUnit, baseQty, selectedUnit, factor, rowCost, quantity);
-    
-    // clear inputs
-    qty.value = '';
-    cost.value = '';
-    ingInput.value = '';
-    unitSel.value = '';
-    if (unitInput) unitInput.value = '';
-    hiddenId.value = '';
-  });
+      
+      const baseQty = quantity * factor;
+      // Store ingredient name and ID (0 if not found - backend will create it)
+      // Pass original quantity (before conversion) for display
+      addRow(itemId || 0, ingredientName, baseUnit, baseQty, selectedUnit, factor, rowCost, quantity);
+      
+      // clear inputs
+      qty.value = '';
+      cost.value = '';
+      ingInput.value = '';
+      unitSel.value = '';
+      if (unitInput) unitInput.value = '';
+      hiddenId.value = '';
+    });
+  }
 
   // Remove item confirmation modal
   const removeItemModal = document.getElementById('removeItemModal');
@@ -1580,8 +1943,13 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
 
   // Modal logic
   const openPurchaseModal = (id) => {
+    console.log('[Purchase Modal] openPurchaseModal called with id:', id);
     const content = document.getElementById('modal-content-' + id);
-    if (!content) return;
+    console.log('[Purchase Modal] Content element found:', content);
+    if (!content) {
+      console.error('[Purchase Modal] ERROR: Content element not found for id:', id);
+      return;
+    }
     const overlay = document.createElement('div');
     overlay.className = 'fixed inset-0 bg-gray-900/70 backdrop-blur-sm flex items-center justify-center z-50 p-4';
     const modal = document.createElement('div');
@@ -1616,7 +1984,8 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     const purchaserVal = inner.querySelector('[data-purchaser]');
     const dateVal = inner.querySelector('[data-date]');
     if (topInfo && batchIdVal && purchaserVal && dateVal) {
-      const supplierVal = inner.querySelector('[data-supplier]')?.textContent?.trim() || '';
+      const supplierEl = inner.querySelector('[data-supplier]');
+      const supplierVal = (supplierEl && supplierEl.textContent) ? supplierEl.textContent.trim() : '';
       const headerBar = document.createElement('div');
       headerBar.className = 'grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 items-start bg-white border border-gray-200 rounded-lg p-2.5 md:p-3 mb-3';
       const makeCell = (label, value) => {
@@ -1692,35 +2061,83 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
 
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
-    overlay.addEventListener('click', (e)=>{ if (e.target === overlay || e.target.classList.contains('closeModal')) overlay.remove(); });
+    document.body.classList.add('overflow-hidden');
+    console.log('[Purchase Modal] Modal added to DOM');
+    const closeModalHandler = (e) => {
+      if (e.target === overlay || e.target.classList.contains('closeModal')) {
+        overlay.remove();
+        document.body.classList.remove('overflow-hidden');
+      }
+    };
+    overlay.addEventListener('click', closeModalHandler);
     if (window.lucide?.createIcons) {
       window.lucide.createIcons({ elements: modal.querySelectorAll('i[data-lucide]') });
     }
+    console.log('[Purchase Modal] Modal setup complete');
   };
 
-  document.querySelectorAll('.openPurchaseModal').forEach(btn => {
+  const openPurchaseBtns = document.querySelectorAll('.openPurchaseModal');
+  console.log('[Purchase Modal] Found .openPurchaseModal buttons:', openPurchaseBtns.length);
+  openPurchaseBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       const id = btn.getAttribute('data-group-id');
+      console.log('[Purchase Modal] Button clicked, opening modal for group-id:', id);
       openPurchaseModal(id);
     });
   });
 
-  document.querySelectorAll('#recent-purchases tbody tr[data-group-id]').forEach(row => {
+  // Check if table exists
+  const purchaseTable = document.querySelector('#recent-purchases tbody');
+  console.log('[Purchase Modal] Purchase table tbody found:', !!purchaseTable);
+  
+  const purchaseModalRows = document.querySelectorAll('#recent-purchases tbody tr[data-group-id]');
+  console.log('[Purchase Modal] Found purchase rows:', purchaseModalRows.length);
+  
+  if (purchaseModalRows.length === 0) {
+    console.warn('[Purchase Modal] WARNING: No purchase rows found! Table might not be loaded yet.');
+  }
+  
+  purchaseModalRows.forEach((row, index) => {
+    const groupId = row.getAttribute('data-group-id');
+    console.log('[Purchase Modal] Setting up row', index, 'with group-id:', groupId);
     row.addEventListener('click', (e) => {
-      if (e.target.closest('[data-stop-row-modal]')) return;
+      console.log('[Purchase Modal] Row clicked!', e.target);
+      if (e.target.closest('[data-stop-row-modal]')) {
+        console.log('[Purchase Modal] Click stopped by data-stop-row-modal');
+        return;
+      }
       const id = row.getAttribute('data-group-id');
+      console.log('[Purchase Modal] Opening modal for group-id:', id);
       openPurchaseModal(id);
     });
     row.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         const id = row.getAttribute('data-group-id');
+        console.log('[Purchase Modal] Keyboard trigger, opening modal for group-id:', id);
         openPurchaseModal(id);
       }
     });
   });
+  
+  // Also use event delegation as fallback in case rows are added dynamically
+  if (purchaseTable) {
+    purchaseTable.addEventListener('click', (e) => {
+      const row = e.target.closest('tr[data-group-id]');
+      if (!row) return;
+      console.log('[Purchase Modal] Event delegation: Row clicked via table', e.target);
+      if (e.target.closest('[data-stop-row-modal]')) {
+        console.log('[Purchase Modal] Event delegation: Click stopped by data-stop-row-modal');
+        return;
+      }
+      const id = row.getAttribute('data-group-id');
+      console.log('[Purchase Modal] Event delegation: Opening modal for group-id:', id);
+      openPurchaseModal(id);
+    });
+    console.log('[Purchase Modal] Event delegation listener attached to table');
+  }
 
   // Initialize button state
   recalcTotal();
@@ -1728,6 +2145,653 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   // Update empty state colspan on load and resize
   updateEmptyStateColspan();
   window.addEventListener('resize', updateEmptyStateColspan);
+
+  // Record Payment Modal
+  const recordPaymentModal = document.getElementById('recordPaymentModal');
+  const recordPaymentForm = document.getElementById('recordPaymentForm');
+  const closeRecordPaymentModal = document.getElementById('closeRecordPaymentModal');
+  const cancelRecordPaymentBtn = document.getElementById('cancelRecordPaymentBtn');
+  const recordPaymentType = document.getElementById('recordPaymentType');
+  const recordPaymentTypeOther = document.getElementById('recordPaymentTypeOther');
+  const otherPaymentTypeContainer = document.getElementById('otherPaymentTypeContainer');
+  const recordPaymentAmount = document.getElementById('recordPaymentAmount');
+  const recordPaymentDueAmount = document.getElementById('recordPaymentDueAmount');
+  const recordPaymentSupplier = document.getElementById('recordPaymentSupplier');
+  const recordPaymentTimestamp = document.getElementById('recordPaymentTimestamp');
+  const recordPaymentReceiptInput = document.getElementById('recordPaymentReceiptInput');
+  const recordPaymentReceiptSelected = document.getElementById('recordPaymentReceiptSelected');
+  const recordPaymentReceiptFileName = document.getElementById('recordPaymentReceiptFileName');
+  const recordPaymentReceiptFileSize = document.getElementById('recordPaymentReceiptFileSize');
+  const recordPaymentReceiptClearBtn = document.getElementById('recordPaymentReceiptClearBtn');
+  const recordPaymentReceiptError = document.getElementById('recordPaymentReceiptError');
+  const recordPaymentReceiptDropzone = document.getElementById('recordPaymentReceiptDropzone');
+
+  function showRecordPaymentModal(purchaseId, groupId, totalCost, currentBalance, supplier) {
+    if (!recordPaymentModal) return;
+    
+    document.getElementById('recordPaymentPurchaseId').value = purchaseId;
+    document.getElementById('recordPaymentGroupId').value = groupId;
+    // Use current balance for Due Amount (not total cost)
+    const dueAmount = parseFloat(currentBalance || totalCost).toFixed(2);
+    initialCurrentBalance = parseFloat(currentBalance || totalCost); // Store for dynamic calculation
+    recordPaymentDueAmount.value = dueAmount;
+    recordPaymentAmount.value = dueAmount; // Default amount to current balance
+    recordPaymentSupplier.value = supplier;
+    recordPaymentTimestamp.value = new Date().toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    recordPaymentModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+    if (window.lucide && window.lucide.createIcons) {
+      const iconSelector = 'i[data-lucide]';
+      const icons = recordPaymentModal.querySelectorAll(iconSelector);
+      if (icons && icons.length > 0) {
+        window.lucide.createIcons({ elements: icons });
+      }
+    }
+  }
+
+  function hideRecordPaymentModal() {
+    if (!recordPaymentModal) return;
+    recordPaymentModal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+    if (recordPaymentForm) recordPaymentForm.reset();
+    if (recordPaymentReceiptSelected) recordPaymentReceiptSelected.classList.add('hidden');
+    if (recordPaymentReceiptError) {
+      recordPaymentReceiptError.classList.add('hidden');
+      recordPaymentReceiptError.textContent = '';
+      recordPaymentReceiptError.style.animation = '';
+    }
+    if (recordPaymentReceiptDropzone) {
+      recordPaymentReceiptDropzone.classList.remove('border-purple-400', 'bg-purple-50', 'border-red-300', 'bg-red-50', 'border-red-500', 'ring-2', 'ring-red-300', 'border-blue-400');
+      recordPaymentReceiptDropzone.classList.add('border-gray-300');
+    }
+    if (otherPaymentTypeContainer) otherPaymentTypeContainer.classList.add('hidden');
+    if (recordPaymentTypeOther) {
+      recordPaymentTypeOther.classList.remove('border-red-300');
+    }
+  }
+
+  // Handle Payment Type change
+  if (recordPaymentType) {
+    recordPaymentType.addEventListener('change', () => {
+      if (recordPaymentType.value === 'Other') {
+        if (otherPaymentTypeContainer) otherPaymentTypeContainer.classList.remove('hidden');
+        if (recordPaymentTypeOther) recordPaymentTypeOther.setAttribute('required', 'required');
+      } else {
+        if (otherPaymentTypeContainer) otherPaymentTypeContainer.classList.add('hidden');
+        if (recordPaymentTypeOther) {
+          recordPaymentTypeOther.removeAttribute('required');
+          recordPaymentTypeOther.value = '';
+        }
+      }
+    });
+  }
+
+  // Store initial current balance for Due Amount calculation
+  let initialCurrentBalance = 0;
+  
+  // Update Due Amount (remaining balance) when Amount changes
+  if (recordPaymentAmount && recordPaymentDueAmount) {
+    recordPaymentAmount.addEventListener('input', () => {
+      const amountPaid = parseFloat(recordPaymentAmount.value) || 0;
+      const remainingBalance = Math.max(0, initialCurrentBalance - amountPaid);
+      recordPaymentDueAmount.value = remainingBalance.toFixed(2);
+    });
+  }
+
+  // Handle receipt file selection
+  if (recordPaymentReceiptInput) {
+    recordPaymentReceiptInput.addEventListener('change', () => {
+      const file = recordPaymentReceiptInput.files && recordPaymentReceiptInput.files[0] ? recordPaymentReceiptInput.files[0] : null;
+      if (!file) {
+        if (recordPaymentReceiptSelected) recordPaymentReceiptSelected.classList.add('hidden');
+        return;
+      }
+      
+      if (!RECEIPT_ALLOWED.includes(file.type)) {
+        if (recordPaymentReceiptError) {
+          recordPaymentReceiptError.textContent = 'Unsupported file type. Use JPG, PNG, WebP, HEIC or PDF.';
+          recordPaymentReceiptError.classList.remove('hidden');
+        }
+        if (recordPaymentReceiptDropzone) recordPaymentReceiptDropzone.classList.add('border-red-300', 'bg-red-50');
+        recordPaymentReceiptInput.value = '';
+        return;
+      }
+      
+      if (file.size > RECEIPT_MAX_BYTES) {
+        if (recordPaymentReceiptError) {
+          recordPaymentReceiptError.textContent = 'File exceeds 10MB. Please compress or upload a PDF scan.';
+          recordPaymentReceiptError.classList.remove('hidden');
+        }
+        if (recordPaymentReceiptDropzone) recordPaymentReceiptDropzone.classList.add('border-red-300', 'bg-red-50');
+        recordPaymentReceiptInput.value = '';
+        return;
+      }
+      
+      if (recordPaymentReceiptError) {
+        recordPaymentReceiptError.classList.add('hidden');
+        recordPaymentReceiptError.textContent = '';
+      }
+      if (recordPaymentReceiptSelected) recordPaymentReceiptSelected.classList.remove('hidden');
+      if (recordPaymentReceiptFileName) recordPaymentReceiptFileName.textContent = file.name;
+      if (recordPaymentReceiptFileSize) recordPaymentReceiptFileSize.textContent = formatBytes(file.size);
+      if (recordPaymentReceiptDropzone) {
+        recordPaymentReceiptDropzone.classList.remove('border-red-300', 'bg-red-50');
+        recordPaymentReceiptDropzone.classList.add('border-purple-400', 'bg-purple-50');
+      }
+    });
+  }
+
+  if (recordPaymentReceiptClearBtn) {
+    recordPaymentReceiptClearBtn.addEventListener('click', () => {
+      if (recordPaymentReceiptInput) recordPaymentReceiptInput.value = '';
+      if (recordPaymentReceiptSelected) recordPaymentReceiptSelected.classList.add('hidden');
+      if (recordPaymentReceiptError) {
+        recordPaymentReceiptError.classList.add('hidden');
+        recordPaymentReceiptError.textContent = '';
+      }
+      if (recordPaymentReceiptDropzone) {
+        recordPaymentReceiptDropzone.classList.remove('border-purple-400', 'bg-purple-50', 'border-red-300', 'bg-red-50');
+      }
+    });
+  }
+
+  // Handle Record Payment button clicks
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.recordPaymentBtn');
+    if (!btn) return;
+    e.stopPropagation();
+    const purchaseId = parseInt(btn.dataset.purchaseId || '0', 10);
+    const groupId = btn.dataset.purchaseGroupId || '';
+    const totalCost = btn.dataset.totalCost || '0';
+    const currentBalance = btn.dataset.currentBalance || totalCost;
+    const supplier = btn.dataset.supplier || '';
+    if (purchaseId > 0) {
+      showRecordPaymentModal(purchaseId, groupId, totalCost, currentBalance, supplier);
+    }
+  });
+
+  if (closeRecordPaymentModal) {
+    closeRecordPaymentModal.addEventListener('click', hideRecordPaymentModal);
+  }
+  if (cancelRecordPaymentBtn) {
+    cancelRecordPaymentBtn.addEventListener('click', hideRecordPaymentModal);
+  }
+  if (recordPaymentModal) {
+    recordPaymentModal.addEventListener('click', (e) => {
+      if (e.target === recordPaymentModal || e.target.hasAttribute('data-record-payment-dismiss')) {
+        hideRecordPaymentModal();
+      }
+    });
+  }
+
+  // Form validation and AJAX submission
+  if (recordPaymentForm) {
+    recordPaymentForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Clear any previous errors
+      if (recordPaymentReceiptError) {
+        recordPaymentReceiptError.classList.add('hidden');
+        recordPaymentReceiptError.textContent = '';
+      }
+      if (recordPaymentReceiptDropzone) {
+        recordPaymentReceiptDropzone.classList.remove('border-red-500', 'ring-2', 'ring-red-300');
+      }
+      
+      // Validate receipt upload
+      const hasReceipt = recordPaymentReceiptInput && recordPaymentReceiptInput.files && recordPaymentReceiptInput.files.length > 0;
+      if (!hasReceipt) {
+        // Show error message prominently
+        if (recordPaymentReceiptError) {
+          recordPaymentReceiptError.textContent = '⚠ Receipt upload is required. Please upload a receipt before recording the payment.';
+          recordPaymentReceiptError.classList.remove('hidden');
+          // Add animation to make it more noticeable
+          recordPaymentReceiptError.style.animation = 'none';
+          setTimeout(() => {
+            recordPaymentReceiptError.style.animation = 'shake 0.5s ease-in-out';
+          }, 10);
+        }
+        // Highlight the dropzone with stronger visual feedback
+        if (recordPaymentReceiptDropzone) {
+          recordPaymentReceiptDropzone.classList.remove('border-gray-300', 'border-purple-400', 'bg-purple-50', 'border-blue-400');
+          recordPaymentReceiptDropzone.classList.add('border-red-500', 'bg-red-50', 'ring-2', 'ring-red-300');
+          // Scroll to receipt upload area with a slight delay to ensure modal is rendered
+          setTimeout(() => {
+            recordPaymentReceiptDropzone.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 100);
+        }
+        // Trigger click on the label to open file picker after a short delay
+        setTimeout(() => {
+          const label = recordPaymentReceiptDropzone ? recordPaymentReceiptDropzone.querySelector('label[for="recordPaymentReceiptInput"]') : null;
+          if (label) {
+            label.click();
+          }
+        }, 300);
+        return false;
+      }
+      
+      if (recordPaymentType && recordPaymentType.value === 'Other' && (!recordPaymentTypeOther || !recordPaymentTypeOther.value.trim())) {
+        if (recordPaymentTypeOther) {
+          recordPaymentTypeOther.focus();
+          recordPaymentTypeOther.classList.add('border-red-300');
+        }
+        return false;
+      }
+
+      // Show confirmation modal before submitting
+      showConfirmRecordPaymentModal();
+      return false;
+    });
+  }
+
+  // Confirmation modal for Record Payment
+  const confirmRecordPaymentModal = document.getElementById('confirmRecordPaymentModal');
+  const confirmRecordPaymentMessage = document.getElementById('confirmRecordPaymentMessage');
+  const confirmRecordPaymentConfirmBtn = document.getElementById('confirmRecordPaymentConfirmBtn');
+  const confirmRecordPaymentCancelBtn = document.getElementById('confirmRecordPaymentCancelBtn');
+  let pendingFormData = null;
+
+  function showConfirmRecordPaymentModal() {
+    if (!confirmRecordPaymentModal) {
+      // If modal doesn't exist, proceed directly
+      proceedWithPaymentSubmission();
+      return;
+    }
+    
+    // Store form data for later submission
+    pendingFormData = new FormData(recordPaymentForm);
+    
+    const amount = parseFloat((recordPaymentAmount && recordPaymentAmount.value) || '0');
+    const paymentType = (recordPaymentType && recordPaymentType.value) || 'Card';
+    const dueAmount = parseFloat((recordPaymentDueAmount && recordPaymentDueAmount.value) || '0');
+    const remainingBalance = Math.max(0, dueAmount - amount);
+    
+    let message = `Record payment of ₱${amount.toFixed(2)} (${paymentType})?`;
+    if (remainingBalance > 0.01) {
+      message += ` The remaining balance will be ₱${remainingBalance.toFixed(2)}.`;
+    } else {
+      message += ` This will fully pay the purchase.`;
+    }
+    
+    if (confirmRecordPaymentMessage) {
+      confirmRecordPaymentMessage.textContent = message;
+    }
+    
+    confirmRecordPaymentModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+    if (window.lucide) {
+      window.lucide.createIcons({ elements: confirmRecordPaymentModal.querySelectorAll('i[data-lucide]') });
+    }
+  }
+
+  function hideConfirmRecordPaymentModal() {
+    if (!confirmRecordPaymentModal) return;
+    confirmRecordPaymentModal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+    pendingFormData = null;
+  }
+
+  async function proceedWithPaymentSubmission() {
+    // Hide confirmation modal
+    hideConfirmRecordPaymentModal();
+    
+    // Disable submit button
+    const submitBtn = recordPaymentForm.querySelector('button[type="submit"]');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i data-lucide="loader" class="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin"></i> Processing...';
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    const formData = pendingFormData || new FormData(recordPaymentForm);
+    
+    try {
+      const response = await fetch(recordPaymentForm.action, {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await response.json();
+      
+      if (data.error) {
+        if (recordPaymentReceiptError) {
+          recordPaymentReceiptError.textContent = data.error;
+          recordPaymentReceiptError.classList.remove('hidden');
+        }
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5 md:w-4 md:h-4"></i><span class="whitespace-nowrap">Record Payment</span>';
+          if (window.lucide) window.lucide.createIcons();
+        }
+      } else if (data.success) {
+        hideRecordPaymentModal();
+        // Show simple success message
+        showAlert('Payment recorded successfully!', 'success');
+        // Reload page after a brief moment to show the message
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      }
+    } catch (error) {
+      if (recordPaymentReceiptError) {
+        recordPaymentReceiptError.textContent = 'An error occurred. Please try again.';
+        recordPaymentReceiptError.classList.remove('hidden');
+      }
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5 md:w-4 md:h-4"></i><span class="whitespace-nowrap">Record Payment</span>';
+        if (window.lucide) window.lucide.createIcons();
+      }
+    }
+  }
+
+  // Confirmation modal event listeners
+  if (confirmRecordPaymentConfirmBtn) {
+    confirmRecordPaymentConfirmBtn.addEventListener('click', () => {
+      proceedWithPaymentSubmission();
+    });
+  }
+
+  if (confirmRecordPaymentCancelBtn) {
+    confirmRecordPaymentCancelBtn.addEventListener('click', () => {
+      hideConfirmRecordPaymentModal();
+    });
+  }
+
+  if (confirmRecordPaymentModal) {
+    confirmRecordPaymentModal.addEventListener('click', (e) => {
+      if (e.target === confirmRecordPaymentModal || e.target.hasAttribute('data-confirm-record-payment-dismiss')) {
+        hideConfirmRecordPaymentModal();
+      }
+    });
+  }
+
+  // View Transactions Modal
+  const viewTransactionsModal = document.getElementById('viewTransactionsModal');
+  const closeViewTransactionsModal = document.getElementById('closeViewTransactionsModal');
+  const transactionsContent = document.getElementById('transactionsContent');
+
+  function showViewTransactionsModal(purchaseId, groupId, costSumFromModal = 0, currentBalanceFromModal = 0) {
+    if (!viewTransactionsModal) return;
+    
+    viewTransactionsModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+    
+    // Show loading state
+    if (transactionsContent) {
+      transactionsContent.innerHTML = `
+        <div class="text-center py-8 text-gray-500">
+          <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
+          <p>Loading transactions...</p>
+        </div>
+      `;
+      if (window.lucide) window.lucide.createIcons();
+    }
+    
+    // Fetch transactions
+    fetch(`<?php echo htmlspecialchars($baseUrl); ?>/purchases/transactions?purchase_id=${purchaseId}&group_id=${encodeURIComponent(groupId)}`)
+      .then(response => response.json())
+      .then(data => {
+        if (transactionsContent) {
+          if (data.error) {
+            transactionsContent.innerHTML = `
+              <div class="text-center py-8 text-red-500">
+                <i data-lucide="alert-circle" class="w-8 h-8 mx-auto mb-2"></i>
+                <p>${data.error}</p>
+              </div>
+            `;
+          } else if (!data.transactions || data.transactions.length === 0) {
+            // Use values from purchase details modal if provided, otherwise fall back to backend values
+            const totalAmount = costSumFromModal > 0 ? costSumFromModal : parseFloat(data.total_amount || 0);
+            const totalPaid = parseFloat(data.total_paid || 0);
+            const currentBalance = currentBalanceFromModal >= 0 ? currentBalanceFromModal : parseFloat(data.current_balance || 0);
+            
+            transactionsContent.innerHTML = `
+              <div class="mb-4 p-4 bg-gray-50 rounded-lg">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <div class="text-xs text-gray-600 mb-1">Total Amount</div>
+                    <div class="font-semibold text-gray-900">₱${totalAmount.toFixed(2)}</div>
+                  </div>
+                  <div>
+                    <div class="text-xs text-gray-600 mb-1">Total Paid</div>
+                    <div class="font-semibold text-green-600">₱${totalPaid.toFixed(2)}</div>
+                  </div>
+                  <div>
+                    <div class="text-xs text-gray-600 mb-1">Current Balance</div>
+                    <div class="font-semibold ${currentBalance > 0 ? 'text-yellow-600' : 'text-green-600'}">₱${currentBalance.toFixed(2)}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="text-center py-8 text-gray-500">
+                <i data-lucide="file-x" class="w-8 h-8 mx-auto mb-2"></i>
+                <p>No payment transactions recorded yet.</p>
+              </div>
+            `;
+            if (window.lucide) window.lucide.createIcons();
+          } else {
+            // Use values from purchase details modal if provided, otherwise fall back to backend values
+            const totalAmount = costSumFromModal > 0 ? costSumFromModal : parseFloat(data.total_amount || 0);
+            const totalPaid = parseFloat(data.total_paid || 0);
+            const currentBalance = currentBalanceFromModal >= 0 ? currentBalanceFromModal : parseFloat(data.current_balance || 0);
+            
+            let html = `
+              <div class="mb-4 p-4 bg-gray-50 rounded-lg">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <div class="text-xs text-gray-600 mb-1">Total Amount</div>
+                    <div class="font-semibold text-gray-900">₱${totalAmount.toFixed(2)}</div>
+                  </div>
+                  <div>
+                    <div class="text-xs text-gray-600 mb-1">Total Paid</div>
+                    <div class="font-semibold text-green-600">₱${totalPaid.toFixed(2)}</div>
+                  </div>
+                  <div>
+                    <div class="text-xs text-gray-600 mb-1">Current Balance</div>
+                    <div class="font-semibold ${currentBalance > 0 ? 'text-yellow-600' : 'text-green-600'}">₱${currentBalance.toFixed(2)}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead class="bg-gray-100">
+                    <tr>
+                      <th class="text-left px-4 py-2 text-xs font-semibold text-gray-700">Date & Time</th>
+                      <th class="text-left px-4 py-2 text-xs font-semibold text-gray-700">Payment Type</th>
+                      <th class="text-left px-4 py-2 text-xs font-semibold text-gray-700">Amount</th>
+                      <th class="text-left px-4 py-2 text-xs font-semibold text-gray-700">Receipt</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-200">
+            `;
+            
+            data.transactions.forEach(txn => {
+              const receiptHtml = txn.receipt_url ? 
+                `<a href="${txn.receipt_url}" target="_blank" class="text-blue-600 hover:underline text-xs">View Receipt</a>` : 
+                '<span class="text-gray-400 text-xs">No receipt</span>';
+              
+              html += `
+                <tr>
+                  <td class="px-4 py-2 text-xs text-gray-900">${txn.timestamp || ''}</td>
+                  <td class="px-4 py-2 text-xs text-gray-700">${txn.payment_type || ''}</td>
+                  <td class="px-4 py-2 text-xs font-semibold text-gray-900">₱${parseFloat(txn.amount || 0).toFixed(2)}</td>
+                  <td class="px-4 py-2 text-xs">${receiptHtml}</td>
+                </tr>
+              `;
+            });
+            
+            html += `
+                  </tbody>
+                </table>
+              </div>
+            `;
+            
+            transactionsContent.innerHTML = html;
+          }
+          
+          if (window.lucide) window.lucide.createIcons();
+        }
+      })
+      .catch(error => {
+        if (transactionsContent) {
+          transactionsContent.innerHTML = `
+            <div class="text-center py-8 text-red-500">
+              <i data-lucide="alert-circle" class="w-8 h-8 mx-auto mb-2"></i>
+              <p>Error loading transactions. Please try again.</p>
+            </div>
+          `;
+          if (window.lucide) window.lucide.createIcons();
+        }
+      });
+  }
+
+  function hideViewTransactionsModal() {
+    if (!viewTransactionsModal) return;
+    viewTransactionsModal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+  }
+
+  // Handle View Transactions button clicks
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.viewTransactionsBtn');
+    if (!btn) return;
+    e.stopPropagation();
+    
+    const purchaseId = parseInt(btn.dataset.purchaseId || '0', 10);
+    const groupId = btn.dataset.purchaseGroupId || '';
+    
+    // Extract cost_sum and current_balance from the purchase details modal before closing it
+    const modalContent = document.getElementById('modal-content-' + groupId);
+    const costSum = modalContent ? parseFloat(modalContent.dataset.costSum || '0') : 0;
+    const currentBalance = modalContent ? parseFloat(modalContent.dataset.currentBalance || '0') : 0;
+    
+    // Close any open Purchase Details modal first
+    // Find the overlay that contains the purchase details modal (not the viewTransactionsModal)
+    const allOverlays = document.querySelectorAll('.fixed.inset-0.bg-gray-900\\/70.backdrop-blur-sm, .fixed.inset-0.bg-black\\/70.backdrop-blur-sm');
+    allOverlays.forEach(overlay => {
+      // Check if this overlay contains purchase details (has "Purchase Details" text or closeModal button)
+      const hasPurchaseDetails = overlay.querySelector('h3')?.textContent === 'Purchase Details' || 
+                                  overlay.querySelector('.closeModal') ||
+                                  (overlay.textContent.includes('Purchase Details') && !overlay.id && overlay !== viewTransactionsModal);
+      if (hasPurchaseDetails && overlay !== viewTransactionsModal) {
+        overlay.remove();
+        document.body.classList.remove('overflow-hidden');
+      }
+    });
+    
+    if (purchaseId > 0) {
+      showViewTransactionsModal(purchaseId, groupId, costSum, currentBalance);
+    }
+  });
+
+  if (closeViewTransactionsModal) {
+    closeViewTransactionsModal.addEventListener('click', hideViewTransactionsModal);
+  }
+  if (viewTransactionsModal) {
+    viewTransactionsModal.addEventListener('click', (e) => {
+      if (e.target === viewTransactionsModal || e.target.hasAttribute('data-view-transactions-dismiss')) {
+        hideViewTransactionsModal();
+      }
+    });
+  }
+
+  // Cleanup function to remove stuck overlays (can be called from console: cleanupModals())
+  window.cleanupModals = function() {
+    // Remove all modal overlays
+    const allOverlays = document.querySelectorAll('.fixed.inset-0.bg-gray-900\\/70.backdrop-blur-sm, .fixed.inset-0.bg-black\\/70.backdrop-blur-sm');
+    allOverlays.forEach(overlay => overlay.remove());
+    // Remove overflow-hidden from body
+    document.body.classList.remove('overflow-hidden');
+    console.log('Cleaned up', allOverlays.length, 'stuck overlays');
+  };
+
+  // Escape key to close any open modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      // Close viewTransactionsModal if open
+      if (viewTransactionsModal && !viewTransactionsModal.classList.contains('hidden')) {
+        hideViewTransactionsModal();
+        return;
+      }
+      // Close any purchase details modal
+      const purchaseModals = document.querySelectorAll('.fixed.inset-0.bg-gray-900\\/70.backdrop-blur-sm, .fixed.inset-0.bg-black\\/70.backdrop-blur-sm');
+      purchaseModals.forEach(overlay => {
+        if (overlay !== viewTransactionsModal) {
+          overlay.remove();
+          document.body.classList.remove('overflow-hidden');
+        }
+      });
+    }
+  });
+
+  // Cleanup on page load in case of stuck overlays
+  window.addEventListener('load', () => {
+    // Ensure all modals are hidden
+    const allModals = document.querySelectorAll('[id$="Modal"]');
+    allModals.forEach(modal => {
+      if (modal.classList.contains('fixed') && !modal.classList.contains('hidden')) {
+        modal.classList.add('hidden');
+      }
+    });
+    
+    // Remove any orphaned overlays (backdrops without parent modals)
+    const allOverlays = document.querySelectorAll('.fixed.inset-0.bg-gray-900\\/70.backdrop-blur-sm, .fixed.inset-0.bg-black\\/70.backdrop-blur-sm, .fixed.inset-0.bg-black\\/60.backdrop-blur-sm');
+    allOverlays.forEach(overlay => {
+      // Check if this overlay is inside a hidden modal
+      const parentModal = overlay.closest('[id$="Modal"]');
+      if (!parentModal || parentModal.classList.contains('hidden')) {
+        // This is an orphaned overlay, remove it
+        overlay.remove();
+      }
+    });
+    
+    // Ensure body is not locked
+    document.body.classList.remove('overflow-hidden');
+    
+    // Small delay to ensure everything is loaded, then check again
+    setTimeout(() => {
+      const stuckOverlays = document.querySelectorAll('.fixed.inset-0.bg-gray-900\\/70.backdrop-blur-sm, .fixed.inset-0.bg-black\\/70.backdrop-blur-sm, .fixed.inset-0.bg-black\\/60.backdrop-blur-sm');
+      // Remove any remaining orphaned overlays
+      stuckOverlays.forEach(overlay => {
+        const parentModal = overlay.closest('[id$="Modal"]');
+        if (!parentModal || parentModal.classList.contains('hidden')) {
+          overlay.remove();
+          document.body.classList.remove('overflow-hidden');
+        }
+      });
+    }, 100);
+  });
+  
+  // Also run cleanup immediately on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      // Ensure all modals start hidden
+      const allModals = document.querySelectorAll('[id$="Modal"]');
+      allModals.forEach(modal => {
+        if (modal.classList.contains('fixed') && !modal.classList.contains('hidden')) {
+          modal.classList.add('hidden');
+        }
+      });
+      document.body.classList.remove('overflow-hidden');
+    });
+  } else {
+    // DOM is already ready
+    const allModals = document.querySelectorAll('[id$="Modal"]');
+    allModals.forEach(modal => {
+      if (modal.classList.contains('fixed') && !modal.classList.contains('hidden')) {
+        modal.classList.add('hidden');
+      }
+    });
+    document.body.classList.remove('overflow-hidden');
+  }
 })();
 </script>
 

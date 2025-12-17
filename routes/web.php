@@ -9,6 +9,7 @@ return [
 		'/dashboard' => ['DashboardController', 'index'],
 		'/requests' => ['RequestController', 'index'],
 		'/purchases' => ['PurchaseController', 'index'],
+		'/purchases/transactions' => ['PurchaseController', 'getTransactions'],
 		'/deliveries' => ['DeliveryController', 'index'],
 		'/reports' => ['ReportsController', 'index'],
 		'/reports/export/excel' => ['ReportsController', 'excel'],
@@ -35,6 +36,7 @@ return [
 		'/requests/prepare' => ['RequestController', 'prepare'],
 		'/purchases' => ['PurchaseController', 'store'],
 		'/purchases/mark-paid' => ['PurchaseController', 'markPaid'],
+		'/purchases/record-payment' => ['PurchaseController', 'recordPayment'],
 		'/purchases/delete' => ['PurchaseController', 'delete'],
 		'/deliveries' => ['DeliveryController', 'store'],
 		// removed force-delete feature routes

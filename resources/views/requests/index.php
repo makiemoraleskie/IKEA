@@ -64,7 +64,27 @@ function formatDate($dateString) {
 	</div>
 </div>
 
-<?php if (in_array(Auth::role(), ['Kitchen Staff','Manager','Owner'], true)): ?>
+<?php if (!empty($flash) && !empty($flash['messages'])): ?>
+	<?php 
+		$isSuccess = ($flash['type'] ?? '') === 'success';
+		$alertClasses = $isSuccess 
+			? 'bg-green-50 border border-green-200 text-green-800' 
+			: 'bg-red-50 border border-red-200 text-red-800';
+	?>
+	<div class="mb-4 md:mb-6 rounded-xl px-4 py-3 text-sm <?php echo $alertClasses; ?>">
+		<div class="font-semibold mb-1 flex items-center gap-2">
+			<i data-lucide="<?php echo $isSuccess ? 'check-circle' : 'alert-triangle'; ?>" class="w-4 h-4"></i>
+			<span><?php echo $isSuccess ? 'Success' : 'Please review'; ?></span>
+		</div>
+		<ul class="list-disc list-inside space-y-1 text-[13px] md:text-sm">
+			<?php foreach ((array)$flash['messages'] as $msg): ?>
+				<li><?php echo htmlspecialchars((string)$msg); ?></li>
+			<?php endforeach; ?>
+		</ul>
+	</div>
+<?php endif; ?>
+
+<?php if (in_array(Auth::role(), ['Kitchen Staff','Manager','Owner','Stock Handler'], true)): ?>
 <!-- New Request Button -->
 <div class="mb-4 md:mb-8">
 	<button type="button" id="newRequestBtn" class="inline-flex items-center gap-1 md:gap-1.5 bg-green-600 text-white px-2.5 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-xs md:text-sm">
@@ -1227,6 +1247,11 @@ function formatDate($dateString) {
 		let items = [];
 		let requestedItemIds = [];
 		let requestedNameLines = [];
+		const updatePrepareControlsState = () => {
+			const hasSelection = Boolean(ingredientSelect && ingredientSelect.value);
+			if (quantityInput) quantityInput.disabled = !hasSelection;
+			if (unitSelect) unitSelect.disabled = !hasSelection;
+		};
 		
 		// Escape HTML function
 		const escapeHtml = (text) => {
@@ -1252,6 +1277,7 @@ function formatDate($dateString) {
 				}
 			});
 		}
+		updatePrepareControlsState();
 		
 		// Filter and render dropdown options
 		function filterIngredients(searchTerm) {
@@ -1307,6 +1333,7 @@ function formatDate($dateString) {
 					// Update hidden select
 					if (ingredientSelect) {
 						ingredientSelect.value = id;
+						updatePrepareControlsState();
 					}
 					
 					// Update search input to show selected name
@@ -1425,6 +1452,7 @@ function formatDate($dateString) {
 			}
 			batchIdInput.value = button.getAttribute('data-batch') || '';
 			actionInput.value = 'save';
+			updatePrepareControlsState();
 			renderItems();
 			modal.classList.remove('hidden');
 			modal.classList.add('flex');
@@ -1453,6 +1481,7 @@ function formatDate($dateString) {
 			renderItems();
 			quantityInput.value = '';
 			if (ingredientSelect) ingredientSelect.value = '';
+			updatePrepareControlsState();
 			if (ingredientSearch) ingredientSearch.value = '';
 			if (ingredientDropdown) ingredientDropdown.classList.add('hidden');
 			errorBox.classList.add('hidden');
@@ -1564,44 +1593,12 @@ function formatDate($dateString) {
 						</div>
 					</td>
 					<td class="px-2 md:px-2.5 py-1.5 md:py-2">
-						<span class="font-bold text-gray-900 text-[10px] md:text-xs">${(() => {
-						let displayQty = item.quantity;
-						const baseUnit = item.unit;
-						const displayUnit = item.display_unit;
-						
-						// Convert from base unit to display unit
-						if (baseUnit === 'g' && displayUnit === 'kg') {
-							displayQty = item.quantity / 1000;
-						} else if (baseUnit === 'kg' && displayUnit === 'g') {
-							displayQty = item.quantity * 1000;
-						} else if (baseUnit === 'ml' && displayUnit === 'L') {
-							displayQty = item.quantity / 1000;
-						} else if (baseUnit === 'L' && displayUnit === 'ml') {
-							displayQty = item.quantity * 1000;
-						} else if ((displayUnit === 'g' || displayUnit === 'kg') && baseUnit !== 'g' && baseUnit !== 'kg') {
-							// Custom base unit (like 'sack') with g/kg display
-							// Use display_factor if available, otherwise show base quantity
-							const ingredient = INGREDIENT_LOOKUP[item.id];
-							if (ingredient && ingredient.display_factor && ingredient.display_factor > 0) {
-								if (displayUnit === 'kg') {
-									displayQty = item.quantity * ingredient.display_factor;
-								} else if (displayUnit === 'g') {
-									displayQty = item.quantity * ingredient.display_factor * 1000;
-								}
-							}
-						} else if ((displayUnit === 'ml' || displayUnit === 'L') && baseUnit !== 'ml' && baseUnit !== 'L') {
-							// Similar for volume
-							const ingredient = INGREDIENT_LOOKUP[item.id];
-							if (ingredient && ingredient.display_factor && ingredient.display_factor > 0) {
-								if (displayUnit === 'L') {
-									displayQty = item.quantity * ingredient.display_factor;
-								} else if (displayUnit === 'ml') {
-									displayQty = item.quantity * ingredient.display_factor * 1000;
-								}
-							}
-						}
-						return Number(displayQty).toFixed(2);
-					})()} ${escapeHtml(item.display_unit || item.unit || '')}</span>
+						<div class="flex flex-col leading-tight">
+							<span class="font-bold text-gray-900 text-[10px] md:text-xs">
+								${Number(item.quantity || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${escapeHtml(item.unit || '')}
+							</span>
+							${(item.display_unit && item.display_unit !== item.unit) ? `<span class="text-[9px] md:text-[10px] text-gray-500">Selected unit: ${escapeHtml(item.display_unit)}</span>` : ''}
+						</div>
 					</td>
 					<td class="px-2 md:px-2.5 py-1.5 md:py-2">
 						<button type="button" class="text-red-600 hover:text-red-700 text-[9px] md:text-[10px] font-medium removePrepItem" data-index="${index}">
@@ -1633,40 +1630,28 @@ function formatDate($dateString) {
 			unitSelect.innerHTML = '';
 			const opt = (value, label)=>{ const o=document.createElement('option'); o.value=value; o.textContent=label; return o; };
 			
-			// Always show base unit first
-			unitSelect.appendChild(opt(baseUnit || 'pcs', baseUnit || 'pcs'));
-			
-			// Add display unit if it exists and is different from base unit
-			if (displayUnit && displayUnit.toLowerCase() !== (baseUnit || '').toLowerCase()) {
-				const displayLabel = displayUnit.charAt(0).toUpperCase() + displayUnit.slice(1);
-				unitSelect.appendChild(opt(displayUnit, displayLabel));
+			// Only show base unit and display unit (if different) when ingredient is selected
+			if (baseUnit) {
+				// Always show base unit first
+				unitSelect.appendChild(opt(baseUnit, baseUnit));
+				
+				// Add display unit if it exists and is different from base unit
+				if (displayUnit && displayUnit.toLowerCase() !== baseUnit.toLowerCase()) {
+					const displayLabel = displayUnit.charAt(0).toUpperCase() + displayUnit.slice(1);
+					unitSelect.appendChild(opt(displayUnit, displayLabel));
+				}
+				
+				// Set default to base unit
+				unitSelect.value = baseUnit;
+			} else {
+				// No ingredient selected, show default
+				unitSelect.appendChild(opt('pcs', 'pcs'));
+				unitSelect.value = 'pcs';
 			}
-			
-			// Add weight conversions (g/kg) for any ingredient
-			if (baseUnit !== 'g' && baseUnit !== 'kg') {
-				unitSelect.appendChild(opt('g','g'));
-				unitSelect.appendChild(opt('kg','kg'));
-			} else if (baseUnit === 'g'){
-				unitSelect.appendChild(opt('kg','kg'));
-			} else if (baseUnit === 'kg'){
-				unitSelect.appendChild(opt('g','g'));
-			}
-			
-			// Add volume conversions (ml/L) for any ingredient
-			if (baseUnit !== 'ml' && baseUnit !== 'L') {
-				unitSelect.appendChild(opt('ml','ml'));
-				unitSelect.appendChild(opt('L','L'));
-			} else if (baseUnit === 'ml'){
-				unitSelect.appendChild(opt('L','L'));
-			} else if (baseUnit === 'L'){
-				unitSelect.appendChild(opt('ml','ml'));
-			}
-			
-			// Set default to base unit
-			unitSelect.value = baseUnit || '';
 		}
 
 		ingredientSelect.addEventListener('change', ()=>{
+			updatePrepareControlsState();
 			const ing = INGREDIENT_LOOKUP[parseInt(ingredientSelect.value || '0', 10)];
 			if (ing) {
 				configurePrepareUnits(ing.unit || '', ing.display_unit || null, ing.display_factor || 1);
@@ -1842,6 +1827,7 @@ function formatDate($dateString) {
 						});
 					}
 					if (ingredientSelect) ingredientSelect.value = '';
+					updatePrepareControlsState();
 					if (ingredientSearch) ingredientSearch.value = '';
 					if (ingredientDropdown) ingredientDropdown.classList.add('hidden');
 					quantityInput.value = '';
@@ -1882,6 +1868,7 @@ function formatDate($dateString) {
 				});
 			}
 			if (ingredientSelect) ingredientSelect.value = '';
+			updatePrepareControlsState();
 			if (ingredientSearch) ingredientSearch.value = '';
 			if (ingredientDropdown) ingredientDropdown.classList.add('hidden');
 			quantityInput.value = '';

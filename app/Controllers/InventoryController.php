@@ -61,12 +61,17 @@ class InventoryController extends BaseController
 		$name = trim((string)($_POST['name'] ?? ''));
 		$category = trim((string)($_POST['category'] ?? ''));
 		$unit = trim((string)($_POST['unit'] ?? ''));
-		$reorder = (float)($_POST['reorder_level'] ?? 0);
+		$reorderRaw = $_POST['reorder_level'] ?? null;
 		$displayUnit = trim((string)($_POST['display_unit'] ?? '')) ?: null;
 		$displayFactor = (float)($_POST['display_factor'] ?? 1);
 		$supplier = trim((string)($_POST['preferred_supplier'] ?? ''));
 		$restockQuantity = (float)($_POST['restock_quantity'] ?? 0);
 		if ($name === '' || $unit === '') { $this->redirect('/inventory'); }
+		if ($reorderRaw === null || $reorderRaw === '' || !is_numeric($reorderRaw)) {
+			$_SESSION['flash_inventory'] = ['type' => 'error', 'text' => 'Reorder level is required.'];
+			$this->redirect('/inventory');
+		}
+		$reorder = (float)$reorderRaw;
 		$model = new Ingredient();
 		// When creating ingredient manually in inventory, mark it as in_inventory = true
 		$id = $model->create($name, $unit, $reorder, $displayUnit, $displayFactor > 0 ? $displayFactor : 1, $supplier, $restockQuantity, $category, true);
@@ -96,8 +101,8 @@ class InventoryController extends BaseController
 
 	public function update(): void
 	{
-		// Only Owner can edit: Name, Category, Base Unit, Display Unit, Display Factor, Reorder Level
-		Auth::requireRole(['Owner']);
+		// Allow Owner, Manager, Stock Handler to edit non-stock fields
+		Auth::requireRole(['Owner','Manager','Stock Handler']);
 		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
 			http_response_code(400);
 			echo 'Invalid CSRF token';
@@ -109,12 +114,17 @@ class InventoryController extends BaseController
 		$unit = trim((string)($_POST['unit'] ?? ''));
 		$displayUnit = trim((string)($_POST['display_unit'] ?? '')) ?: null;
 		$displayFactor = (float)($_POST['display_factor'] ?? 1);
-		$reorderLevel = (float)($_POST['reorder_level'] ?? 0);
+		$reorderRaw = $_POST['reorder_level'] ?? null;
 		
 		if ($id <= 0 || $name === '' || $unit === '') {
 			$_SESSION['flash_inventory'] = ['type' => 'error', 'text' => 'Invalid ingredient data. Name and unit are required.'];
 			$this->redirect('/inventory');
 		}
+		if ($reorderRaw === null || $reorderRaw === '' || !is_numeric($reorderRaw)) {
+			$_SESSION['flash_inventory'] = ['type' => 'error', 'text' => 'Reorder level is required.'];
+			$this->redirect('/inventory');
+		}
+		$reorderLevel = (float)$reorderRaw;
 		
 		$model = new Ingredient();
 		$ingredient = $model->find($id);

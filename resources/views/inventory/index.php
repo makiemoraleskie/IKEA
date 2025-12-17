@@ -397,6 +397,10 @@ foreach ($ingredients as $ing) {
 						</select>
 					</div>
 					<?php endif; ?>
+					<button type="button" id="purchaseListCustomize" class="inline-flex items-center justify-center gap-2 px-4 md:px-5 py-2.5 rounded-lg border border-rose-200 text-rose-700 bg-rose-50 text-[12px] font-semibold shadow-sm hover:bg-rose-100 focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 w-full sm:w-auto">
+						<i data-lucide="list-checks" class="w-4 h-4"></i>
+						Customize &amp; Print
+					</button>
 					<button type="button" id="purchaseListPrint" class="inline-flex items-center justify-center gap-2 px-4 md:px-5 py-2.5 rounded-lg bg-rose-600 text-white text-[12px] font-semibold shadow-sm hover:bg-rose-700 focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 w-full sm:w-auto">
 						<i data-lucide="printer" class="w-4 h-4"></i>
 						Print List
@@ -416,7 +420,13 @@ foreach ($ingredients as $ing) {
 								<p class="text-xs uppercase tracking-wide text-gray-500">Supplier</p>
 								<h3 class="text-lg font-semibold text-gray-900"><?php echo htmlspecialchars($supplier); ?></h3>
 							</div>
-							<span class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium"><?php echo count($items); ?> item<?php echo count($items) === 1 ? '' : 's'; ?></span>
+							<div class="flex items-center gap-2 flex-wrap">
+								<span class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium"><?php echo count($items); ?> item<?php echo count($items) === 1 ? '' : 's'; ?></span>
+								<button type="button" class="purchase-customize-btn inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-rose-200 text-rose-700 bg-rose-50 text-xs font-semibold hover:bg-rose-100 transition-colors" data-customize-supplier="<?php echo htmlspecialchars($supplierKey); ?>">
+									<i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+									Customize
+								</button>
+							</div>
 						</div>
 						<div class="mt-4 overflow-x-auto">
 							<table class="w-full text-xs md:text-sm min-w-[520px]">
@@ -457,6 +467,37 @@ foreach ($ingredients as $ing) {
 						<p class="text-sm font-medium">All inventory items are above their reorder levels. Nothing to purchase right now.</p>
 					</div>
 				<?php endif; ?>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Purchase List Customize Modal -->
+<div id="purchaseCustomizeModal" class="fixed inset-0 z-50 hidden">
+	<div class="absolute inset-0 bg-gray-900/70 backdrop-blur-md" data-purchase-customize-dismiss style="backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);"></div>
+	<div class="relative z-10 flex min-h-full items-center justify-center px-4 py-8">
+		<div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-gray-200 flex flex-col max-h-[85vh]">
+			<div class="flex items-start justify-between gap-3 px-5 py-4 border-b">
+				<div>
+					<p class="text-[11px] uppercase tracking-[0.22em] text-rose-500 font-semibold">Customize Print</p>
+					<h3 class="text-lg font-semibold text-gray-900" id="purchaseCustomizeSupplier">Supplier</h3>
+					<p class="text-xs text-gray-600">Uncheck ingredients you don't want to include.</p>
+				</div>
+				<button type="button" class="text-gray-400 hover:text-gray-600" data-purchase-customize-dismiss aria-label="Close">
+					<i data-lucide="x" class="w-5 h-5"></i>
+				</button>
+			</div>
+			<div class="p-4 md:p-5 overflow-y-auto">
+				<div id="purchaseCustomizeList" class="space-y-2 text-sm text-gray-700">
+					<p class="text-gray-500 text-sm">Select a supplier to load items.</p>
+				</div>
+			</div>
+			<div class="px-5 py-4 border-t flex justify-end gap-2">
+				<button type="button" class="inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 text-gray-700 text-sm hover:bg-gray-50" data-purchase-customize-dismiss>Cancel</button>
+				<button type="button" id="purchaseCustomizePrintBtn" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-rose-600 text-white text-sm font-semibold hover:bg-rose-700 focus:ring-2 focus:ring-rose-500 focus:ring-offset-1">
+					<i data-lucide="printer" class="w-4 h-4"></i>
+					Print Selected
+				</button>
 			</div>
 		</div>
 	</div>
@@ -520,11 +561,23 @@ document.addEventListener('DOMContentLoaded', function () {
 	const supplierFilter = document.getElementById('purchaseListSupplierFilter');
 	const supplierSections = modalContent ? Array.from(modalContent.querySelectorAll('[data-supplier]')) : [];
 	const filterEmptyState = document.getElementById('purchaseListFilterEmpty');
+	const customizeBtn = document.getElementById('purchaseListCustomize');
+	const customizeModal = document.getElementById('purchaseCustomizeModal');
+	const customizeList = document.getElementById('purchaseCustomizeList');
+	const customizeSupplierLabel = document.getElementById('purchaseCustomizeSupplier');
+	const customizePrintBtn = document.getElementById('purchaseCustomizePrintBtn');
+	const customizeDismissButtons = customizeModal ? customizeModal.querySelectorAll('[data-purchase-customize-dismiss]') : [];
+	let customizeItems = [];
 
 	const toggleModal = (show) => {
 		if (!modal) { return; }
 		modal.classList.toggle('hidden', !show);
 		document.body.classList.toggle('overflow-hidden', show);
+	};
+
+	const escapeHtml = (value) => {
+		const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+		return String(value ?? '').replace(/[&<>"']/g, (char) => map[char]);
 	};
 
 	const applySupplierFilter = () => {
@@ -544,6 +597,166 @@ document.addEventListener('DOMContentLoaded', function () {
 	if (supplierFilter) {
 		applySupplierFilter();
 	}
+
+	const buildItemsFromSection = (section) => {
+		if (!section) { return []; }
+		const rows = Array.from(section.querySelectorAll('tbody tr'));
+		return rows.map(row => {
+			const cells = row.querySelectorAll('td');
+			return {
+				name: cells[0]?.textContent.trim() || '',
+				status: cells[1]?.textContent.trim() || '',
+				onHand: cells[2]?.textContent.trim() || '',
+				reorder: cells[3]?.textContent.trim() || '',
+				recommended: cells[4]?.textContent.trim() || '',
+				selected: true,
+			};
+		});
+	};
+
+	const renderCustomizeList = () => {
+		if (!customizeList) { return; }
+		customizeList.innerHTML = '';
+		if (!customizeItems.length) {
+			customizeList.innerHTML = '<p class="text-sm text-gray-500">No ingredients available for this supplier.</p>';
+			return;
+		}
+		customizeItems.forEach((item, index) => {
+			const row = document.createElement('label');
+			row.className = 'flex items-start gap-3 p-2 border border-gray-200 rounded-lg hover:bg-gray-50';
+			row.innerHTML = `
+				<input type="checkbox" class="mt-1 h-4 w-4 text-rose-600 border-gray-300 rounded customize-item-toggle" data-index="${index}" ${item.selected ? 'checked' : ''}>
+				<div class="flex-1">
+					<p class="font-semibold text-gray-900 text-sm">${escapeHtml(item.name)}</p>
+					<div class="text-[12px] text-gray-600 flex flex-wrap gap-2">
+						<span>Status: ${escapeHtml(item.status)}</span>
+						<span>On hand: ${escapeHtml(item.onHand)}</span>
+						<span>Reorder: ${escapeHtml(item.reorder)}</span>
+						<span>Recommended: ${escapeHtml(item.recommended)}</span>
+					</div>
+				</div>
+			`;
+			customizeList.appendChild(row);
+		});
+	};
+
+	const openCustomizeModalForSection = (section) => {
+		if (!customizeModal || !section) { return; }
+		customizeItems = buildItemsFromSection(section);
+		const supplierName = section.querySelector('h3')?.textContent?.trim() || 'Supplier';
+		if (customizeSupplierLabel) {
+			customizeSupplierLabel.textContent = supplierName;
+		}
+		renderCustomizeList();
+		customizeModal.classList.remove('hidden');
+		document.body.classList.add('overflow-hidden');
+		if (window.lucide?.createIcons) {
+			window.lucide.createIcons({ elements: customizeModal.querySelectorAll('i[data-lucide]') });
+		}
+	};
+
+	const closeCustomizeModal = () => {
+		if (!customizeModal) { return; }
+		customizeModal.classList.add('hidden');
+		const purchaseListOpen = modal && !modal.classList.contains('hidden');
+		document.body.classList.toggle('overflow-hidden', purchaseListOpen);
+	};
+
+	customizeList?.addEventListener('change', (event) => {
+		const toggle = event.target.closest('.customize-item-toggle');
+		if (!toggle) { return; }
+		const index = parseInt(toggle.getAttribute('data-index') || '-1', 10);
+		if (Number.isInteger(index) && index >= 0 && customizeItems[index]) {
+			customizeItems[index].selected = toggle.checked;
+		}
+	});
+
+	customizeDismissButtons.forEach(btn => btn.addEventListener('click', closeCustomizeModal));
+	customizeModal?.addEventListener('click', (event) => {
+		if (event.target === customizeModal) {
+			closeCustomizeModal();
+		}
+	});
+
+	customizeBtn?.addEventListener('click', () => {
+		if (modal && modal.classList.contains('hidden')) {
+			toggleModal(true);
+		}
+		if (!supplierSections.length) {
+			return;
+		}
+		const selectedKey = (supplierFilter?.value || '').toLowerCase();
+		let targetSection = null;
+		if (selectedKey) {
+			targetSection = supplierSections.find(section => (section.dataset.supplier || '').toLowerCase() === selectedKey && !section.classList.contains('hidden'));
+		} else {
+			const visibleSections = supplierSections.filter(section => !section.classList.contains('hidden'));
+			if (visibleSections.length > 0) {
+				targetSection = visibleSections[0];
+			}
+		}
+		if (!targetSection) {
+			alert('No supplier items available to customize.');
+			return;
+		}
+		openCustomizeModalForSection(targetSection);
+	});
+
+	document.querySelectorAll('.purchase-customize-btn').forEach(btn => {
+		btn.addEventListener('click', () => {
+			if (modal && modal.classList.contains('hidden')) {
+				toggleModal(true);
+			}
+			const supplierKey = (btn.getAttribute('data-customize-supplier') || '').toLowerCase();
+			const targetSection = supplierSections.find(section => (section.dataset.supplier || '').toLowerCase() === supplierKey);
+			openCustomizeModalForSection(targetSection);
+		});
+	});
+
+	customizePrintBtn?.addEventListener('click', () => {
+		const selectedItems = customizeItems.filter(item => item.selected);
+		if (!selectedItems.length) {
+			alert('Select at least one ingredient to print.');
+			return;
+		}
+		const rowsHtml = selectedItems.map(item => `
+			<tr>
+				<td>${escapeHtml(item.name)}</td>
+				<td>${escapeHtml(item.status)}</td>
+				<td>${escapeHtml(item.onHand)}</td>
+				<td>${escapeHtml(item.reorder)}</td>
+				<td>${escapeHtml(item.recommended)}</td>
+			</tr>
+		`).join('');
+		const popup = window.open('', '_blank', 'width=900,height=700');
+		if (!popup) { return; }
+		popup.document.write(`<html><head><title>Purchase List</title>
+			<style>
+				body { font-family: Arial, sans-serif; padding: 24px; color: #111827; }
+				h2 { margin: 0 0 16px; font-size: 20px; }
+				table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+				th, td { border: 1px solid #e5e7eb; padding: 8px 10px; font-size: 13px; text-align: left; }
+				th { background: #f3f4f6; }
+			</style>
+		</head><body>
+			<h2>${escapeHtml(customizeSupplierLabel?.textContent || 'Supplier')}</h2>
+			<table>
+				<thead>
+					<tr>
+						<th>Ingredient</th>
+						<th>Status</th>
+						<th>On Hand</th>
+						<th>Reorder Level</th>
+						<th>Recommended Qty</th>
+					</tr>
+				</thead>
+				<tbody>${rowsHtml}</tbody>
+			</table>
+		</body></html>`);
+		popup.document.close();
+		popup.focus();
+		popup.print();
+	});
 
 	openBtn?.addEventListener('click', () => {
 		if (openBtn.disabled) { return; }
@@ -890,7 +1103,11 @@ document.addEventListener('DOMContentLoaded', function() {
 				}, 50);
 			}
 			
-			document.querySelector('input[name="reorder_level"]').value = editData.reorder_level || '0';
+			const reorderField = document.querySelector('input[name="reorder_level"]');
+			if (reorderField) {
+				const reorderVal = editData.reorder_level ?? editData.reorderLevel ?? '';
+				reorderField.value = reorderVal === null ? '' : reorderVal;
+			}
 		}
 		
 		addIngredientModal.classList.remove('hidden');
@@ -1320,7 +1537,7 @@ document.addEventListener('DOMContentLoaded', function() {
 				${<?php echo $canManageInventory ? 'true' : 'false'; ?> ? `
 				<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
 					<div class="flex items-center gap-1 md:gap-2">
-						${<?php echo Auth::role() === 'Owner' ? 'true' : 'false'; ?> ? `
+						${<?php echo in_array(Auth::role(), ['Owner','Manager','Stock Handler'], true) ? 'true' : 'false'; ?> ? `
 						<button type="button" class="edit-ingredient-btn inline-flex items-center justify-center w-7 h-7 md:w-8 md:h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors" data-ingredient-id="${ing.id}" title="Edit ingredient">
 							<i data-lucide="pencil" class="w-4 h-4 md:w-4 md:h-4"></i>
 						</button>
@@ -1494,14 +1711,12 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 	
 	if (sortSelect) {
-	if (sortSelect) {
 		sortSelect.addEventListener('change', () => {
 			currentSort = sortSelect.value;
 			sortIngredients();
 			currentPage = 1;
 			renderTable();
 		});
-	}
 	}
 	
 	if (viewToggle) {
@@ -1543,7 +1758,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	});
 	
 	// Edit ingredient handlers
-	<?php if (Auth::role() === 'Owner'): ?>
+	<?php if (in_array(Auth::role(), ['Owner','Manager','Stock Handler'], true)): ?>
 	if (tableBody) {
 		tableBody.addEventListener('click', (e) => {
 			const editBtn = e.target.closest('.edit-ingredient-btn');
@@ -1845,8 +2060,8 @@ document.addEventListener('DOMContentLoaded', function() {
 					</div>
 					
 					<div class="space-y-1.5 md:space-y-2">
-						<label class="block text-xs md:text-sm font-medium text-gray-700">Reorder Level</label>
-						<input type="number" step="0.01" min="0" name="reorder_level" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" value="0" />
+						<label class="block text-xs md:text-sm font-medium text-gray-700">Reorder Level <span class="text-red-500">*</span></label>
+						<input type="number" step="0.01" min="0" name="reorder_level" class="w-full border border-gray-300 rounded-lg px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" value="" placeholder="Enter reorder level" required />
 						<p class="text-[10px] md:text-xs text-gray-500">Minimum stock level</p>
 					</div>
 				</div>

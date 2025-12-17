@@ -1,6 +1,20 @@
 <?php 
 $baseUrl = defined('BASE_URL') ? BASE_URL : '';
 $deliveredTotals = $deliveredTotals ?? [];
+
+// Helper function to format date for batch display
+function formatBatchDate($dateString) {
+	if (empty($dateString)) return '';
+	$date = substr($dateString, 0, 10);
+	if (strlen($date) !== 10) return $dateString;
+	try {
+		$timestamp = strtotime($date);
+		if ($timestamp === false) return $dateString;
+		return date('M j, Y', $timestamp);
+	} catch (Exception $e) {
+		return $dateString;
+	}
+}
 ?>
 <!-- Page Header -->
 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6">
@@ -92,64 +106,124 @@ foreach ($deliveries as $d) {
 		<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
         <input type="hidden" name="items_json" id="deliveriesItemsJson" value="[]">
 		
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-            <!-- Purchase Batch Selection -->
-            <div class="space-y-3 md:col-span-3">
-                <label class="block text-sm font-medium text-gray-700">Select Purchase Batch</label>
-                <div class="grid gap-3 lg:grid-cols-2">
-                    <div class="space-y-1">
-                        <input id="batchSearchInput" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors" placeholder="Search supplier, purchaser, or batch ID..." list="batchSearchOptions">
+		<!-- Purchase Batch Selection -->
+        <div class="space-y-4 mb-6">
+            <div class="space-y-2">
+                <label class="block text-sm md:text-base font-semibold text-gray-900">Select Purchase Batch</label>
+                <p class="text-xs md:text-sm text-gray-600">Search or select a purchase batch to record deliveries for its items</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label class="block text-xs md:text-sm font-medium text-gray-700">Search Batch</label>
+                    <div class="relative">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
+                        <input id="batchSearchInput" class="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors" placeholder="Search by supplier, purchaser, batch ID, or date..." list="batchSearchOptions">
                         <datalist id="batchSearchOptions">
-                            <?php foreach (($purchaseGroups ?? []) as $g): 
-                                $label = '#' . htmlspecialchars($g['group_id']) . ' — ' . htmlspecialchars($g['supplier']) . ' — ' . htmlspecialchars($g['purchaser_name']);
+                            <?php 
+                            foreach (($purchaseGroups ?? []) as $g): 
+                                $dateFormatted = formatBatchDate($g['date_purchased'] ?? '');
+                                $itemCount = isset($g['items']) && is_array($g['items']) ? count($g['items']) : 0;
+                                $itemText = $itemCount === 1 ? 'item' : 'items';
+                                $supplier = htmlspecialchars($g['supplier'] ?? '');
+                                $purchaser = htmlspecialchars($g['purchaser_name'] ?? '');
+                                
+                                // Create display text matching select dropdown format
+                                $displayText = '';
+                                if ($dateFormatted) {
+                                    $displayText = $dateFormatted . ' • ';
+                                }
+                                $displayText .= $supplier;
+                                if ($supplier && $purchaser) {
+                                    $displayText .= ' • ';
+                                }
+                                $displayText .= $purchaser;
+                                if ($itemCount > 0) {
+                                    $displayText .= ' (' . $itemCount . ' ' . $itemText . ')';
+                                }
+                                if (!$displayText) {
+                                    $displayText = 'Batch #' . htmlspecialchars($g['group_id']);
+                                }
                             ?>
-                                <option value="<?php echo $label; ?>"></option>
+                                <option value="<?php echo $displayText; ?>"></option>
                             <?php endforeach; ?>
                         </datalist>
                     </div>
-                    <div class="space-y-1">
-                        <select id="batchSelect" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors">
-                            <option value="">Choose a batch</option>
-                            <?php foreach (($purchaseGroups ?? []) as $g): ?>
-                                <option value="<?php echo htmlspecialchars($g['group_id']); ?>"><?php echo '#'.htmlspecialchars($g['group_id']).' — '.htmlspecialchars($g['supplier']).' — '.htmlspecialchars($g['purchaser_name']); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
                 </div>
-                <p class="text-xs text-gray-500" id="batchMeta">After selecting a batch, set per-item received quantities below.</p>
-                <div id="batchHighlight" class="hidden rounded-xl border border-orange-100 bg-orange-50 px-4 py-3 text-sm text-orange-800 space-y-1">
-                    <div class="font-semibold text-orange-900" id="batchMetaSupplier"></div>
-                    <div class="flex flex-wrap gap-3 text-xs text-orange-700">
+                
+                <div class="space-y-2">
+                    <label class="block text-xs md:text-sm font-medium text-gray-700">Or Select from List</label>
+                    <select id="batchSelect" class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors bg-white">
+                        <option value="">Choose a batch from the list</option>
+                        <?php 
+                        foreach (($purchaseGroups ?? []) as $g): 
+                            $dateFormatted = formatBatchDate($g['date_purchased'] ?? '');
+                            $itemCount = isset($g['items']) && is_array($g['items']) ? count($g['items']) : 0;
+                            $itemText = $itemCount === 1 ? 'item' : 'items';
+                            $supplier = htmlspecialchars($g['supplier'] ?? '');
+                            $purchaser = htmlspecialchars($g['purchaser_name'] ?? '');
+                            $batchId = htmlspecialchars($g['group_id']);
+                            
+                            // Create a more readable format: Date - Supplier - Purchaser (X items)
+                            $displayText = '';
+                            if ($dateFormatted) {
+                                $displayText = $dateFormatted . ' • ';
+                            }
+                            $displayText .= $supplier;
+                            if ($supplier && $purchaser) {
+                                $displayText .= ' • ';
+                            }
+                            $displayText .= $purchaser;
+                            if ($itemCount > 0) {
+                                $displayText .= ' (' . $itemCount . ' ' . $itemText . ')';
+                            }
+                            if (!$displayText) {
+                                $displayText = 'Batch #' . $batchId;
+                            }
+                        ?>
+                            <option value="<?php echo $batchId; ?>"><?php echo $displayText; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="batchHighlight" class="hidden rounded-xl border-2 border-orange-200 bg-gradient-to-r from-orange-50 to-orange-100 px-4 py-3 space-y-2 shadow-sm">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="info" class="w-4 h-4 text-orange-600"></i>
+                    <div class="font-semibold text-orange-900 text-sm md:text-base" id="batchMetaSupplier"></div>
+                </div>
+                <div class="flex flex-wrap gap-4 text-xs md:text-sm text-orange-800">
+                    <span class="flex items-center gap-1.5">
+                        <i data-lucide="user" class="w-3.5 h-3.5"></i>
                         <span id="batchMetaPurchaser"></span>
+                    </span>
+                    <span class="flex items-center gap-1.5">
+                        <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
                         <span id="batchMetaDate"></span>
-                    </div>
+                    </span>
                 </div>
             </div>
-			
-            <!-- Quantity fields are handled per-row when a batch is chosen -->
-            <div class="space-y-2 hidden">
-                <label class="block text-sm font-medium text-gray-700">Quantity Received</label>
-                <input id="deliveryQty" type="number" step="0.01" min="0.01" class="w-full border border-gray-300 rounded-lg px-4 py-3" placeholder="Enter amount" />
-            </div>
-            <div class="space-y-2 hidden">
-                <label class="block text-sm font-medium text-gray-700">Unit</label>
-                <select id="deliveryQtyUnit" class="w-full border border-gray-300 rounded-lg px-4 py-3"><option value="">Auto-detect</option></select>
-            </div>
-		</div>
+            
+            <p class="text-xs md:text-sm text-gray-500" id="batchMeta">Select a batch above to view and set delivery quantities for each item.</p>
+        </div>
 		
-        <div id="batchItemsBox" class="mt-4 hidden">
-            <div class="overflow-x-auto border rounded-lg">
+        <div id="batchItemsBox" class="mt-6 hidden">
+            <div class="mb-3">
+                <h3 class="text-sm md:text-base font-semibold text-gray-900">Delivery Items</h3>
+                <p class="text-xs md:text-sm text-gray-600 mt-1">Set the quantities received for each item in this batch</p>
+            </div>
+            <div class="overflow-x-auto border border-gray-200 rounded-lg shadow-sm">
                 <table class="min-w-full text-sm min-w-[560px]" id="batchItemsTable">
-                    <thead class="bg-gray-50">
+                    <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
-                            <th class="text-left px-4 py-2">Item</th>
-                            <th class="text-left px-4 py-2">Remaining</th>
-                            <th class="text-left px-4 py-2">Receive Now</th>
-                            <th class="text-left px-4 py-2">Unit</th>
-                            <th class="text-left px-4 py-2">Auto Status</th>
+                            <th class="text-left px-4 py-3 font-semibold text-gray-700 text-xs md:text-sm">Item</th>
+                            <th class="text-left px-4 py-3 font-semibold text-gray-700 text-xs md:text-sm">Remaining</th>
+                            <th class="text-left px-4 py-3 font-semibold text-gray-700 text-xs md:text-sm">Receive Now</th>
+                            <th class="text-left px-4 py-3 font-semibold text-gray-700 text-xs md:text-sm">Unit</th>
+                            <th class="text-left px-4 py-3 font-semibold text-gray-700 text-xs md:text-sm">Auto Status</th>
                         </tr>
                     </thead>
-                    <tbody></tbody>
+                    <tbody class="divide-y divide-gray-100"></tbody>
                 </table>
             </div>
         </div>
@@ -767,6 +841,9 @@ foreach ($deliveries as $d) {
       if (batchMetaDate) batchMetaDate.textContent = `Ordered: ${g.date_purchased ?? ''}`;
       if (batchMeta) batchMeta.textContent = 'Review batch details below and record received quantities.';
       batchHighlight.classList.remove('hidden');
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons({ elements: batchHighlight.querySelectorAll('i[data-lucide]') });
+      }
     }
     if (box) {
       box.classList.remove('hidden');
@@ -2081,16 +2158,51 @@ foreach ($deliveries as $d) {
         render('');
         return;
       }
-      const match = Array.from(sel.options).find(opt => opt.textContent === searchInput.value);
-      if (match){
+      const searchValue = searchInput.value.toLowerCase().trim();
+      
+      // Try to find by batch ID first (if search starts with # or contains batch ID)
+      if (searchValue.startsWith('#')) {
+        const batchIdMatch = searchValue.substring(1).trim();
+        const match = Array.from(sel.options).find(opt => opt.value.toLowerCase() === batchIdMatch);
+        if (match && match.value){
+          sel.value = match.value;
+          sel.dispatchEvent(new Event('change'));
+          searchInput.value = match.textContent;
+          return;
+        }
+      }
+      
+      // Try exact match by batch ID (without #)
+      const directBatchMatch = Array.from(sel.options).find(opt => opt.value.toLowerCase() === searchValue);
+      if (directBatchMatch && directBatchMatch.value){
+        sel.value = directBatchMatch.value;
+        sel.dispatchEvent(new Event('change'));
+        searchInput.value = directBatchMatch.textContent;
+        return;
+      }
+      
+      // Otherwise, find by text content (case-insensitive partial match)
+      const match = Array.from(sel.options).find(opt => {
+        if (!opt.value) return false;
+        const optText = opt.textContent.toLowerCase();
+        return optText.includes(searchValue);
+      });
+      if (match && match.value){
         sel.value = match.value;
         sel.dispatchEvent(new Event('change'));
+        // Update search input to show the full formatted text for better UX
+        searchInput.value = match.textContent;
       }
     });
   }
 
   // Initialize batch select filter on page load
   updateBatchSelectFilter();
+  
+  // Initialize lucide icons on page load
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
 
   function applyDeliveryFilter(value){
     if (!filterSelect || deliveryRows.length === 0) return;

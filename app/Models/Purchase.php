@@ -186,6 +186,28 @@ class Purchase extends BaseModel
         $stmt->execute(array_values($ids));
         return $stmt->rowCount();
     }
+
+    public function getDb(): PDO
+    {
+        return $this->db;
+    }
+
+    public function getGroupPurchases(string $groupId): array
+    {
+        // Group ID is a hash of purchaser+supplier+payment+receipt+timestamp
+        // We need to find all purchases that match this group by recalculating the hash
+        $allPurchases = $this->listAll();
+        $groupPurchases = [];
+        foreach ($allPurchases as $p) {
+            $ts = substr((string)($p['date_purchased'] ?? $p['created_at'] ?? ''), 0, 19);
+            $key = ($p['purchaser_id'] ?? '') . '|' . ($p['supplier'] ?? '') . '|' . ($p['payment_status'] ?? '') . '|' . ($p['receipt_url'] ?? '') . '|' . $ts;
+            $hash = substr(sha1($key), 0, 10);
+            if ($hash === $groupId) {
+                $groupPurchases[] = $p;
+            }
+        }
+        return $groupPurchases;
+    }
 }
 
 

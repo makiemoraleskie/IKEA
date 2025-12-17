@@ -18,12 +18,68 @@ class PurchaseController extends BaseController
 
         // Group potential batch purchases by purchaser+supplier+payment+receipt+timestamp(second)
         $groups = [];
+        // Get payment transactions to calculate current balance
+        $db = $purchaseModel->getDb();
+        try {
+            $db->exec("CREATE TABLE IF NOT EXISTS payment_transactions (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                purchase_id INT NOT NULL,
+                purchase_group_id VARCHAR(50) NOT NULL,
+                amount DECIMAL(16,2) NOT NULL,
+                payment_type VARCHAR(50) NOT NULL,
+                receipt_url VARCHAR(255) NULL,
+                timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                created_by INT NOT NULL,
+                INDEX idx_purchase_id (purchase_id),
+                INDEX idx_group_id (purchase_group_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        } catch (\Exception $e) {
+            // Table might already exist
+        }
+        
+        // Get all payment transactions grouped by group_id and last receipt
+        $stmt = $db->query("SELECT purchase_group_id, SUM(amount) AS total_paid FROM payment_transactions GROUP BY purchase_group_id");
+        $paymentTotals = [];
+        while ($row = $stmt->fetch()) {
+            $paymentTotals[$row['purchase_group_id']] = (float)$row['total_paid'];
+        }
+        
+        // Get last receipt URL for each group (most recent payment transaction with receipt)
+        $stmt = $db->query("SELECT purchase_group_id, receipt_url FROM payment_transactions WHERE receipt_url IS NOT NULL AND receipt_url != '' ORDER BY timestamp DESC, id DESC");
+        $lastReceipts = [];
+        while ($row = $stmt->fetch()) {
+            $groupId = $row['purchase_group_id'];
+            if (!isset($lastReceipts[$groupId])) {
+                $lastReceipts[$groupId] = $row['receipt_url'];
+            }
+        }
+        
+        // Map to store stable group_id for each purchase batch
+        $stableGroupIdMap = [];
+        
         foreach ($purchases as $p) {
             $ts = substr((string)($p['date_purchased'] ?? $p['created_at'] ?? ''), 0, 19);
+            // Calculate stable group_id that doesn't change with payment_status
+            // This ensures transactions remain accessible even after payment status changes
+            $stableKey = ($p['purchaser_id'] ?? '') . '|' . ($p['supplier'] ?? '') . '|' . ($p['receipt_url'] ?? '') . '|' . $ts;
+            $stableGroupId = substr(sha1($stableKey), 0, 10);
+            
+            // Store stable group_id mapping (use first purchase's receipt_url as reference)
+            if (!isset($stableGroupIdMap[$stableKey])) {
+                $stableGroupIdMap[$stableKey] = $stableGroupId;
+            }
+            
+            // For display grouping, still use payment_status to show different groups if needed
             $key = ($p['purchaser_id'] ?? '') . '|' . ($p['supplier'] ?? '') . '|' . ($p['payment_status'] ?? '') . '|' . ($p['receipt_url'] ?? '') . '|' . $ts;
             if (!isset($groups[$key])) {
+                $groupId = substr(sha1($key), 0, 10);
+                $costSum = 0.0; // Will be calculated below
+                // Use stable group_id for looking up payment transactions
+                $totalPaid = $paymentTotals[$stableGroupId] ?? 0.0;
+                $currentBalance = $costSum - $totalPaid;
+                
                 $groups[$key] = [
-                    'group_id' => substr(sha1($key), 0, 10),
+                    'group_id' => $stableGroupId, // Use stable group_id that doesn't change with payment status
                     'purchaser_name' => $p['purchaser_name'] ?? '',
                     'supplier' => $p['supplier'] ?? '',
                     'payment_status' => $p['payment_status'] ?? 'Pending',
@@ -36,6 +92,7 @@ class PurchaseController extends BaseController
                     'quantity_sum' => 0.0,
                     'delivered_sum' => 0.0,
                     'cost_sum' => 0.0,
+                    'current_balance' => 0.0, // Will be updated after cost_sum is calculated
                     'first_id' => (int)$p['id'],
                 ];
             }
@@ -51,6 +108,22 @@ class PurchaseController extends BaseController
                 $groups[$key]['payment_type'] = 'Cash';
                 if (isset($p['cash_base_amount']) && $p['cash_base_amount'] !== null) {
                     $groups[$key]['cash_base_amount'] = (float)$p['cash_base_amount'];
+                }
+            }
+        }
+        
+        // Update current balance for each group after cost_sum is calculated
+        foreach ($groups as $key => $group) {
+            $totalPaid = $paymentTotals[$group['group_id']] ?? 0.0;
+            $groups[$key]['current_balance'] = max(0, (float)$group['cost_sum'] - $totalPaid);
+            // Update payment status if fully paid
+            if ($groups[$key]['current_balance'] <= 0.01 && $totalPaid > 0) {
+                $groups[$key]['payment_status'] = 'Paid';
+                // If fully paid, use the last payment receipt instead of original purchase receipt
+                // The receipt URL from payment_transactions is already in the correct format (/public/uploads/...)
+                // and the view will handle prepending the base URL
+                if (isset($lastReceipts[$group['group_id']]) && !empty($lastReceipts[$group['group_id']])) {
+                    $groups[$key]['receipt_url'] = $lastReceipts[$group['group_id']];
                 }
             }
         }
@@ -70,7 +143,7 @@ class PurchaseController extends BaseController
 
 	public function store(): void
 	{
-		Auth::requireRole(['Purchaser','Manager','Owner','Stock Handler']);
+		Auth::requireRole(['Purchaser','Manager','Owner']);
 		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
 			http_response_code(400);
 			echo 'Invalid CSRF token';
@@ -463,6 +536,219 @@ class PurchaseController extends BaseController
             UPLOAD_ERR_EXTENSION => 'Receipt upload was blocked by a server extension.',
             default => 'Receipt upload failed. Please try again.',
         };
+    }
+
+    public function recordPayment(): void
+    {
+        Auth::requireRole(['Purchaser','Manager','Owner','Stock Handler']);
+        if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid CSRF token']);
+            return;
+        }
+
+        $purchaseId = (int)($_POST['purchase_id'] ?? 0);
+        $groupId = trim((string)($_POST['purchase_group_id'] ?? ''));
+        $amount = (float)($_POST['amount'] ?? 0);
+        $paymentType = trim((string)($_POST['payment_type'] ?? ''));
+        $paymentTypeOther = trim((string)($_POST['payment_type_other'] ?? ''));
+        
+        if ($paymentType === 'Other' && $paymentTypeOther !== '') {
+            $paymentType = $paymentTypeOther;
+        }
+        
+        if ($purchaseId <= 0 || $amount <= 0) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid purchase ID or amount']);
+            return;
+        }
+
+        $receiptUpload = $_FILES['receipt'] ?? null;
+        $receiptUrl = null;
+        
+        if ($receiptUpload && $receiptUpload['error'] === UPLOAD_ERR_OK) {
+            $allowed = [
+                'image/jpeg' => '.jpg',
+                'image/png' => '.png',
+                'image/webp' => '.webp',
+                'image/heic' => '.heic',
+                'image/heif' => '.heif',
+                'application/pdf' => '.pdf',
+            ];
+            
+            $mime = mime_content_type($receiptUpload['tmp_name']);
+            if (!isset($allowed[$mime])) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Unsupported receipt file type']);
+                return;
+            }
+            
+            $base = bin2hex(random_bytes(8));
+            $filename = $base . $allowed[$mime];
+            $targetDir = BASE_PATH . '/public/uploads/';
+            if (!is_dir($targetDir)) {
+                @mkdir($targetDir, 0755, true);
+            }
+            $target = $targetDir . $filename;
+            if (move_uploaded_file($receiptUpload['tmp_name'], $target)) {
+                $receiptUrl = '/public/uploads/' . $filename;
+            } else {
+                http_response_code(500);
+                echo json_encode(['error' => 'Failed to save receipt']);
+                return;
+            }
+        } else {
+            http_response_code(400);
+            echo json_encode(['error' => 'Receipt upload is required']);
+            return;
+        }
+
+        $purchaseModel = new Purchase();
+        $purchase = $purchaseModel->find($purchaseId);
+        if (!$purchase) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Purchase not found']);
+            return;
+        }
+
+        // Ensure payment_transactions table exists
+        $db = $purchaseModel->getDb();
+        try {
+            $db->exec("CREATE TABLE IF NOT EXISTS payment_transactions (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                purchase_id INT NOT NULL,
+                purchase_group_id VARCHAR(50) NOT NULL,
+                amount DECIMAL(16,2) NOT NULL,
+                payment_type VARCHAR(50) NOT NULL,
+                receipt_url VARCHAR(255) NULL,
+                timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                created_by INT NOT NULL,
+                INDEX idx_purchase_id (purchase_id),
+                INDEX idx_group_id (purchase_group_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        } catch (\Exception $e) {
+            // Table might already exist
+        }
+
+        // Get all purchases in the group to calculate total
+        $groupPurchases = $purchaseModel->getGroupPurchases($groupId);
+        $totalCost = array_sum(array_column($groupPurchases, 'cost'));
+        
+        // Get existing payments for this group
+        $stmt = $db->prepare("SELECT SUM(amount) AS total_paid FROM payment_transactions WHERE purchase_group_id = ?");
+        $stmt->execute([$groupId]);
+        $result = $stmt->fetch();
+        $totalPaid = (float)($result['total_paid'] ?? 0);
+        $currentBalance = $totalCost - $totalPaid;
+        
+        // Record the payment transaction
+        if ($receiptUrl === null) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Receipt upload failed or was not provided']);
+            return;
+        }
+        $stmt = $db->prepare("INSERT INTO payment_transactions (purchase_id, purchase_group_id, amount, payment_type, receipt_url, created_by) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$purchaseId, $groupId, $amount, $paymentType, $receiptUrl, Auth::id() ?? 0]);
+        
+        // Update total paid
+        $totalPaid += $amount;
+        $newBalance = $totalCost - $totalPaid;
+        
+        // Update payment status if fully paid
+        if ($newBalance <= 0.01) { // Allow small floating point differences
+            // Update all purchases in the group to Paid
+            foreach ($groupPurchases as $p) {
+                $purchaseModel->setPaymentStatus((int)$p['id'], 'Paid');
+                $stmt = $db->prepare("UPDATE purchases SET paid_at = NOW() WHERE id = ?");
+                $stmt->execute([(int)$p['id']]);
+            }
+        }
+        
+        $logger = new AuditLog();
+        $logger->log(Auth::id() ?? 0, 'create', 'payment_transactions', [
+            'purchase_id' => $purchaseId,
+            'group_id' => $groupId,
+            'amount' => $amount,
+            'payment_type' => $paymentType
+        ]);
+        
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'current_balance' => max(0, $newBalance), 'total_paid' => $totalPaid]);
+    }
+
+    public function getTransactions(): void
+    {
+        Auth::requireRole(['Purchaser','Manager','Owner','Stock Handler']);
+        header('Content-Type: application/json');
+        
+        $purchaseId = (int)($_GET['purchase_id'] ?? 0);
+        $groupId = trim((string)($_GET['group_id'] ?? ''));
+        
+        if ($purchaseId <= 0 && $groupId === '') {
+            echo json_encode(['error' => 'Invalid purchase ID or group ID']);
+            return;
+        }
+
+        $purchaseModel = new Purchase();
+        $db = $purchaseModel->getDb();
+        
+        // Ensure payment_transactions table exists
+        try {
+            $db->exec("CREATE TABLE IF NOT EXISTS payment_transactions (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                purchase_id INT NOT NULL,
+                purchase_group_id VARCHAR(50) NOT NULL,
+                amount DECIMAL(16,2) NOT NULL,
+                payment_type VARCHAR(50) NOT NULL,
+                receipt_url VARCHAR(255) NULL,
+                timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                created_by INT NOT NULL,
+                INDEX idx_purchase_id (purchase_id),
+                INDEX idx_group_id (purchase_group_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        } catch (\Exception $e) {
+            // Table might already exist
+        }
+
+        // Get transactions for this group
+        $stmt = $db->prepare("SELECT * FROM payment_transactions WHERE purchase_group_id = ? ORDER BY timestamp DESC");
+        $stmt->execute([$groupId]);
+        $transactions = $stmt->fetchAll();
+        
+        // Get total cost for the group
+        $groupPurchases = $purchaseModel->getGroupPurchases($groupId);
+        $totalAmount = array_sum(array_column($groupPurchases, 'cost'));
+        
+        // Calculate totals
+        $totalPaid = array_sum(array_column($transactions, 'amount'));
+        $currentBalance = $totalAmount - $totalPaid;
+        
+        // Format transactions
+        $baseUrl = defined('BASE_URL') ? BASE_URL : '';
+        $formattedTransactions = [];
+        foreach ($transactions as $txn) {
+            $receiptUrl = $txn['receipt_url'];
+            // Fix receipt URL - prepend base URL if it's a relative path
+            if ($receiptUrl && !preg_match('#^https?://#', $receiptUrl)) {
+                // It's a relative path, prepend base URL
+                $receiptUrl = rtrim($baseUrl, '/') . '/' . ltrim($receiptUrl, '/');
+            }
+            
+            $formattedTransactions[] = [
+                'id' => (int)$txn['id'],
+                'amount' => (float)$txn['amount'],
+                'payment_type' => $txn['payment_type'],
+                'receipt_url' => $receiptUrl,
+                'timestamp' => date('M j, Y g:i A', strtotime($txn['timestamp'])),
+            ];
+        }
+        
+        echo json_encode([
+            'transactions' => $formattedTransactions,
+            'total_amount' => $totalAmount,
+            'total_paid' => $totalPaid,
+            'current_balance' => max(0, $currentBalance),
+        ]);
     }
 }
 
