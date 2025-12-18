@@ -27,7 +27,7 @@ if (!empty($lowStockGroups)) {
 
 <!-- Import CSV Modal -->
 <div id="importCsvModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-	<div class="fixed inset-0 bg-gray-900/80 backdrop-blur-sm" data-import-dismiss></div>
+	<div class="fixed inset-0 bg-gray-900/80 backdrop-blur-sm" data-import-dismiss style="backdrop-filter: blur(4px) !important; -webkit-backdrop-filter: blur(4px) !important;"></div>
 	<div class="relative z-10 flex min-h-full items-center justify-center px-4 py-8">
 		<div class="w-full max-w-4xl bg-white rounded-2xl shadow-none border border-gray-200 overflow-hidden max-h-[90vh] flex flex-col">
 			<div class="flex items-start justify-between gap-3 px-5 py-4 border-b bg-gray-100">
@@ -373,7 +373,7 @@ foreach ($ingredients as $ing) {
 
 <!-- Purchase List Modal -->
 <div id="purchaseListModal" class="fixed inset-0 z-50 hidden">
-	<div class="absolute inset-0 bg-gray-900/70 backdrop-blur-md" data-purchase-list-dismiss style="backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);"></div>
+	<div class="absolute inset-0 bg-gray-900/50" data-purchase-list-dismiss style="backdrop-filter: blur(1px) !important; -webkit-backdrop-filter: blur(1px) !important;"></div>
 	<div class="relative z-10 flex min-h-full items-center justify-center px-4 py-8">
 		<div class="w-full max-w-4xl bg-white rounded-2xl shadow-none border border-gray-200 flex flex-col max-h-[85vh] relative">
 			<button type="button" class="absolute top-4 right-4 z-10 inline-flex items-center justify-center w-8 h-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors" data-purchase-list-dismiss aria-label="Close">
@@ -436,7 +436,6 @@ foreach ($ingredients as $ing) {
 										<th class="text-left px-3 md:px-4 py-1.5 md:py-2 font-medium text-gray-700 text-[11px] md:text-xs lg:text-sm">Status</th>
 										<th class="text-left px-3 md:px-4 py-1.5 md:py-2 font-medium text-gray-700 text-[11px] md:text-xs lg:text-sm">On Hand</th>
 										<th class="text-left px-3 md:px-4 py-1.5 md:py-2 font-medium text-gray-700 text-[11px] md:text-xs lg:text-sm">Reorder Level</th>
-										<th class="text-left px-3 md:px-4 py-1.5 md:py-2 font-medium text-gray-700 text-[11px] md:text-xs lg:text-sm">Recommended Qty</th>
 									</tr>
 								</thead>
 								<tbody class="divide-y divide-gray-100">
@@ -450,7 +449,6 @@ foreach ($ingredients as $ing) {
 										</td>
 										<td class="px-3 md:px-4 py-1.5 md:py-2 text-gray-700 text-xs md:text-sm lg:text-base"><?php echo number_format((float)$item['quantity'], 2); ?> <?php echo htmlspecialchars($item['unit']); ?></td>
 										<td class="px-3 md:px-4 py-1.5 md:py-2 text-gray-700 text-xs md:text-sm lg:text-base"><?php echo number_format((float)$item['reorder_level'], 2); ?> <?php echo htmlspecialchars($item['unit']); ?></td>
-										<td class="px-3 md:px-4 py-1.5 md:py-2 font-semibold text-gray-900 text-xs md:text-sm lg:text-base"><?php echo number_format((float)$item['recommended_qty'], 2); ?> <?php echo htmlspecialchars($item['unit']); ?></td>
 									</tr>
 									<?php endforeach; ?>
 								</tbody>
@@ -474,7 +472,7 @@ foreach ($ingredients as $ing) {
 
 <!-- Purchase List Customize Modal -->
 <div id="purchaseCustomizeModal" class="fixed inset-0 z-50 hidden">
-	<div class="absolute inset-0 bg-gray-900/70 backdrop-blur-md" data-purchase-customize-dismiss style="backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);"></div>
+	<div class="absolute inset-0 bg-gray-900/70 backdrop-blur-md" data-purchase-customize-dismiss style="backdrop-filter: blur(4px) !important; -webkit-backdrop-filter: blur(4px) !important;"></div>
 	<div class="relative z-10 flex min-h-full items-center justify-center px-4 py-8">
 		<div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-gray-200 flex flex-col max-h-[85vh]">
 			<div class="flex items-start justify-between gap-3 px-5 py-4 border-b">
@@ -603,14 +601,13 @@ document.addEventListener('DOMContentLoaded', function () {
 		const rows = Array.from(section.querySelectorAll('tbody tr'));
 		return rows.map(row => {
 			const cells = row.querySelectorAll('td');
-			return {
-				name: cells[0]?.textContent.trim() || '',
-				status: cells[1]?.textContent.trim() || '',
-				onHand: cells[2]?.textContent.trim() || '',
-				reorder: cells[3]?.textContent.trim() || '',
-				recommended: cells[4]?.textContent.trim() || '',
-				selected: true,
-			};
+		return {
+			name: cells[0]?.textContent.trim() || '',
+			status: cells[1]?.textContent.trim() || '',
+			onHand: cells[2]?.textContent.trim() || '',
+			reorder: cells[3]?.textContent.trim() || '',
+			selected: true,
+		};
 		});
 	};
 
@@ -632,7 +629,6 @@ document.addEventListener('DOMContentLoaded', function () {
 						<span>Status: ${escapeHtml(item.status)}</span>
 						<span>On hand: ${escapeHtml(item.onHand)}</span>
 						<span>Reorder: ${escapeHtml(item.reorder)}</span>
-						<span>Recommended: ${escapeHtml(item.recommended)}</span>
 					</div>
 				</div>
 			`;
@@ -725,7 +721,6 @@ document.addEventListener('DOMContentLoaded', function () {
 				<td>${escapeHtml(item.status)}</td>
 				<td>${escapeHtml(item.onHand)}</td>
 				<td>${escapeHtml(item.reorder)}</td>
-				<td>${escapeHtml(item.recommended)}</td>
 			</tr>
 		`).join('');
 		const popup = window.open('', '_blank', 'width=900,height=700');
@@ -747,7 +742,6 @@ document.addEventListener('DOMContentLoaded', function () {
 						<th>Status</th>
 						<th>On Hand</th>
 						<th>Reorder Level</th>
-						<th>Recommended Qty</th>
 					</tr>
 				</thead>
 				<tbody>${rowsHtml}</tbody>
@@ -1982,7 +1976,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- Add Ingredient Modal -->
 <?php if (in_array(Auth::role(), ['Owner','Manager','Stock Handler'], true)): ?>
 <div id="addIngredientModal" class="fixed inset-0 z-50 hidden">
-	<div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" data-add-ingredient-dismiss></div>
+	<div class="absolute inset-0 bg-gray-900/50" data-add-ingredient-dismiss style="backdrop-filter: blur(1px) !important; -webkit-backdrop-filter: blur(1px) !important;"></div>
 	<div class="relative z-10 flex min-h-full items-center justify-center px-4 py-8">
 		<div class="w-full max-w-3xl bg-white rounded-2xl shadow-none border border-gray-200 flex flex-col max-h-[90vh]">
 			<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-4 px-4 md:px-5 lg:px-6 py-4 md:py-5 border-b">

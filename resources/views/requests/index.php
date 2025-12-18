@@ -53,6 +53,54 @@ function formatDate($dateString) {
 #editRequestModal .edit-modal-card input,
 #editRequestModal .edit-modal-card textarea { font-size: 14px !important; padding: 0.75rem 1rem !important; }
 #editRequestModal .edit-modal-card button { font-size: 14px !important; padding: 0.75rem 1.1rem !important; }
+
+/* Hide scrollbars for modals */
+#newRequestModal,
+#editRequestModal,
+#prepareModal,
+#distributeConfirmModal {
+  overflow: hidden !important;
+}
+
+#newRequestModal .bg-white,
+#editRequestModal .bg-white,
+#prepareModal .bg-white,
+#distributeConfirmModal .bg-white {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+#newRequestModal .bg-white::-webkit-scrollbar,
+#editRequestModal .bg-white::-webkit-scrollbar,
+#prepareModal .bg-white::-webkit-scrollbar,
+#distributeConfirmModal .bg-white::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Ensure modals are centered vertically */
+#newRequestModal > div:last-child,
+#editRequestModal > div:last-child,
+#prepareModal > div:last-child,
+#distributeConfirmModal > div:last-child {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+}
+
+#newRequestModal > div:last-child > div,
+#editRequestModal > div:last-child > div,
+#prepareModal > div:last-child > div,
+#distributeConfirmModal > div:last-child > div {
+  margin-top: auto !important;
+  margin-bottom: auto !important;
+}
 </style>
 <!-- Page Header -->
 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-3 md:p-4 lg:p-5 mb-4 md:mb-6 max-w-full overflow-x-hidden">
@@ -94,19 +142,24 @@ function formatDate($dateString) {
 </div>
 
 <!-- New Request Modal -->
-<div id="newRequestModal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[99999] hidden items-center justify-center p-4" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; z-index: 99999 !important;">
-	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-y-auto">
-		<div class="flex items-center justify-between px-5 md:px-6 py-4 md:py-4.5 border-b">
-			<div>
-				<h2 class="text-lg md:text-xl font-semibold text-gray-900 flex items-center gap-2">
-					<i data-lucide="plus-circle" class="w-5 h-5 md:w-5 md:h-5 text-green-600"></i>
-					New Batch Request
-				</h2>
-				<p class="text-sm md:text-base text-gray-600 mt-1">Describe what you need and when it's required.</p>
+<div id="newRequestModal" class="fixed inset-0 z-[99999] hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 99999 !important;">
+	<div class="fixed inset-0 bg-black/50" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
+	<div class="relative z-10 flex items-center justify-center p-4" style="position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; overflow-y: auto !important; overflow-x: hidden !important;">
+		<div class="bg-white rounded-xl shadow-none w-full max-w-4xl mx-auto my-auto" style="max-width: 56rem; margin-top: auto !important; margin-bottom: auto !important;">
+		<div class="p-6">
+			<div class="flex items-center justify-between mb-4">
+				<div>
+					<h2 class="text-lg md:text-xl font-semibold text-gray-900 flex items-center gap-2">
+						<i data-lucide="plus-circle" class="w-5 h-5 md:w-5 md:h-5 text-green-600"></i>
+						New Batch Request
+					</h2>
+					<p class="text-sm md:text-base text-gray-600 mt-1">Describe what you need and when it's required.</p>
+				</div>
+				<button type="button" id="closeNewRequestModal" class="text-gray-400 hover:text-gray-600 transition-colors p-1" aria-label="Close">
+					<i data-lucide="x" class="w-4 h-4 md:w-5 md:h-5"></i>
+				</button>
 			</div>
-			<button type="button" id="closeNewRequestModal" class="text-gray-500 hover:text-gray-700 text-lg md:text-xl leading-none" aria-label="Close">&times;</button>
-		</div>
-		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests" class="p-3 md:p-6 lg:p-7 space-y-5 md:space-y-6 w-full overflow-x-hidden">
+		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests" class="space-y-5 md:space-y-6 w-full overflow-x-hidden">
 			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
 				<div class="space-y-1">
@@ -133,6 +186,8 @@ function formatDate($dateString) {
 				</button>
 			</div>
 		</form>
+		</div>
+	</div>
 	</div>
 </div>
 <?php endif; ?>
@@ -705,18 +760,21 @@ function formatDate($dateString) {
 
 
 <!-- Edit Request Modal -->
-<div id="editRequestModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;">
-	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-y-auto edit-modal-card">
-		<div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 md:px-6 lg:px-7 py-4 md:py-4.5 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-3">
-			<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1.5">
-				<i data-lucide="edit" class="w-4 h-4 md:w-5 md:h-5 text-blue-600"></i>
-				Edit Request
-			</h2>
-			<button type="button" id="closeEditModal" class="text-gray-400 hover:text-gray-600 transition-colors shrink-0">
-				<i data-lucide="x" class="w-4 h-4 md:w-5 md:h-5"></i>
-			</button>
-		</div>
-		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests/update" class="p-4 md:p-6 lg:p-7 space-y-4 md:space-y-5">
+<div id="editRequestModal" class="fixed inset-0 z-50 hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 50 !important;">
+	<div class="fixed inset-0 bg-black/50" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
+	<div class="relative z-10 flex items-center justify-center p-4" style="position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; overflow-y: auto !important; overflow-x: hidden !important;">
+		<div class="bg-white rounded-xl shadow-none w-full max-w-4xl mx-auto my-auto edit-modal-card" style="max-width: 56rem; margin-top: auto !important; margin-bottom: auto !important;">
+		<div class="p-6">
+			<div class="flex items-center justify-between mb-4">
+				<h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1.5">
+					<i data-lucide="edit" class="w-4 h-4 md:w-5 md:h-5 text-blue-600"></i>
+					Edit Request
+				</h2>
+				<button type="button" id="closeEditModal" class="text-gray-400 hover:text-gray-600 transition-colors shrink-0">
+					<i data-lucide="x" class="w-4 h-4 md:w-5 md:h-5"></i>
+				</button>
+			</div>
+		<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests/update" class="space-y-4 md:space-y-5">
 			<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 			<input type="hidden" name="batch_id" id="editBatchId" value="">
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
@@ -744,22 +802,26 @@ function formatDate($dateString) {
 				</button>
 			</div>
 		</form>
+		</div>
+	</div>
 	</div>
 </div>
 
-<div id="prepareModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; z-index: 99999 !important;">
-	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-y-auto prepare-modal-card">
-		<div class="px-3 md:px-4 lg:px-5 py-3 border-b">
-			<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-3">
+<div id="prepareModal" class="fixed inset-0 z-50 hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 50 !important;">
+	<div class="fixed inset-0 bg-black/50" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
+	<div class="relative z-10 flex items-center justify-center p-4" style="position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; overflow-y: auto !important; overflow-x: hidden !important;">
+		<div class="bg-white rounded-xl shadow-none w-full max-w-4xl mx-auto my-auto prepare-modal-card" style="max-width: 56rem; margin-top: auto !important; margin-bottom: auto !important;">
+		<div class="p-6">
+			<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-3 mb-4">
 				<div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4">
 					<div>
 						<p class="text-[10px] font-semibold uppercase tracking-wide text-gray-500">Batch</p>
 						<p class="text-sm font-semibold text-gray-900" id="prepareModalBatchLabel">#0</p>
 					</div>
-						<div>
-							<p class="text-[10px] uppercase tracking-wide text-gray-500">Requested By</p>
-							<p class="text-[12px] font-semibold text-gray-900 mt-0.5" id="prepareModalStaff">—</p>
-						</div>
+					<div>
+						<p class="text-[10px] uppercase tracking-wide text-gray-500">Requested By</p>
+						<p class="text-[12px] font-semibold text-gray-900 mt-0.5" id="prepareModalStaff">—</p>
+					</div>
 					<div class="flex flex-wrap items-center gap-2 md:gap-3">
 						<div>
 							<p class="text-[10px] uppercase tracking-wide text-gray-500">Requester</p>
@@ -771,10 +833,11 @@ function formatDate($dateString) {
 						</div>
 					</div>
 				</div>
-				<button type="button" class="prepareModalClose text-gray-500 hover:text-gray-700 text-lg md:text-xl leading-none shrink-0" aria-label="Close">&times;</button>
+				<button type="button" class="prepareModalClose text-gray-400 hover:text-gray-600 transition-colors p-1 shrink-0" aria-label="Close">
+					<i data-lucide="x" class="w-4 h-4 md:w-5 md:h-5"></i>
+				</button>
 			</div>
-		</div>
-		<div class="px-3 md:px-4 lg:px-5 py-3 space-y-3">
+		<div class="space-y-3">
 			<p class="text-[12px] font-semibold tracking-wide text-gray-500 mb-2">Requested Ingredients/Items</p>
 			<div class="p-2.5 md:p-3 border border-gray-200 rounded-lg">
 				<ul class="grid grid-cols-1 md:grid-cols-2 gap-1.5" id="prepareModalNotes">
@@ -865,14 +928,17 @@ function formatDate($dateString) {
 				</div>
 			</form>
 		</div>
+		</div>
 	</div>
 </div>
 
 <!-- Distribute Confirmation Modal -->
-<div id="distributeConfirmModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100000] hidden items-center justify-center p-4" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; z-index: 100000 !important;">
-	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-		<div class="px-5 md:px-6 py-4 md:py-5 border-b">
-			<div class="flex items-center gap-3">
+<div id="distributeConfirmModal" class="fixed inset-0 z-[100000] hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 100000 !important;">
+	<div class="fixed inset-0 bg-black/50" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
+	<div class="relative z-10 flex items-center justify-center p-4" style="position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; overflow-y: auto !important; overflow-x: hidden !important;">
+		<div class="bg-white rounded-xl shadow-none w-full max-w-md mx-auto my-auto" style="max-width: 28rem; margin-top: auto !important; margin-bottom: auto !important;">
+		<div class="p-6">
+			<div class="flex items-center gap-3 mb-4">
 				<div class="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
 					<i data-lucide="send" class="w-5 h-5 text-green-600"></i>
 				</div>
@@ -881,8 +947,6 @@ function formatDate($dateString) {
 					<p class="text-sm md:text-base text-gray-600 mt-1">Are you sure you want to distribute the selected items?</p>
 				</div>
 			</div>
-		</div>
-		<div class="px-5 md:px-6 py-4 md:py-5">
 			<div class="flex flex-col sm:flex-row sm:justify-end gap-2.5 md:gap-3">
 				<button type="button" id="distributeConfirmCancel" class="inline-flex items-center justify-center gap-1.5 border border-gray-300 text-gray-700 px-4 md:px-5 py-2 md:py-2.5 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 text-sm md:text-base transition-colors">
 					<i data-lucide="x" class="w-4 h-4"></i>
@@ -893,6 +957,7 @@ function formatDate($dateString) {
 					Yes, Distribute
 				</button>
 			</div>
+		</div>
 		</div>
 	</div>
 </div>
@@ -1058,14 +1123,24 @@ function formatDate($dateString) {
 			existingOverlays.forEach(ov => ov.remove());
 			
 			const overlay = document.createElement('div');
-			overlay.className = 'batch-detail-overlay fixed inset-0 bg-black/60 backdrop-blur-md z-[99999] flex items-center justify-center p-4';
-			overlay.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; z-index: 99999 !important;';
+			overlay.className = 'batch-detail-overlay fixed inset-0 z-[99999] hidden overflow-hidden';
+			overlay.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 99999 !important;';
+			const backdrop = document.createElement('div');
+			backdrop.className = 'fixed inset-0 bg-black/50';
+			backdrop.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;';
+			overlay.appendChild(backdrop);
+			const container = document.createElement('div');
+			container.className = 'relative z-10 flex items-center justify-center p-4';
+			container.style.cssText = 'position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; overflow-y: auto !important; overflow-x: hidden !important;';
 			const modal = document.createElement('div');
-			// Match sizing with "Add Batch Request" modal (max-w-4xl, max-h-[85vh]) and avoid whole-modal scroll
+			// Match sizing with "Add Batch Request" modal (max-w-4xl) and avoid whole-modal scroll
 			// Make the modal flex with a scrollable body so actions stay visible on small screens
-			modal.className = 'bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden';
-			modal.innerHTML = `
-				<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-3 px-3 md:px-4 lg:px-5 py-3 border-b border-gray-200">
+			modal.className = 'bg-white rounded-xl shadow-none w-full max-w-4xl mx-auto my-auto flex flex-col overflow-hidden';
+			modal.style.cssText = 'max-width: 56rem; margin-top: auto !important; margin-bottom: auto !important;';
+			const modalContent = document.createElement('div');
+			modalContent.className = 'p-6';
+			modalContent.innerHTML = `
+				<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-3 mb-4">
 					<div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4">
 						<div>
 							<p class="text-[9px] uppercase tracking-wider text-gray-500 font-medium mb-0.5">BATCH ID</p>
@@ -1080,13 +1155,13 @@ function formatDate($dateString) {
 							<p class="text-[10px] md:text-xs font-semibold text-gray-900">${dateRequested}</p>
 						</div>
 					</div>
-					<button type="button" class="closeBatchModal text-gray-400 hover:text-gray-600 transition-colors p-1.5 hover:bg-gray-100 rounded-lg shrink-0" aria-label="Close">
+					<button type="button" class="closeBatchModal text-gray-400 hover:text-gray-600 transition-colors p-1 shrink-0" aria-label="Close">
 						<i data-lucide="x" class="w-4 h-4"></i>
 					</button>
 				</div>
-				<div class="flex-1 overflow-y-auto px-3 md:px-4 lg:px-5 py-3 md:py-4">${cardClone.innerHTML}</div>
+				<div class="flex-1 overflow-y-auto">${cardClone.innerHTML}</div>
 				${showActions ? `
-				<div class="px-3 md:px-4 lg:px-5 py-3 border-t border-gray-200 flex items-center justify-end gap-2">
+				<div class="mt-4 pt-4 border-t border-gray-200 flex items-center justify-end gap-2">
 					<form method="post" action="${baseUrl}/requests/approve" class="inline">
 						<input type="hidden" name="csrf_token" value="${csrfToken}">
 						<input type="hidden" name="batch_id" value="${id}">
@@ -1106,7 +1181,7 @@ function formatDate($dateString) {
 				</div>
 				` : ''}
 				${isRejected ? `
-				<div class="px-3 md:px-4 lg:px-5 py-3 border-t border-gray-200 flex items-center justify-end gap-2">
+				<div class="mt-4 pt-4 border-t border-gray-200 flex items-center justify-end gap-2">
 					<form method="post" action="${baseUrl}/requests/delete" class="inline" id="deleteBatchForm${id}">
 						<input type="hidden" name="csrf_token" value="${csrfToken}">
 						<input type="hidden" name="batch_id" value="${id}">
@@ -1118,7 +1193,10 @@ function formatDate($dateString) {
 				</div>
 				` : ''}
 			`;
-			overlay.appendChild(modal);
+			modal.appendChild(modalContent);
+			container.appendChild(modal);
+			overlay.appendChild(container);
+			overlay.classList.remove('hidden');
 			document.body.appendChild(overlay);
 			document.body.classList.add('overflow-hidden');
 			if (typeof lucide !== 'undefined') {
@@ -1161,39 +1239,48 @@ function formatDate($dateString) {
 					
 					// Create confirmation modal
 					const confirmOverlay = document.createElement('div');
-					confirmOverlay.className = 'delete-confirm-overlay fixed inset-0 z-[999999] flex items-center justify-center p-4';
-					confirmOverlay.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; z-index: 999999 !important; pointer-events: none !important;';
-					
+					confirmOverlay.className = 'delete-confirm-overlay fixed inset-0 z-[999999] hidden overflow-hidden';
+					confirmOverlay.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 999999 !important; pointer-events: none !important;';
+					const confirmBackdrop = document.createElement('div');
+					confirmBackdrop.className = 'fixed inset-0 bg-black/50';
+					confirmBackdrop.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;';
+					confirmOverlay.appendChild(confirmBackdrop);
+					const confirmContainer = document.createElement('div');
+					confirmContainer.className = 'relative z-10 flex items-center justify-center p-4';
+					confirmContainer.style.cssText = 'position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; overflow-y: auto !important; overflow-x: hidden !important;';
 					// Make the modal itself clickable
 					const confirmModal = document.createElement('div');
-					confirmModal.className = 'bg-white rounded-2xl shadow-2xl max-w-sm w-full';
+					confirmModal.className = 'bg-white rounded-xl shadow-none max-w-sm w-full mx-auto my-auto';
+					confirmModal.style.cssText = 'max-width: 24rem; margin-top: auto !important; margin-bottom: auto !important;';
 					confirmModal.style.pointerEvents = 'auto';
-					confirmModal.innerHTML = `
-						<div class="px-3 md:px-4 lg:px-5 py-3 md:py-4">
-							<div class="flex items-center gap-3 mb-3">
-								<div class="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-									<i data-lucide="alert-triangle" class="w-5 h-5 text-red-600"></i>
-								</div>
-								<div>
-									<h3 class="text-xs md:text-sm font-semibold text-gray-900">Delete Request Batch</h3>
-									<p class="text-[9px] md:text-[10px] text-gray-500 mt-0.5">This action cannot be undone</p>
-								</div>
+					const confirmModalContent = document.createElement('div');
+					confirmModalContent.className = 'p-6';
+					confirmModalContent.innerHTML = `
+						<div class="flex items-center gap-3 mb-4">
+							<div class="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+								<i data-lucide="alert-triangle" class="w-5 h-5 text-red-600"></i>
 							</div>
-							<p class="text-[10px] md:text-xs text-gray-700 mb-3 md:mb-4">
-								Are you sure you want to delete request batch <strong>#${id}</strong>? This will permanently remove the batch and all associated data.
-							</p>
-							<div class="flex items-center justify-end gap-2">
-								<button type="button" class="cancelDeleteBtn inline-flex items-center justify-center px-2.5 md:px-3 py-1.5 text-[10px] md:text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
-									Cancel
-								</button>
-								<button type="button" class="confirmDeleteBtn inline-flex items-center justify-center px-2.5 md:px-3 py-1.5 text-[10px] md:text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
-									Delete
-								</button>
+							<div>
+								<h3 class="text-xs md:text-sm font-semibold text-gray-900">Delete Request Batch</h3>
+								<p class="text-[9px] md:text-[10px] text-gray-500 mt-0.5">This action cannot be undone</p>
 							</div>
 						</div>
+						<p class="text-[10px] md:text-xs text-gray-700 mb-3 md:mb-4">
+							Are you sure you want to delete request batch <strong>#${id}</strong>? This will permanently remove the batch and all associated data.
+						</p>
+						<div class="flex items-center justify-end gap-2">
+							<button type="button" class="cancelDeleteBtn inline-flex items-center justify-center px-2.5 md:px-3 py-1.5 text-[10px] md:text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+								Cancel
+							</button>
+							<button type="button" class="confirmDeleteBtn inline-flex items-center justify-center px-2.5 md:px-3 py-1.5 text-[10px] md:text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+								Delete
+							</button>
+						</div>
 					`;
-					
-					confirmOverlay.appendChild(confirmModal);
+					confirmModal.appendChild(confirmModalContent);
+					confirmContainer.appendChild(confirmModal);
+					confirmOverlay.appendChild(confirmContainer);
+					confirmOverlay.classList.remove('hidden');
 					document.body.appendChild(confirmOverlay);
 					
 					if (typeof lucide !== 'undefined') {
@@ -1759,41 +1846,51 @@ function formatDate($dateString) {
 			if (isLowStock) {
 				// Show confirmation modal for low stock
 				const confirmOverlay = document.createElement('div');
-				confirmOverlay.className = 'low-stock-confirm-overlay fixed inset-0 z-[999999] flex items-center justify-center p-4';
-				confirmOverlay.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; z-index: 999999 !important; background-color: rgba(0, 0, 0, 0.6) !important; pointer-events: none !important;';
+				confirmOverlay.className = 'low-stock-confirm-overlay fixed inset-0 z-[999999] hidden overflow-hidden';
+				confirmOverlay.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 999999 !important; pointer-events: none !important;';
+				const confirmBackdrop = document.createElement('div');
+				confirmBackdrop.className = 'fixed inset-0 bg-black/50';
+				confirmBackdrop.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;';
+				confirmOverlay.appendChild(confirmBackdrop);
+				const confirmContainer = document.createElement('div');
+				confirmContainer.className = 'relative z-10 flex min-h-full items-center justify-center p-4 overflow-y-auto overflow-x-hidden';
 				
 				const confirmModal = document.createElement('div');
-				confirmModal.className = 'bg-white rounded-2xl shadow-2xl max-w-md w-full';
+				confirmModal.className = 'bg-white rounded-xl shadow-none max-w-md w-full mx-auto my-auto';
+				confirmModal.style.cssText = 'max-width: 28rem; margin-top: auto !important; margin-bottom: auto !important;';
 				confirmModal.style.pointerEvents = 'auto';
+				const confirmModalContent = document.createElement('div');
+				confirmModalContent.className = 'p-6';
 				
 				const stockDisplay = currentStock.toFixed(2) + ' ' + (ingredient.display_unit || ingredient.unit || '');
 				
-				confirmModal.innerHTML = `
-					<div class="px-6 py-6">
-						<div class="flex items-center gap-4 mb-4">
-							<div class="flex-shrink-0 w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
-								<i data-lucide="alert-triangle" class="w-6 h-6 text-amber-600"></i>
-							</div>
-							<div>
-								<h3 class="text-sm md:text-base font-semibold text-gray-900">Low Stock Warning</h3>
-								<p class="text-[10px] md:text-xs text-gray-500 mt-0.5 md:mt-1">Insufficient inventory</p>
-							</div>
+				confirmModalContent.innerHTML = `
+					<div class="flex items-center gap-4 mb-4">
+						<div class="flex-shrink-0 w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
+							<i data-lucide="alert-triangle" class="w-6 h-6 text-amber-600"></i>
 						</div>
-						<p class="text-xs md:text-sm text-gray-700 mb-4 md:mb-6">
-							Ingredient "<strong>${escapeHtml(ingredient.name)}</strong>" is low stock with remaining <strong>${stockDisplay}</strong>. Do you still wish to proceed?
-						</p>
-						<div class="flex items-center justify-end gap-2 md:gap-3">
-							<button type="button" class="cancelLowStockBtn inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
-								No
-							</button>
-							<button type="button" class="confirmLowStockBtn inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium text-white bg-amber-600 rounded-lg hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-colors">
-								Yes
-							</button>
+						<div>
+							<h3 class="text-sm md:text-base font-semibold text-gray-900">Low Stock Warning</h3>
+							<p class="text-[10px] md:text-xs text-gray-500 mt-0.5 md:mt-1">Insufficient inventory</p>
 						</div>
+					</div>
+					<p class="text-xs md:text-sm text-gray-700 mb-4 md:mb-6">
+						Ingredient "<strong>${escapeHtml(ingredient.name)}</strong>" is low stock with remaining <strong>${stockDisplay}</strong>. Do you still wish to proceed?
+					</p>
+					<div class="flex items-center justify-end gap-2 md:gap-3">
+						<button type="button" class="cancelLowStockBtn inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+							No
+						</button>
+						<button type="button" class="confirmLowStockBtn inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium text-white bg-amber-600 rounded-lg hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-colors">
+							Yes
+						</button>
 					</div>
 				`;
 				
-				confirmOverlay.appendChild(confirmModal);
+				confirmModal.appendChild(confirmModalContent);
+				confirmContainer.appendChild(confirmModal);
+				confirmOverlay.appendChild(confirmContainer);
+				confirmOverlay.classList.remove('hidden');
 				document.body.appendChild(confirmOverlay);
 				document.body.classList.add('overflow-hidden');
 				
@@ -1894,15 +1991,23 @@ function formatDate($dateString) {
 			
 			// Create confirmation modal
 			const confirmOverlay = document.createElement('div');
-			confirmOverlay.className = 'remove-ingredient-confirm-overlay fixed inset-0 z-[999999] flex items-center justify-center p-4';
-			confirmOverlay.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 1rem !important; z-index: 999999 !important; background-color: rgba(0, 0, 0, 0.5) !important; pointer-events: none !important;';
+			confirmOverlay.className = 'remove-ingredient-confirm-overlay fixed inset-0 z-[999999] hidden overflow-hidden';
+			confirmOverlay.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 999999 !important; pointer-events: none !important;';
+			const confirmBackdrop = document.createElement('div');
+			confirmBackdrop.className = 'fixed inset-0 bg-black/50';
+			confirmBackdrop.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;';
+			confirmOverlay.appendChild(confirmBackdrop);
+			const confirmContainer = document.createElement('div');
+			confirmContainer.className = 'relative z-10 flex min-h-full items-center justify-center p-4 overflow-y-auto overflow-x-hidden';
 			
 			// Make the modal itself clickable
 			const confirmModal = document.createElement('div');
-			confirmModal.className = 'bg-white rounded-2xl shadow-2xl max-w-sm w-full';
+			confirmModal.className = 'bg-white rounded-xl shadow-none max-w-sm w-full mx-auto';
+			confirmModal.style.maxWidth = '24rem';
 			confirmModal.style.pointerEvents = 'auto';
-			confirmModal.innerHTML = `
-				<div class="px-3 md:px-4 lg:px-5 py-3 md:py-4">
+			const confirmModalContent = document.createElement('div');
+			confirmModalContent.className = 'p-6';
+			confirmModalContent.innerHTML = `
 					<div class="flex items-center gap-3 mb-3">
 						<div class="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
 							<i data-lucide="alert-triangle" class="w-5 h-5 text-red-600"></i>
@@ -1923,10 +2028,12 @@ function formatDate($dateString) {
 							Remove
 						</button>
 					</div>
-				</div>
 			`;
 			
-			confirmOverlay.appendChild(confirmModal);
+			confirmModal.appendChild(confirmModalContent);
+			confirmContainer.appendChild(confirmModal);
+			confirmOverlay.appendChild(confirmContainer);
+			confirmOverlay.classList.remove('hidden');
 			document.body.appendChild(confirmOverlay);
 			document.body.classList.add('overflow-hidden');
 			
