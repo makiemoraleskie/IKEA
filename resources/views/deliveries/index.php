@@ -246,7 +246,6 @@ foreach ($deliveries as $d) {
 				<p class="text-xs uppercase tracking-wide text-gray-500">Purchase Batch</p>
 				<p class="text-lg font-semibold text-gray-900" id="deliveryModalBatchLabel">#0</p>
 			</div>
-			<button type="button" class="deliveryModalClose text-gray-500 hover:text-gray-700 text-2xl leading-none" aria-label="Close">&times;</button>
 		</div>
 		<div class="px-6 py-4 space-y-4">
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -281,8 +280,9 @@ foreach ($deliveries as $d) {
 								<thead class="bg-gray-50">
 									<tr>
 										<th class="text-left px-3 py-2 font-medium text-gray-700">Name</th>
-										<th class="text-left px-3 py-2 font-medium text-gray-700">Quantity</th>
+										<th class="text-left px-3 py-2 font-medium text-gray-700">Purchase Qty</th>
 										<th class="text-left px-3 py-2 font-medium text-gray-700">Unit</th>
+										<th class="text-left px-3 py-2 font-medium text-gray-700 w-24">Action</th>
 									</tr>
 								</thead>
 								<tbody id="deliveryPurchaseItemsList" class="divide-y divide-gray-200">
@@ -294,7 +294,42 @@ foreach ($deliveries as $d) {
 					</div>
 				</div>
 				
-					<div class="rounded-xl border border-gray-200 p-4 space-y-3">
+				<!-- Receive Item Section (shown when Add button is clicked) -->
+				<div id="receiveItemSection" class="hidden rounded-xl border border-gray-200 p-4 space-y-3">
+					<div class="bg-gray-50 px-4 py-2 rounded-lg">
+						<h3 class="text-sm font-semibold text-gray-900">Receive Item</h3>
+					</div>
+					<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+						<div class="space-y-1">
+							<label class="text-sm font-medium text-gray-700">Item</label>
+							<input type="text" id="receiveItemName" class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-700" placeholder="Item name" readonly>
+						</div>
+						<div class="space-y-1">
+							<label class="text-sm font-medium text-gray-700">Purchase Qty</label>
+							<input type="text" id="receivePurchaseQty" class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-700" placeholder="0.00" readonly>
+						</div>
+						<div class="space-y-1">
+							<label class="text-sm font-medium text-gray-700">Receive Qty</label>
+							<input type="number" step="0.01" min="0" id="receiveQuantity" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="0.00">
+						</div>
+						<div class="space-y-1">
+							<label class="text-sm font-medium text-gray-700">Unit</label>
+							<input type="text" id="receiveUnit" class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-700" placeholder="Unit" readonly>
+						</div>
+					</div>
+					<div class="flex items-center gap-2">
+						<button type="button" id="receiveUndoBtn" class="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500">
+							<i data-lucide="x" class="w-4 h-4"></i>
+							Cancel
+						</button>
+					</div>
+				</div>
+				
+				<!-- Final Inventory Decision Section -->
+				<div id="finalInventorySection" class="hidden rounded-xl border border-gray-200 p-4 space-y-3">
+					<div class="bg-gray-50 px-4 py-2 rounded-lg">
+						<h3 class="text-sm font-semibold text-gray-900">Final Inventory Decision</h3>
+					</div>
 					<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 						<div class="space-y-1 relative">
 							<label class="text-sm font-medium text-gray-700">Select Item</label>
@@ -312,11 +347,11 @@ foreach ($deliveries as $d) {
 						</div>
 						<div class="space-y-1">
 							<label class="text-sm font-medium text-gray-700">Quantity</label>
-							<input type="number" step="0.01" min="0" id="deliveryQuantityInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="0.00" readonly>
+							<input type="number" step="0.01" min="0" id="deliveryQuantityInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="0.00">
 						</div>
 						<div class="space-y-1">
 							<label class="text-sm font-medium text-gray-700">Unit</label>
-							<input type="text" id="deliveryUnitInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="Unit" readonly>
+							<input type="text" id="deliveryUnitInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="Unit">
 							<select id="deliveryUnitSelect" class="hidden w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
 								<option value="">Select unit</option>
 							</select>
@@ -324,16 +359,21 @@ foreach ($deliveries as $d) {
 						</div>
 						<div class="space-y-1">
 							<label class="text-sm font-medium text-gray-700">Supplier</label>
-							<input type="text" id="deliverySupplierInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="Supplier" readonly>
-						</div>
-						<div class="flex items-end">
-							<button type="button" id="deliveryAddItemBtn" class="w-full inline-flex items-center justify-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
-								<i data-lucide="plus" class="w-4 h-4"></i>
-								Add to Delivery
-							</button>
+							<input type="text" id="deliverySupplierInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-700" placeholder="Supplier" readonly>
 						</div>
 					</div>
-					<div id="deliveryBuilderError" class="hidden px-4 py-2 rounded-lg border border-red-200 bg-red-50 text-sm text-red-700"></div>
+					<div class="flex items-end">
+						<button type="button" id="deliveryAddItemBtn" class="w-full inline-flex items-center justify-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
+							<i data-lucide="plus" class="w-4 h-4"></i>
+							Add to Delivery
+						</button>
+					</div>
+				</div>
+				
+				<!-- Error message (always visible in modal) -->
+				<div id="deliveryBuilderError" class="hidden mt-3 px-4 py-3 rounded-lg border border-red-300 bg-red-50 text-sm text-red-700 flex items-start gap-2">
+					<i data-lucide="alert-circle" class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"></i>
+					<span class="flex-1 font-medium"></span>
 				</div>
 				
 				<div class="rounded-xl border border-gray-200 overflow-hidden">
@@ -479,19 +519,19 @@ foreach ($deliveries as $d) {
                 <tr>
                     <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Delivery ID</th>
                     <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Batch</th>
-                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Item</th>
-                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Quantity Received</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Items</th>
                     <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Status</th>
                     <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Date Received</th>
+                    <th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white text-[10px] md:text-xs lg:text-sm">Actions</th>
                 </tr>
 			</thead>
 			<tbody class="divide-y divide-gray-200" id="recentDeliveriesBody">
-				<?php foreach ($deliveries as $d): ?>
-				<tr class="hover:bg-gray-50 transition-colors" data-delivery-status="<?php echo strtolower($d['delivery_status']); ?>">
+				<?php foreach ($deliveries as $batch): ?>
+				<tr class="hover:bg-gray-50 transition-colors" data-delivery-status="<?php echo strtolower($batch['delivery_status']); ?>" data-batch-id="<?php echo htmlspecialchars($batch['batch_id']); ?>" data-purchase-id="<?php echo (int)$batch['purchase_id']; ?>">
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
 						<div class="flex items-center gap-2">
 							<div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-								<span class="text-xs font-semibold text-orange-600">#<?php echo (int)$d['id']; ?></span>
+								<span class="text-xs font-semibold text-orange-600">#<?php echo (int)$batch['first_delivery_id']; ?></span>
 							</div>
 						</div>
 					</td>
@@ -499,58 +539,40 @@ foreach ($deliveries as $d) {
                     <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                                <?php $ts = substr((string)($d['date_purchased'] ?? ''),0,19); $batchId = substr(sha1(($d['purchaser_id']??'').'|'.($d['supplier']??'').'|'.($d['payment_status']??'').'|'.($d['receipt_url']??'').'|'.$ts),0,10); ?>
-                                <span class="text-xs font-semibold text-purple-600">#<?php echo htmlspecialchars($batchId); ?></span>
+                                <span class="text-xs font-semibold text-purple-600">#<?php echo htmlspecialchars($batch['batch_id']); ?></span>
                             </div>
                         </div>
                     </td>
 					
 					<td class="px-6 py-4">
-						<div class="flex items-center gap-3">
-							<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-								<i data-lucide="package" class="w-4 h-4 text-blue-600"></i>
-							</div>
-							<div>
-								<div class="font-medium text-gray-900"><?php echo htmlspecialchars($d['item_name']); ?></div>
-								<div class="text-xs text-gray-500"><?php echo htmlspecialchars($d['unit']); ?></div>
-							</div>
-						</div>
-					</td>
-					
-					<td class="px-6 py-4">
-						<?php
-						// Display quantity_received in the ingredient's base unit
-						// quantity_received is stored in base units, so display it as-is
-						$qtyReceived = (float)$d['quantity_received'];
-						$baseUnit = $d['unit']; // This is the ingredient's base unit
-						
-						// Show in base unit (the unit that was actually used when recording delivery)
-						// If user entered 50000 g, it's stored as 50000 g in base units, so show as 50000.00 g
-						$qtyDisplay = $qtyReceived;
-						$unitDisplay = $baseUnit;
-						?>
 						<div class="flex items-center gap-2">
-							<span class="font-semibold text-gray-900"><?php echo number_format($qtyDisplay, 2); ?></span>
-							<span class="text-gray-500 text-sm"><?php echo htmlspecialchars($unitDisplay); ?></span>
+							<span class="font-medium text-gray-900"><?php echo (int)$batch['items_count']; ?> item<?php echo (int)$batch['items_count'] !== 1 ? 's' : ''; ?></span>
 						</div>
 					</td>
 					
 					<td class="px-6 py-4">
 						<?php 
-						$statusClass = $d['delivery_status'] === 'Complete' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200';
-						$statusIcon = $d['delivery_status'] === 'Complete' ? 'check-circle' : 'clock';
+						$statusClass = $batch['delivery_status'] === 'Complete' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200';
+						$statusIcon = $batch['delivery_status'] === 'Complete' ? 'check-circle' : 'clock';
 						?>
 						<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border <?php echo $statusClass; ?>">
 							<i data-lucide="<?php echo $statusIcon; ?>" class="w-3 h-3"></i>
-							<?php echo htmlspecialchars($d['delivery_status']); ?>
+							<?php echo htmlspecialchars($batch['delivery_status']); ?>
 						</span>
 					</td>
 					
 					<td class="px-6 py-4">
 						<div class="flex items-center gap-2">
 							<i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
-							<span class="text-gray-600"><?php echo htmlspecialchars($d['date_received']); ?></span>
+							<span class="text-gray-600"><?php echo htmlspecialchars($batch['date_received']); ?></span>
 						</div>
+					</td>
+					
+					<td class="px-6 py-4">
+						<button type="button" class="viewBatchDetailsBtn inline-flex items-center gap-1 px-3 py-1.5 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 transition-colors" data-batch-id="<?php echo htmlspecialchars($batch['batch_id']); ?>" data-purchase-id="<?php echo (int)$batch['purchase_id']; ?>">
+							<i data-lucide="eye" class="w-3 h-3"></i>
+							View Details
+						</button>
 					</td>
 				</tr>
 				<?php endforeach; ?>
@@ -562,6 +584,208 @@ foreach ($deliveries as $d) {
         </div>
         <?php endif; ?>
 		
+<!-- Delivery Details Modal -->
+<div id="deliveryDetailsModal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4">
+	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+		<div class="flex items-center justify-between px-6 py-4 border-b">
+			<div>
+				<p class="text-xs uppercase tracking-wide text-gray-500">Delivery Details</p>
+				<p class="text-lg font-semibold text-gray-900" id="deliveryDetailsBatchLabel">Batch #0</p>
+			</div>
+		</div>
+		<div class="px-6 py-4 space-y-4">
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+				<div class="rounded-xl bg-blue-50 border border-blue-100 p-4">
+					<p class="text-xs uppercase tracking-wide text-blue-700">Supplier</p>
+					<p class="font-semibold text-blue-900 mt-1" id="deliveryDetailsSupplier">—</p>
+				</div>
+				<div class="rounded-xl bg-emerald-50 border border-emerald-100 p-4">
+					<p class="text-xs uppercase tracking-wide text-emerald-700">Purchaser</p>
+					<p class="font-semibold text-emerald-900 mt-1" id="deliveryDetailsPurchaser">—</p>
+				</div>
+				<div class="rounded-xl bg-purple-50 border border-purple-100 p-4">
+					<p class="text-xs uppercase tracking-wide text-purple-700">Purchased Date</p>
+					<p class="font-semibold text-purple-900 mt-1" id="deliveryDetailsDate">—</p>
+				</div>
+			</div>
+			
+			<div class="rounded-xl border border-gray-200 overflow-hidden">
+				<div class="bg-gray-50 px-4 py-3 border-b">
+					<h3 class="text-sm font-semibold text-gray-900">Item Details</h3>
+				</div>
+				<div class="overflow-x-auto">
+					<table class="w-full text-sm">
+						<thead class="bg-gray-50">
+							<tr>
+								<th class="text-left px-4 py-3 font-medium text-gray-700">Item Name</th>
+								<th class="text-left px-4 py-3 font-medium text-gray-700">Ordered Qty</th>
+								<th class="text-left px-4 py-3 font-medium text-gray-700">Received Qty</th>
+								<th class="text-left px-4 py-3 font-medium text-gray-700">Remaining Qty</th>
+							</tr>
+						</thead>
+						<tbody id="deliveryDetailsItemsBody" class="divide-y divide-gray-200">
+							<tr>
+								<td colspan="4" class="px-4 py-6 text-center text-gray-500">Loading...</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			
+			<!-- Complete Delivery Section (only for Partial deliveries) -->
+			<div id="continueDeliverySection" class="hidden space-y-4">
+				<div class="rounded-xl border border-orange-200 bg-orange-50 p-4">
+					<h3 class="text-sm font-semibold text-orange-900 mb-2">Complete Delivery</h3>
+					<p class="text-xs text-orange-700">Complete the remaining items for this partial delivery.</p>
+				</div>
+				
+				<!-- Purchase Items List (only partial items have Add button) -->
+				<div class="rounded-xl border border-gray-200 overflow-hidden">
+					<div class="bg-gray-50 px-4 py-3 border-b">
+						<h3 class="text-sm font-semibold text-gray-900">Purchase Items</h3>
+						<p class="text-xs text-gray-600 mt-1">Items from this purchase batch</p>
+					</div>
+					<div class="p-4">
+						<div class="overflow-x-auto">
+							<table class="w-full text-sm">
+								<thead class="bg-gray-50">
+									<tr>
+										<th class="text-left px-3 py-2 font-medium text-gray-700">Name</th>
+										<th class="text-left px-3 py-2 font-medium text-gray-700">Purchase Qty</th>
+										<th class="text-left px-3 py-2 font-medium text-gray-700">Remaining Qty</th>
+										<th class="text-left px-3 py-2 font-medium text-gray-700">Unit</th>
+										<th class="text-left px-3 py-2 font-medium text-gray-700 w-24">Action</th>
+									</tr>
+								</thead>
+								<tbody id="continueDeliveryPurchaseItemsList" class="divide-y divide-gray-200">
+									<!-- Purchase items will be displayed here -->
+								</tbody>
+							</table>
+						</div>
+						<div id="continueDeliveryPurchaseItemsEmpty" class="text-sm text-gray-500 text-center py-4">No items available.</div>
+					</div>
+				</div>
+				
+				<!-- Receive Item Section (shown when Add button is clicked) -->
+				<div id="continueReceiveItemSection" class="hidden rounded-xl border border-gray-200 p-4 space-y-3">
+					<div class="bg-gray-50 px-4 py-2 rounded-lg">
+						<h3 class="text-sm font-semibold text-gray-900">Receive Item</h3>
+					</div>
+					<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+						<div class="space-y-1">
+							<label class="text-sm font-medium text-gray-700">Item</label>
+							<input type="text" id="continueReceiveItemName" class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-700" placeholder="Item name" readonly>
+						</div>
+						<div class="space-y-1">
+							<label class="text-sm font-medium text-gray-700">Remaining Qty</label>
+							<input type="text" id="continueReceivePurchaseQty" class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-700" placeholder="0.00" readonly>
+						</div>
+						<div class="space-y-1">
+							<label class="text-sm font-medium text-gray-700">Receive Qty</label>
+							<input type="number" step="0.01" min="0" id="continueReceiveQuantity" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="0.00">
+						</div>
+						<div class="space-y-1">
+							<label class="text-sm font-medium text-gray-700">Unit</label>
+							<input type="text" id="continueReceiveUnit" class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-700" placeholder="Unit" readonly>
+						</div>
+					</div>
+					<div class="flex items-center gap-2">
+						<button type="button" id="continueReceiveUndoBtn" class="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500">
+							<i data-lucide="x" class="w-4 h-4"></i>
+							Cancel
+						</button>
+					</div>
+				</div>
+				
+				<!-- Final Inventory Decision Section -->
+				<div id="continueFinalInventorySection" class="hidden rounded-xl border border-gray-200 p-4 space-y-3">
+					<div class="bg-gray-50 px-4 py-2 rounded-lg">
+						<h3 class="text-sm font-semibold text-gray-900">Final Inventory Decision</h3>
+					</div>
+					<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+						<div class="space-y-1 relative">
+							<label class="text-sm font-medium text-gray-700">Select Item</label>
+							<div class="relative">
+								<input type="text" id="continueDeliveryItemSearch" class="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="Search ingredient..." autocomplete="off">
+								<i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
+								<div id="continueDeliveryItemDropdown" class="hidden absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+									<!-- Filtered options will be populated here -->
+								</div>
+							</div>
+						</div>
+						<div class="space-y-1">
+							<label class="text-sm font-medium text-gray-700">Quantity</label>
+							<input type="number" step="0.01" min="0" id="continueDeliveryQuantityInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="0.00">
+						</div>
+						<div class="space-y-1">
+							<label class="text-sm font-medium text-gray-700">Unit</label>
+							<input type="text" id="continueDeliveryUnitInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="Unit">
+							<select id="continueDeliveryUnitSelect" class="hidden w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+								<option value="">Select unit</option>
+							</select>
+							<p id="continueDeliveryUnitHelp" class="hidden text-xs text-gray-500 mt-1"></p>
+						</div>
+						<div class="space-y-1">
+							<label class="text-sm font-medium text-gray-700">Supplier</label>
+							<input type="text" id="continueDeliverySupplierInput" class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-700" placeholder="Supplier" readonly>
+						</div>
+					</div>
+					<div class="flex items-end">
+						<button type="button" id="continueDeliveryAddItemBtn" class="w-full inline-flex items-center justify-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
+							<i data-lucide="plus" class="w-4 h-4"></i>
+							Add to Delivery
+						</button>
+					</div>
+				</div>
+				
+				<!-- Delivery Items List -->
+				<div class="rounded-xl border border-gray-200 overflow-hidden">
+					<div class="bg-gray-50 px-4 py-3 border-b">
+						<h3 class="text-sm font-semibold text-gray-900">Delivery Items</h3>
+					</div>
+					<div class="p-4">
+						<div class="overflow-x-auto">
+							<table class="w-full text-sm">
+								<thead class="bg-gray-50">
+									<tr>
+										<th class="text-left px-3 py-2 font-medium text-gray-700">Item</th>
+										<th class="text-left px-3 py-2 font-medium text-gray-700">Quantity</th>
+										<th class="text-left px-3 py-2 font-medium text-gray-700">Unit</th>
+										<th class="text-left px-3 py-2 font-medium text-gray-700">Supplier</th>
+										<th class="text-left px-3 py-2 font-medium text-gray-700">Actions</th>
+									</tr>
+								</thead>
+								<tbody id="continueDeliveryItemsBody" class="divide-y divide-gray-200">
+									<!-- Delivery items will be displayed here -->
+								</tbody>
+							</table>
+						</div>
+						<div id="continueDeliveryItemsEmpty" class="text-sm text-gray-500 text-center py-4">No items added yet. Select items from the purchase list above.</div>
+					</div>
+				</div>
+				
+				<!-- Record Delivery Button -->
+				<div class="flex justify-end mt-4">
+					<button type="button" id="continueRecordDeliveryBtn" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
+						<i data-lucide="truck" class="w-4 h-4"></i>
+						Record Delivery
+					</button>
+				</div>
+			</div>
+			
+			<div class="flex justify-between items-center">
+				<button type="button" id="continueDeliveryBtn" class="hidden inline-flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
+					<i data-lucide="truck" class="w-4 h-4"></i>
+					Complete Delivery
+				</button>
+				<button type="button" class="deliveryDetailsModalClose inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+					Close
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 		<?php if (empty($deliveries)): ?>
 		<div class="flex flex-col items-center justify-center py-12 text-gray-500">
 			<i data-lucide="truck" class="w-16 h-16 mb-4 text-gray-300"></i>
@@ -1021,7 +1245,6 @@ foreach ($deliveries as $d) {
         // If the currently selected batch is now recorded, reset selection
         if (sel.value === opt.value) {
           sel.value = '';
-          updateSelectedBatchCard('');
           if (box) box.classList.add('hidden');
           if (itemsJson) itemsJson.value = '[]';
         }
@@ -1094,17 +1317,19 @@ foreach ($deliveries as $d) {
 
   function buildRecentEntriesFromModal(){
     if (!currentDeliveryGroup || !Array.isArray(deliveryItems) || !deliveryItems.length) return [];
-    return deliveryItems.map(di=>{
-      const matched = (currentDeliveryGroup.items || []).find(it => di.purchaseId && it.purchase_id === di.purchaseId);
-      const remainingDisplay = matched?.remaining_display ?? matched?.quantity ?? 0;
-      const status = matched ? (di.quantity >= (remainingDisplay - 0.0001) ? 'complete' : 'partial') : 'partial';
+    const now = new Date().toISOString();
+    return deliveryItems.map((di, index)=>{
+      // Use the status that was already calculated when adding the item
+      const status = di.status || 'partial';
       return {
         batchId: currentDeliveryGroup.group_id,
+        deliveryId: '—', // Will be assigned by backend
+        purchaseId: di.purchaseId || 0,
         itemName: di.itemName || 'Item',
-        quantity: di.quantity || 0,
-        unit: di.unit || matched?.purchase_unit || matched?.unit || '',
+        quantity: di.receiveQuantity || di.quantity || 0, // Use receive quantity for display
+        unit: di.receiveUnit || di.unit || '',
         status,
-        date: currentDeliveryGroup.date_purchased || new Date().toISOString()
+        date: now // Same date for all items in same modal submission
       };
     });
   }
@@ -1118,69 +1343,148 @@ foreach ($deliveries as $d) {
       opt.remove();
     }
     sel.value = '';
-    updateSelectedBatchCard('');
     if (box) box.classList.add('hidden');
     if (itemsJson) itemsJson.value = '[]';
   }
 
   function addRecentDeliveryRows(entries){
     if (!recentDeliveriesBody || !Array.isArray(entries) || entries.length === 0) return;
+    
+    // Group entries by batch_id and date (same delivery modal submission)
+    const batchGroups = {};
     entries.forEach(entry => {
-      const tr = document.createElement('tr');
-      tr.className = 'hover:bg-gray-50 transition-colors';
-      tr.setAttribute('data-delivery-status', entry.status || 'partial');
-      const statusClass = (entry.status === 'complete') ? 'bg-green-100 text-green-800 border-green-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      const statusIcon = (entry.status === 'complete') ? 'check-circle' : 'clock';
-      const qtyText = Number(entry.quantity || 0).toFixed(2);
-      const unitText = entry.unit || 'unit';
-      const nowText = entry.date || new Date().toLocaleString();
-      const batchLabel = entry.batchId ? `#${entry.batchId}` : 'Batch';
-      tr.innerHTML = `
-        <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-              <span class="text-xs font-semibold text-orange-600">—</span>
+      const batchKey = `${entry.batchId || ''}|${entry.date || ''}`;
+      if (!batchGroups[batchKey]) {
+        batchGroups[batchKey] = {
+          batchId: entry.batchId || '',
+          date: entry.date || new Date().toLocaleString(),
+          status: entry.status || 'partial',
+          itemsCount: 0,
+          firstDeliveryId: entry.deliveryId || '—',
+          purchaseId: entry.purchaseId || 0
+        };
+      }
+      batchGroups[batchKey].itemsCount++;
+      // If any item is partial, batch is partial
+      if (entry.status === 'partial') {
+        batchGroups[batchKey].status = 'partial';
+      }
+    });
+    
+    // Create or update rows for each batch
+    Object.values(batchGroups).forEach(batch => {
+      // Check if a row with this batch_id already exists
+      const existingRow = recentDeliveriesBody.querySelector(`tr[data-batch-id="${batch.batchId}"]`);
+      
+      if (existingRow) {
+        // Update existing row instead of creating duplicate
+        existingRow.setAttribute('data-delivery-status', batch.status);
+        existingRow.setAttribute('data-purchase-id', batch.purchaseId.toString());
+        
+        const statusClass = (batch.status === 'complete') ? 'bg-green-100 text-green-800 border-green-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        const statusIcon = (batch.status === 'complete') ? 'check-circle' : 'clock';
+        const statusText = (batch.status === 'complete') ? 'Complete' : 'Partial';
+        const batchLabel = batch.batchId ? `#${batch.batchId}` : 'Batch';
+        const itemsText = `${batch.itemsCount} item${batch.itemsCount !== 1 ? 's' : ''}`;
+        
+        // Update the row content
+        existingRow.innerHTML = `
+          <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                <span class="text-xs font-semibold text-orange-600">${batch.firstDeliveryId}</span>
+              </div>
             </div>
-          </div>
-        </td>
-        <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-              <span class="text-xs font-semibold text-purple-600">${batchLabel}</span>
+          </td>
+          <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                <span class="text-xs font-semibold text-purple-600">${batchLabel}</span>
+              </div>
             </div>
-          </div>
-        </td>
-        <td class="px-6 py-4">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-              <i data-lucide="package" class="w-4 h-4 text-blue-600"></i>
+          </td>
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-2">
+              <span class="font-medium text-gray-900">${itemsText}</span>
             </div>
-            <div>
-              <div class="font-medium text-gray-900">${entry.itemName || 'Item'}</div>
-              <div class="text-xs text-gray-500">${unitText}</div>
+          </td>
+          <td class="px-6 py-4">
+            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border ${statusClass}">
+              <i data-lucide="${statusIcon}" class="w-3 h-3"></i>
+              ${statusText}
+            </span>
+          </td>
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-2">
+              <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+              <span class="text-gray-600">${batch.date}</span>
             </div>
-          </div>
-        </td>
-        <td class="px-6 py-4">
-          <div class="flex items-center gap-2">
-            <span class="font-semibold text-gray-900">${qtyText}</span>
-            <span class="text-gray-500 text-sm">${unitText}</span>
-          </div>
-        </td>
-        <td class="px-6 py-4">
-          <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border ${statusClass}">
-            <i data-lucide="${statusIcon}" class="w-3 h-3"></i>
-            ${entry.status === 'complete' ? 'Complete' : 'Recorded'}
-          </span>
-        </td>
-        <td class="px-6 py-4">
-          <div class="flex items-center gap-2">
-            <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
-            <span class="text-gray-600">${nowText}</span>
-          </div>
-        </td>
-      `;
-      recentDeliveriesBody.prepend(tr);
+          </td>
+          <td class="px-6 py-4">
+            <button type="button" class="viewBatchDetailsBtn inline-flex items-center gap-1 px-3 py-1.5 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 transition-colors" data-batch-id="${batch.batchId}" data-purchase-id="${batch.purchaseId}">
+              <i data-lucide="eye" class="w-3 h-3"></i>
+              View Details
+            </button>
+          </td>
+        `;
+        
+        // Re-initialize icons for the updated row
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons({ elements: existingRow.querySelectorAll('i[data-lucide]') });
+        }
+      } else {
+        // Create new row if it doesn't exist
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-50 transition-colors';
+        tr.setAttribute('data-delivery-status', batch.status);
+        tr.setAttribute('data-batch-id', batch.batchId);
+        tr.setAttribute('data-purchase-id', batch.purchaseId.toString());
+        const statusClass = (batch.status === 'complete') ? 'bg-green-100 text-green-800 border-green-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        const statusIcon = (batch.status === 'complete') ? 'check-circle' : 'clock';
+        const statusText = (batch.status === 'complete') ? 'Complete' : 'Partial';
+        const batchLabel = batch.batchId ? `#${batch.batchId}` : 'Batch';
+        const itemsText = `${batch.itemsCount} item${batch.itemsCount !== 1 ? 's' : ''}`;
+        tr.innerHTML = `
+          <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                <span class="text-xs font-semibold text-orange-600">${batch.firstDeliveryId}</span>
+              </div>
+            </div>
+          </td>
+          <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                <span class="text-xs font-semibold text-purple-600">${batchLabel}</span>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-2">
+              <span class="font-medium text-gray-900">${itemsText}</span>
+            </div>
+          </td>
+          <td class="px-6 py-4">
+            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border ${statusClass}">
+              <i data-lucide="${statusIcon}" class="w-3 h-3"></i>
+              ${statusText}
+            </span>
+          </td>
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-2">
+              <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+              <span class="text-gray-600">${batch.date}</span>
+            </div>
+          </td>
+          <td class="px-6 py-4">
+            <button type="button" class="viewBatchDetailsBtn inline-flex items-center gap-1 px-3 py-1.5 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 transition-colors" data-batch-id="${batch.batchId}" data-purchase-id="${batch.purchaseId}">
+              <i data-lucide="eye" class="w-3 h-3"></i>
+              View Details
+            </button>
+          </td>
+        `;
+        recentDeliveriesBody.prepend(tr);
+      }
     });
     if (recentDeliveriesEmpty){
       recentDeliveriesEmpty.classList.add('hidden');
@@ -1264,7 +1568,6 @@ foreach ($deliveries as $d) {
 
   // Initialize delivery modal
   const deliveryModal = document.getElementById('deliveryModal');
-  const deliveryModalClose = deliveryModal?.querySelector('.deliveryModalClose');
   const deliveryModalForm = document.getElementById('deliveryModalForm');
   const deliveryItemSelect = document.getElementById('deliveryItemSelect');
   const deliveryItemSearch = document.getElementById('deliveryItemSearch');
@@ -1280,10 +1583,18 @@ foreach ($deliveries as $d) {
   const deliveryModalItemsJson = document.getElementById('deliveryModalItemsJson');
   const deliverySubmitBtn = document.getElementById('deliverySubmitBtn');
   const deliveryBuilderError = document.getElementById('deliveryBuilderError');
+  const receiveItemSection = document.getElementById('receiveItemSection');
+  const finalInventorySection = document.getElementById('finalInventorySection');
+  const receiveItemName = document.getElementById('receiveItemName');
+  const receivePurchaseQty = document.getElementById('receivePurchaseQty');
+  const receiveQuantity = document.getElementById('receiveQuantity');
+  const receiveUnit = document.getElementById('receiveUnit');
+  const receiveUndoBtn = document.getElementById('receiveUndoBtn');
   let deliveryItems = [];
   let currentDeliveryGroup = null;
   let lastSelectedUnit = ''; // Track last selected unit for conversion calculations
   let deliveryIngredientOptions = []; // Store all ingredient options for search
+  let currentPurchaseItemData = null; // Store current purchase item for receive section
 
   function filterDeliveryIngredients(searchTerm) {
     if (!deliveryItemDropdown) return;
@@ -1370,6 +1681,10 @@ foreach ($deliveries as $d) {
       alert('Error: Delivery modal not found. Please refresh the page.');
       return;
     }
+    
+    // Clear any previous errors
+    clearDeliveryError();
+    
     const g = GROUPS.find(x=>x.group_id===groupId);
     if (!g) {
       alert('Error: Purchase batch not found. Please refresh the page.');
@@ -1406,8 +1721,12 @@ foreach ($deliveries as $d) {
       if (g.items && Array.isArray(g.items) && g.items.length > 0) {
         purchaseItemsEmpty.classList.add('hidden');
         
-        g.items.forEach((item) => {
+        g.items.forEach((item, itemIndex) => {
           const orderedQty = parseFloat(item.purchase_quantity || item.quantity || 0);
+          const remainingBase = Math.max(0, (item.quantity - (item.delivered || 0)));
+          
+          // Skip fully delivered items
+          if (remainingBase <= 0.0001) return;
           
           // Extract item name and unit from purchase_unit
           let itemName = item.item_name || 'Unknown Item';
@@ -1422,12 +1741,29 @@ foreach ($deliveries as $d) {
             }
           }
           
+          const remainingDisplay = item.remaining_display !== undefined ? item.remaining_display : remainingBase;
+          
           const tr = document.createElement('tr');
           tr.className = 'hover:bg-gray-50';
+          tr.dataset.purchaseItemIndex = itemIndex;
+          tr.dataset.purchaseId = item.purchase_id || '';
+          tr.dataset.itemName = itemName;
+          tr.dataset.quantity = remainingDisplay;
+          tr.dataset.quantityBase = remainingBase;
+          tr.dataset.unit = displayUnit;
+          tr.dataset.baseUnit = item.unit || '';
+          tr.dataset.itemId = item.item_id || '';
+          tr.dataset.orderedQty = orderedQty;
+          tr.dataset.removed = 'false';
           tr.innerHTML = `
             <td class="px-3 py-2 font-medium text-gray-900">${escapeHtml(itemName)}</td>
             <td class="px-3 py-2 text-gray-700">${orderedQty.toFixed(2)}</td>
             <td class="px-3 py-2 text-gray-700">${escapeHtml(displayUnit)}</td>
+            <td class="px-3 py-2">
+              <button type="button" class="addPurchaseItemBtn inline-flex items-center gap-1 px-2 py-1 text-xs bg-orange-600 text-white rounded hover:bg-orange-700 focus:ring-2 focus:ring-orange-500" data-item-index="${itemIndex}">
+                <i data-lucide="plus" class="w-3 h-3"></i>Add
+              </button>
+            </td>
           `;
           purchaseItemsList.appendChild(tr);
         });
@@ -1544,7 +1880,7 @@ foreach ($deliveries as $d) {
     
     // Initialize lucide icons
     if (typeof lucide !== 'undefined') {
-      setTimeout(() => lucide.createIcons(), 100);
+      lucide.createIcons();
     }
   }
 
@@ -1556,7 +1892,28 @@ foreach ($deliveries as $d) {
     document.body.classList.remove('overflow-hidden');
     deliveryItems = [];
     currentDeliveryGroup = null;
+    currentPurchaseItemData = null;
     renderDeliveryItems();
+    
+    // Clear the modal items JSON to prevent batch from being hidden
+    if (deliveryModalItemsJson) {
+      deliveryModalItemsJson.value = '[]';
+    }
+    
+    // Hide receive sections
+    if (receiveItemSection) {
+      receiveItemSection.classList.add('hidden');
+    }
+    if (finalInventorySection) {
+      finalInventorySection.classList.add('hidden');
+    }
+    
+    // Clear receive item fields
+    if (receiveItemName) receiveItemName.value = '';
+    if (receivePurchaseQty) receivePurchaseQty.value = '';
+    if (receiveQuantity) receiveQuantity.value = '';
+    if (receiveUnit) receiveUnit.value = '';
+    
     deliveryItemSelect.value = '';
     if (deliveryItemSearch) {
       deliveryItemSearch.value = '';
@@ -1572,6 +1929,14 @@ foreach ($deliveries as $d) {
     }
     deliveryUnitInput.classList.remove('hidden');
     deliverySupplierInput.value = '';
+    
+    // Restore all purchase item rows
+    const purchaseRows = purchaseItemsList?.querySelectorAll('tr[data-removed="true"]');
+    purchaseRows?.forEach(row => {
+      row.style.display = '';
+      row.dataset.removed = 'false';
+    });
+    
     deliveryQuantityInput.readOnly = true;
     deliveryUnitInput.readOnly = true;
     if (deliveryUnitSelect) deliveryUnitSelect.disabled = true;
@@ -1581,14 +1946,72 @@ foreach ($deliveries as $d) {
   }
 
   function showDeliveryError(message){
-    if (!deliveryBuilderError) return;
-    deliveryBuilderError.textContent = message;
-    deliveryBuilderError.classList.remove('hidden');
+    console.log('showDeliveryError called with message:', message);
+    // Re-fetch element in case DOM changed
+    const errorElement = document.getElementById('deliveryBuilderError');
+    if (!errorElement) {
+      console.error('deliveryBuilderError element not found');
+      alert(message); // Fallback to alert if element not found
+      return;
+    }
+    
+    console.log('Error element found:', errorElement);
+    
+    // Find or create the span element for the error message
+    let errorText = errorElement.querySelector('span.flex-1');
+    if (!errorText) {
+      console.log('Creating new span element for error message');
+      // If span doesn't exist, create it
+      errorText = document.createElement('span');
+      errorText.className = 'flex-1 font-medium';
+      // Insert after icon if it exists, otherwise append
+      const icon = errorElement.querySelector('i[data-lucide]');
+      // Simply append the error text - it will appear after the icon
+      errorElement.appendChild(errorText);
+    }
+    
+    // Set the error message
+    errorText.textContent = message;
+    console.log('Error message set:', errorText.textContent);
+    
+    // Show the error element
+    errorElement.classList.remove('hidden');
+    errorElement.style.display = 'flex'; // Ensure flex display
+    errorElement.style.visibility = 'visible'; // Ensure visibility
+    errorElement.style.opacity = '1'; // Ensure opacity
+    
+    // Check parent visibility
+    let parent = errorElement.parentElement;
+    while (parent && parent !== document.body) {
+      if (parent.classList.contains('hidden') || parent.style.display === 'none') {
+        console.warn('Parent element is hidden:', parent);
+        parent.classList.remove('hidden');
+        parent.style.display = '';
+      }
+      parent = parent.parentElement;
+    }
+    
+    console.log('Error element classes:', errorElement.className);
+    console.log('Error element display:', errorElement.style.display);
+    console.log('Error element is visible:', errorElement.offsetParent !== null);
+    
+    // Scroll error into view
+    if (errorElement) {
+      errorElement.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+    }
+    
+    // Re-initialize icons if lucide is available
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
   }
 
   function clearDeliveryError(){
     if (!deliveryBuilderError) return;
-    deliveryBuilderError.textContent = '';
+    const errorText = deliveryBuilderError.querySelector('span');
+    if (errorText) {
+      errorText.textContent = '';
+    }
     deliveryBuilderError.classList.add('hidden');
   }
 
@@ -1644,7 +2067,10 @@ foreach ($deliveries as $d) {
       ingredient_id: item.ingredientId,
       quantity: item.quantity,
       unit: item.unit,
-      supplier: item.supplier
+      supplier: item.supplier,
+      receive_quantity: item.receiveQuantity, // Actual received quantity
+      receive_unit: item.receiveUnit, // Unit of received quantity
+      status: item.status || 'partial' // Status: 'partial' or 'complete'
     }));
     if (deliveryModalItemsJson) deliveryModalItemsJson.value = JSON.stringify(jsonData);
     updateBatchSelectFilter();
@@ -2009,9 +2435,22 @@ foreach ($deliveries as $d) {
         return;
       }
       
-      // Find matching purchase item for this ingredient in the current batch (if any)
-      const purchaseId = selectedOpt.dataset.purchaseId;
-      const purchaseIndex = selectedOpt.dataset.purchaseIndex;
+      // Check if receive item section is active (purchase item was selected)
+      if (!currentPurchaseItemData) {
+        showDeliveryError('Please click "Add" on a purchase item first.');
+        return;
+      }
+      
+      // Validate receive quantity
+      const receiveQty = parseFloat(receiveQuantity?.value || '0');
+      if (!receiveQty || receiveQty <= 0) {
+        showDeliveryError('Please enter a valid received quantity.');
+        return;
+      }
+      if (receiveQty > currentPurchaseItemData.quantity) {
+        showDeliveryError(`Received quantity cannot exceed remaining quantity (${currentPurchaseItemData.quantity.toFixed(2)}).`);
+        return;
+      }
       
       // Check if this ingredient already added (by ingredient ID)
       const ingredientId = parseInt(selectedOpt.value, 10);
@@ -2021,29 +2460,47 @@ foreach ($deliveries as $d) {
         return;
       }
       
-      // Use matching purchase if available, otherwise fallback to first purchase in the batch
-      let purchaseIdInt = null;
-      if (purchaseId && purchaseId !== '') {
-        purchaseIdInt = parseInt(purchaseId, 10);
-      }
-      if (!purchaseIdInt && currentDeliveryGroup && Array.isArray(currentDeliveryGroup.items) && currentDeliveryGroup.items.length > 0) {
-        purchaseIdInt = parseInt(currentDeliveryGroup.items[0].purchase_id, 10);
-      }
+      // Use purchase item data
+      const purchaseIdInt = parseInt(currentPurchaseItemData.purchaseId || '0', 10);
       if (!purchaseIdInt) {
-        showDeliveryError('Select a purchase batch first, then add the ingredient.');
+        showDeliveryError('Invalid purchase item data.');
         return;
       }
       
+      // Determine status: "partial" if Receive Qty < Purchase Qty, otherwise "complete"
+      const purchaseQty = currentPurchaseItemData.orderedQty || 0;
+      const deliveryStatus = (receiveQty < purchaseQty) ? 'partial' : 'complete';
+      
       deliveryItems.push({
-        purchaseId: purchaseIdInt, // May be null if no matching purchase
+        purchaseId: purchaseIdInt,
         ingredientId: ingredientId,
         itemName: ingredient.name,
-        quantity: quantity,
-        unit: unit,
-        supplier: supplier || currentDeliveryGroup?.supplier || ''
+        quantity: quantity, // Inventory quantity
+        unit: unit, // Inventory unit
+        supplier: supplier || currentDeliveryGroup?.supplier || '',
+        // Store receive item data for reference
+        receiveQuantity: receiveQty,
+        receiveUnit: (receiveUnit?.value || '').trim() || currentPurchaseItemData.unit,
+        purchaseItemName: currentPurchaseItemData.itemName,
+        purchaseItemId: currentPurchaseItemData.itemId,
+        status: deliveryStatus // Auto-set status based on receive qty vs purchase qty
       });
       
-      // Clear inputs
+      // Clear and hide receive section
+      if (receiveItemSection) {
+        receiveItemSection.classList.add('hidden');
+      }
+      if (finalInventorySection) {
+        finalInventorySection.classList.add('hidden');
+      }
+      
+      // Clear receive item fields
+      if (receiveItemName) receiveItemName.value = '';
+      if (receivePurchaseQty) receivePurchaseQty.value = '';
+      if (receiveQuantity) receiveQuantity.value = '';
+      if (receiveUnit) receiveUnit.value = '';
+      
+      // Clear inventory inputs
       deliveryItemSelect.value = '';
       if (deliveryItemSearch) {
         deliveryItemSearch.value = '';
@@ -2063,11 +2520,10 @@ foreach ($deliveries as $d) {
         deliveryUnitHelp.textContent = '';
       }
       deliverySupplierInput.value = '';
-      deliveryQuantityInput.readOnly = true;
-      deliveryUnitInput.readOnly = true;
-      if (deliveryUnitSelect) deliveryUnitSelect.disabled = true;
-      deliverySupplierInput.readOnly = true;
       lastSelectedUnit = '';
+      
+      // Clear stored purchase item data
+      currentPurchaseItemData = null;
       
       renderDeliveryItems();
       clearDeliveryError();
@@ -2078,6 +2534,124 @@ foreach ($deliveries as $d) {
     });
   }
   
+  // Handle Add button on purchase items
+  const purchaseItemsList = document.getElementById('deliveryPurchaseItemsList');
+  if (purchaseItemsList) {
+    purchaseItemsList.addEventListener('click', (e) => {
+      const btn = e.target.closest('.addPurchaseItemBtn');
+      if (!btn) return;
+      
+      // Check if another item is already selected
+      if (currentPurchaseItemData) {
+        showDeliveryError('Cannot add multiple items. Please complete or cancel the current item first.');
+        return;
+      }
+      
+      const itemIndex = parseInt(btn.dataset.itemIndex || '-1', 10);
+      const row = btn.closest('tr');
+      if (!row || itemIndex < 0 || row.dataset.removed === 'true') return;
+      
+      // Get purchase item data
+      const purchaseItem = {
+        purchaseId: row.dataset.purchaseId || '',
+        itemId: row.dataset.itemId || '',
+        itemName: row.dataset.itemName || '',
+        orderedQty: parseFloat(row.dataset.orderedQty || '0'),
+        quantity: parseFloat(row.dataset.quantity || '0'),
+        quantityBase: parseFloat(row.dataset.quantityBase || '0'),
+        unit: row.dataset.unit || '',
+        baseUnit: row.dataset.baseUnit || '',
+        itemIndex: itemIndex,
+        row: row
+      };
+      
+      // Store for later use
+      currentPurchaseItemData = purchaseItem;
+      
+      // Show receive item section
+      if (receiveItemSection) {
+        receiveItemSection.classList.remove('hidden');
+      }
+      if (finalInventorySection) {
+        finalInventorySection.classList.remove('hidden');
+      }
+      
+      // Auto-fill receive item fields
+      if (receiveItemName) {
+        receiveItemName.value = purchaseItem.itemName;
+      }
+      if (receivePurchaseQty) {
+        receivePurchaseQty.value = purchaseItem.orderedQty.toFixed(2);
+      }
+      if (receiveQuantity) {
+        receiveQuantity.value = '';
+        receiveQuantity.max = purchaseItem.quantity;
+      }
+      if (receiveUnit) {
+        receiveUnit.value = purchaseItem.unit;
+      }
+      
+      // Enable inventory fields
+      if (deliveryItemSearch) deliveryItemSearch.readOnly = false;
+      if (deliveryQuantityInput) deliveryQuantityInput.readOnly = false;
+      if (deliveryUnitInput) deliveryUnitInput.readOnly = false;
+      if (deliveryUnitSelect) deliveryUnitSelect.disabled = false;
+      
+      // Auto-fill supplier from current delivery group
+      if (deliverySupplierInput && currentDeliveryGroup?.supplier) {
+        deliverySupplierInput.value = currentDeliveryGroup.supplier;
+      }
+      
+      // Hide the purchase item row
+      row.style.display = 'none';
+      row.dataset.removed = 'true';
+      
+      // Focus on receive quantity
+      if (receiveQuantity) {
+        receiveQuantity.focus();
+      }
+      
+      clearDeliveryError();
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    });
+  }
+  
+  // Handle Cancel/Undo button in receive section
+  if (receiveUndoBtn) {
+    receiveUndoBtn.addEventListener('click', () => {
+      // Restore purchase item row
+      if (currentPurchaseItemData && currentPurchaseItemData.row) {
+        currentPurchaseItemData.row.style.display = '';
+        currentPurchaseItemData.row.dataset.removed = 'false';
+      }
+      
+      // Hide sections
+      if (receiveItemSection) {
+        receiveItemSection.classList.add('hidden');
+      }
+      if (finalInventorySection) {
+        finalInventorySection.classList.add('hidden');
+      }
+      
+      // Clear receive item fields
+      if (receiveItemName) receiveItemName.value = '';
+      if (receivePurchaseQty) receivePurchaseQty.value = '';
+      if (receiveQuantity) receiveQuantity.value = '';
+      if (receiveUnit) receiveUnit.value = '';
+      
+      // Clear inventory fields
+      if (deliveryItemSearch) deliveryItemSearch.value = '';
+      if (deliveryQuantityInput) deliveryQuantityInput.value = '';
+      if (deliveryUnitInput) deliveryUnitInput.value = '';
+      if (deliverySupplierInput) deliverySupplierInput.value = '';
+      
+      // Clear stored data
+      currentPurchaseItemData = null;
+    });
+  }
+  
   // Handle remove item
   if (deliveryItemsBody) {
     deliveryItemsBody.addEventListener('click', (e)=>{
@@ -2085,6 +2659,45 @@ foreach ($deliveries as $d) {
       if (!btn) return;
       const index = parseInt(btn.dataset.index || '-1', 10);
       if (index >= 0 && index < deliveryItems.length) {
+        const removedItem = deliveryItems[index];
+        
+        // Restore purchase item row if it was removed
+        // Only restore ONE row that matches the removed item
+        if (removedItem.purchaseItemId && purchaseItemsList) {
+          const purchaseRows = purchaseItemsList.querySelectorAll('tr');
+          const removedItemId = removedItem.purchaseItemId?.toString() || '';
+          let restored = false;
+          
+          // First try to match by itemId (most specific)
+          for (const row of purchaseRows) {
+            if (restored) break; // Only restore one row
+            if (row.dataset.removed !== 'true') continue;
+            
+            const rowItemId = row.dataset.itemId || '';
+            if (rowItemId && removedItemId && rowItemId === removedItemId) {
+              row.style.display = '';
+              row.dataset.removed = 'false';
+              restored = true;
+              break;
+            }
+          }
+          
+          // If not found by itemId, try by name (fallback, but still only restore one)
+          if (!restored && removedItem.purchaseItemName) {
+            for (const row of purchaseRows) {
+              if (restored) break; // Only restore one row
+              if (row.dataset.removed !== 'true') continue;
+              
+              if (row.dataset.itemName === removedItem.purchaseItemName) {
+                row.style.display = '';
+                row.dataset.removed = 'false';
+                restored = true;
+                break;
+              }
+            }
+          }
+        }
+        
         deliveryItems.splice(index, 1);
         renderDeliveryItems();
         updateBatchSelectFilter();
@@ -2095,13 +2708,17 @@ foreach ($deliveries as $d) {
     });
   }
 
-  // Handle modal close
-  if (deliveryModalClose) {
-    deliveryModalClose.addEventListener('click', closeDeliveryModal);
-    deliveryModal?.addEventListener('click', (e)=>{
-      if (e.target === deliveryModal) closeDeliveryModal();
+  // Handle modal close - get all close buttons (Cancel button)
+  const deliveryModalCloseButtons = deliveryModal?.querySelectorAll('.deliveryModalClose');
+  if (deliveryModalCloseButtons && deliveryModalCloseButtons.length > 0) {
+    deliveryModalCloseButtons.forEach(btn => {
+      btn.addEventListener('click', closeDeliveryModal);
     });
   }
+  // Also close when clicking outside the modal
+  deliveryModal?.addEventListener('click', (e)=>{
+    if (e.target === deliveryModal) closeDeliveryModal();
+  });
 
   // Handle modal form submission
   if (deliveryModalForm) {
@@ -2109,8 +2726,52 @@ foreach ($deliveries as $d) {
       if (deliveryItems.length === 0) {
         e.preventDefault();
         showDeliveryError('Please add at least one item to record delivery.');
+        // Ensure button is enabled so user can fix the issue
+        if (deliverySubmitBtn) {
+          deliverySubmitBtn.removeAttribute('disabled');
+          deliverySubmitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+        }
         return;
       }
+      
+      // Check if all purchase items have been added
+      const purchaseItemsList = document.getElementById('deliveryPurchaseItemsList');
+      if (purchaseItemsList) {
+        const allPurchaseRows = purchaseItemsList.querySelectorAll('tr');
+        const unprocessedItems = [];
+        allPurchaseRows.forEach(row => {
+          // Check if row is visible (not removed/hidden)
+          if (row.style.display !== 'none' && row.dataset.removed !== 'true') {
+            const itemName = row.dataset.itemName || 'Unknown item';
+            unprocessedItems.push(itemName);
+          }
+        });
+        
+        if (unprocessedItems.length > 0) {
+          e.preventDefault();
+          const itemList = unprocessedItems.join(', ');
+          showDeliveryError(`Please add all purchase items to the delivery. Remaining items: ${itemList}`);
+          // Ensure button is enabled so user can fix the issue
+          if (deliverySubmitBtn) {
+            deliverySubmitBtn.removeAttribute('disabled');
+            deliverySubmitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+            // Reset button text if it was changed to "Processing..."
+            const btnContent = deliverySubmitBtn.textContent || '';
+            if (btnContent.includes('Processing')) {
+              const icon = deliverySubmitBtn.querySelector('i[data-lucide]');
+              if (icon) {
+                deliverySubmitBtn.innerHTML = '<i data-lucide="package-check" class="w-4 h-4"></i>Record Delivery';
+                if (typeof lucide !== 'undefined') {
+                  lucide.createIcons();
+                }
+              }
+            }
+          }
+          return;
+        }
+      }
+      
+      // Only disable button if validation passes
       deliverySubmitBtn?.setAttribute('disabled','disabled');
       deliverySubmitBtn?.classList.add('opacity-60','cursor-not-allowed');
       addRecentDeliveryRows(buildRecentEntriesFromModal());
@@ -2202,6 +2863,846 @@ foreach ($deliveries as $d) {
   // Initialize lucide icons on page load
   if (typeof lucide !== 'undefined') {
     lucide.createIcons();
+  }
+
+  // Delivery Details Modal
+  const deliveryDetailsModal = document.getElementById('deliveryDetailsModal');
+  const deliveryDetailsBatchLabel = document.getElementById('deliveryDetailsBatchLabel');
+  const deliveryDetailsSupplier = document.getElementById('deliveryDetailsSupplier');
+  const deliveryDetailsPurchaser = document.getElementById('deliveryDetailsPurchaser');
+  const deliveryDetailsDate = document.getElementById('deliveryDetailsDate');
+  const deliveryDetailsItemsBody = document.getElementById('deliveryDetailsItemsBody');
+
+  function openDeliveryDetailsModal(batchId, purchaseId) {
+    if (!deliveryDetailsModal) return;
+    
+    // Show loading state
+    if (deliveryDetailsItemsBody) {
+      deliveryDetailsItemsBody.innerHTML = '<tr><td colspan="4" class="px-4 py-6 text-center text-gray-500">Loading...</td></tr>';
+    }
+    
+    // Show modal
+    deliveryDetailsModal.classList.remove('hidden');
+    deliveryDetailsModal.classList.add('flex');
+    document.body.classList.add('overflow-hidden');
+    
+    // Fetch batch details
+    const url = `<?php echo htmlspecialchars($baseUrl); ?>/deliveries/batch-details?batch_id=${encodeURIComponent(batchId)}&purchase_id=${purchaseId}`;
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          if (deliveryDetailsItemsBody) {
+            deliveryDetailsItemsBody.innerHTML = `<tr><td colspan="4" class="px-4 py-6 text-center text-red-500">${escapeHtml(data.error)}</td></tr>`;
+          }
+          return;
+        }
+        
+        // Populate header info
+        if (deliveryDetailsBatchLabel) {
+          deliveryDetailsBatchLabel.textContent = `Batch #${data.batch_id}`;
+        }
+        if (deliveryDetailsSupplier) {
+          deliveryDetailsSupplier.textContent = data.supplier || '—';
+        }
+        if (deliveryDetailsPurchaser) {
+          deliveryDetailsPurchaser.textContent = data.purchaser_name || '—';
+        }
+        if (deliveryDetailsDate) {
+          deliveryDetailsDate.textContent = data.date_purchased || '—';
+        }
+        
+        // Check if batch has partial items (status is Partial)
+        const hasPartialItems = data.items && data.items.some(item => {
+          const orderedQty = Number(item.ordered_qty || 0);
+          const receivedQty = Number(item.received_qty || 0);
+          return receivedQty < orderedQty - 0.0001;
+        });
+        
+        // Show Complete Delivery button only for partial deliveries
+        const continueDeliveryBtn = document.getElementById('continueDeliveryBtn');
+        const continueDeliverySection = document.getElementById('continueDeliverySection');
+        if (continueDeliveryBtn && continueDeliverySection) {
+          if (hasPartialItems) {
+            continueDeliveryBtn.classList.remove('hidden');
+          } else {
+            continueDeliveryBtn.classList.add('hidden');
+            continueDeliverySection.classList.add('hidden');
+          }
+        }
+        
+        // Store batch data for continue delivery feature
+        window.currentBatchData = data;
+        
+        // Populate items table
+        if (deliveryDetailsItemsBody && data.items && data.items.length > 0) {
+          deliveryDetailsItemsBody.innerHTML = '';
+          data.items.forEach(item => {
+            const orderedQty = Number(item.ordered_qty || 0);
+            const receivedQty = Number(item.received_qty || 0);
+            const isPartial = receivedQty < orderedQty - 0.0001; // Account for floating point precision
+            
+            // Apply different styling for partial items
+            const rowClass = isPartial 
+              ? 'bg-yellow-50 hover:bg-yellow-100 border-l-4 border-yellow-400' 
+              : 'hover:bg-gray-50';
+            const textClass = isPartial ? 'text-yellow-900' : 'text-gray-900';
+            const cellTextClass = isPartial ? 'text-yellow-800' : 'text-gray-700';
+            
+            const tr = document.createElement('tr');
+            tr.className = rowClass;
+            tr.innerHTML = `
+              <td class="px-4 py-3 font-medium ${textClass}">${escapeHtml(item.item_name)}</td>
+              <td class="px-4 py-3 ${cellTextClass}">${orderedQty.toFixed(2)} ${escapeHtml(item.unit)}</td>
+              <td class="px-4 py-3 ${cellTextClass}">${receivedQty.toFixed(2)} ${escapeHtml(item.unit)}</td>
+              <td class="px-4 py-3 ${cellTextClass}">${Number(item.remaining_qty).toFixed(2)} ${escapeHtml(item.unit)}</td>
+            `;
+            deliveryDetailsItemsBody.appendChild(tr);
+          });
+        } else if (deliveryDetailsItemsBody) {
+          deliveryDetailsItemsBody.innerHTML = '<tr><td colspan="4" class="px-4 py-6 text-center text-gray-500">No items found</td></tr>';
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching batch details:', error);
+        if (deliveryDetailsItemsBody) {
+          deliveryDetailsItemsBody.innerHTML = '<tr><td colspan="4" class="px-4 py-6 text-center text-red-500">Error loading batch details</td></tr>';
+        }
+      });
+  }
+
+  function closeDeliveryDetailsModal() {
+    if (!deliveryDetailsModal) return;
+    deliveryDetailsModal.classList.add('hidden');
+    deliveryDetailsModal.classList.remove('flex');
+    document.body.classList.remove('overflow-hidden');
+    
+    // Clear continue delivery state
+    continueDeliveryItems = [];
+    continueCurrentPurchaseItemData = null;
+    window.currentBatchData = null;
+    
+    // Hide continue delivery section
+    const continueDeliverySection = document.getElementById('continueDeliverySection');
+    if (continueDeliverySection) {
+      continueDeliverySection.classList.add('hidden');
+    }
+    
+    // Restore all hidden purchase items in continue delivery section
+    const continuePurchaseItemsList = document.getElementById('continueDeliveryPurchaseItemsList');
+    if (continuePurchaseItemsList) {
+      const hiddenRows = continuePurchaseItemsList.querySelectorAll('tr[data-removed="true"]');
+      hiddenRows.forEach(row => {
+        row.style.display = '';
+        row.dataset.removed = 'false';
+      });
+    }
+    
+    // Clear continue delivery fields
+    const continueReceiveItemSection = document.getElementById('continueReceiveItemSection');
+    const continueFinalInventorySection = document.getElementById('continueFinalInventorySection');
+    if (continueReceiveItemSection) continueReceiveItemSection.classList.add('hidden');
+    if (continueFinalInventorySection) continueFinalInventorySection.classList.add('hidden');
+    
+    // Clear continue delivery form fields
+    const continueReceiveItemName = document.getElementById('continueReceiveItemName');
+    const continueReceivePurchaseQty = document.getElementById('continueReceivePurchaseQty');
+    const continueReceiveQuantity = document.getElementById('continueReceiveQuantity');
+    const continueReceiveUnit = document.getElementById('continueReceiveUnit');
+    const continueDeliveryItemSearch = document.getElementById('continueDeliveryItemSearch');
+    const continueDeliveryQuantityInput = document.getElementById('continueDeliveryQuantityInput');
+    const continueDeliveryUnitInput = document.getElementById('continueDeliveryUnitInput');
+    const continueDeliveryUnitSelect = document.getElementById('continueDeliveryUnitSelect');
+    const continueDeliverySupplierInput = document.getElementById('continueDeliverySupplierInput');
+    
+    if (continueReceiveItemName) continueReceiveItemName.value = '';
+    if (continueReceivePurchaseQty) continueReceivePurchaseQty.value = '';
+    if (continueReceiveQuantity) continueReceiveQuantity.value = '';
+    if (continueReceiveUnit) continueReceiveUnit.value = '';
+    if (continueDeliveryItemSearch) continueDeliveryItemSearch.value = '';
+    if (continueDeliveryQuantityInput) continueDeliveryQuantityInput.value = '';
+    if (continueDeliveryUnitInput) {
+      continueDeliveryUnitInput.value = '';
+      continueDeliveryUnitInput.classList.remove('hidden');
+    }
+    if (continueDeliveryUnitSelect) {
+      continueDeliveryUnitSelect.value = '';
+      continueDeliveryUnitSelect.classList.add('hidden');
+      continueDeliveryUnitSelect.disabled = true;
+    }
+    if (continueDeliverySupplierInput) continueDeliverySupplierInput.value = '';
+    
+    // Clear continue delivery items display
+    const continueDeliveryItemsBody = document.getElementById('continueDeliveryItemsBody');
+    const continueDeliveryItemsEmpty = document.getElementById('continueDeliveryItemsEmpty');
+    if (continueDeliveryItemsBody) continueDeliveryItemsBody.innerHTML = '';
+    if (continueDeliveryItemsEmpty) continueDeliveryItemsEmpty.classList.remove('hidden');
+  }
+
+  // Handle modal close - get all close buttons
+  const closeButtons = deliveryDetailsModal?.querySelectorAll('.deliveryDetailsModalClose');
+  if (closeButtons && closeButtons.length > 0) {
+    closeButtons.forEach(btn => {
+      btn.addEventListener('click', closeDeliveryDetailsModal);
+    });
+  }
+  // Also close when clicking outside the modal
+  deliveryDetailsModal?.addEventListener('click', (e) => {
+    if (e.target === deliveryDetailsModal) closeDeliveryDetailsModal();
+  });
+
+  // Handle View Details button clicks
+  if (recentDeliveriesBody) {
+    recentDeliveriesBody.addEventListener('click', (e) => {
+      const btn = e.target.closest('.viewBatchDetailsBtn');
+      if (!btn) return;
+      
+      const batchId = btn.dataset.batchId || '';
+      const purchaseId = parseInt(btn.dataset.purchaseId || '0', 10);
+      
+      if (batchId || purchaseId > 0) {
+        openDeliveryDetailsModal(batchId, purchaseId);
+      }
+    });
+  }
+
+  // Complete Delivery Feature (only for Partial deliveries)
+  const continueDeliveryBtn = document.getElementById('continueDeliveryBtn');
+  const continueDeliverySection = document.getElementById('continueDeliverySection');
+  const continueDeliveryPurchaseItemsList = document.getElementById('continueDeliveryPurchaseItemsList');
+  const continueDeliveryPurchaseItemsEmpty = document.getElementById('continueDeliveryPurchaseItemsEmpty');
+  const continueReceiveItemSection = document.getElementById('continueReceiveItemSection');
+  const continueFinalInventorySection = document.getElementById('continueFinalInventorySection');
+  const continueReceiveItemName = document.getElementById('continueReceiveItemName');
+  const continueReceivePurchaseQty = document.getElementById('continueReceivePurchaseQty');
+  const continueReceiveQuantity = document.getElementById('continueReceiveQuantity');
+  const continueReceiveUnit = document.getElementById('continueReceiveUnit');
+  const continueReceiveUndoBtn = document.getElementById('continueReceiveUndoBtn');
+  const continueDeliveryItemSearch = document.getElementById('continueDeliveryItemSearch');
+  const continueDeliveryItemDropdown = document.getElementById('continueDeliveryItemDropdown');
+  const continueDeliveryQuantityInput = document.getElementById('continueDeliveryQuantityInput');
+  const continueDeliveryUnitInput = document.getElementById('continueDeliveryUnitInput');
+  const continueDeliveryUnitSelect = document.getElementById('continueDeliveryUnitSelect');
+  const continueDeliveryUnitHelp = document.getElementById('continueDeliveryUnitHelp');
+  const continueDeliverySupplierInput = document.getElementById('continueDeliverySupplierInput');
+  const continueDeliveryAddItemBtn = document.getElementById('continueDeliveryAddItemBtn');
+  const continueDeliveryItemsBody = document.getElementById('continueDeliveryItemsBody');
+  const continueDeliveryItemsEmpty = document.getElementById('continueDeliveryItemsEmpty');
+  
+  let continueCurrentPurchaseItemData = null;
+  let continueDeliveryItems = [];
+  
+  // Show complete delivery section when button is clicked
+  if (continueDeliveryBtn && continueDeliverySection) {
+    continueDeliveryBtn.addEventListener('click', () => {
+      if (continueDeliverySection.classList.contains('hidden')) {
+        continueDeliverySection.classList.remove('hidden');
+        populateContinueDeliveryPurchaseItems();
+        populateContinueDeliveryIngredientOptions();
+      } else {
+        continueDeliverySection.classList.add('hidden');
+      }
+    });
+  }
+  
+  // Populate ingredient options for continue delivery (from INGREDIENTS array)
+  function populateContinueDeliveryIngredientOptions() {
+    if (typeof INGREDIENTS === 'undefined' || !Array.isArray(INGREDIENTS)) {
+      console.error('INGREDIENTS array not found');
+      return;
+    }
+    
+    // Populate deliveryIngredientOptions for the continue delivery search
+    deliveryIngredientOptions = [];
+    INGREDIENTS.forEach(ing => {
+      const unitLabel = ing.display_unit || ing.unit || 'unit';
+      deliveryIngredientOptions.push({
+        id: ing.id,
+        name: ing.name,
+        baseUnit: ing.unit || '',
+        displayUnit: ing.display_unit || '',
+        displayFactor: ing.display_factor || 1,
+        displayText: `${ing.name} (${unitLabel})`
+      });
+    });
+  }
+  
+  // Populate purchase items (only partial items get Add button)
+  function populateContinueDeliveryPurchaseItems() {
+    if (!continueDeliveryPurchaseItemsList || !window.currentBatchData || !window.currentBatchData.items) return;
+    
+    const items = window.currentBatchData.items;
+    continueDeliveryPurchaseItemsList.innerHTML = '';
+    
+    let hasItems = false;
+    items.forEach((item, index) => {
+      const orderedQty = Number(item.ordered_qty || 0);
+      const receivedQty = Number(item.received_qty || 0);
+      const remainingQty = Number(item.remaining_qty || 0);
+      const isPartial = remainingQty > 0.0001; // Only show items with remaining quantity
+      
+      if (!isPartial) return; // Skip complete items
+      
+      hasItems = true;
+      const tr = document.createElement('tr');
+      tr.className = 'hover:bg-gray-50';
+      tr.dataset.purchaseId = item.purchase_id || '';
+      tr.dataset.itemName = item.item_name || '';
+      tr.dataset.orderedQty = orderedQty;
+      tr.dataset.remainingQty = remainingQty;
+      tr.dataset.unit = item.unit || '';
+      tr.dataset.itemIndex = index;
+      
+      tr.innerHTML = `
+        <td class="px-3 py-2 text-gray-900">${escapeHtml(item.item_name)}</td>
+        <td class="px-3 py-2 text-gray-700">${orderedQty.toFixed(2)}</td>
+        <td class="px-3 py-2 text-gray-700">${remainingQty.toFixed(2)}</td>
+        <td class="px-3 py-2 text-gray-700">${escapeHtml(item.unit)}</td>
+        <td class="px-3 py-2">
+          <button type="button" class="addContinuePurchaseItemBtn inline-flex items-center justify-center gap-1 px-3 py-1.5 text-xs bg-orange-600 text-white rounded-lg hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 transition-colors" data-item-index="${index}">
+            <i data-lucide="plus" class="w-3 h-3"></i>
+            Add
+          </button>
+        </td>
+      `;
+      continueDeliveryPurchaseItemsList.appendChild(tr);
+    });
+    
+    if (continueDeliveryPurchaseItemsEmpty) {
+      continueDeliveryPurchaseItemsEmpty.classList.toggle('hidden', hasItems);
+    }
+    if (continueDeliveryPurchaseItemsList) {
+      continueDeliveryPurchaseItemsList.classList.toggle('hidden', !hasItems);
+    }
+    
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+  }
+  
+  // Handle Add button on continue delivery purchase items
+  if (continueDeliveryPurchaseItemsList) {
+    continueDeliveryPurchaseItemsList.addEventListener('click', (e) => {
+      const btn = e.target.closest('.addContinuePurchaseItemBtn');
+      if (!btn) return;
+      
+      // Check if another item is already selected
+      if (continueCurrentPurchaseItemData) {
+        alert('Cannot add multiple items. Please complete or cancel the current item first.');
+        return;
+      }
+      
+      const itemIndex = parseInt(btn.dataset.itemIndex || '-1', 10);
+      const row = btn.closest('tr');
+      if (!row || itemIndex < 0 || row.dataset.removed === 'true') return;
+      
+      // Get purchase item data
+      const purchaseItem = {
+        purchaseId: row.dataset.purchaseId || '',
+        itemName: row.dataset.itemName || '',
+        orderedQty: parseFloat(row.dataset.orderedQty || '0'),
+        remainingQty: parseFloat(row.dataset.remainingQty || '0'),
+        unit: row.dataset.unit || '',
+        itemIndex: itemIndex,
+        row: row
+      };
+      
+      // Store for later use
+      continueCurrentPurchaseItemData = purchaseItem;
+      
+      // Show receive item section
+      if (continueReceiveItemSection) {
+        continueReceiveItemSection.classList.remove('hidden');
+      }
+      if (continueFinalInventorySection) {
+        continueFinalInventorySection.classList.remove('hidden');
+      }
+      
+      // Auto-fill receive item fields
+      if (continueReceiveItemName) {
+        continueReceiveItemName.value = purchaseItem.itemName;
+      }
+      if (continueReceivePurchaseQty) {
+        continueReceivePurchaseQty.value = purchaseItem.remainingQty.toFixed(2);
+      }
+      if (continueReceiveQuantity) {
+        continueReceiveQuantity.value = '';
+        continueReceiveQuantity.max = purchaseItem.remainingQty; // Max is remaining qty
+      }
+      if (continueReceiveUnit) {
+        continueReceiveUnit.value = purchaseItem.unit;
+      }
+      
+      // Enable inventory fields
+      if (continueDeliveryItemSearch) continueDeliveryItemSearch.readOnly = false;
+      if (continueDeliveryQuantityInput) continueDeliveryQuantityInput.readOnly = false;
+      if (continueDeliveryUnitInput) continueDeliveryUnitInput.readOnly = false;
+      if (continueDeliveryUnitSelect) continueDeliveryUnitSelect.disabled = false;
+      
+      // Auto-fill supplier from batch data
+      if (continueDeliverySupplierInput && window.currentBatchData?.supplier) {
+        continueDeliverySupplierInput.value = window.currentBatchData.supplier;
+      }
+      
+      // Hide the purchase item row
+      row.style.display = 'none';
+      row.dataset.removed = 'true';
+      
+      // Focus on receive quantity
+      if (continueReceiveQuantity) {
+        continueReceiveQuantity.focus();
+      }
+      
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    });
+  }
+  
+  // Handle Cancel/Undo button in continue receive section
+  if (continueReceiveUndoBtn) {
+    continueReceiveUndoBtn.addEventListener('click', () => {
+      // Restore purchase item row
+      if (continueCurrentPurchaseItemData && continueCurrentPurchaseItemData.row) {
+        continueCurrentPurchaseItemData.row.style.display = '';
+        continueCurrentPurchaseItemData.row.dataset.removed = 'false';
+      }
+      
+      // Hide sections
+      if (continueReceiveItemSection) {
+        continueReceiveItemSection.classList.add('hidden');
+      }
+      if (continueFinalInventorySection) {
+        continueFinalInventorySection.classList.add('hidden');
+      }
+      
+      // Clear fields
+      if (continueReceiveItemName) continueReceiveItemName.value = '';
+      if (continueReceivePurchaseQty) continueReceivePurchaseQty.value = '';
+      if (continueReceiveQuantity) continueReceiveQuantity.value = '';
+      if (continueReceiveUnit) continueReceiveUnit.value = '';
+      if (continueDeliveryItemSearch) continueDeliveryItemSearch.value = '';
+      if (continueDeliveryQuantityInput) continueDeliveryQuantityInput.value = '';
+      if (continueDeliveryUnitInput) {
+        continueDeliveryUnitInput.value = '';
+        continueDeliveryUnitInput.classList.remove('hidden');
+      }
+      if (continueDeliveryUnitSelect) {
+        continueDeliveryUnitSelect.value = '';
+        continueDeliveryUnitSelect.classList.add('hidden');
+        continueDeliveryUnitSelect.disabled = true;
+      }
+      if (continueDeliveryUnitHelp) {
+        continueDeliveryUnitHelp.classList.add('hidden');
+        continueDeliveryUnitHelp.textContent = '';
+      }
+      if (continueDeliverySupplierInput) continueDeliverySupplierInput.value = '';
+      
+      // Clear stored data
+      continueCurrentPurchaseItemData = null;
+      
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    });
+  }
+  
+  // Handle Add to Delivery button in continue section
+  if (continueDeliveryAddItemBtn) {
+    continueDeliveryAddItemBtn.addEventListener('click', () => {
+      if (!continueCurrentPurchaseItemData) return;
+      
+      const receiveQty = parseFloat(continueReceiveQuantity?.value || '0');
+      const purchaseQty = continueCurrentPurchaseItemData.orderedQty;
+      const remainingQty = continueCurrentPurchaseItemData.remainingQty;
+      
+      // Validate receive quantity
+      if (receiveQty <= 0) {
+        alert('Please enter a valid receive quantity.');
+        return;
+      }
+      
+      if (receiveQty > remainingQty + 0.0001) {
+        alert(`Receive quantity cannot exceed remaining quantity (${remainingQty.toFixed(2)}).`);
+        return;
+      }
+      
+      // Get inventory item
+      const ingredientName = continueDeliveryItemSearch?.value?.trim() || '';
+      if (!ingredientName) {
+        alert('Please select an inventory item.');
+        return;
+      }
+      
+      const ingredient = INGREDIENTS.find(ing => ing.name.toLowerCase() === ingredientName.toLowerCase());
+      if (!ingredient) {
+        alert('Selected ingredient not found.');
+        return;
+      }
+      
+      const inventoryQty = parseFloat(continueDeliveryQuantityInput?.value || '0');
+      if (inventoryQty <= 0) {
+        alert('Please enter a valid inventory quantity.');
+        return;
+      }
+      
+      // Get unit from dropdown if visible, otherwise from input
+      let inventoryUnit = '';
+      if (continueDeliveryUnitSelect && !continueDeliveryUnitSelect.classList.contains('hidden')) {
+        inventoryUnit = continueDeliveryUnitSelect?.value?.trim() || '';
+      } else {
+        inventoryUnit = continueDeliveryUnitInput?.value?.trim() || '';
+      }
+      
+      if (!inventoryUnit) {
+        alert('Please enter or select a unit.');
+        return;
+      }
+      
+      // Calculate delivery status
+      const newReceivedQty = receiveQty;
+      const deliveryStatus = newReceivedQty < purchaseQty - 0.0001 ? 'partial' : 'complete';
+      
+      // Add to delivery items
+      continueDeliveryItems.push({
+        purchase_id: continueCurrentPurchaseItemData.purchaseId,
+        ingredient_id: ingredient.id,
+        itemName: ingredient.name,
+        quantity: inventoryQty,
+        unit: inventoryUnit,
+        supplier: continueDeliverySupplierInput?.value || window.currentBatchData?.supplier || '',
+        receiveQuantity: newReceivedQty,
+        receiveUnit: continueCurrentPurchaseItemData.unit,
+        purchaseItemName: continueCurrentPurchaseItemData.itemName,
+        status: deliveryStatus
+      });
+      
+      // Clear and hide sections
+      if (continueReceiveItemSection) {
+        continueReceiveItemSection.classList.add('hidden');
+      }
+      if (continueFinalInventorySection) {
+        continueFinalInventorySection.classList.add('hidden');
+      }
+      
+      // Clear fields
+      if (continueReceiveItemName) continueReceiveItemName.value = '';
+      if (continueReceivePurchaseQty) continueReceivePurchaseQty.value = '';
+      if (continueReceiveQuantity) continueReceiveQuantity.value = '';
+      if (continueReceiveUnit) continueReceiveUnit.value = '';
+      if (continueDeliveryItemSearch) continueDeliveryItemSearch.value = '';
+      if (continueDeliveryQuantityInput) continueDeliveryQuantityInput.value = '';
+      if (continueDeliveryUnitInput) {
+        continueDeliveryUnitInput.value = '';
+        continueDeliveryUnitInput.classList.remove('hidden');
+      }
+      if (continueDeliveryUnitSelect) {
+        continueDeliveryUnitSelect.value = '';
+        continueDeliveryUnitSelect.classList.add('hidden');
+        continueDeliveryUnitSelect.disabled = true;
+      }
+      if (continueDeliveryUnitHelp) {
+        continueDeliveryUnitHelp.classList.add('hidden');
+        continueDeliveryUnitHelp.textContent = '';
+      }
+      if (continueDeliverySupplierInput) continueDeliverySupplierInput.value = '';
+      
+      // Clear stored data
+      continueCurrentPurchaseItemData = null;
+      
+      // Render delivery items
+      renderContinueDeliveryItems();
+      
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    });
+  }
+  
+  // Render continue delivery items
+  function renderContinueDeliveryItems() {
+    if (!continueDeliveryItemsBody) return;
+    
+    if (continueDeliveryItems.length === 0) {
+      continueDeliveryItemsBody.innerHTML = '';
+      if (continueDeliveryItemsEmpty) {
+        continueDeliveryItemsEmpty.classList.remove('hidden');
+      }
+      return;
+    }
+    
+    if (continueDeliveryItemsEmpty) {
+      continueDeliveryItemsEmpty.classList.add('hidden');
+    }
+    
+    continueDeliveryItemsBody.innerHTML = '';
+    continueDeliveryItems.forEach((item, index) => {
+      const tr = document.createElement('tr');
+      tr.className = 'hover:bg-gray-50';
+      tr.innerHTML = `
+        <td class="px-3 py-2">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
+              <i data-lucide="package" class="w-4 h-4 text-gray-600"></i>
+            </div>
+            <span class="font-medium text-gray-900">${escapeHtml(item.itemName)}</span>
+          </div>
+        </td>
+        <td class="px-3 py-2 text-gray-700">${Number(item.quantity).toFixed(2)}</td>
+        <td class="px-3 py-2 text-gray-700">${escapeHtml(item.unit)}</td>
+        <td class="px-3 py-2 text-gray-700">${escapeHtml(item.supplier)}</td>
+        <td class="px-3 py-2">
+          <button type="button" class="removeContinueDeliveryItem inline-flex items-center gap-1 text-red-600 hover:text-red-700" data-index="${index}">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+            Remove
+          </button>
+        </td>
+      `;
+      continueDeliveryItemsBody.appendChild(tr);
+    });
+    
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+  }
+  
+  // Handle remove item from continue delivery
+  if (continueDeliveryItemsBody) {
+    continueDeliveryItemsBody.addEventListener('click', (e) => {
+      const btn = e.target.closest('.removeContinueDeliveryItem');
+      if (!btn) return;
+      const index = parseInt(btn.dataset.index || '-1', 10);
+      if (index >= 0 && index < continueDeliveryItems.length) {
+        const removedItem = continueDeliveryItems[index];
+        
+        // Restore purchase item row if it was removed
+        if (removedItem.purchaseItemName && continueDeliveryPurchaseItemsList) {
+          const purchaseRows = continueDeliveryPurchaseItemsList.querySelectorAll('tr');
+          for (const row of purchaseRows) {
+            if (row.dataset.removed === 'true' && row.dataset.itemName === removedItem.purchaseItemName) {
+              row.style.display = '';
+              row.dataset.removed = 'false';
+              break;
+            }
+          }
+        }
+        
+        continueDeliveryItems.splice(index, 1);
+        renderContinueDeliveryItems();
+        
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+        }
+      }
+    });
+  }
+  
+  // Inventory search for continue delivery
+  if (continueDeliveryItemSearch && continueDeliveryItemDropdown) {
+    continueDeliveryItemSearch.addEventListener('input', (e) => {
+      const searchTerm = e.target.value;
+      filterContinueDeliveryIngredients(searchTerm);
+    });
+    
+    continueDeliveryItemSearch.addEventListener('focus', () => {
+      if (continueDeliveryItemSearch.value.trim() === '') {
+        filterContinueDeliveryIngredients('');
+      } else {
+        filterContinueDeliveryIngredients(continueDeliveryItemSearch.value);
+      }
+    });
+  }
+  
+  function filterContinueDeliveryIngredients(searchTerm) {
+    if (!continueDeliveryItemDropdown) return;
+    
+    const term = (searchTerm || '').toLowerCase().trim();
+    const filtered = deliveryIngredientOptions.filter(opt => {
+      const nameMatch = opt.name.toLowerCase().includes(term);
+      const unitMatch = (opt.displayUnit || opt.baseUnit || '').toLowerCase().includes(term);
+      return nameMatch || unitMatch;
+    });
+    
+    continueDeliveryItemDropdown.innerHTML = '';
+    
+    if (filtered.length === 0) {
+      continueDeliveryItemDropdown.innerHTML = '<div class="px-4 py-3 text-sm text-gray-500 text-center">No ingredients found</div>';
+      continueDeliveryItemDropdown.classList.remove('hidden');
+      return;
+    }
+    
+    filtered.forEach(opt => {
+      const div = document.createElement('div');
+      div.className = 'px-4 py-2 hover:bg-orange-50 cursor-pointer border-b border-gray-100 last:border-b-0';
+      div.dataset.ingredientId = opt.id;
+      div.innerHTML = `
+        <div class="font-medium text-gray-900">${escapeHtml(opt.name)}</div>
+        <div class="text-xs text-gray-500">${escapeHtml(opt.displayUnit || opt.baseUnit || 'unit')}</div>
+      `;
+      
+      div.addEventListener('click', () => {
+        selectContinueDeliveryIngredient(opt);
+      });
+      
+      continueDeliveryItemDropdown.appendChild(div);
+    });
+    
+    continueDeliveryItemDropdown.classList.remove('hidden');
+  }
+  
+  function selectContinueDeliveryIngredient(ingredient) {
+    if (!continueDeliveryItemSearch || !continueDeliveryItemDropdown) return;
+    
+    continueDeliveryItemSearch.value = ingredient.name;
+    continueDeliveryItemDropdown.classList.add('hidden');
+    
+    // Get ingredient details from INGREDIENT_LOOKUP
+    const ingredientDetails = INGREDIENT_LOOKUP[ingredient.id];
+    if (!ingredientDetails) {
+      // Fallback to ingredient object passed
+      configureContinueDeliveryUnits(ingredient.baseUnit || '', ingredient.displayUnit || '', ingredient.displayFactor || 1);
+    } else {
+      configureContinueDeliveryUnits(ingredientDetails.unit || '', ingredientDetails.display_unit || '', ingredientDetails.display_factor || 1);
+    }
+    
+    // Focus on quantity
+    if (continueDeliveryQuantityInput) {
+      continueDeliveryQuantityInput.focus();
+    }
+  }
+  
+  function configureContinueDeliveryUnits(baseUnit, displayUnit, displayFactor) {
+    if (!continueDeliveryUnitInput || !continueDeliveryUnitSelect) return;
+    
+    // Check if we should show a dropdown for standard conversions or custom display_unit
+    let shouldShowDropdown = false;
+    let dropdownOptions = [];
+    let defaultUnit = baseUnit;
+    
+    // Standard conversions: g/kg
+    if (baseUnit === 'g') {
+      shouldShowDropdown = true;
+      dropdownOptions = [
+        { value: 'g', label: 'g (grams)' },
+        { value: 'kg', label: 'kg (kilograms)' }
+      ];
+      defaultUnit = 'g';
+    }
+    // Standard conversions: ml/L
+    else if (baseUnit === 'ml') {
+      shouldShowDropdown = true;
+      dropdownOptions = [
+        { value: 'ml', label: 'ml (milliliters)' },
+        { value: 'L', label: 'L (liters)' }
+      ];
+      defaultUnit = 'ml';
+    }
+    // Custom display_unit with conversion factor
+    else if (displayUnit && displayUnit !== baseUnit && displayFactor > 0 && displayFactor !== 1) {
+      shouldShowDropdown = true;
+      dropdownOptions = [
+        { value: baseUnit, label: `${baseUnit} (base unit)` },
+        { value: displayUnit, label: `${displayUnit} (${displayFactor}x)` }
+      ];
+      defaultUnit = displayUnit; // Default to display unit for better UX
+    }
+    
+    if (shouldShowDropdown && dropdownOptions.length > 0) {
+      // Show dropdown
+      continueDeliveryUnitInput.classList.add('hidden');
+      continueDeliveryUnitSelect.classList.remove('hidden');
+      continueDeliveryUnitSelect.innerHTML = '<option value="">Select unit</option>' + 
+        dropdownOptions.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('');
+      continueDeliveryUnitSelect.disabled = false;
+      continueDeliveryUnitSelect.value = defaultUnit;
+      
+      // Show conversion help text
+      if (continueDeliveryUnitHelp) {
+        let helpText = '';
+        if (baseUnit === 'g') {
+          helpText = '1 kg = 1000 g';
+        } else if (baseUnit === 'ml') {
+          helpText = '1 L = 1000 ml';
+        } else if (displayUnit && displayFactor > 1) {
+          helpText = `1 ${displayUnit} = ${displayFactor} ${baseUnit}`;
+        }
+        if (helpText) {
+          continueDeliveryUnitHelp.textContent = helpText;
+          continueDeliveryUnitHelp.classList.remove('hidden');
+        } else {
+          continueDeliveryUnitHelp.classList.add('hidden');
+        }
+      }
+    } else {
+      // Show text input
+      continueDeliveryUnitInput.classList.remove('hidden');
+      continueDeliveryUnitSelect.classList.add('hidden');
+      const unitToShow = displayUnit || baseUnit || '';
+      continueDeliveryUnitInput.value = unitToShow;
+      // Hide help text for manual input
+      if (continueDeliveryUnitHelp) {
+        if (displayUnit && displayUnit !== baseUnit && displayFactor > 1) {
+          continueDeliveryUnitHelp.textContent = `1 ${displayUnit} = ${displayFactor} ${baseUnit}`;
+          continueDeliveryUnitHelp.classList.remove('hidden');
+        } else {
+          continueDeliveryUnitHelp.classList.add('hidden');
+        }
+      }
+    }
+  }
+  
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (continueDeliveryItemDropdown && continueDeliveryItemSearch && 
+        !continueDeliveryItemDropdown.contains(e.target) && 
+        !continueDeliveryItemSearch.contains(e.target)) {
+      continueDeliveryItemDropdown.classList.add('hidden');
+    }
+  });
+  
+  // Form submission for continue delivery
+  const continueRecordDeliveryBtn = document.getElementById('continueRecordDeliveryBtn');
+  const continueDeliveryForm = document.createElement('form');
+  continueDeliveryForm.method = 'post';
+  continueDeliveryForm.action = `<?php echo htmlspecialchars($baseUrl); ?>/deliveries`;
+  continueDeliveryForm.style.display = 'none';
+  const csrfInput = document.createElement('input');
+  csrfInput.type = 'hidden';
+  csrfInput.name = 'csrf_token';
+  csrfInput.value = '<?php echo htmlspecialchars(Csrf::token()); ?>';
+  continueDeliveryForm.appendChild(csrfInput);
+  const actionInput = document.createElement('input');
+  actionInput.type = 'hidden';
+  actionInput.name = 'action';
+  actionInput.value = 'store';
+  continueDeliveryForm.appendChild(actionInput);
+  const itemsJsonInput = document.createElement('input');
+  itemsJsonInput.type = 'hidden';
+  itemsJsonInput.name = 'items_json';
+  itemsJsonInput.id = 'continueDeliveryItemsJson';
+  continueDeliveryForm.appendChild(itemsJsonInput);
+  document.body.appendChild(continueDeliveryForm);
+  
+  // Handle Record Delivery button click
+  if (continueRecordDeliveryBtn) {
+    continueRecordDeliveryBtn.addEventListener('click', () => {
+      if (continueDeliveryItems.length === 0) {
+        alert('Please add at least one item to record delivery.');
+        return;
+      }
+      
+      // Prepare items JSON
+      const itemsJson = continueDeliveryItems.map(item => ({
+        purchase_id: item.purchase_id,
+        ingredient_id: item.ingredient_id,
+        quantity: item.quantity,
+        unit: item.unit,
+        receive_quantity: item.receiveQuantity
+      }));
+      
+      itemsJsonInput.value = JSON.stringify(itemsJson);
+      continueDeliveryForm.submit();
+    });
   }
 
   function applyDeliveryFilter(value){

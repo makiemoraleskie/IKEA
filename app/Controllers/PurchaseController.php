@@ -93,11 +93,16 @@ class PurchaseController extends BaseController
                     'delivered_sum' => 0.0,
                     'cost_sum' => 0.0,
                     'current_balance' => 0.0, // Will be updated after cost_sum is calculated
+                    'has_partial_delivery' => false, // Track if any purchase in group has partial delivery
                     'first_id' => (int)$p['id'],
                 ];
             }
             if (empty($groups[$key]['paid_at']) && !empty($p['paid_at'])) {
                 $groups[$key]['paid_at'] = $p['paid_at'];
+            }
+            // Check if this purchase has a partial delivery
+            if ($deliveryModel->hasPartialDelivery((int)$p['id'])) {
+                $groups[$key]['has_partial_delivery'] = true;
             }
             $groups[$key]['items'][] = $p;
             $groups[$key]['quantity_sum'] += (float)$p['quantity'];
@@ -231,6 +236,14 @@ class PurchaseController extends BaseController
 
 		$receiptUrl = null;
         $receiptUpload = $_FILES['receipt'] ?? null;
+        
+        // Receipt is required for all purchase types including Delivery
+        if (!$receiptUpload || (($receiptUpload['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE)) {
+            $_SESSION['flash_purchases'] = ['type' => 'error', 'text' => 'Receipt upload is required. Please upload a receipt before recording this purchase batch.'];
+            $this->redirect('/purchases');
+            return;
+        }
+        
         if ($receiptUpload && (($receiptUpload['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE)) {
             $receiptProblem = null;
             if (($receiptUpload['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {

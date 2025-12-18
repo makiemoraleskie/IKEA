@@ -31,13 +31,13 @@ class Delivery extends BaseModel
         return $this->db->query($sql)->fetchAll();
     }
 
-	public function create(int $purchaseId, int $ingredientId, float $quantityReceived, string $deliveryStatus, string $unit): int
+	public function create(int $purchaseId, int $ingredientId, float $quantityReceived, string $deliveryStatus, string $unit, float $receiveQuantity = 0.0): int
 	{
         $this->ensureDeliveryColumns();
-		$sql = 'INSERT INTO deliveries (purchase_id, ingredient_id, quantity_received, unit, delivery_status, date_received)
-			VALUES (?, ?, ?, ?, ?, NOW())';
+		$sql = 'INSERT INTO deliveries (purchase_id, ingredient_id, quantity_received, receive_quantity, unit, delivery_status, date_received)
+			VALUES (?, ?, ?, ?, ?, ?, NOW())';
 		$stmt = $this->db->prepare($sql);
-		$stmt->execute([$purchaseId, $ingredientId, $quantityReceived, $unit, $deliveryStatus]);
+		$stmt->execute([$purchaseId, $ingredientId, $quantityReceived, $receiveQuantity, $unit, $deliveryStatus]);
 		return (int)$this->db->lastInsertId();
 	}
 
@@ -48,6 +48,53 @@ class Delivery extends BaseModel
 		$stmt->execute([$purchaseId]);
 		$row = $stmt->fetch();
 		return (float)($row['total'] ?? 0.0);
+	}
+
+	public function hasPartialDelivery(int $purchaseId): bool
+	{
+		$this->ensureDeliveryColumns();
+		
+		// Get purchase to find ordered quantity
+		$purchaseModel = new Purchase();
+		$purchase = $purchaseModel->find($purchaseId);
+		if (!$purchase) {
+			return false;
+		}
+		
+		$orderedQty = (float)($purchase['quantity'] ?? 0);
+		if ($orderedQty <= 0) {
+			return false;
+		}
+		
+		// Get total receive_quantity for this purchase
+		$receiveQuantityTotals = $this->getReceiveQuantityTotals([$purchaseId]);
+		$receivedQty = $receiveQuantityTotals[$purchaseId] ?? 0.0;
+		
+		// Calculate remaining quantity
+		$remainingQty = max(0.0, $orderedQty - $receivedQty);
+		
+		// Return true if there's remaining quantity (partial), false if complete
+		return $remainingQty > 0.0001;
+	}
+
+	public function getReceiveQuantityTotals(array $purchaseIds): array
+	{
+		$this->ensureDeliveryColumns();
+		if (empty($purchaseIds)) {
+			return [];
+		}
+		$placeholders = implode(',', array_fill(0, count($purchaseIds), '?'));
+		$sql = "SELECT purchase_id, COALESCE(SUM(receive_quantity), 0) AS total_receive_qty
+				FROM deliveries
+				WHERE purchase_id IN ($placeholders)
+				GROUP BY purchase_id";
+		$stmt = $this->db->prepare($sql);
+		$stmt->execute($purchaseIds);
+		$result = [];
+		while ($row = $stmt->fetch()) {
+			$result[(int)$row['purchase_id']] = (float)$row['total_receive_qty'];
+		}
+		return $result;
 	}
 
 	public function getPendingCount(): int
@@ -138,6 +185,9 @@ class Delivery extends BaseModel
             }
             if (!in_array('unit', $columns, true)) {
                 $this->db->exec("ALTER TABLE deliveries ADD COLUMN unit VARCHAR(32) NOT NULL DEFAULT '' AFTER quantity_received");
+            }
+            if (!in_array('receive_quantity', $columns, true)) {
+                $this->db->exec("ALTER TABLE deliveries ADD COLUMN receive_quantity DECIMAL(16,4) NOT NULL DEFAULT 0 AFTER quantity_received");
             }
         } catch (\Exception $e) {
             // ignore if cannot alter (likely already exists)

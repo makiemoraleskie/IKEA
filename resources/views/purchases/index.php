@@ -492,7 +492,12 @@ if (!in_array(Auth::role(), ['Stock Handler'], true)):
                     <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <?php 
                         $deliveryPercentage = (float)$g['quantity_sum'] > 0 ? ($g['delivered_sum'] / (float)$g['quantity_sum']) * 100 : 0;
-                        $deliveryStatus = $deliveryPercentage >= 100 ? 'Complete' : ($deliveryPercentage > 0 ? 'Partial' : 'Pending');
+                        // If any delivery has status "Partial", show "Partial" even if percentage is 100%
+                        if (!empty($g['has_partial_delivery'])) {
+                            $deliveryStatus = 'Partial';
+                        } else {
+                            $deliveryStatus = $deliveryPercentage >= 100 ? 'Complete' : ($deliveryPercentage > 0 ? 'Partial' : 'Pending');
+                        }
                         $deliveryClass = $deliveryStatus === 'Complete' ? 'bg-green-100 text-green-800' : ($deliveryStatus === 'Partial' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800');
                         $deliveryIcon = $deliveryStatus === 'Complete' ? 'check-circle' : ($deliveryStatus === 'Partial' ? 'clock' : 'package');
                         ?>
@@ -1220,7 +1225,7 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     showReceiptError(message);
     showReceiptPopup(message);
     receiptInput?.focus();
-    receiptDropzone?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    receiptDropzone?.scrollIntoView({ behavior: 'auto', block: 'center' });
     return false;
   }
 
@@ -1451,17 +1456,13 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     if (hasFile){
       return true;
     }
-    // Receipt is optional for Delivery purchases
-    const purchaseType = purchaseTypeModal?.value || '';
-    if (purchaseType === 'delivery') {
-      return true;
-    }
+    // Receipt is required for all purchase types including Delivery
     event?.preventDefault();
     const msg = 'Upload the receipt image before recording this purchase batch.';
     showReceiptErrorModal(msg);
     showReceiptPopup(msg);
     receiptInputModal?.focus();
-    receiptDropzoneModal?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    receiptDropzoneModal?.scrollIntoView({ behavior: 'auto', block: 'center' });
     return false;
   }
 
@@ -1568,6 +1569,7 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   // Delete modal logic was removed (delete button removed)
 
   function syncItemsJson(){
+    if (!listBody) return; // May not exist for Stock Handler role
     const items = [];
     listBody.querySelectorAll('tr[data-id]').forEach(tr=>{
       const itemId = parseInt(tr.getAttribute('data-id')||'0',10) || 0;
@@ -1596,6 +1598,7 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   }
 
   function recalcTotal(){
+    if (!listBody) return; // May not exist for Stock Handler role
     let sum = 0;
     listBody.querySelectorAll('input[name="row_cost[]"]').forEach(inp=>{ sum += parseFloat(inp.value || '0'); });
     if (totalCostSpan) totalCostSpan.textContent = sum.toFixed(2);
@@ -1655,9 +1658,9 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
           // Hide cash fields if visible
           if (cashFieldsModal) cashFieldsModal.classList.add('hidden');
         }
-        // Make receipt optional for Delivery
+        // Receipt is required for Delivery purchases
         if (receiptUploadModal) {
-          receiptUploadModal.removeAttribute('required');
+          receiptUploadModal.setAttribute('required', 'required');
         }
       } else {
         // Re-enable Payment Type for non-Delivery
@@ -1687,6 +1690,7 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   // Modal handlers
   function openBatchModal(){
     if (!batchModal) return;
+    if (!listBody) return; // May not exist for Stock Handler role
     const hasItems = listBody.querySelectorAll('tr[data-id]').length > 0;
     if (!hasItems){
       showReceiptPopup('Please add at least one item before recording the purchase batch.');
@@ -1735,6 +1739,9 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   function addRow(itemId, name, baseUnit, baseQty, displayUnit, factor, rowCost, originalQty){
     // originalQty is the quantity as entered (before conversion)
     const displayQty = originalQty !== undefined ? originalQty : (baseQty / (factor || 1));
+    
+    // May not exist for Stock Handler role
+    if (!listBody) return;
     
     // Remove empty state message if it exists
     const emptyState = listBody.querySelector('tr:not([data-id])');
@@ -1889,6 +1896,7 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
       }
     }
     // Also update any empty state rows created dynamically
+    if (!listBody) return; // May not exist for Stock Handler role
     const emptyRows = listBody.querySelectorAll('tr:not([data-id])');
     emptyRows.forEach(row => {
       const td = row.querySelector('td');
@@ -1900,6 +1908,7 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
 
   function confirmRemoveItem(){
     if (!pendingRemoveRow) return;
+    if (!listBody) return; // May not exist for Stock Handler role
     pendingRemoveRow.remove();
     recalcTotal();
     // Show empty state if no items left
@@ -1921,13 +1930,16 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     closeRemoveModal();
   }
 
-  listBody.addEventListener('click', (e)=>{
-    if (e.target.classList.contains('removeRow')){
-      e.preventDefault();
-      const row = e.target.closest('tr');
-      if (row) openRemoveModal(row);
-    }
-  });
+  // Only set up listBody event listener if it exists (may not exist for Stock Handler role)
+  if (listBody) {
+    listBody.addEventListener('click', (e)=>{
+      if (e.target.classList.contains('removeRow')){
+        e.preventDefault();
+        const row = e.target.closest('tr');
+        if (row) openRemoveModal(row);
+      }
+    });
+  }
 
   if (cancelRemoveBtn){
     cancelRemoveBtn.addEventListener('click', closeRemoveModal);
@@ -2147,6 +2159,7 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   window.addEventListener('resize', updateEmptyStateColspan);
 
   // Record Payment Modal
+  // Check if payment modal exists (may not exist for Stock Handler role)
   const recordPaymentModal = document.getElementById('recordPaymentModal');
   const recordPaymentForm = document.getElementById('recordPaymentForm');
   const closeRecordPaymentModal = document.getElementById('closeRecordPaymentModal');
@@ -2165,12 +2178,23 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   const recordPaymentReceiptClearBtn = document.getElementById('recordPaymentReceiptClearBtn');
   const recordPaymentReceiptError = document.getElementById('recordPaymentReceiptError');
   const recordPaymentReceiptDropzone = document.getElementById('recordPaymentReceiptDropzone');
+  
+  // Only set up payment modal event listeners if the modal exists
+  const paymentModalExists = recordPaymentModal && recordPaymentForm;
 
   function showRecordPaymentModal(purchaseId, groupId, totalCost, currentBalance, supplier) {
     if (!recordPaymentModal) return;
     
-    document.getElementById('recordPaymentPurchaseId').value = purchaseId;
-    document.getElementById('recordPaymentGroupId').value = groupId;
+    // Check if required elements exist (may not exist for Stock Handler role)
+    const purchaseIdInput = document.getElementById('recordPaymentPurchaseId');
+    const groupIdInput = document.getElementById('recordPaymentGroupId');
+    if (!purchaseIdInput || !groupIdInput || !recordPaymentDueAmount || !recordPaymentAmount || !recordPaymentSupplier || !recordPaymentTimestamp) {
+      console.warn('Record payment modal elements not found, modal may not be available for this role');
+      return;
+    }
+    
+    purchaseIdInput.value = purchaseId;
+    groupIdInput.value = groupId;
     // Use current balance for Due Amount (not total cost)
     const dueAmount = parseFloat(currentBalance || totalCost).toFixed(2);
     initialCurrentBalance = parseFloat(currentBalance || totalCost); // Store for dynamic calculation
@@ -2217,37 +2241,40 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     }
   }
 
-  // Handle Payment Type change
-  if (recordPaymentType) {
-    recordPaymentType.addEventListener('change', () => {
-      if (recordPaymentType.value === 'Other') {
-        if (otherPaymentTypeContainer) otherPaymentTypeContainer.classList.remove('hidden');
-        if (recordPaymentTypeOther) recordPaymentTypeOther.setAttribute('required', 'required');
-      } else {
-        if (otherPaymentTypeContainer) otherPaymentTypeContainer.classList.add('hidden');
-        if (recordPaymentTypeOther) {
-          recordPaymentTypeOther.removeAttribute('required');
-          recordPaymentTypeOther.value = '';
+  // Only set up payment modal event listeners if the modal exists
+  // (Payment modal should exist for all roles, but adding safety check)
+  if (paymentModalExists) {
+    // Handle Payment Type change
+    if (recordPaymentType) {
+      recordPaymentType.addEventListener('change', () => {
+        if (recordPaymentType.value === 'Other') {
+          if (otherPaymentTypeContainer) otherPaymentTypeContainer.classList.remove('hidden');
+          if (recordPaymentTypeOther) recordPaymentTypeOther.setAttribute('required', 'required');
+        } else {
+          if (otherPaymentTypeContainer) otherPaymentTypeContainer.classList.add('hidden');
+          if (recordPaymentTypeOther) {
+            recordPaymentTypeOther.removeAttribute('required');
+            recordPaymentTypeOther.value = '';
+          }
         }
-      }
-    });
-  }
+      });
+    }
 
-  // Store initial current balance for Due Amount calculation
-  let initialCurrentBalance = 0;
-  
-  // Update Due Amount (remaining balance) when Amount changes
-  if (recordPaymentAmount && recordPaymentDueAmount) {
-    recordPaymentAmount.addEventListener('input', () => {
-      const amountPaid = parseFloat(recordPaymentAmount.value) || 0;
-      const remainingBalance = Math.max(0, initialCurrentBalance - amountPaid);
-      recordPaymentDueAmount.value = remainingBalance.toFixed(2);
-    });
-  }
+    // Store initial current balance for Due Amount calculation
+    let initialCurrentBalance = 0;
+    
+    // Update Due Amount (remaining balance) when Amount changes
+    if (recordPaymentAmount && recordPaymentDueAmount) {
+      recordPaymentAmount.addEventListener('input', () => {
+        const amountPaid = parseFloat(recordPaymentAmount.value) || 0;
+        const remainingBalance = Math.max(0, initialCurrentBalance - amountPaid);
+        recordPaymentDueAmount.value = remainingBalance.toFixed(2);
+      });
+    }
 
-  // Handle receipt file selection
-  if (recordPaymentReceiptInput) {
-    recordPaymentReceiptInput.addEventListener('change', () => {
+    // Handle receipt file selection
+    if (recordPaymentReceiptInput) {
+      recordPaymentReceiptInput.addEventListener('change', () => {
       const file = recordPaymentReceiptInput.files && recordPaymentReceiptInput.files[0] ? recordPaymentReceiptInput.files[0] : null;
       if (!file) {
         if (recordPaymentReceiptSelected) recordPaymentReceiptSelected.classList.add('hidden');
@@ -2285,55 +2312,40 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
         recordPaymentReceiptDropzone.classList.remove('border-red-300', 'bg-red-50');
         recordPaymentReceiptDropzone.classList.add('border-purple-400', 'bg-purple-50');
       }
-    });
-  }
-
-  if (recordPaymentReceiptClearBtn) {
-    recordPaymentReceiptClearBtn.addEventListener('click', () => {
-      if (recordPaymentReceiptInput) recordPaymentReceiptInput.value = '';
-      if (recordPaymentReceiptSelected) recordPaymentReceiptSelected.classList.add('hidden');
-      if (recordPaymentReceiptError) {
-        recordPaymentReceiptError.classList.add('hidden');
-        recordPaymentReceiptError.textContent = '';
-      }
-      if (recordPaymentReceiptDropzone) {
-        recordPaymentReceiptDropzone.classList.remove('border-purple-400', 'bg-purple-50', 'border-red-300', 'bg-red-50');
-      }
-    });
-  }
-
-  // Handle Record Payment button clicks
-  document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.recordPaymentBtn');
-    if (!btn) return;
-    e.stopPropagation();
-    const purchaseId = parseInt(btn.dataset.purchaseId || '0', 10);
-    const groupId = btn.dataset.purchaseGroupId || '';
-    const totalCost = btn.dataset.totalCost || '0';
-    const currentBalance = btn.dataset.currentBalance || totalCost;
-    const supplier = btn.dataset.supplier || '';
-    if (purchaseId > 0) {
-      showRecordPaymentModal(purchaseId, groupId, totalCost, currentBalance, supplier);
+      });
     }
-  });
 
-  if (closeRecordPaymentModal) {
-    closeRecordPaymentModal.addEventListener('click', hideRecordPaymentModal);
-  }
-  if (cancelRecordPaymentBtn) {
-    cancelRecordPaymentBtn.addEventListener('click', hideRecordPaymentModal);
-  }
-  if (recordPaymentModal) {
-    recordPaymentModal.addEventListener('click', (e) => {
-      if (e.target === recordPaymentModal || e.target.hasAttribute('data-record-payment-dismiss')) {
-        hideRecordPaymentModal();
-      }
-    });
-  }
+    if (recordPaymentReceiptClearBtn) {
+      recordPaymentReceiptClearBtn.addEventListener('click', () => {
+        if (recordPaymentReceiptInput) recordPaymentReceiptInput.value = '';
+        if (recordPaymentReceiptSelected) recordPaymentReceiptSelected.classList.add('hidden');
+        if (recordPaymentReceiptError) {
+          recordPaymentReceiptError.classList.add('hidden');
+          recordPaymentReceiptError.textContent = '';
+        }
+        if (recordPaymentReceiptDropzone) {
+          recordPaymentReceiptDropzone.classList.remove('border-purple-400', 'bg-purple-50', 'border-red-300', 'bg-red-50');
+        }
+      });
+    }
 
-  // Form validation and AJAX submission
-  if (recordPaymentForm) {
-    recordPaymentForm.addEventListener('submit', async (e) => {
+    if (closeRecordPaymentModal) {
+      closeRecordPaymentModal.addEventListener('click', hideRecordPaymentModal);
+    }
+    if (cancelRecordPaymentBtn) {
+      cancelRecordPaymentBtn.addEventListener('click', hideRecordPaymentModal);
+    }
+    if (recordPaymentModal) {
+      recordPaymentModal.addEventListener('click', (e) => {
+        if (e.target === recordPaymentModal || e.target.hasAttribute('data-record-payment-dismiss')) {
+          hideRecordPaymentModal();
+        }
+      });
+    }
+
+    // Form validation and AJAX submission
+    if (recordPaymentForm) {
+      recordPaymentForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       e.stopPropagation();
       
@@ -2363,18 +2375,16 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
         if (recordPaymentReceiptDropzone) {
           recordPaymentReceiptDropzone.classList.remove('border-gray-300', 'border-purple-400', 'bg-purple-50', 'border-blue-400');
           recordPaymentReceiptDropzone.classList.add('border-red-500', 'bg-red-50', 'ring-2', 'ring-red-300');
-          // Scroll to receipt upload area with a slight delay to ensure modal is rendered
-          setTimeout(() => {
-            recordPaymentReceiptDropzone.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 100);
+          // Scroll to receipt upload area immediately
+          recordPaymentReceiptDropzone.scrollIntoView({ behavior: 'auto', block: 'center' });
         }
-        // Trigger click on the label to open file picker after a short delay
+        // Trigger click on the label to open file picker immediately
         setTimeout(() => {
           const label = recordPaymentReceiptDropzone ? recordPaymentReceiptDropzone.querySelector('label[for="recordPaymentReceiptInput"]') : null;
           if (label) {
             label.click();
           }
-        }, 300);
+        }, 100);
         return false;
       }
       
@@ -2401,8 +2411,16 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
 
   function showConfirmRecordPaymentModal() {
     if (!confirmRecordPaymentModal) {
-      // If modal doesn't exist, proceed directly
-      proceedWithPaymentSubmission();
+      // If modal doesn't exist, proceed directly (but check if form exists)
+      if (recordPaymentForm) {
+        proceedWithPaymentSubmission();
+      }
+      return;
+    }
+    
+    // Check if form exists (may not exist for Stock Handler role)
+    if (!recordPaymentForm) {
+      console.warn('recordPaymentForm not found, cannot show confirmation modal');
       return;
     }
     
@@ -2443,12 +2461,30 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     // Hide confirmation modal
     hideConfirmRecordPaymentModal();
     
+    // Check if form exists (may not exist for Stock Handler role)
+    if (!recordPaymentForm) {
+      console.warn('recordPaymentForm not found, cannot proceed with payment submission');
+      return;
+    }
+    
     // Disable submit button
     const submitBtn = recordPaymentForm.querySelector('button[type="submit"]');
+    let resetTimeout = null;
+    const originalContent = submitBtn ? submitBtn.innerHTML : '';
+    
     if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<i data-lucide="loader" class="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin"></i> Processing...';
       if (window.lucide) window.lucide.createIcons();
+      
+      // Reset button after 1 second if no response (error/timeout case)
+      resetTimeout = setTimeout(() => {
+        if (submitBtn && submitBtn.disabled) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalContent;
+          if (window.lucide) window.lucide.createIcons();
+        }
+      }, 1000);
     }
 
     const formData = pendingFormData || new FormData(recordPaymentForm);
@@ -2459,60 +2495,69 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
         body: formData
       });
       
+      // Clear timeout since we got a response
+      if (resetTimeout) clearTimeout(resetTimeout);
+      
       const data = await response.json();
       
       if (data.error) {
         if (recordPaymentReceiptError) {
           recordPaymentReceiptError.textContent = data.error;
           recordPaymentReceiptError.classList.remove('hidden');
+          recordPaymentReceiptError.scrollIntoView({ behavior: 'auto', block: 'nearest' });
         }
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5 md:w-4 md:h-4"></i><span class="whitespace-nowrap">Record Payment</span>';
+          submitBtn.innerHTML = originalContent;
           if (window.lucide) window.lucide.createIcons();
         }
       } else if (data.success) {
         hideRecordPaymentModal();
         // Show simple success message
         showAlert('Payment recorded successfully!', 'success');
-        // Reload page after a brief moment to show the message
+        // Reload page after 1 second
         setTimeout(() => {
           window.location.reload();
-        }, 1500);
+        }, 1000);
       }
     } catch (error) {
+      // Clear timeout since we got an error
+      if (resetTimeout) clearTimeout(resetTimeout);
+      
       if (recordPaymentReceiptError) {
         recordPaymentReceiptError.textContent = 'An error occurred. Please try again.';
         recordPaymentReceiptError.classList.remove('hidden');
+        recordPaymentReceiptError.scrollIntoView({ behavior: 'auto', block: 'nearest' });
       }
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5 md:w-4 md:h-4"></i><span class="whitespace-nowrap">Record Payment</span>';
+        submitBtn.innerHTML = originalContent;
         if (window.lucide) window.lucide.createIcons();
       }
     }
   }
 
-  // Confirmation modal event listeners
-  if (confirmRecordPaymentConfirmBtn) {
-    confirmRecordPaymentConfirmBtn.addEventListener('click', () => {
-      proceedWithPaymentSubmission();
-    });
-  }
+    // Confirmation modal event listeners (these have their own null checks)
+    if (confirmRecordPaymentConfirmBtn) {
+      confirmRecordPaymentConfirmBtn.addEventListener('click', () => {
+        proceedWithPaymentSubmission();
+      });
+    }
 
-  if (confirmRecordPaymentCancelBtn) {
-    confirmRecordPaymentCancelBtn.addEventListener('click', () => {
-      hideConfirmRecordPaymentModal();
-    });
-  }
-
-  if (confirmRecordPaymentModal) {
-    confirmRecordPaymentModal.addEventListener('click', (e) => {
-      if (e.target === confirmRecordPaymentModal || e.target.hasAttribute('data-confirm-record-payment-dismiss')) {
+    if (confirmRecordPaymentCancelBtn) {
+      confirmRecordPaymentCancelBtn.addEventListener('click', () => {
         hideConfirmRecordPaymentModal();
-      }
-    });
-  }
+      });
+    }
+
+    if (confirmRecordPaymentModal) {
+      confirmRecordPaymentModal.addEventListener('click', (e) => {
+        if (e.target === confirmRecordPaymentModal || e.target.hasAttribute('data-confirm-record-payment-dismiss')) {
+          hideConfirmRecordPaymentModal();
+        }
+      });
+    }
+  } // End of paymentModalExists check
 
   // View Transactions Modal
   const viewTransactionsModal = document.getElementById('viewTransactionsModal');

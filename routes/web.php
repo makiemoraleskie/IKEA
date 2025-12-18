@@ -11,6 +11,7 @@ return [
 		'/purchases' => ['PurchaseController', 'index'],
 		'/purchases/transactions' => ['PurchaseController', 'getTransactions'],
 		'/deliveries' => ['DeliveryController', 'index'],
+		'/deliveries/batch-details' => ['DeliveryController', 'getBatchDetails'],
 		'/reports' => ['ReportsController', 'index'],
 		'/reports/export/excel' => ['ReportsController', 'excel'],
 		'/reports/export/csv' => ['ReportsController', 'csv'],

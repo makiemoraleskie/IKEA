@@ -9,11 +9,120 @@ class DeliveryController extends BaseController
 		$purchaseModel = new Purchase();
 		$purchases = $purchaseModel->listAll();
 		$deliveryModel = new Delivery();
-		$deliveries = $deliveryModel->listAll();
+		$allDeliveries = $deliveryModel->listAll();
 		$deliveredTotals = [];
 		foreach ($purchases as $p) {
 			$deliveredTotals[(int)$p['id']] = $deliveryModel->getDeliveredTotal((int)$p['id']);
 		}
+		
+		// Group deliveries by batch (same batch_id and date_received within same minute = same delivery modal submission)
+		// Use stable group ID calculation (without payment_status) to match view
+		$deliveryBatches = [];
+		$batchPurchaseIds = []; // Track unique purchase_ids per batch_id
+		
+		foreach ($allDeliveries as $d) {
+			$ts = substr((string)($d['date_purchased'] ?? ''), 0, 19);
+			// Use stable key (without payment_status) to match view calculation
+			$stableKey = ($d['purchaser_id'] ?? '') . '|' . ($d['supplier'] ?? '') . '|' . ($d['receipt_url'] ?? '') . '|' . $ts;
+			$batchId = substr(sha1($stableKey), 0, 10);
+			
+			// Group by batch_id and date_received (rounded to minute for same submission)
+			$dateReceived = $d['date_received'] ?? '';
+			$dateKey = $dateReceived ? substr($dateReceived, 0, 16) : ''; // YYYY-MM-DD HH:MM
+			$batchKey = $batchId . '|' . $dateKey;
+			
+			if (!isset($deliveryBatches[$batchKey])) {
+				$deliveryBatches[$batchKey] = [
+					'batch_id' => $batchId,
+					'date_received' => $dateReceived,
+					'delivery_status' => $d['delivery_status'] ?? 'Partial',
+					'items_count' => 0,
+					'first_delivery_id' => (int)$d['id'],
+					'purchase_id' => (int)$d['purchase_id'],
+					'supplier' => $d['supplier'] ?? '',
+					'purchaser_name' => $d['purchaser_name'] ?? '',
+					'date_purchased' => $d['date_purchased'] ?? '',
+					'deliveries' => [],
+					'purchase_ids' => [] // Track unique purchase IDs for this batch
+				];
+				$batchPurchaseIds[$batchId] = [];
+			}
+			
+			// Track unique purchase IDs per batch_id (not per batchKey)
+			$purchaseId = (int)$d['purchase_id'];
+			if (!in_array($purchaseId, $batchPurchaseIds[$batchId], true)) {
+				$batchPurchaseIds[$batchId][] = $purchaseId;
+			}
+			
+			$deliveryBatches[$batchKey]['deliveries'][] = $d;
+		}
+		
+		// Now recalculate items_count and status for each batch based on unique purchase items
+		// Group by batch_id only (not batchKey) to get all deliveries for a batch
+		$batchesByBatchId = [];
+		foreach ($deliveryBatches as $batchKey => $batch) {
+			$batchId = $batch['batch_id'];
+			if (!isset($batchesByBatchId[$batchId])) {
+				$batchesByBatchId[$batchId] = [
+					'batch_id' => $batchId,
+					'date_received' => $batch['date_received'],
+					'first_delivery_id' => $batch['first_delivery_id'],
+					'purchase_id' => $batch['purchase_id'],
+					'supplier' => $batch['supplier'],
+					'purchaser_name' => $batch['purchaser_name'],
+					'date_purchased' => $batch['date_purchased'],
+					'purchase_ids' => $batchPurchaseIds[$batchId] ?? []
+				];
+			}
+			// Keep the most recent date_received
+			if (strcmp($batch['date_received'], $batchesByBatchId[$batchId]['date_received']) > 0) {
+				$batchesByBatchId[$batchId]['date_received'] = $batch['date_received'];
+				$batchesByBatchId[$batchId]['first_delivery_id'] = $batch['first_delivery_id'];
+			}
+		}
+		
+		// Calculate items_count and status for each batch based on remaining quantities
+		foreach ($batchesByBatchId as $batchId => &$batch) {
+			$purchaseIds = $batch['purchase_ids'];
+			if (empty($purchaseIds)) {
+				$batch['items_count'] = 0;
+				$batch['delivery_status'] = 'Partial';
+				continue;
+			}
+			
+			// Count unique purchase items
+			$batch['items_count'] = count($purchaseIds);
+			
+			// Get receive_quantity totals for all purchases in this batch
+			$receiveQuantityTotals = $deliveryModel->getReceiveQuantityTotals($purchaseIds);
+			
+			// Check if all items are complete (remaining_qty <= 0)
+			$allComplete = true;
+			foreach ($purchaseIds as $purchaseId) {
+				$purchase = $purchaseModel->find($purchaseId);
+				if (!$purchase) continue;
+				
+				$orderedQty = (float)($purchase['quantity'] ?? 0);
+				$receivedQty = $receiveQuantityTotals[$purchaseId] ?? 0.0;
+				$remainingQty = max(0.0, $orderedQty - $receivedQty);
+				
+				// If any item has remaining quantity > 0, batch is not complete
+				if ($remainingQty > 0.0001) {
+					$allComplete = false;
+					break;
+				}
+			}
+			
+			// Set status based on remaining quantities
+			$batch['delivery_status'] = $allComplete ? 'Complete' : 'Partial';
+		}
+		unset($batch);
+		
+		// Convert to array and sort by date_received descending
+		$deliveries = array_values($batchesByBatchId);
+		usort($deliveries, function($a, $b) {
+			return strcmp($b['date_received'], $a['date_received']);
+		});
         $hidePurchaseIds = $_SESSION['deliveries_hide_purchase_ids'] ?? [];
         unset($_SESSION['deliveries_hide_purchase_ids']);
         // Build grouped purchases for selection (same grouping key as purchases page)
@@ -107,6 +216,32 @@ class DeliveryController extends BaseController
         $processed = 0;
         $processedPurchaseIds = [];
 
+        // First pass: Check all items to determine if batch should be complete
+        // Batch is complete only if ALL items have receiveQty >= purchaseQty
+        $allItemsComplete = true;
+        $purchaseReceiveQuantities = []; // Store purchase_id => receive_quantity mapping
+        
+        foreach ($rows as $row) {
+            $purchaseId = (int)($row['purchase_id'] ?? 0);
+            if ($purchaseId <= 0) continue;
+            
+            $purchase = $purchaseModel->find($purchaseId);
+            if (!$purchase) continue;
+            
+            $purchaseQuantity = (float)($purchase['quantity'] ?? 0);
+            $receiveQuantity = isset($row['receive_quantity']) ? (float)$row['receive_quantity'] : (float)($row['quantity'] ?? 0);
+            
+            $purchaseReceiveQuantities[$purchaseId] = $receiveQuantity;
+            
+            // If any item has receiveQty < purchaseQty, batch is not complete
+            if ($receiveQuantity < $purchaseQuantity - 0.0001) {
+                $allItemsComplete = false;
+            }
+        }
+        
+        // Determine batch status: Complete only if all items are complete
+        $batchStatus = $allItemsComplete ? 'Complete' : 'Partial';
+
         foreach ($rows as $row) {
             $purchaseId = (int)($row['purchase_id'] ?? 0);
             $ingredientId = (int)($row['ingredient_id'] ?? 0);
@@ -157,26 +292,22 @@ class DeliveryController extends BaseController
             // If user enters 50000 g and base is g, this stays 50000 g
             $quantityReceived = $quantityInput * $factor;
             $purchaseQuantity = (float)($purchase['quantity'] ?? 0);
+            
+            // Use batch status: Complete only if all items in batch are complete
+            // Otherwise, use Partial
+            $deliveryStatus = $batchStatus;
+            
+            // Update delivered cache for remaining calculation
             if (!array_key_exists($purchaseId, $deliveredCache)) {
                 $deliveredCache[$purchaseId] = $deliveryModel->getDeliveredTotal($purchaseId);
             }
-            $deliveredSoFar = $deliveredCache[$purchaseId];
-            $remainingBefore = max(0.0, $purchaseQuantity - $deliveredSoFar);
             
-            // Determine delivery status based on remaining quantity
-            // But always add the exact amount entered to inventory
-            if ($remainingBefore <= 0.0) {
-                // Purchase already fully delivered, but still allow adding to inventory
-                $deliveryStatus = 'Complete';
-            } elseif ($quantityReceived >= $remainingBefore - 0.0001) {
-                $deliveryStatus = 'Complete';
-            } else {
-                $deliveryStatus = 'Partial';
-            }
+            // Get receive_quantity from frontend (the value from Receive Qty field in purchase unit)
+            $receiveQuantity = isset($row['receive_quantity']) ? (float)$row['receive_quantity'] : $quantityInput;
             
             // Store delivery: use the exact entered amount (converted to base units)
             // Don't clamp to remaining - allow over-delivery
-            $deliveryId = $deliveryModel->create($purchaseId, $ingredientId, $quantityReceived, $deliveryStatus, $quantityUnit);
+            $deliveryId = $deliveryModel->create($purchaseId, $ingredientId, $quantityReceived, $deliveryStatus, $quantityUnit, $receiveQuantity);
             $deliveredCache[$purchaseId] += $quantityReceived;
 
             // Auto-populate preferred_supplier from purchase if ingredient doesn't have one
@@ -210,6 +341,128 @@ class DeliveryController extends BaseController
             $_SESSION['deliveries_hide_purchase_ids'] = array_values(array_unique($processedPurchaseIds));
         }
         $this->redirect('/deliveries');
+	}
+
+	public function getBatchDetails(): void
+	{
+		Auth::requireRole(['Stock Handler','Manager','Owner']);
+		
+		// Suppress any error output that might interfere with JSON
+		error_reporting(0);
+		ini_set('display_errors', 0);
+		
+		header('Content-Type: application/json');
+		
+		try {
+			$batchId = $_GET['batch_id'] ?? '';
+			$purchaseId = isset($_GET['purchase_id']) ? (int)$_GET['purchase_id'] : 0;
+		
+		if (empty($batchId) && $purchaseId <= 0) {
+			http_response_code(400);
+			echo json_encode(['error' => 'Batch ID or Purchase ID required']);
+			return;
+		}
+		
+		$purchaseModel = new Purchase();
+		$deliveryModel = new Delivery();
+		
+		// Get purchases in the batch
+		if ($purchaseId > 0) {
+			// Get purchase to find batch ID (use stable group ID calculation without payment_status)
+			$purchase = $purchaseModel->find($purchaseId);
+			if (!$purchase) {
+				http_response_code(404);
+				echo json_encode(['error' => 'Purchase not found']);
+				return;
+			}
+			$ts = substr((string)($purchase['date_purchased'] ?? $purchase['created_at'] ?? ''), 0, 19);
+			// Use stable key (without payment_status) to match view calculation
+			$stableKey = ($purchase['purchaser_id'] ?? '') . '|' . ($purchase['supplier'] ?? '') . '|' . ($purchase['receipt_url'] ?? '') . '|' . $ts;
+			$batchId = substr(sha1($stableKey), 0, 10);
+		}
+		
+		// Get all purchases and filter by stable group ID
+		$allPurchases = $purchaseModel->listAll();
+		$groupPurchases = [];
+		foreach ($allPurchases as $p) {
+			$ts = substr((string)($p['date_purchased'] ?? $p['created_at'] ?? ''), 0, 19);
+			$stableKey = ($p['purchaser_id'] ?? '') . '|' . ($p['supplier'] ?? '') . '|' . ($p['receipt_url'] ?? '') . '|' . $ts;
+			$stableGroupId = substr(sha1($stableKey), 0, 10);
+			if ($stableGroupId === $batchId) {
+				$groupPurchases[] = $p;
+			}
+		}
+		
+		if (empty($groupPurchases)) {
+			http_response_code(404);
+			echo json_encode(['error' => 'Batch not found']);
+			return;
+		}
+		
+		// Get receive_quantity totals for each purchase (from receive item section)
+		$purchaseIds = array_map(function($p) { return (int)$p['id']; }, $groupPurchases);
+		$receiveQuantityTotals = $deliveryModel->getReceiveQuantityTotals($purchaseIds);
+		
+		// Build item details
+		$items = [];
+		foreach ($groupPurchases as $p) {
+			$purchaseId = (int)$p['id'];
+			$orderedQty = (float)$p['quantity'];
+			// Use receive_quantity from receive item section (the value entered in Receive Qty field)
+			$receivedQty = $receiveQuantityTotals[$purchaseId] ?? 0.0;
+			// Remaining Qty = gap between Purchase Qty and Receive Qty
+			$remainingQty = max(0.0, $orderedQty - $receivedQty);
+			
+			// Extract item name and unit
+			$itemName = $p['item_name'] ?? 'Unknown Item';
+			$displayUnit = $p['purchase_unit'] ?? $p['unit'] ?? 'pcs';
+			
+			// Check if purchase_unit contains item name in format "itemName|unit"
+			$purchaseUnit = $p['purchase_unit'] ?? '';
+			if (!empty($purchaseUnit) && strpos($purchaseUnit, '|') !== false) {
+				$parts = explode('|', $purchaseUnit);
+				if (count($parts) >= 2) {
+					$itemName = trim($parts[0]);
+					$displayUnit = trim($parts[1]);
+				}
+			}
+			
+			$items[] = [
+				'purchase_id' => $purchaseId,
+				'item_name' => $itemName,
+				'ordered_qty' => $orderedQty,
+				'received_qty' => $receivedQty, // From Receive Qty field in receive item section
+				'remaining_qty' => $remainingQty, // Gap between Purchase Qty and Receive Qty
+				'unit' => $displayUnit
+			];
+		}
+		
+		// Get batch info from first purchase
+		$firstPurchase = $groupPurchases[0];
+		// date_purchased is now guaranteed from the query (with fallback to created_at or NOW())
+		$datePurchased = $firstPurchase['date_purchased'] ?? '';
+		
+		// Format date to ensure consistent format
+		if (!empty($datePurchased)) {
+			$timestamp = strtotime($datePurchased);
+			if ($timestamp !== false) {
+				$datePurchased = date('Y-m-d H:i:s', $timestamp);
+			}
+		}
+		
+		$response = [
+			'batch_id' => $batchId,
+			'supplier' => $firstPurchase['supplier'] ?? '',
+			'purchaser_name' => $firstPurchase['purchaser_name'] ?? '',
+			'date_purchased' => $datePurchased,
+			'items' => $items
+		];
+			
+			echo json_encode($response);
+		} catch (\Exception $e) {
+			http_response_code(500);
+			echo json_encode(['error' => 'Server error: ' . $e->getMessage()]);
+		}
 	}
 }
 

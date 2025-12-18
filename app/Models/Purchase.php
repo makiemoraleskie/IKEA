@@ -9,11 +9,12 @@ class Purchase extends BaseModel
         $this->ensurePurchaseUnitColumn();
         
         $sql = 'SELECT p.*, u.name AS purchaser_name, i.name AS item_name, i.unit, i.display_unit, i.display_factor,
-                COALESCE(p.purchase_unit, "") AS purchase_unit, COALESCE(p.purchase_quantity, 0) AS purchase_quantity
+                COALESCE(p.purchase_unit, "") AS purchase_unit, COALESCE(p.purchase_quantity, 0) AS purchase_quantity,
+                COALESCE(p.date_purchased, p.created_at, NOW()) AS date_purchased
 			FROM purchases p
 			JOIN users u ON p.purchaser_id = u.id
 			JOIN ingredients i ON p.item_id = i.id
-			ORDER BY p.date_purchased DESC';
+			ORDER BY COALESCE(p.date_purchased, p.created_at, NOW()) DESC';
 		return $this->db->query($sql)->fetchAll();
 	}
 
