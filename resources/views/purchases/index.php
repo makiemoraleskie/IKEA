@@ -217,25 +217,24 @@ if (!in_array(Auth::role(), ['Stock Handler'], true)):
 
 <!-- Batch Information Modal -->
 <div id="batchModal" class="fixed inset-0 z-50 hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 50 !important;">
-    <div class="fixed inset-0 bg-black/50" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;"></div>
-    <div class="relative z-10 flex min-h-full items-center justify-center p-4 md:p-6 overflow-y-auto overflow-x-hidden">
-        <div class="bg-white rounded-xl shadow-none w-full max-w-[calc(100vw-2rem)] md:max-w-2xl my-4 md:my-8 overflow-y-auto overflow-x-hidden max-h-[90vh] mx-auto">
-            <div class="sticky top-0 bg-white border-b px-4 md:px-5 lg:px-6 py-3 md:py-4 z-10">
-                <div class="flex items-center justify-between mb-2">
-                    <h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
-                        <i data-lucide="shopping-cart" class="w-3.5 h-3.5 md:w-4 md:h-4 text-green-600"></i>
-                        <span class="hidden sm:inline">Record Purchase Batch</span>
-                        <span class="sm:hidden">Record Batch</span>
-                    </h2>
+    <div class="fixed inset-0 bg-black/50" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
+    <div class="relative z-10 flex min-h-full items-center justify-center p-4 overflow-y-auto overflow-x-hidden">
+        <div class="bg-white rounded-xl shadow-none w-full max-w-2xl mx-auto" style="max-width: 42rem;">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-sm md:text-base font-semibold text-gray-900 flex items-center gap-1 md:gap-1.5">
+                    <i data-lucide="shopping-cart" class="w-3.5 h-3.5 md:w-4 md:h-4 text-green-600"></i>
+                    <span class="hidden sm:inline">Record Purchase Batch</span>
+                    <span class="sm:hidden">Record Batch</span>
+                </h2>
+                <div class="flex items-center gap-3">
+                    <div class="text-xs md:text-sm font-bold text-green-700">Total: ₱<span id="totalCostModal">0.00</span></div>
                     <button type="button" id="closeBatchModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors p-1">
                         <i data-lucide="x" class="w-4 h-4 md:w-5 md:h-5"></i>
                     </button>
                 </div>
-                <div class="flex items-center justify-end">
-                    <div class="text-xs md:text-sm font-bold text-green-700">Total: ₱<span id="totalCostModal">0.00</span></div>
-                </div>
             </div>
-        <form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/purchases" enctype="multipart/form-data" id="batchModalForm" class="p-4 md:p-5 lg:p-6 max-w-full overflow-x-hidden">
+        <form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/purchases" enctype="multipart/form-data" id="batchModalForm" class="max-w-full overflow-x-hidden">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
             <input type="hidden" name="items_json" id="itemsJsonModal" value="[]">
             
@@ -350,34 +349,35 @@ if (!in_array(Auth::role(), ['Stock Handler'], true)):
             </div>
         </form>
         </div>
+        </div>
     </div>
 </div>
 <?php endif; ?>
 
 <!-- Record Purchase Confirmation Modal -->
 <div id="recordPurchaseConfirmModal" class="fixed inset-0 z-[60] hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 60 !important;">
-    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
-    <div class="relative z-10 flex min-h-full items-center justify-center p-4 overflow-x-hidden">
-        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full max-w-[calc(100vw-2rem)] mx-auto">
+    <div class="fixed inset-0 bg-black/50" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
+    <div class="relative z-10 flex min-h-full items-center justify-center p-4 overflow-y-auto overflow-x-hidden">
+        <div class="bg-white rounded-xl shadow-none w-full max-w-lg mx-auto" style="max-width: 32rem;">
         <div class="p-6">
-            <div class="flex items-center gap-4 mb-4">
-                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+            <div class="flex items-start gap-4 mb-4">
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
                     <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
                 </div>
                 <div class="flex-1">
-                    <h3 class="text-sm md:text-base font-semibold text-gray-900">Record Purchase Batch</h3>
-                    <p class="text-[10px] md:text-xs text-gray-600 mt-0.5 md:mt-1">Are you sure you want to record this purchase batch?</p>
+                    <h3 class="text-base md:text-lg font-semibold text-gray-900 mb-1">Record Purchase Batch</h3>
+                    <p class="text-sm text-gray-600">Are you sure you want to record this purchase batch?</p>
                 </div>
             </div>
-            <div class="bg-gray-50 rounded-lg p-3 md:p-4 mb-4 space-y-2">
-                <p class="text-xs md:text-sm text-gray-700">This will create a new purchase batch and update the inventory records.</p>
-                <p class="text-xs text-gray-500">Make sure all information is correct before proceeding.</p>
+            <div class="bg-purple-50 border border-purple-100 rounded-lg p-4 mb-5 space-y-2">
+                <p class="text-sm text-gray-700">This will create a new purchase batch and update the inventory records.</p>
+                <p class="text-xs text-gray-600">Make sure all information is correct before proceeding.</p>
             </div>
-            <div class="flex justify-end gap-2 md:gap-3">
-                <button type="button" id="cancelRecordPurchaseBtn" class="inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium text-xs md:text-sm">
+            <div class="flex justify-end gap-3">
+                <button type="button" id="cancelRecordPurchaseBtn" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors font-medium text-sm">
                     Cancel
                 </button>
-                <button type="button" id="confirmRecordPurchaseBtn" class="inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-xs md:text-sm">
+                <button type="button" id="confirmRecordPurchaseBtn" class="inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors font-semibold text-sm shadow-sm">
                     <i data-lucide="check" class="w-4 h-4 mr-1.5"></i>
                     Confirm & Record
                 </button>
@@ -390,8 +390,8 @@ if (!in_array(Auth::role(), ['Stock Handler'], true)):
 <!-- Remove Item Confirmation Modal -->
 <div id="removeItemModal" class="fixed inset-0 z-50 hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 50 !important;">
     <div class="fixed inset-0 bg-black/50" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
-    <div class="relative z-10 flex min-h-full items-center justify-center p-4 overflow-x-hidden">
-        <div class="bg-white rounded-xl shadow-none max-w-md w-full max-w-[calc(100vw-2rem)] mx-auto">
+    <div class="relative z-10 flex min-h-full items-center justify-center p-4 overflow-y-auto overflow-x-hidden">
+        <div class="bg-white rounded-xl shadow-none w-full max-w-md mx-auto" style="max-width: 28rem;">
         <div class="p-6">
             <div class="flex items-center gap-4 mb-4">
                 <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
@@ -691,11 +691,11 @@ if (!in_array(Auth::role(), ['Stock Handler'], true)):
 </form>
 
 <!-- Custom Alert Modal -->
-<div id="customAlertModal" class="fixed inset-0 z-50 hidden overflow-hidden">
-    <div class="fixed inset-0 bg-gray-900/70 backdrop-blur-sm" data-alert-dismiss></div>
-    <div class="fixed inset-0 flex items-center justify-center px-4 py-8 pointer-events-none">
-        <div class="bg-white rounded-xl shadow-none border border-gray-200 max-w-sm w-full mx-auto pointer-events-auto">
-            <div class="p-4 md:p-5">
+<div id="customAlertModal" class="fixed inset-0 z-50 hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 50 !important;">
+    <div class="fixed inset-0 bg-black/50" data-alert-dismiss style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
+    <div class="relative z-10 flex min-h-full items-center justify-center p-4 overflow-y-auto overflow-x-hidden">
+        <div class="bg-white rounded-xl shadow-none w-full max-w-sm mx-auto" style="max-width: 24rem;">
+            <div class="p-6">
                 <div class="flex items-center gap-3 mb-3">
                     <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
                         <i data-lucide="alert-circle" class="w-5 h-5 text-yellow-600"></i>
@@ -714,15 +714,16 @@ if (!in_array(Auth::role(), ['Stock Handler'], true)):
                 </div>
             </div>
         </div>
+        </div>
     </div>
 </div>
 
 <!-- Confirm Record Payment Modal -->
-<div id="confirmRecordPaymentModal" class="fixed inset-0 z-[70] hidden overflow-hidden">
-    <div class="fixed inset-0 bg-gray-900/70 backdrop-blur-sm" data-confirm-record-payment-dismiss></div>
-    <div class="fixed inset-0 flex items-center justify-center px-4 py-8 pointer-events-none">
-        <div class="bg-white rounded-xl shadow-none border border-gray-200 max-w-md w-full mx-auto pointer-events-auto">
-            <div class="p-4 md:p-5">
+<div id="confirmRecordPaymentModal" class="fixed inset-0 z-[70] hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 70 !important;">
+    <div class="fixed inset-0 bg-black/50" data-confirm-record-payment-dismiss style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
+    <div class="relative z-10 flex min-h-full items-center justify-center p-4 overflow-y-auto overflow-x-hidden">
+        <div class="bg-white rounded-xl shadow-none w-full max-w-md mx-auto" style="max-width: 28rem;">
+            <div class="p-6">
                 <div class="flex items-center gap-3 mb-3">
                     <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                         <i data-lucide="help-circle" class="w-5 h-5 text-blue-600"></i>
@@ -744,15 +745,16 @@ if (!in_array(Auth::role(), ['Stock Handler'], true)):
                 </div>
             </div>
         </div>
+        </div>
     </div>
 </div>
 
 <!-- Record Payment Modal -->
-<div id="recordPaymentModal" class="fixed inset-0 z-50 hidden overflow-hidden">
-    <div class="fixed inset-0 bg-gray-900/70 backdrop-blur-sm" data-record-payment-dismiss></div>
-    <div class="fixed inset-0 flex items-center justify-center px-4 py-8 pointer-events-none overflow-y-auto">
-        <div class="bg-white rounded-xl shadow-none border border-gray-200 max-w-2xl w-full mx-auto pointer-events-auto my-8">
-            <div class="p-4 md:p-5 lg:p-6">
+<div id="recordPaymentModal" class="fixed inset-0 z-50 hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 50 !important;">
+    <div class="fixed inset-0 bg-black/50" data-record-payment-dismiss style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
+    <div class="relative z-10 flex min-h-full items-center justify-center p-4 overflow-y-auto overflow-x-hidden">
+        <div class="bg-white rounded-xl shadow-none w-full max-w-2xl mx-auto" style="max-width: 42rem;">
+            <div class="p-6">
                 <div class="flex items-center justify-between mb-4 md:mb-6">
                     <h2 class="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-2">
                         <i data-lucide="dollar-sign" class="w-5 h-5 text-blue-600"></i>
@@ -869,15 +871,16 @@ if (!in_array(Auth::role(), ['Stock Handler'], true)):
                 </form>
             </div>
         </div>
+        </div>
     </div>
 </div>
 
 <!-- View Transactions Modal -->
-<div id="viewTransactionsModal" class="fixed inset-0 z-[60] hidden overflow-hidden" style="z-index: 60 !important;">
-    <div class="fixed inset-0 bg-gray-900/70 backdrop-blur-sm" data-view-transactions-dismiss style="z-index: 60 !important;"></div>
-    <div class="fixed inset-0 flex items-center justify-center px-4 py-8 pointer-events-none overflow-y-auto" style="z-index: 61 !important;">
-        <div class="bg-white rounded-xl shadow-none border border-gray-200 max-w-4xl w-full mx-auto pointer-events-auto my-8" style="z-index: 62 !important;">
-            <div class="p-4 md:p-5 lg:p-6">
+<div id="viewTransactionsModal" class="fixed inset-0 z-[60] hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 60 !important;">
+    <div class="fixed inset-0 bg-black/50" data-view-transactions-dismiss style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
+    <div class="relative z-10 flex min-h-full items-center justify-center p-4 overflow-y-auto overflow-x-hidden">
+        <div class="bg-white rounded-xl shadow-none w-full max-w-4xl mx-auto" style="max-width: 56rem;">
+            <div class="p-6">
                 <div class="flex items-center justify-between mb-4 md:mb-6">
                     <h2 class="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-2">
                         <i data-lucide="list" class="w-5 h-5 text-blue-600"></i>
@@ -895,6 +898,7 @@ if (!in_array(Auth::role(), ['Stock Handler'], true)):
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </div>
 </div>
@@ -982,6 +986,22 @@ if (!in_array(Auth::role(), ['Stock Handler'], true)):
   height: 100vh !important;
   margin: 0 !important;
   padding: 0 !important;
+}
+
+/* Hide scrollbars for batch modal */
+#batchModal {
+  overflow: hidden !important;
+}
+
+#batchModal .bg-white {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+#batchModal .bg-white::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 </style>
 <script>
@@ -1695,6 +1715,7 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     syncItemsJson();
     recalcTotal();
     batchModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
     if (window.lucide?.createIcons){
       window.lucide.createIcons({ elements: batchModal.querySelectorAll('i[data-lucide]') });
     }
@@ -1702,6 +1723,7 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
 
   function closeBatchModal(){
     if (batchModal) batchModal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
     if (receiptInputModal) receiptInputModal.value = '';
     if (receiptSelectedModal) receiptSelectedModal.classList.add('hidden');
     if (receiptErrorModal){
@@ -1869,6 +1891,7 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     removeItemName.textContent = itemName;
     pendingRemoveRow = row;
     removeItemModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
     if (window.lucide?.createIcons){
       window.lucide.createIcons({ elements: removeItemModal.querySelectorAll('i[data-lucide]') });
     }
@@ -1876,6 +1899,7 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
 
   function closeRemoveModal(){
     if (removeItemModal) removeItemModal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
     pendingRemoveRow = null;
   }
 
@@ -1944,19 +1968,34 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   // Modal logic
   const openPurchaseModal = (id) => {
     console.log('[Purchase Modal] openPurchaseModal called with id:', id);
+    
+    // Close any existing purchase detail modals first to prevent duplicates
+    const existingOverlays = document.querySelectorAll('[data-purchase-detail-modal="true"]');
+    existingOverlays.forEach(existingOverlay => {
+      existingOverlay.remove();
+    });
+    document.body.classList.remove('overflow-hidden');
+    
     const content = document.getElementById('modal-content-' + id);
     console.log('[Purchase Modal] Content element found:', content);
     if (!content) {
       console.error('[Purchase Modal] ERROR: Content element not found for id:', id);
       return;
     }
+    
+    // Create single overlay with background
     const overlay = document.createElement('div');
-    overlay.className = 'fixed inset-0 bg-gray-900/70 backdrop-blur-sm flex items-center justify-center z-50 p-4';
+    overlay.setAttribute('data-purchase-detail-modal', 'true');
+    overlay.className = 'fixed inset-0 z-50 p-4';
+    overlay.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; background-color: rgba(0, 0, 0, 0.5) !important; backdrop-filter: blur(4px) !important; display: flex !important; align-items: center !important; justify-content: center !important; z-index: 50 !important; margin: 0 !important; padding: 1rem !important;';
+    
     const modal = document.createElement('div');
-    modal.className = 'bg-white rounded-2xl shadow-none border border-gray-200 w-full max-w-2xl max-h-[85vh] overflow-hidden';
+    modal.className = 'bg-white rounded-2xl shadow-none border border-gray-200 w-full max-w-2xl max-h-[85vh] overflow-hidden relative z-10';
 
     const header = document.createElement('div');
     header.className = 'flex items-start justify-between gap-3 px-4 py-3 border-b bg-gray-100';
+    header.style.position = 'relative';
+    header.style.zIndex = '1001'; // Ensure header is above modal content
     const headerText = document.createElement('div');
     const title = document.createElement('h3');
     title.className = 'text-lg font-semibold text-gray-900';
@@ -1968,7 +2007,15 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     headerText.appendChild(subtitle);
     const closeBtn = document.createElement('button');
     closeBtn.className = 'closeModal inline-flex items-center justify-center w-8 h-8 rounded-full bg-white border border-gray-200 text-gray-500 hover:text-gray-700 hover:border-gray-300 shadow-sm transition-colors text-sm';
-    closeBtn.innerHTML = '<span class="sr-only">Close</span>✕';
+    closeBtn.type = 'button'; // Prevent form submission if inside a form
+    closeBtn.setAttribute('aria-label', 'Close modal');
+    // Ensure button is clickable with proper z-index and pointer-events
+    closeBtn.style.pointerEvents = 'auto';
+    closeBtn.style.position = 'relative';
+    closeBtn.style.zIndex = '1000';
+    closeBtn.style.cursor = 'pointer';
+    // Use textContent instead of innerHTML to avoid nested elements
+    closeBtn.textContent = '✕';
     header.appendChild(headerText);
     header.appendChild(closeBtn);
     modal.appendChild(header);
@@ -2038,7 +2085,7 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
         const src = img.getAttribute('data-receipt-full');
         if (!src) return;
         const overlay = document.createElement('div');
-        overlay.className = 'fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[60] p-4';
+        overlay.className = 'fixed inset-0 flex items-center justify-center z-[60] p-4';
         const wrapper = document.createElement('div');
         wrapper.className = 'relative max-w-4xl w-full';
         const closeImg = document.createElement('button');
@@ -2052,8 +2099,44 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
         wrapper.appendChild(closeImg);
         overlay.appendChild(wrapper);
         document.body.appendChild(overlay);
-        const removeOverlay = () => overlay.remove();
-        overlay.addEventListener('click', (e)=>{ if (e.target === overlay || e.target === closeImg) removeOverlay(); });
+        document.body.classList.add('overflow-hidden');
+        
+        const removeOverlay = () => {
+          overlay.remove();
+          document.body.classList.remove('overflow-hidden');
+        };
+        
+        const handleReceiptClose = () => {
+          if (overlay && overlay.parentNode) {
+            overlay.remove();
+          }
+          document.body.classList.remove('overflow-hidden');
+        };
+        
+        // Close button handler - must be first and most direct
+        closeImg.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          handleReceiptClose();
+          return false;
+        }, true); // Use capture phase to run first
+        
+        // Prevent wrapper clicks from closing
+        wrapper.addEventListener('click', (e) => {
+          // Only stop propagation if NOT clicking the close button
+          if (e.target !== closeImg && !e.target.closest('button')) {
+            e.stopPropagation();
+          }
+        });
+        
+        // Overlay click handler (close when clicking outside)
+        overlay.addEventListener('click', (e) => {
+          // Only close if clicking directly on overlay background
+          if (e.target === overlay) {
+            handleReceiptClose();
+          }
+        });
       });
     });
     body.appendChild(inner);
@@ -2063,13 +2146,66 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     document.body.appendChild(overlay);
     document.body.classList.add('overflow-hidden');
     console.log('[Purchase Modal] Modal added to DOM');
-    const closeModalHandler = (e) => {
-      if (e.target === overlay || e.target.classList.contains('closeModal')) {
-        overlay.remove();
-        document.body.classList.remove('overflow-hidden');
+    
+    // Store references
+    const overlayRef = overlay;
+    const modalRef = modal;
+    
+    // Close handler function
+    const handleClose = () => {
+      if (overlayRef && overlayRef.parentNode) {
+        overlayRef.remove();
       }
+      document.body.classList.remove('overflow-hidden');
     };
-    overlay.addEventListener('click', closeModalHandler);
+    
+    // Close button handler function - use capture phase to fire first
+    const closeButtonClick = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      
+      // Remove overlay immediately
+      if (overlayRef && overlayRef.parentNode) {
+        overlayRef.remove();
+      }
+      document.body.classList.remove('overflow-hidden');
+      
+      // Return false as additional safeguard
+      return false;
+    };
+    
+    // Attach handler in CAPTURE phase so it fires BEFORE any other handlers
+    // This ensures the close button always works on first click
+    closeBtn.addEventListener('click', closeButtonClick, true);
+    
+    // Also attach to mousedown as backup (fires before click)
+    closeBtn.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }, true);
+    
+    // Overlay click handler - handles clicks outside modal
+    overlay.addEventListener('click', function(e) {
+      const target = e.target;
+      
+      // If clicking the close button or its children, don't interfere
+      // The capture phase handler on the button will handle it
+      if (target === closeBtn || closeBtn.contains(target)) {
+        return; // Exit, let button handler work
+      }
+      
+      // Check if clicking directly on overlay background (outside modal)
+      if (target === overlay) {
+        handleClose();
+        return;
+      }
+      
+      // For all other clicks inside modal, stop propagation
+      if (modalRef.contains(target)) {
+        e.stopPropagation();
+      }
+    }, false); // Bubble phase - runs after capture phase
     if (window.lucide?.createIcons) {
       window.lucide.createIcons({ elements: modal.querySelectorAll('i[data-lucide]') });
     }
@@ -2674,17 +2810,10 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     const currentBalance = modalContent ? parseFloat(modalContent.dataset.currentBalance || '0') : 0;
     
     // Close any open Purchase Details modal first
-    // Find the overlay that contains the purchase details modal (not the viewTransactionsModal)
-    const allOverlays = document.querySelectorAll('.fixed.inset-0.bg-gray-900\\/70.backdrop-blur-sm, .fixed.inset-0.bg-black\\/70.backdrop-blur-sm');
-    allOverlays.forEach(overlay => {
-      // Check if this overlay contains purchase details (has "Purchase Details" text or closeModal button)
-      const hasPurchaseDetails = overlay.querySelector('h3')?.textContent === 'Purchase Details' || 
-                                  overlay.querySelector('.closeModal') ||
-                                  (overlay.textContent.includes('Purchase Details') && !overlay.id && overlay !== viewTransactionsModal);
-      if (hasPurchaseDetails && overlay !== viewTransactionsModal) {
-        overlay.remove();
-        document.body.classList.remove('overflow-hidden');
-      }
+    const purchaseDetailModals = document.querySelectorAll('[data-purchase-detail-modal="true"]');
+    purchaseDetailModals.forEach(overlay => {
+      overlay.remove();
+      document.body.classList.remove('overflow-hidden');
     });
     
     if (purchaseId > 0) {
@@ -2705,12 +2834,15 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
 
   // Cleanup function to remove stuck overlays (can be called from console: cleanupModals())
   window.cleanupModals = function() {
-    // Remove all modal overlays
+    // Remove all purchase detail modals
+    const purchaseModals = document.querySelectorAll('[data-purchase-detail-modal="true"]');
+    purchaseModals.forEach(overlay => overlay.remove());
+    // Remove other modal overlays
     const allOverlays = document.querySelectorAll('.fixed.inset-0.bg-gray-900\\/70.backdrop-blur-sm, .fixed.inset-0.bg-black\\/70.backdrop-blur-sm');
     allOverlays.forEach(overlay => overlay.remove());
     // Remove overflow-hidden from body
     document.body.classList.remove('overflow-hidden');
-    console.log('Cleaned up', allOverlays.length, 'stuck overlays');
+    console.log('Cleaned up', purchaseModals.length + allOverlays.length, 'stuck overlays');
   };
 
   // Escape key to close any open modal
@@ -2722,18 +2854,20 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
         return;
       }
       // Close any purchase details modal
-      const purchaseModals = document.querySelectorAll('.fixed.inset-0.bg-gray-900\\/70.backdrop-blur-sm, .fixed.inset-0.bg-black\\/70.backdrop-blur-sm');
+      const purchaseModals = document.querySelectorAll('[data-purchase-detail-modal="true"]');
       purchaseModals.forEach(overlay => {
-        if (overlay !== viewTransactionsModal) {
-          overlay.remove();
-          document.body.classList.remove('overflow-hidden');
-        }
+        overlay.remove();
+        document.body.classList.remove('overflow-hidden');
       });
     }
   });
 
   // Cleanup on page load in case of stuck overlays
   window.addEventListener('load', () => {
+    // Remove any purchase detail modals first
+    const purchaseModals = document.querySelectorAll('[data-purchase-detail-modal="true"]');
+    purchaseModals.forEach(overlay => overlay.remove());
+    
     // Ensure all modals are hidden
     const allModals = document.querySelectorAll('[id$="Modal"]');
     allModals.forEach(modal => {
@@ -2758,6 +2892,10 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
     
     // Small delay to ensure everything is loaded, then check again
     setTimeout(() => {
+      // Remove any remaining purchase detail modals
+      const remainingPurchaseModals = document.querySelectorAll('[data-purchase-detail-modal="true"]');
+      remainingPurchaseModals.forEach(overlay => overlay.remove());
+      
       const stuckOverlays = document.querySelectorAll('.fixed.inset-0.bg-gray-900\\/70.backdrop-blur-sm, .fixed.inset-0.bg-black\\/70.backdrop-blur-sm, .fixed.inset-0.bg-black\\/60.backdrop-blur-sm');
       // Remove any remaining orphaned overlays
       stuckOverlays.forEach(overlay => {

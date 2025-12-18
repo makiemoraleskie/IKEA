@@ -239,16 +239,21 @@ foreach ($deliveries as $d) {
 </div>
 
 <!-- Delivery Modal -->
-<div id="deliveryModal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4">
-	<div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-		<div class="flex items-center justify-between px-6 py-4 border-b">
-			<div>
-				<p class="text-xs uppercase tracking-wide text-gray-500">Purchase Batch</p>
-				<p class="text-lg font-semibold text-gray-900" id="deliveryModalBatchLabel">#0</p>
+<div id="deliveryModal" class="fixed inset-0 z-50 hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 50 !important;">
+	<div class="fixed inset-0 bg-black/50" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
+	<div class="relative z-10 flex items-center justify-center p-4" style="position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; overflow-y: auto !important; overflow-x: hidden !important;">
+		<div class="bg-white rounded-xl shadow-none w-full max-w-3xl mx-auto my-auto" style="max-width: 48rem; margin-top: auto !important; margin-bottom: auto !important; max-height: 90vh; overflow-y: auto;">
+		<div class="p-6">
+			<div class="flex items-center justify-between mb-4">
+				<div>
+					<p class="text-xs uppercase tracking-wide text-gray-500">Purchase Batch</p>
+					<p class="text-lg font-semibold text-gray-900" id="deliveryModalBatchLabel">#0</p>
+				</div>
+				<button type="button" class="deliveryModalClose text-gray-400 hover:text-gray-600 transition-colors p-1" aria-label="Close">
+					<i data-lucide="x" class="w-4 h-4 md:w-5 md:h-5"></i>
+				</button>
 			</div>
-			<button type="button" class="deliveryModalClose text-gray-500 hover:text-gray-700 text-2xl leading-none" aria-label="Close">&times;</button>
-		</div>
-		<div class="px-6 py-4 space-y-4">
+		<div class="space-y-4">
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 				<div class="rounded-xl bg-blue-50 border border-blue-100 p-4">
 					<p class="text-xs uppercase tracking-wide text-blue-700">Supplier</p>
@@ -363,15 +368,19 @@ foreach ($deliveries as $d) {
 				</div>
 			</form>
 		</div>
+		</div>
+	</div>
 	</div>
 </div>
 
 
 <!-- Quick Receive Modal -->
-<div id="receiveQuickModal" class="fixed inset-0 z-50 hidden items-center justify-center px-4 py-8">
-    <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" data-quick-cancel></div>
-    <div class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
-        <div class="flex items-start justify-between gap-4 px-6 py-4 border-b bg-gray-50">
+<div id="receiveQuickModal" class="fixed inset-0 z-50 hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 50 !important;">
+	<div class="fixed inset-0 bg-black/50" data-quick-cancel style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
+	<div class="relative z-10 flex items-center justify-center p-4" style="position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; overflow-y: auto !important; overflow-x: hidden !important;">
+		<div class="bg-white rounded-xl shadow-none w-full max-w-2xl mx-auto my-auto border border-gray-200 overflow-hidden" style="max-width: 42rem; margin-top: auto !important; margin-bottom: auto !important;">
+		<div class="p-6">
+			<div class="flex items-start justify-between gap-4 mb-4">
             <div>
                 <p class="text-xs uppercase tracking-wide text-gray-500">Receive delivery</p>
                 <h3 class="text-xl font-semibold text-gray-900" id="quickBatchLabel">Batch</h3>
@@ -380,62 +389,64 @@ foreach ($deliveries as $d) {
             <button type="button" class="text-gray-400 hover:text-gray-600" data-quick-cancel aria-label="Close quick receive panel">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
-        </div>
-        <div class="px-6 py-5 space-y-5">
-            <div class="grid gap-4 sm:grid-cols-2">
-                <div class="rounded-xl border border-gray-200 p-4">
-                    <p class="text-xs font-medium text-gray-500 uppercase">Supplier</p>
-                    <p class="text-base font-semibold text-gray-900 mt-1" id="quickSupplier">—</p>
-                </div>
-                <div class="rounded-xl border border-gray-200 p-4">
-                    <p class="text-xs font-medium text-gray-500 uppercase">Requested by</p>
-                    <p class="text-base font-semibold text-gray-900 mt-1" id="quickPurchaser">—</p>
-                </div>
-            </div>
-            <div class="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-                <p class="text-xs font-medium text-gray-500 uppercase mb-3">Item summary</p>
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div>
-                        <p class="text-base font-semibold text-gray-900" id="quickItemName">—</p>
-                        <p class="text-sm text-gray-500">Ordered on <span id="quickDate">—</span></p>
-                    </div>
-                    <div class="flex flex-wrap gap-4 text-sm font-semibold text-gray-900">
-                        <span>Ordered: <span id="quickOrdered">0.00</span></span>
-                        <span>Delivered: <span id="quickDelivered">0.00</span></span>
-                        <span>Remaining: <span id="quickRemaining">0.00</span></span>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <p class="text-sm font-medium text-gray-700 mb-2">Delivery type</p>
-                <div class="flex flex-wrap gap-3">
-                    <button type="button" class="px-4 py-2 text-sm font-semibold rounded-xl border border-orange-200 bg-orange-600 text-white focus:ring-2 focus:ring-orange-500" data-quick-status="complete">
-                        Complete delivery
-                    </button>
-                    <button type="button" class="px-4 py-2 text-sm font-semibold rounded-xl border border-gray-200 text-gray-700 hover:border-gray-300 focus:ring-2 focus:ring-orange-500" data-quick-status="partial">
-                        Partial delivery
-                    </button>
-                </div>
-                <p class="text-xs text-gray-500 mt-2" id="quickStatusNote">Entire remaining quantity will be received now.</p>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Quantity received now</label>
-                <div class="flex items-center gap-3">
-                    <input id="quickQtyInput" type="number" step="0.01" min="0" class="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-100 text-gray-600 cursor-not-allowed" readonly>
-                    <span class="inline-flex items-center px-3 py-2 rounded-lg bg-gray-100 text-sm font-semibold text-gray-700" id="quickQtyUnit">unit</span>
-                </div>
-                <p class="text-xs text-gray-500 mt-2">You cannot exceed the remaining quantity for this purchase.</p>
-                <p class="mt-2 text-sm text-red-600 hidden" id="quickModalError"></p>
-            </div>
-        </div>
-        <div class="px-6 py-4 bg-gray-50 border-t flex items-center justify-between gap-3">
-            <button type="button" class="text-sm font-semibold text-gray-600 hover:text-gray-800" data-quick-cancel>Cancel</button>
-            <button type="button" id="quickConfirmBtn" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-600 text-white text-sm font-semibold hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
-                <i data-lucide="package-check" class="w-4 h-4"></i>
-                Confirm & Record
-            </button>
-        </div>
-    </div>
+			</div>
+		<div class="space-y-5">
+			<div class="grid gap-4 sm:grid-cols-2">
+				<div class="rounded-xl border border-gray-200 p-4">
+					<p class="text-xs font-medium text-gray-500 uppercase">Supplier</p>
+					<p class="text-base font-semibold text-gray-900 mt-1" id="quickSupplier">—</p>
+				</div>
+				<div class="rounded-xl border border-gray-200 p-4">
+					<p class="text-xs font-medium text-gray-500 uppercase">Requested by</p>
+					<p class="text-base font-semibold text-gray-900 mt-1" id="quickPurchaser">—</p>
+				</div>
+			</div>
+			<div class="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+				<p class="text-xs font-medium text-gray-500 uppercase mb-3">Item summary</p>
+				<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+					<div>
+						<p class="text-base font-semibold text-gray-900" id="quickItemName">—</p>
+						<p class="text-sm text-gray-500">Ordered on <span id="quickDate">—</span></p>
+					</div>
+					<div class="flex flex-wrap gap-4 text-sm font-semibold text-gray-900">
+						<span>Ordered: <span id="quickOrdered">0.00</span></span>
+						<span>Delivered: <span id="quickDelivered">0.00</span></span>
+						<span>Remaining: <span id="quickRemaining">0.00</span></span>
+					</div>
+				</div>
+			</div>
+			<div>
+				<p class="text-sm font-medium text-gray-700 mb-2">Delivery type</p>
+				<div class="flex flex-wrap gap-3">
+					<button type="button" class="px-4 py-2 text-sm font-semibold rounded-xl border border-orange-200 bg-orange-600 text-white focus:ring-2 focus:ring-orange-500" data-quick-status="complete">
+						Complete delivery
+					</button>
+					<button type="button" class="px-4 py-2 text-sm font-semibold rounded-xl border border-gray-200 text-gray-700 hover:border-gray-300 focus:ring-2 focus:ring-orange-500" data-quick-status="partial">
+						Partial delivery
+					</button>
+				</div>
+				<p class="text-xs text-gray-500 mt-2" id="quickStatusNote">Entire remaining quantity will be received now.</p>
+			</div>
+			<div>
+				<label class="block text-sm font-medium text-gray-700 mb-1">Quantity received now</label>
+				<div class="flex items-center gap-3">
+					<input id="quickQtyInput" type="number" step="0.01" min="0" class="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-100 text-gray-600 cursor-not-allowed" readonly>
+					<span class="inline-flex items-center px-3 py-2 rounded-lg bg-gray-100 text-sm font-semibold text-gray-700" id="quickQtyUnit">unit</span>
+				</div>
+				<p class="text-xs text-gray-500 mt-2">You cannot exceed the remaining quantity for this purchase.</p>
+				<p class="mt-2 text-sm text-red-600 hidden" id="quickModalError"></p>
+			</div>
+		</div>
+		<div class="mt-4 pt-4 border-t flex items-center justify-between gap-3">
+			<button type="button" class="text-sm font-semibold text-gray-600 hover:text-gray-800" data-quick-cancel>Cancel</button>
+			<button type="button" id="quickConfirmBtn" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-600 text-white text-sm font-semibold hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
+				<i data-lucide="package-check" class="w-4 h-4"></i>
+				Confirm & Record
+			</button>
+		</div>
+		</div>
+	</div>
+	</div>
 </div>
 
 <!-- Recent Deliveries Table -->
@@ -745,16 +756,17 @@ foreach ($deliveries as $d) {
     quickBatchLabel.textContent = data.batchLabel || 'Batch';
     quickMetaText.textContent = `Remaining ${data.remaining.toFixed(2)} ${unitLabel}`;
     quickModal.classList.remove('hidden');
-    quickModal.classList.add('flex');
-    toggleBodyScroll(true);
+    document.body.classList.add('overflow-hidden');
+    if (window.lucide?.createIcons){
+      window.lucide.createIcons({ elements: quickModal.querySelectorAll('i[data-lucide]') });
+    }
     setQuickStatus('complete');
   }
 
   function closeQuickModal(){
     if (!quickModal) return;
     quickModal.classList.add('hidden');
-    quickModal.classList.remove('flex');
-    toggleBodyScroll(false);
+    document.body.classList.remove('overflow-hidden');
     quickSelection = null;
     quickError?.classList.add('hidden');
   }
@@ -1537,9 +1549,6 @@ foreach ($deliveries as $d) {
     
     // Show the modal - ensure it's visible
     deliveryModal.classList.remove('hidden');
-    deliveryModal.classList.add('flex');
-    deliveryModal.style.display = 'flex'; // Force display
-    deliveryModal.style.zIndex = '50'; // Ensure z-index
     document.body.classList.add('overflow-hidden');
     
     // Initialize lucide icons
@@ -1551,8 +1560,6 @@ foreach ($deliveries as $d) {
   function closeDeliveryModal(){
     if (!deliveryModal) return;
     deliveryModal.classList.add('hidden');
-    deliveryModal.classList.remove('flex');
-    deliveryModal.style.display = 'none'; // Force hide
     document.body.classList.remove('overflow-hidden');
     deliveryItems = [];
     currentDeliveryGroup = null;
@@ -2275,6 +2282,44 @@ foreach ($deliveries as $d) {
 			--tw-ring-offset-width: 0px !important;
 			--tw-ring-width: 0px !important;
 		}
+	}
+
+	/* Hide scrollbars for modals */
+	#deliveryModal,
+	#receiveQuickModal {
+		overflow: hidden !important;
+	}
+
+	#deliveryModal .bg-white,
+	#receiveQuickModal .bg-white {
+		overflow-y: auto;
+		overflow-x: hidden;
+		scrollbar-width: none; /* Firefox */
+		-ms-overflow-style: none; /* IE and Edge */
+	}
+
+	#deliveryModal .bg-white::-webkit-scrollbar,
+	#receiveQuickModal .bg-white::-webkit-scrollbar {
+		display: none; /* Chrome, Safari, Opera */
+	}
+
+	/* Ensure modals are centered vertically */
+	#deliveryModal > div:last-child,
+	#receiveQuickModal > div:last-child {
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+		position: absolute !important;
+		top: 0 !important;
+		left: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+	}
+
+	#deliveryModal > div:last-child > div,
+	#receiveQuickModal > div:last-child > div {
+		margin-top: auto !important;
+		margin-bottom: auto !important;
 	}
 </style>
 

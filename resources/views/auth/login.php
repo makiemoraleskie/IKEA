@@ -100,8 +100,8 @@ $logoPath = (defined('BASE_URL') ? BASE_URL : '') . '/resources/views/logo/54047
 		position: fixed;
 		inset: 0;
 		background: linear-gradient(135deg, rgba(250, 209, 232, 0.4) 0%, rgba(205, 239, 216, 0.4) 100%);
-		backdrop-filter: blur(12px) saturate(180%);
-		-webkit-backdrop-filter: blur(12px) saturate(180%);
+		backdrop-filter: blur(4px) saturate(180%);
+		-webkit-backdrop-filter: blur(4px) saturate(180%);
 		z-index: 9999;
 		display: flex;
 		align-items: center;
