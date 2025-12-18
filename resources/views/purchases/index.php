@@ -2181,6 +2181,9 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   
   // Only set up payment modal event listeners if the modal exists
   const paymentModalExists = recordPaymentModal && recordPaymentForm;
+  
+  // Store initial current balance for Due Amount calculation (needed by showRecordPaymentModal)
+  let initialCurrentBalance = 0;
 
   function showRecordPaymentModal(purchaseId, groupId, totalCost, currentBalance, supplier) {
     if (!recordPaymentModal) return;
@@ -2259,9 +2262,6 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
         }
       });
     }
-
-    // Store initial current balance for Due Amount calculation
-    let initialCurrentBalance = 0;
     
     // Update Due Amount (remaining balance) when Amount changes
     if (recordPaymentAmount && recordPaymentDueAmount) {
@@ -2558,6 +2558,21 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
       });
     }
   } // End of paymentModalExists check
+
+  // Handle Record Payment button clicks (document-level, always available)
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.recordPaymentBtn');
+    if (!btn) return;
+    e.stopPropagation();
+    const purchaseId = parseInt(btn.dataset.purchaseId || '0', 10);
+    const groupId = btn.dataset.purchaseGroupId || '';
+    const totalCost = btn.dataset.totalCost || '0';
+    const currentBalance = btn.dataset.currentBalance || totalCost;
+    const supplier = btn.dataset.supplier || '';
+    if (purchaseId > 0) {
+      showRecordPaymentModal(purchaseId, groupId, totalCost, currentBalance, supplier);
+    }
+  });
 
   // View Transactions Modal
   const viewTransactionsModal = document.getElementById('viewTransactionsModal');

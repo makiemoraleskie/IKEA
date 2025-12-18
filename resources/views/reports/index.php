@@ -256,14 +256,6 @@ $uniqueCategories = !empty($consumption) ? count(array_filter(array_unique(array
 						<i data-lucide="file-text" class="w-4 h-4"></i>
 						Export PDF
 					</button>
-					<button type="button" id="purchaseExportExcel" class="inline-flex items-center gap-2 bg-green-600 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-sm font-medium">
-						<i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
-						Export Excel
-					</button>
-					<button type="button" id="purchaseExportCSV" class="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-lg hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors text-sm font-medium">
-						<i data-lucide="file-text" class="w-4 h-4"></i>
-						Export CSV
-					</button>
 					<button type="button" id="purchasePrintBtn" class="inline-flex items-center gap-2 bg-gray-700 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-lg hover:bg-gray-800 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors text-sm font-medium">
 						<i data-lucide="printer" class="w-4 h-4"></i>
 						Print
@@ -581,14 +573,6 @@ $uniqueCategories = !empty($consumption) ? count(array_filter(array_unique(array
 					<button type="button" id="consumptionExportPDF" class="inline-flex items-center gap-2 bg-red-600 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors text-sm font-medium">
 						<i data-lucide="file-text" class="w-4 h-4"></i>
 						Export PDF
-					</button>
-					<button type="button" id="consumptionExportExcel" class="inline-flex items-center gap-2 bg-green-600 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-sm font-medium">
-						<i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
-						Export Excel
-					</button>
-					<button type="button" id="consumptionExportCSV" class="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-lg hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors text-sm font-medium">
-						<i data-lucide="file-text" class="w-4 h-4"></i>
-						Export CSV
 					</button>
 					<button type="button" id="consumptionPrintBtn" class="inline-flex items-center gap-2 bg-gray-700 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-lg hover:bg-gray-800 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors text-sm font-medium">
 						<i data-lucide="printer" class="w-4 h-4"></i>
@@ -1014,11 +998,7 @@ function setupExport(buttonId, section, format) {
 }
 
 setupExport('purchaseExportPDF', 'purchase', 'pdf');
-setupExport('purchaseExportExcel', 'purchase', 'excel');
-setupExport('purchaseExportCSV', 'purchase', 'csv');
 setupExport('consumptionExportPDF', 'consumption', 'pdf');
-setupExport('consumptionExportExcel', 'consumption', 'excel');
-setupExport('consumptionExportCSV', 'consumption', 'csv');
 
 // Table Search
 function setupTableSearch(searchId, tableId, emptyId) {

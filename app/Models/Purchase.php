@@ -106,11 +106,56 @@ class Purchase extends BaseModel
 
     public function countByPaymentStatus(string $status): int
     {
-        $sql = 'SELECT COUNT(*) AS cnt FROM purchases WHERE payment_status = ?';
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([$status]);
-        $row = $stmt->fetch();
-        return (int)($row['cnt'] ?? 0);
+        // Count unique purchase groups (batches), not individual purchases
+        // Get all purchases and group them the same way as PurchaseController
+        $purchases = $this->listAll();
+        
+        // Get payment totals grouped by stable group_id
+        $db = $this->db;
+        try {
+            $stmt = $db->query("SELECT purchase_group_id, SUM(amount) AS total_paid FROM payment_transactions GROUP BY purchase_group_id");
+            $paymentTotals = [];
+            while ($row = $stmt->fetch()) {
+                $paymentTotals[$row['purchase_group_id']] = (float)$row['total_paid'];
+            }
+        } catch (\Exception $e) {
+            $paymentTotals = [];
+        }
+        
+        // Group purchases by stable key (without payment_status)
+        $groups = [];
+        foreach ($purchases as $p) {
+            $ts = substr((string)($p['date_purchased'] ?? $p['created_at'] ?? ''), 0, 19);
+            $stableKey = ($p['purchaser_id'] ?? '') . '|' . ($p['supplier'] ?? '') . '|' . ($p['receipt_url'] ?? '') . '|' . $ts;
+            $stableGroupId = substr(sha1($stableKey), 0, 10);
+            
+            if (!isset($groups[$stableGroupId])) {
+                $groups[$stableGroupId] = [
+                    'group_id' => $stableGroupId,
+                    'cost_sum' => 0.0,
+                    'payment_status' => $p['payment_status'] ?? 'Pending',
+                ];
+            }
+            $groups[$stableGroupId]['cost_sum'] += (float)$p['cost'];
+        }
+        
+        // Calculate current balance and determine payment status for each group
+        $pendingCount = 0;
+        foreach ($groups as $group) {
+            $totalPaid = $paymentTotals[$group['group_id']] ?? 0.0;
+            $currentBalance = max(0, $group['cost_sum'] - $totalPaid);
+            
+            // Determine actual payment status
+            $actualStatus = ($currentBalance <= 0.01 && $totalPaid > 0) ? 'Paid' : 'Pending';
+            
+            if ($status === 'Pending' && $actualStatus === 'Pending') {
+                $pendingCount++;
+            } elseif ($status === 'Paid' && $actualStatus === 'Paid') {
+                $pendingCount++;
+            }
+        }
+        
+        return $pendingCount;
     }
 
     public function averageCostPerItem(): array

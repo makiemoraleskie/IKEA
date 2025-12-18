@@ -116,11 +116,88 @@ class Delivery extends BaseModel
 
     public function countDeliveriesByStatus(string $status): int
     {
-        $sql = 'SELECT COUNT(*) AS cnt FROM deliveries WHERE delivery_status = ?';
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([$status]);
-        $row = $stmt->fetch();
-        return (int)($row['cnt'] ?? 0);
+        // Count unique delivery batches, not individual deliveries
+        // Use the same grouping logic as DeliveryController::index()
+        $allDeliveries = $this->listAll();
+        $purchaseModel = new Purchase();
+        
+        // Group deliveries by batch_id (stable key without payment_status)
+        $batchesByBatchId = [];
+        $batchPurchaseIds = [];
+        
+        foreach ($allDeliveries as $d) {
+            $ts = substr((string)($d['date_purchased'] ?? ''), 0, 19);
+            // Use stable key (without payment_status) to match view calculation
+            $stableKey = ($d['purchaser_id'] ?? '') . '|' . ($d['supplier'] ?? '') . '|' . ($d['receipt_url'] ?? '') . '|' . $ts;
+            $batchId = substr(sha1($stableKey), 0, 10);
+            
+            if (!isset($batchesByBatchId[$batchId])) {
+                $batchesByBatchId[$batchId] = [
+                    'batch_id' => $batchId,
+                    'purchase_ids' => [],
+                ];
+                $batchPurchaseIds[$batchId] = [];
+            }
+            
+            // Track unique purchase IDs per batch
+            $purchaseId = (int)$d['purchase_id'];
+            if (!in_array($purchaseId, $batchPurchaseIds[$batchId], true)) {
+                $batchPurchaseIds[$batchId][] = $purchaseId;
+            }
+        }
+        
+        // Update purchase_ids for each batch
+        foreach ($batchesByBatchId as $batchId => &$batch) {
+            $batch['purchase_ids'] = $batchPurchaseIds[$batchId] ?? [];
+        }
+        unset($batch);
+        
+        // Get receive_quantity totals for all purchases
+        $allPurchaseIds = [];
+        foreach ($batchPurchaseIds as $ids) {
+            $allPurchaseIds = array_merge($allPurchaseIds, $ids);
+        }
+        $receiveQuantityTotals = $this->getReceiveQuantityTotals($allPurchaseIds);
+        
+        // Calculate status for each batch based on remaining quantities
+        $partialCount = 0;
+        foreach ($batchesByBatchId as $batch) {
+            $purchaseIds = $batch['purchase_ids'];
+            if (empty($purchaseIds)) {
+                if ($status === 'Partial') {
+                    $partialCount++;
+                }
+                continue;
+            }
+            
+            // Check if all items are complete (remaining_qty <= 0)
+            $allComplete = true;
+            foreach ($purchaseIds as $purchaseId) {
+                $purchase = $purchaseModel->find($purchaseId);
+                if (!$purchase) continue;
+                
+                $orderedQty = (float)($purchase['quantity'] ?? 0);
+                $receivedQty = $receiveQuantityTotals[$purchaseId] ?? 0.0;
+                $remainingQty = max(0.0, $orderedQty - $receivedQty);
+                
+                // If any item has remaining quantity > 0, batch is not complete
+                if ($remainingQty > 0.0001) {
+                    $allComplete = false;
+                    break;
+                }
+            }
+            
+            // Set status based on remaining quantities
+            $batchStatus = $allComplete ? 'Complete' : 'Partial';
+            
+            if ($status === 'Partial' && $batchStatus === 'Partial') {
+                $partialCount++;
+            } elseif ($status === 'Complete' && $batchStatus === 'Complete') {
+                $partialCount++;
+            }
+        }
+        
+        return $partialCount;
     }
 
     public function dailyCounts(string $startDate, string $endDate): array
