@@ -5,7 +5,7 @@ class NotificationController extends BaseController
 {
 	public function index(): void
 	{
-		Auth::requireRole(['Kitchen Staff','Stock Handler','Manager','Owner']);
+		Auth::requireRole(['Kitchen Staff','Stock Handler','Manager','Owner','Purchaser']);
 		$userId = Auth::id() ?? 0;
 		$model = new Notification();
 		if ($_SERVER['REQUEST_METHOD'] === 'POST') {

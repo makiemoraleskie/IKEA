@@ -35,6 +35,7 @@ return [
 		'/requests/delete' => ['RequestController', 'delete'],
 		'/requests/distribute' => ['RequestController', 'distribute'],
 		'/requests/prepare' => ['RequestController', 'prepare'],
+		'/requests/confirm-delivery' => ['RequestController', 'confirmDelivery'],
 		'/purchases' => ['PurchaseController', 'store'],
 		'/purchases/mark-paid' => ['PurchaseController', 'markPaid'],
 		'/purchases/record-payment' => ['PurchaseController', 'recordPayment'],

@@ -7,6 +7,8 @@ class RequestController extends BaseController
 	{
 		Auth::requireRole(['Owner','Manager','Stock Handler','Kitchen Staff']);
 		$model = new RequestModel();
+		// Ensure database schema is up to date (including status ENUM)
+		$model->ensureStatusEnum();
 		$batches = $model->listBatches();
 		$toPrepareBatches = $model->listBatches('To Prepare');
 		$userRole = Auth::role();
@@ -36,9 +38,10 @@ class RequestController extends BaseController
 			$currentStock[(int)$ing['id']] = (float)($ing['quantity'] ?? 0);
 		}
 		
-		// Filter only distributed batches
+		// Filter batches that have been distributed (including Pending Confirmation and Received)
 		$distributedBatches = array_filter($batches, static function($batch) {
-			return (strtolower($batch['status'] ?? '') === 'distributed');
+			$status = strtolower($batch['status'] ?? '');
+			return in_array($status, ['distributed', 'pending confirmation', 'received'], true);
 		});
 		
 		// Sort by date_approved DESC (newest distribution first), then by id DESC as fallback
@@ -418,16 +421,83 @@ class RequestController extends BaseController
 			$ingredientModel->updateQuantity((int)$req['item_id'], max(0.0, (float)$item['quantity'] - (float)$req['quantity']));
 			$model->setStatus((int)$req['id'], 'Approved');
 		}
-		$model->setBatchStatus($batchId, 'Distributed');
+		
+		// Check if requester is stock handler/owner - if so, set directly to "Distributed"
+		$batch = $model->findBatch($batchId);
+		$requesterRole = null;
+		if ($batch) {
+			$userModel = new User();
+			$requester = $userModel->find((int)$batch['staff_id']);
+			$requesterRole = $requester['role'] ?? null;
+		}
+		
+		// If requester is Stock Handler or Owner, set status directly to "Distributed"
+		// Otherwise, set to "Pending Confirmation" for kitchen staff to confirm
+		if (in_array($requesterRole, ['Stock Handler', 'Owner', 'Manager'], true)) {
+			$model->setBatchStatus($batchId, 'Distributed');
+			$_SESSION['flash_requests'] = ['type' => 'success', 'messages' => ['Batch distributed successfully.']];
+		} else {
+			$model->setBatchStatus($batchId, 'Pending Confirmation');
+			if ($batch) {
+				$notification = new Notification();
+				$message = sprintf('Your request #%d has been distributed. Please confirm delivery.', $batchId);
+				$notification->create((int)$batch['staff_id'], $message, '/requests?status=pending confirmation#requests-history', 'info');
+			}
+			$_SESSION['flash_requests'] = ['type' => 'success', 'messages' => ['Batch distributed. Waiting for requester confirmation.']];
+		}
+		
 		$logger = new AuditLog();
 		$logger->log(Auth::id() ?? 0, 'distribute', 'requests', ['batch_id' => $batchId]);
-		$batch = $model->findBatch($batchId);
-		if ($batch) {
-			$notification = new Notification();
-			$message = sprintf('Your request #%d is ready for pickup.', $batchId);
-			$notification->create((int)$batch['staff_id'], $message, '/requests?status=distributed#requests-history', 'success');
+		$this->redirect('/requests');
+	}
+
+	public function confirmDelivery(): void
+	{
+		Auth::requireRole(['Kitchen Staff','Manager','Owner']);
+		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
+			http_response_code(400);
+			echo 'Invalid CSRF token';
+			return;
 		}
-		$_SESSION['flash_requests'] = ['type' => 'success', 'messages' => ['Batch distributed and inventory updated.']];
+		$batchId = (int)($_POST['batch_id'] ?? 0);
+		if ($batchId <= 0) {
+			$_SESSION['flash_requests'] = ['type' => 'error', 'messages' => ['Invalid request batch.']];
+			$this->redirect('/requests');
+			return;
+		}
+		
+		$model = new RequestModel();
+		$batch = $model->findBatch($batchId);
+		if (!$batch) {
+			$_SESSION['flash_requests'] = ['type' => 'error', 'messages' => ['Request batch not found.']];
+			$this->redirect('/requests');
+			return;
+		}
+		
+		// Only allow confirmation if status is Pending Confirmation
+		if (strtolower(trim($batch['status'] ?? '')) !== 'pending confirmation') {
+			$_SESSION['flash_requests'] = ['type' => 'error', 'messages' => ['This request is not awaiting confirmation.']];
+			$this->redirect('/requests');
+			return;
+		}
+		
+		// Only allow the requester to confirm their own request (or admins)
+		$userId = Auth::id() ?? 0;
+		$userRole = Auth::role();
+		$isRequester = ((int)$batch['staff_id'] === $userId);
+		$isAdmin = in_array($userRole, ['Owner','Manager'], true);
+		
+		if (!$isRequester && !$isAdmin) {
+			$_SESSION['flash_requests'] = ['type' => 'error', 'messages' => ['You can only confirm your own requests.']];
+			$this->redirect('/requests');
+			return;
+		}
+		
+		$model->setBatchStatus($batchId, 'Received');
+		$logger = new AuditLog();
+		$logger->log($userId, 'confirm_delivery', 'requests', ['batch_id' => $batchId]);
+		
+		$_SESSION['flash_requests'] = ['type' => 'success', 'messages' => ['Delivery confirmed successfully.']];
 		$this->redirect('/requests');
 	}
 

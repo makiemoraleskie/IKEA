@@ -36,6 +36,51 @@ class Notification extends BaseModel
     public function create(int $userId, string $message, ?string $link = null, string $level = 'info'): void
     {
         $this->ensureTable();
+        
+        // Check user role and filter notifications accordingly
+        $userModel = new User();
+        $user = $userModel->find($userId);
+        if (!$user) {
+            return; // User not found, skip notification
+        }
+        
+        $userRole = $user['role'] ?? '';
+        $messageLower = strtolower($message);
+        $linkLower = strtolower($link ?? '');
+        
+        // Kitchen Staff: only allow request-related notifications
+        if ($userRole === 'Kitchen Staff') {
+            $isRequestRelated = (
+                stripos($message, 'request') !== false ||
+                stripos($message, 'distributed') !== false ||
+                stripos($message, 'approved') !== false ||
+                stripos($message, 'rejected') !== false ||
+                stripos($message, 'confirm') !== false ||
+                stripos($message, 'preparing') !== false ||
+                stripos($link, '/requests') !== false
+            );
+            
+            if (!$isRequestRelated) {
+                return; // Skip non-request-related notifications for Kitchen Staff
+            }
+        }
+        
+        // Purchaser: only allow payment and delivery-related notifications
+        if ($userRole === 'Purchaser') {
+            $isPaymentOrDeliveryRelated = (
+                stripos($message, 'payment') !== false ||
+                stripos($message, 'purchase') !== false ||
+                stripos($message, 'delivery') !== false ||
+                stripos($message, 'partial') !== false ||
+                stripos($link, '/purchases') !== false ||
+                stripos($link, '/deliveries') !== false
+            );
+            
+            if (!$isPaymentOrDeliveryRelated) {
+                return; // Skip non-payment/delivery-related notifications for Purchaser
+            }
+        }
+        
         $sql = 'INSERT INTO notifications (user_id, message, link, level) VALUES (?, ?, ?, ?)';
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$userId, $message, $link, $level]);

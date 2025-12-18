@@ -212,7 +212,9 @@ function formatDate($dateString) {
                         <option value="pending">Pending</option>
                         <option value="rejected">Rejected</option>
 						<option value="to prepare">To Prepare</option>
+						<option value="pending confirmation">Pending Confirmation</option>
 						<option value="distributed">Distributed</option>
+						<option value="received">Received</option>
                     </select>
                 </div>
                 <div class="flex flex-col md:flex-col lg:flex-row lg:items-center gap-1.5 md:gap-2 w-full lg:w-auto">
@@ -261,17 +263,33 @@ function formatDate($dateString) {
 					</td>
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
 						<?php 
-						$status = strtolower($b['status'] ?? '');
+						// Get raw status and normalize it
+						$rawStatus = $b['status'] ?? '';
+						$rawStatus = trim((string)$rawStatus);
+						$status = strtolower($rawStatus);
+						
+						// For stock handlers/owners: show "Distributed" instead of "Received"
+						$currentUserRole = Auth::role();
+						$isStockHandler = in_array($currentUserRole, ['Owner', 'Manager', 'Stock Handler'], true);
+						
+						// Map status to display text - handle all possible status values
 						$statusText = match($status) {
 							'distributed' => 'Distributed',
-							'to prepare' => 'Preparing',
+							'pending confirmation' => 'Pending Confirmation',
+							'received' => $isStockHandler ? 'Distributed' : 'Received', // Stock handlers see "Distributed", requester sees "Received"
+							'to prepare', 'preparing' => 'Preparing',
 							'pending' => 'Pending',
 							'rejected' => 'Rejected',
 							'approved' => 'Approved',
-							default => htmlspecialchars($b['status'] ?? '')
+							'' => 'No Status',
+							default => $rawStatus ? htmlspecialchars($rawStatus) : 'Unknown'
 						};
+						
+						// Map status to CSS classes
 						$statusClass = match($status) {
 							'distributed' => 'bg-green-100 text-green-800 border-green-200',
+							'pending confirmation' => 'bg-blue-100 text-blue-800 border-blue-200',
+							'received' => 'bg-green-100 text-green-800 border-green-200', // Same styling for both "Received" and "Distributed"
 							'to prepare' => 'bg-amber-100 text-amber-800 border-amber-200',
 							'pending' => 'bg-amber-50 text-amber-700 border-amber-200',
 							'rejected' => 'bg-red-100 text-red-800 border-red-200',
@@ -305,8 +323,15 @@ function formatDate($dateString) {
 									</div>
 								</div>
 								<?php 
-								$statusColor = match($b['status']) {
+								// For stock handlers/owners: show "Distributed" instead of "Received"
+								$currentUserRole = Auth::role();
+								$isStockHandler = in_array($currentUserRole, ['Owner', 'Manager', 'Stock Handler'], true);
+								$displayStatus = ($b['status'] === 'Received' && $isStockHandler) ? 'Distributed' : $b['status'];
+								
+								$statusColor = match($displayStatus) {
 									'Distributed' => 'bg-green-100 text-green-800 border-green-200',
+									'Pending Confirmation' => 'bg-blue-100 text-blue-800 border-blue-200',
+									'Received' => 'bg-green-100 text-green-800 border-green-200',
 									'Rejected' => 'bg-red-100 text-red-800 border-red-200',
 									'To Prepare' => 'bg-amber-100 text-amber-800 border-amber-200',
 									'Pending' => 'bg-amber-50 text-amber-700 border-amber-200',
@@ -315,7 +340,7 @@ function formatDate($dateString) {
 								?>
 								<span class="inline-flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 rounded-lg text-xs font-semibold border <?php echo $statusColor; ?> shrink-0 whitespace-nowrap">
 									<i data-lucide="circle" class="w-2 h-2 fill-current"></i>
-									<?php echo htmlspecialchars($b['status']); ?>
+									<?php echo htmlspecialchars($displayStatus); ?>
 								</span>
 							</div>
 
@@ -342,7 +367,8 @@ function formatDate($dateString) {
 							<!-- Items In Batch Section -->
 							<?php 
 							if (!empty($items) && Auth::role() !== 'Kitchen Staff'): 
-								$isDistributed = (strtolower($b['status'] ?? '') === 'distributed');
+								$statusLower = strtolower($b['status'] ?? '');
+								$isDistributed = in_array($statusLower, ['distributed', 'pending confirmation', 'received'], true);
 								$batchId = (int)$b['id'];
 							?>
 							<div class="space-y-3 md:space-y-4 pt-2 border-t border-gray-100">
@@ -548,10 +574,17 @@ function formatDate($dateString) {
 					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 text-[10px] md:text-xs lg:text-sm">Ingredient/Items</th>
 					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 text-[10px] md:text-xs lg:text-sm">Date Requested</th>
 					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 text-[10px] md:text-xs lg:text-sm">Status</th>
+					<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 text-[10px] md:text-xs lg:text-sm">Action</th>
 				</tr>
 			</thead>
 			<tbody class="divide-y divide-gray-200">
-				<?php foreach ($batches as $b): ?>
+				<?php foreach ($batches as $b): 
+					$userId = Auth::id() ?? 0;
+					$isRequester = ((int)($b['staff_id'] ?? 0) === $userId);
+					// Use case-insensitive comparison for status
+					$currentStatus = trim($b['status'] ?? '');
+					$isPendingConfirmation = (strcasecmp($currentStatus, 'Pending Confirmation') === 0);
+				?>
 				<tr class="hover:bg-gray-50 transition-colors">
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
 						<div class="flex items-center gap-1.5 md:gap-2">
@@ -563,8 +596,6 @@ function formatDate($dateString) {
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 font-semibold text-gray-900 text-[10px] md:text-xs lg:text-sm"><?php echo htmlspecialchars($b['custom_requester'] ?: ($b['staff_name'] ?? '')); ?></td>
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
 						<?php 
-						$userId = Auth::id() ?? 0;
-						$isRequester = ((int)($b['staff_id'] ?? 0) === $userId);
 						$isPending = ($b['status'] ?? '') === 'Pending';
 						if ($isRequester && $isPending): 
 						?>
@@ -589,8 +620,26 @@ function formatDate($dateString) {
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
 						<?php 
 						$statusLower = strtolower($b['status'] ?? '');
+						
+						// For stock handlers/owners: show "Distributed" instead of "Received"
+						// For requester (kitchen staff): show "Received" when status is "Received"
+						$currentUserRole = Auth::role();
+						$isStockHandler = in_array($currentUserRole, ['Owner', 'Manager', 'Stock Handler'], true);
+						
+						$statusText = match($statusLower) {
+							'distributed' => 'Distributed',
+							'pending confirmation' => 'Pending Confirmation',
+							'received' => $isStockHandler ? 'Distributed' : 'Received', // Stock handlers see "Distributed", requester sees "Received"
+							'to prepare' => 'Preparing',
+							'pending' => 'Pending',
+							'rejected' => 'Rejected',
+							'approved' => 'Approved',
+							default => htmlspecialchars($b['status'] ?? '')
+						};
 						$statusClass = match($statusLower) {
 							'distributed' => 'bg-green-100 text-green-800 border-green-200',
+							'pending confirmation' => 'bg-blue-100 text-blue-800 border-blue-200',
+							'received' => 'bg-green-100 text-green-800 border-green-200', // Same styling for both "Received" and "Distributed"
 							'to prepare' => 'bg-amber-100 text-amber-800 border-amber-200',
 							'pending' => 'bg-amber-50 text-amber-700 border-amber-200',
 							'rejected' => 'bg-red-100 text-red-800 border-red-200',
@@ -599,12 +648,25 @@ function formatDate($dateString) {
 						};
 						?>
 						<span class="inline-flex items-center px-2 md:px-2.5 lg:px-3 py-0.5 md:py-1 rounded-full text-[9px] md:text-[10px] lg:text-xs font-medium border whitespace-nowrap <?php echo $statusClass; ?>">
-							<?php echo htmlspecialchars($b['status']); ?>
+							<?php echo htmlspecialchars($statusText); ?>
 						</span>
+					</td>
+					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
+						<?php if ($isRequester && $isPendingConfirmation): ?>
+							<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/requests/confirm-delivery" class="inline confirm-delivery-form" data-confirm="Are you sure you want to confirm delivery for request batch #<?php echo (int)$b['id']; ?>?" data-confirm-type="info">
+								<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+								<input type="hidden" name="batch_id" value="<?php echo (int)$b['id']; ?>">
+								<button type="submit" class="inline-flex items-center justify-center gap-1 bg-green-600 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 text-[10px] md:text-xs lg:text-sm font-medium transition-colors">
+									Confirm Delivery
+								</button>
+							</form>
+						<?php else: ?>
+							<span class="text-gray-400 text-[10px] md:text-xs">—</span>
+						<?php endif; ?>
 					</td>
 				</tr>
 				<tr id="batch-<?php echo (int)$b['id']; ?>" class="hidden" data-detail-for="<?php echo (int)$b['id']; ?>">
-					<td colspan="5" class="px-4 md:px-5 lg:px-6 py-4 md:py-5 lg:py-6">
+					<td colspan="6" class="px-4 md:px-5 lg:px-6 py-4 md:py-5 lg:py-6">
 						<div class="batch-detail-card bg-white rounded-2xl border border-gray-200 p-4 md:p-6 lg:p-8 space-y-4 md:space-y-5 lg:space-y-6">
 							<!-- Batch Header -->
 							<div class="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-3 md:gap-4 pb-4 border-b border-gray-200">
@@ -624,16 +686,24 @@ function formatDate($dateString) {
 									</div>
 								</div>
 								<?php 
-								$statusColor = match($b['status']) {
+								// For stock handlers/owners: show "Distributed" instead of "Received"
+								$currentUserRole = Auth::role();
+								$isStockHandler = in_array($currentUserRole, ['Owner', 'Manager', 'Stock Handler'], true);
+								$displayStatus = ($b['status'] === 'Received' && $isStockHandler) ? 'Distributed' : $b['status'];
+								
+								$statusColor = match($displayStatus) {
 									'Distributed' => 'bg-green-100 text-green-800 border-green-200',
+									'Pending Confirmation' => 'bg-blue-100 text-blue-800 border-blue-200',
+									'Received' => 'bg-green-100 text-green-800 border-green-200',
 									'Rejected' => 'bg-red-100 text-red-800 border-red-200',
 									'To Prepare' => 'bg-amber-100 text-amber-800 border-amber-200',
+									'Pending' => 'bg-amber-50 text-amber-700 border-amber-200',
 									default => 'bg-gray-100 text-gray-700 border-gray-200'
 								};
 								?>
 								<span class="inline-flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 rounded-lg text-xs font-semibold border <?php echo $statusColor; ?> shrink-0 whitespace-nowrap">
 									<i data-lucide="circle" class="w-2 h-2 fill-current"></i>
-									<?php echo htmlspecialchars($b['status']); ?>
+									<?php echo htmlspecialchars($displayStatus); ?>
 								</span>
 							</div>
 
@@ -661,7 +731,8 @@ function formatDate($dateString) {
 							<?php 
 							$kitchenStaffItems = $batchItems[(int)$b['id']] ?? [];
 							if (!empty($kitchenStaffItems) && Auth::role() !== 'Kitchen Staff'): 
-								$isDistributed = (strtolower($b['status'] ?? '') === 'distributed');
+								$statusLower = strtolower($b['status'] ?? '');
+								$isDistributed = in_array($statusLower, ['distributed', 'pending confirmation', 'received'], true);
 								$batchId = (int)$b['id'];
 							?>
 							<div class="space-y-3 md:space-y-4 pt-2 border-t border-gray-100">
@@ -2251,6 +2322,161 @@ function formatDate($dateString) {
 				closeNewRequestModalFunc();
 			}
 		});
+	}
+})();
+
+// Custom Confirmation Modal
+(function() {
+	// Create confirmation modal HTML
+	const confirmationModalHTML = `
+		<div id="customConfirmModal" class="fixed inset-0 z-[100001] hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 100001 !important;">
+			<div class="fixed inset-0 bg-black/50" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
+			<div class="relative z-10 flex items-center justify-center p-4" style="position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; overflow-y: auto !important; overflow-x: hidden !important;">
+				<div class="bg-white rounded-xl shadow-lg max-w-md w-full mx-auto my-auto p-6" style="max-width: 28rem; margin-top: auto !important; margin-bottom: auto !important;">
+					<div class="flex items-start gap-4">
+						<div class="flex-shrink-0">
+							<div id="confirmModalIcon" class="w-10 h-10 rounded-full flex items-center justify-center">
+								<i data-lucide="alert-circle" class="w-6 h-6"></i>
+							</div>
+						</div>
+						<div class="flex-1">
+							<h3 id="confirmModalTitle" class="text-lg font-semibold text-gray-900 mb-2">Confirm Action</h3>
+							<p id="confirmModalMessage" class="text-sm text-gray-600 mb-4"></p>
+							<div class="flex items-center justify-end gap-3">
+								<button type="button" id="confirmModalCancel" class="inline-flex items-center justify-center gap-1.5 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 text-sm transition-colors">
+									Cancel
+								</button>
+								<button type="button" id="confirmModalConfirm" class="inline-flex items-center justify-center gap-1.5 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 text-sm transition-colors">
+									Confirm
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	`;
+	
+	// Insert modal into body
+	document.body.insertAdjacentHTML('beforeend', confirmationModalHTML);
+	
+	const modal = document.getElementById('customConfirmModal');
+	const modalTitle = document.getElementById('confirmModalTitle');
+	const modalMessage = document.getElementById('confirmModalMessage');
+	const modalIcon = document.getElementById('confirmModalIcon');
+	const confirmBtn = document.getElementById('confirmModalConfirm');
+	const cancelBtn = document.getElementById('confirmModalCancel');
+	
+	let pendingForm = null;
+	let pendingResolve = null;
+	
+	function showConfirmModal(message, type = 'info') {
+		return new Promise((resolve) => {
+			pendingResolve = resolve;
+			
+			// Set message
+			modalMessage.textContent = message;
+			
+			// Set icon and colors based on type
+			const iconElement = modalIcon.querySelector('i');
+			if (type === 'warning' || type === 'danger') {
+				modalIcon.className = 'w-10 h-10 rounded-full flex items-center justify-center bg-red-100';
+				iconElement.setAttribute('data-lucide', 'alert-triangle');
+				iconElement.className = 'w-6 h-6 text-red-600';
+				confirmBtn.className = 'inline-flex items-center justify-center gap-1.5 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-sm transition-colors';
+			} else {
+				modalIcon.className = 'w-10 h-10 rounded-full flex items-center justify-center bg-blue-100';
+				iconElement.setAttribute('data-lucide', 'info');
+				iconElement.className = 'w-6 h-6 text-blue-600';
+				confirmBtn.className = 'inline-flex items-center justify-center gap-1.5 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 text-sm transition-colors';
+			}
+			
+			// Update lucide icons
+			if (typeof lucide !== 'undefined') {
+				lucide.createIcons();
+			}
+			
+			// Show modal
+			modal.classList.remove('hidden');
+			document.body.classList.add('overflow-hidden');
+		});
+	}
+	
+	function closeConfirmModal() {
+		modal.classList.add('hidden');
+		document.body.classList.remove('overflow-hidden');
+		pendingForm = null;
+		pendingResolve = null;
+	}
+	
+	confirmBtn.addEventListener('click', function() {
+		if (pendingResolve) {
+			pendingResolve(true);
+		}
+		if (pendingForm) {
+			pendingForm.submit();
+		}
+		closeConfirmModal();
+	});
+	
+	cancelBtn.addEventListener('click', function() {
+		if (pendingResolve) {
+			pendingResolve(false);
+		}
+		closeConfirmModal();
+	});
+	
+	// Close on backdrop click
+	modal.addEventListener('click', function(e) {
+		if (e.target === modal || e.target.classList.contains('bg-black/50')) {
+			if (pendingResolve) {
+				pendingResolve(false);
+			}
+			closeConfirmModal();
+		}
+	});
+	
+	// Handle forms with data-confirm attribute
+	function attachConfirmHandlers() {
+		document.querySelectorAll('form[data-confirm]:not([data-handler-attached])').forEach(form => {
+			form.setAttribute('data-handler-attached', 'true');
+			form.addEventListener('submit', async function(e) {
+				e.preventDefault();
+				const confirmMessage = form.getAttribute('data-confirm');
+				const confirmType = form.getAttribute('data-confirm-type') || 'info';
+				
+				if (confirmMessage) {
+					pendingForm = form;
+					const confirmed = await showConfirmModal(confirmMessage, confirmType);
+					if (!confirmed) {
+						pendingForm = null;
+						return false;
+					}
+				}
+				
+				// If confirmed, submit the form
+				if (pendingForm) {
+					const formToSubmit = pendingForm;
+					pendingForm = null;
+					formToSubmit.submit();
+				}
+			});
+		});
+	}
+	
+	// Attach handlers on page load
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', attachConfirmHandlers);
+	} else {
+		attachConfirmHandlers();
+	}
+	
+	// Also attach handlers after dynamic content is added
+	const observer = new MutationObserver(function() {
+		setTimeout(attachConfirmHandlers, 50);
+	});
+	if (document.body) {
+		observer.observe(document.body, { childList: true, subtree: true });
 	}
 })();
 

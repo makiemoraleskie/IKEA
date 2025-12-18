@@ -32,9 +32,59 @@ class Auth
 	public static function requireRole(array $roles): void
 	{
 		self::validateSession();
-		if (!isset($_SESSION['user']) || !in_array($_SESSION['user']['role'] ?? null, $roles, true)) {
+		if (!isset($_SESSION['user'])) {
+			// User not logged in - redirect to login
 			self::redirectToLogin();
 		}
+		if (!in_array($_SESSION['user']['role'] ?? null, $roles, true)) {
+			// User is logged in but doesn't have the required role
+			// Set flash message and redirect back
+			self::handleUnauthorizedAccess();
+		}
+	}
+
+	private static function handleUnauthorizedAccess(): void
+	{
+		// Set flash message
+		$_SESSION['flash_unauthorized'] = [
+			'type' => 'error',
+			'messages' => ['You do not have permission to access this page.']
+		];
+		
+		// Get referrer or determine safe default redirect
+		$referrer = $_SERVER['HTTP_REFERER'] ?? null;
+		$baseUrl = defined('BASE_URL') ? BASE_URL : '';
+		$defaultPath = '/dashboard';
+		
+		// Determine default path based on user role
+		$userRole = $_SESSION['user']['role'] ?? null;
+		if ($userRole === 'Kitchen Staff') {
+			$defaultPath = '/requests';
+		} elseif ($userRole === 'Purchaser') {
+			$defaultPath = '/purchases';
+		}
+		
+		$redirectPath = $defaultPath;
+		
+		// Validate referrer - only allow redirects within our application
+		if ($referrer) {
+			$referrerPath = parse_url($referrer, PHP_URL_PATH);
+			$scriptDir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '')), '/');
+			$referrerRelative = '/' . ltrim(substr($referrerPath, strlen($scriptDir)), '/');
+			
+			// Only redirect back if it's a valid internal path (not login, not external)
+			if ($referrerRelative !== '/login' && strpos($referrer, $baseUrl) !== false && $referrerRelative !== '/') {
+				$redirectPath = $referrerRelative;
+			}
+		}
+		
+		$url = $redirectPath;
+		if (isset($redirectPath[0]) && $redirectPath[0] === '/' && defined('BASE_URL')) {
+			$url = BASE_URL . $redirectPath;
+		}
+		
+		header('Location: ' . $url);
+		exit;
 	}
 
 	public static function requireLogin(): void

@@ -120,15 +120,22 @@ class PurchaseController extends BaseController
         // Update current balance for each group after cost_sum is calculated
         foreach ($groups as $key => $group) {
             $totalPaid = $paymentTotals[$group['group_id']] ?? 0.0;
-            $groups[$key]['current_balance'] = max(0, (float)$group['cost_sum'] - $totalPaid);
-            // Update payment status if fully paid
-            if ($groups[$key]['current_balance'] <= 0.01 && $totalPaid > 0) {
-                $groups[$key]['payment_status'] = 'Paid';
-                // If fully paid, use the last payment receipt instead of original purchase receipt
-                // The receipt URL from payment_transactions is already in the correct format (/public/uploads/...)
-                // and the view will handle prepending the base URL
-                if (isset($lastReceipts[$group['group_id']]) && !empty($lastReceipts[$group['group_id']])) {
-                    $groups[$key]['receipt_url'] = $lastReceipts[$group['group_id']];
+            $paymentStatus = $group['payment_status'] ?? 'Pending';
+            
+            // If payment status is "Paid", current balance should be 0
+            if ($paymentStatus === 'Paid') {
+                $groups[$key]['current_balance'] = 0.0;
+            } else {
+                $groups[$key]['current_balance'] = max(0, (float)$group['cost_sum'] - $totalPaid);
+                // Update payment status if fully paid
+                if ($groups[$key]['current_balance'] <= 0.01 && $totalPaid > 0) {
+                    $groups[$key]['payment_status'] = 'Paid';
+                    // If fully paid, use the last payment receipt instead of original purchase receipt
+                    // The receipt URL from payment_transactions is already in the correct format (/public/uploads/...)
+                    // and the view will handle prepending the base URL
+                    if (isset($lastReceipts[$group['group_id']]) && !empty($lastReceipts[$group['group_id']])) {
+                        $groups[$key]['receipt_url'] = $lastReceipts[$group['group_id']];
+                    }
                 }
             }
         }
@@ -734,7 +741,18 @@ class PurchaseController extends BaseController
         
         // Calculate totals
         $totalPaid = array_sum(array_column($transactions, 'amount'));
-        $currentBalance = $totalAmount - $totalPaid;
+        
+        // Check if payment status is "Paid" - if so, current balance should be 0
+        $allPaid = true;
+        foreach ($groupPurchases as $purchase) {
+            if (($purchase['payment_status'] ?? 'Pending') !== 'Paid') {
+                $allPaid = false;
+                break;
+            }
+        }
+        
+        // If payment status is "Paid", current balance should be 0
+        $currentBalance = $allPaid ? 0 : max(0, $totalAmount - $totalPaid);
         
         // Format transactions
         $baseUrl = defined('BASE_URL') ? BASE_URL : '';

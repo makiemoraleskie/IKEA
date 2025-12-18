@@ -100,7 +100,6 @@ if ($user) {
 				$role = $user['role'] ?? '';
 				if ($role === 'Kitchen Staff') {
 					$navItems = [
-						['url' => '/dashboard', 'label' => 'Dashboard', 'icon' => 'bar-chart-3'],
 						['url' => '/requests', 'label' => 'Requests', 'icon' => 'clipboard-list'],
 					];
 				} elseif ($role === 'Purchaser') {
@@ -162,7 +161,7 @@ if ($user) {
 		<!-- Main Content -->
 		<div class="flex-1 flex flex-col transition-all duration-300 min-w-0">
 			<!-- Top Header -->
-			<header class="bg-white border-b theme-header relative z-10" style="z-index: 10;">
+			<header class="bg-white border-b theme-header relative z-10" style="z-index: 100;">
 				<div class="mx-auto flex w-full max-w-7xl flex-col gap-3 md:gap-4 px-4 py-3 md:py-4 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8 xl:px-10">
 					<div class="flex items-center justify-between gap-3 flex-1 min-w-0">
 						<div class="flex items-center gap-3 flex-1 min-w-0">
@@ -183,7 +182,7 @@ if ($user) {
 									<span class="absolute -top-1 -right-1 w-4 h-4 bg-gray-300 text-gray-700 text-[10px] rounded-full flex items-center justify-center">0</span>
 								<?php endif; ?>
 							</button>
-							<div id="notificationPanel" class="hidden fixed right-4 mt-3 w-[calc(100vw-2rem)] max-w-xs sm:max-w-sm bg-white border border-gray-200 rounded-xl shadow-xl z-[60] overflow-hidden flex flex-col" style="top: auto; max-height: calc(4 * 5.5rem + 9rem);">
+							<div id="notificationPanel" class="hidden fixed right-4 mt-3 w-[calc(100vw-2rem)] max-w-xs sm:max-w-sm bg-white border border-gray-200 rounded-xl shadow-xl z-[9999] overflow-hidden flex flex-col" style="top: auto; max-height: calc(4 * 5.5rem + 9rem); z-index: 9999 !important;">
 								<div class="px-4 py-3 border-b flex items-center justify-between gap-4 flex-shrink-0">
 									<div>
 										<p class="text-sm font-semibold text-gray-900">Notifications</p>
@@ -261,7 +260,7 @@ if ($user) {
 										<span class="absolute -top-1 -right-1 w-4 h-4 bg-gray-300 text-gray-700 text-[10px] rounded-full flex items-center justify-center">0</span>
 									<?php endif; ?>
 								</button>
-								<div id="notificationPanelDesktop" class="hidden fixed right-4 mt-3 w-screen max-w-xs sm:max-w-sm bg-white border border-gray-200 rounded-xl shadow-xl z-[60] overflow-hidden flex flex-col" style="top: auto; max-height: calc(4 * 5.5rem + 9rem);">
+								<div id="notificationPanelDesktop" class="hidden fixed right-4 mt-3 w-screen max-w-xs sm:max-w-sm bg-white border border-gray-200 rounded-xl shadow-xl z-[9999] overflow-hidden flex flex-col" style="top: auto; max-height: calc(4 * 5.5rem + 9rem); z-index: 9999 !important;">
 									<div class="px-4 py-3 border-b flex items-center justify-between gap-4 flex-shrink-0">
 										<div>
 											<p class="text-sm font-semibold text-gray-900">Notifications</p>
@@ -752,6 +751,33 @@ if ($user) {
 			<!-- Main Content Area -->
 			<main class="flex-1 overflow-y-auto min-w-0" style="background-color: #f9fafb;">
 				<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-6 space-y-8 min-w-0">
+					<?php 
+					// Display unauthorized access flash message if present
+					$unauthorizedFlash = $GLOBALS['unauthorizedFlash'] ?? null;
+					if (empty($unauthorizedFlash) && isset($_SESSION['flash_unauthorized'])) {
+						$unauthorizedFlash = $_SESSION['flash_unauthorized'];
+						unset($_SESSION['flash_unauthorized']);
+					}
+					if (!empty($unauthorizedFlash) && !empty($unauthorizedFlash['messages'])): 
+					?>
+					<div class="mb-4 md:mb-6 rounded-xl px-4 py-3 text-sm bg-red-50 border border-red-200 text-red-800">
+						<div class="font-semibold mb-1 flex items-center gap-2">
+							<i data-lucide="alert-triangle" class="w-4 h-4"></i>
+							<span>Access Denied</span>
+						</div>
+						<ul class="list-disc list-inside space-y-1 text-[13px] md:text-sm">
+							<?php foreach ((array)$unauthorizedFlash['messages'] as $msg): ?>
+								<li><?php echo htmlspecialchars((string)$msg); ?></li>
+							<?php endforeach; ?>
+						</ul>
+					</div>
+					<script>
+						// Initialize lucide icons for the alert icon
+						if (typeof lucide !== 'undefined') {
+							lucide.createIcons();
+						}
+					</script>
+					<?php endif; ?>
 	<?php else: ?>
 	<main class="max-w-7xl mx-auto p-4">
 	<?php endif; ?>

@@ -15,6 +15,13 @@ class DashboardController extends BaseController
 			$this->redirect('/login');
 		}
 
+		// Kitchen Staff should not have access to dashboard - redirect to requests page
+		$userRole = $user['role'] ?? null;
+		if ($userRole === 'Kitchen Staff') {
+			$this->redirect('/requests');
+			return;
+		}
+
 		// Placeholder stats; will be replaced with real queries
 		$stats = [
 			'user' => Auth::user(),

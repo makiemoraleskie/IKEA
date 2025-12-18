@@ -21,6 +21,24 @@ class RequestModel extends BaseModel
 		if (!in_array('custom_request_date', $columns, true)) {
 			$this->db->exec("ALTER TABLE request_batches ADD COLUMN custom_request_date DATE NULL");
 		}
+		
+		// Update status ENUM to include new statuses
+		try {
+			$this->db->exec("ALTER TABLE request_batches MODIFY COLUMN status ENUM('Pending','To Prepare','Pending Confirmation','Distributed','Received','Rejected') NOT NULL DEFAULT 'Pending'");
+		} catch (PDOException $e) {
+			// If it fails, try alternative approach - change to VARCHAR if ENUM modification fails
+			// This handles cases where the column might already be VARCHAR or have different structure
+			try {
+				$columnInfo = $this->db->query("SHOW COLUMNS FROM request_batches WHERE Field = 'status'")->fetch(PDO::FETCH_ASSOC);
+				if ($columnInfo && stripos($columnInfo['Type'], 'enum') !== false) {
+					// Column is ENUM, try to modify it
+					$this->db->exec("ALTER TABLE request_batches MODIFY COLUMN status ENUM('Pending','To Prepare','Pending Confirmation','Distributed','Received','Rejected') NOT NULL DEFAULT 'Pending'");
+				}
+			} catch (PDOException $e2) {
+				// If still fails, log but don't break - the status might already be VARCHAR
+			}
+		}
+		
 		$this->batchMetaEnsured = true;
 	}
 
@@ -140,7 +158,7 @@ class RequestModel extends BaseModel
 
 	public function setBatchStatus(int $batchId, string $status): void
 	{
-		$sql = 'UPDATE request_batches SET status=?, date_approved = CASE WHEN (?) IN ("To Prepare","Distributed","Rejected") THEN NOW() ELSE date_approved END WHERE id=?';
+		$sql = 'UPDATE request_batches SET status=?, date_approved = CASE WHEN (?) IN ("To Prepare","Distributed","Pending Confirmation","Received","Rejected") THEN NOW() ELSE date_approved END WHERE id=?';
 		$stmt = $this->db->prepare($sql);
 		$stmt->execute([$status, $status, $batchId]);
 	}
@@ -175,6 +193,12 @@ class RequestModel extends BaseModel
 		$sql = 'UPDATE request_batches SET custom_requester = ?, custom_ingredients = ?, custom_request_date = ? WHERE id = ? AND status = "Pending"';
 		$stmt = $this->db->prepare($sql);
 		$stmt->execute([$requesterName, $ingredientsNote, $requestedDate ?: null, $batchId]);
+	}
+	
+	public function ensureStatusEnum(): void
+	{
+		// Ensure status ENUM includes all required values
+		$this->ensureBatchMetadata(); // This will update the ENUM
 	}
 }
 

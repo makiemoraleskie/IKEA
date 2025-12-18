@@ -6,7 +6,14 @@ class AuthController extends BaseController
 	public function showLogin(): void
 	{
 		if (Auth::check()) {
-			$this->redirect('/dashboard');
+			$user = Auth::user();
+			$userRole = $user['role'] ?? null;
+			// Kitchen Staff should be redirected to requests page, not dashboard
+			if ($userRole === 'Kitchen Staff') {
+				$this->redirect('/requests');
+			} else {
+				$this->redirect('/dashboard');
+			}
 		}
 		$this->renderLogin('auth/login.php');
 	}
@@ -46,7 +53,13 @@ class AuthController extends BaseController
 		$logger = new AuditLog();
 		$logger->log((int)$user['id'], 'login', 'auth', ['email' => $email]);
 
-		$this->redirect('/dashboard');
+		// Kitchen Staff should be redirected to requests page, not dashboard
+		$userRole = $user['role'] ?? null;
+		if ($userRole === 'Kitchen Staff') {
+			$this->redirect('/requests');
+		} else {
+			$this->redirect('/dashboard');
+		}
 	}
 
 	public function logout(): void

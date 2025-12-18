@@ -21,13 +21,24 @@ class NotificationFeed
 	public function compose(?array $user, int $userId, string $baseUrl, int $personalLimit = 10, bool $includeSystem = true): array
 	{
 		$feed = [];
+		$userRole = $user['role'] ?? null;
+		$isKitchenStaff = ($userRole === 'Kitchen Staff');
+		$isPurchaser = ($userRole === 'Purchaser');
 
-		if ($includeSystem && $user !== null) {
-			$feed = array_merge($feed, $this->buildSystemNotifications($baseUrl));
+		// Kitchen Staff should not receive system notifications (low stock, pending requests, payments, deliveries, etc.)
+		// Purchaser should only receive pending payments and partial deliveries
+		if ($includeSystem && $user !== null && !$isKitchenStaff) {
+			if ($isPurchaser) {
+				// Purchaser only gets pending payments and partial deliveries
+				$feed = array_merge($feed, $this->buildSystemNotifications($baseUrl, true));
+			} else {
+				// Other roles get all system notifications
+				$feed = array_merge($feed, $this->buildSystemNotifications($baseUrl, false));
+			}
 		}
 
 		if ($userId > 0) {
-			$feed = array_merge($feed, $this->buildPersonalNotifications($userId, $baseUrl, $personalLimit));
+			$feed = array_merge($feed, $this->buildPersonalNotifications($userId, $baseUrl, $personalLimit, $isKitchenStaff, $isPurchaser));
 		}
 
 		usort($feed, static function (array $a, array $b): int {
@@ -39,7 +50,7 @@ class NotificationFeed
 		return $feed;
 	}
 
-	private function buildSystemNotifications(string $baseUrl): array
+	private function buildSystemNotifications(string $baseUrl, bool $purchaserOnly = false): array
 	{
 		$items = [];
 		$now = new DateTimeImmutable();
@@ -54,6 +65,38 @@ class NotificationFeed
 			$offset++;
 		};
 
+		// Purchaser only gets pending payments and partial deliveries
+		if ($purchaserOnly) {
+			$pendingPayments = $this->purchaseModel->countByPaymentStatus('Pending');
+			if ($pendingPayments > 0) {
+				$append([
+					'id' => 'system:pending-payments',
+					'title' => 'Pending payments',
+					'body' => $pendingPayments . ' purchase' . ($pendingPayments > 1 ? 's await settlement.' : ' awaits settlement.'),
+					'level' => 'info',
+					'icon' => 'credit-card',
+					'accent' => 'text-rose-700 bg-rose-50',
+					'link' => $this->normalizeLink($baseUrl, '/purchases?payment=Pending#recent-purchases'),
+				]);
+			}
+
+			$partialDeliveries = $this->deliveryModel->countDeliveriesByStatus('Partial');
+			if ($partialDeliveries > 0) {
+				$append([
+					'id' => 'system:partial-deliveries',
+					'title' => 'Partial deliveries',
+					'body' => $partialDeliveries . ' delivery' . ($partialDeliveries > 1 ? 'ies still have remaining items.' : ' still has remaining items.'),
+					'level' => 'warning',
+					'icon' => 'truck',
+					'accent' => 'text-purple-700 bg-purple-50',
+					'link' => $this->normalizeLink($baseUrl, '/deliveries?status=partial#recent-deliveries'),
+				]);
+			}
+			
+			return $items;
+		}
+
+		// For non-Purchaser roles, show all system notifications
 		// Optimize: Use a count query instead of fetching all low stock items
 		// This is much faster when there are many low stock items
 		$lowStockCount = $this->ingredientModel->countLowStockItems();
@@ -131,13 +174,51 @@ class NotificationFeed
 		return $items;
 	}
 
-	private function buildPersonalNotifications(int $userId, string $baseUrl, int $limit): array
+	private function buildPersonalNotifications(int $userId, string $baseUrl, int $limit, bool $isKitchenStaff = false, bool $isPurchaser = false): array
 	{
 		$rows = $this->notificationModel->listLatest($userId, $limit);
 		$items = [];
 		foreach ($rows as $row) {
-			$level = strtolower(trim((string)($row['level'] ?? 'info')));
 			$message = trim((string)($row['message'] ?? ''));
+			$link = trim((string)($row['link'] ?? ''));
+			
+			// For Kitchen Staff: only show request-related notifications
+			if ($isKitchenStaff) {
+				// Check if notification is request-related
+				$isRequestRelated = (
+					stripos($message, 'request') !== false ||
+					stripos($message, 'distributed') !== false ||
+					stripos($message, 'approved') !== false ||
+					stripos($message, 'rejected') !== false ||
+					stripos($message, 'confirm') !== false ||
+					stripos($link, '/requests') !== false
+				);
+				
+				// Skip non-request-related notifications for Kitchen Staff
+				if (!$isRequestRelated) {
+					continue;
+				}
+			}
+			
+			// For Purchaser: only show payment and delivery-related notifications
+			if ($isPurchaser) {
+				// Check if notification is payment or delivery-related
+				$isPaymentOrDeliveryRelated = (
+					stripos($message, 'payment') !== false ||
+					stripos($message, 'purchase') !== false ||
+					stripos($message, 'delivery') !== false ||
+					stripos($message, 'partial') !== false ||
+					stripos($link, '/purchases') !== false ||
+					stripos($link, '/deliveries') !== false
+				);
+				
+				// Skip non-payment/delivery-related notifications for Purchaser
+				if (!$isPaymentOrDeliveryRelated) {
+					continue;
+				}
+			}
+			
+			$level = strtolower(trim((string)($row['level'] ?? 'info')));
 			$title = $message !== '' ? $message : 'Notification';
 			$items[] = [
 				'id' => 'personal:' . ($row['id'] ?? uniqid()),

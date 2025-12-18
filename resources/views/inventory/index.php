@@ -718,9 +718,9 @@ document.addEventListener('DOMContentLoaded', function () {
 		const rowsHtml = selectedItems.map(item => `
 			<tr>
 				<td>${escapeHtml(item.name)}</td>
-				<td>${escapeHtml(item.status)}</td>
-				<td>${escapeHtml(item.onHand)}</td>
-				<td>${escapeHtml(item.reorder)}</td>
+				<td></td>
+				<td></td>
+				<td></td>
 			</tr>
 		`).join('');
 		const popup = window.open('', '_blank', 'width=900,height=700');
@@ -738,10 +738,10 @@ document.addEventListener('DOMContentLoaded', function () {
 			<table>
 				<thead>
 					<tr>
-						<th>Ingredient</th>
-						<th>Status</th>
-						<th>On Hand</th>
-						<th>Reorder Level</th>
+						<th>Item</th>
+						<th>Quantity</th>
+						<th>Unit</th>
+						<th>Price</th>
 					</tr>
 				</thead>
 				<tbody>${rowsHtml}</tbody>
@@ -767,6 +767,55 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	if (printBtn && modalContent) {
 		printBtn.addEventListener('click', () => {
+			// Clone the modal content to avoid modifying the original
+			const contentClone = modalContent.cloneNode(true);
+			// Remove all Customize buttons from the clone
+			const customizeButtons = contentClone.querySelectorAll('.purchase-customize-btn');
+			customizeButtons.forEach(btn => btn.remove());
+			
+			// Update table headers and cells for print format
+			const tables = contentClone.querySelectorAll('table');
+			tables.forEach(table => {
+				const thead = table.querySelector('thead');
+				if (thead) {
+					const headerRow = thead.querySelector('tr');
+					if (headerRow) {
+						// Update column headers: Item | Quantity | Unit | Price
+						const headers = headerRow.querySelectorAll('th');
+						if (headers.length >= 4) {
+							headers[0].textContent = 'Item';
+							headers[1].textContent = 'Quantity';
+							headers[2].textContent = 'Unit';
+							headers[3].textContent = 'Price';
+							// Remove extra columns if any
+							for (let i = 4; i < headers.length; i++) {
+								headers[i].remove();
+							}
+						}
+					}
+				}
+				
+				// Update table body cells
+				const tbody = table.querySelector('tbody');
+				if (tbody) {
+					const rows = tbody.querySelectorAll('tr');
+					rows.forEach(row => {
+						const cells = row.querySelectorAll('td');
+						if (cells.length >= 4) {
+							// Keep first cell (ingredient name) as Item
+							// Clear second, third, and fourth cells (Quantity, Unit, Price)
+							cells[1].textContent = '';
+							cells[2].textContent = '';
+							cells[3].textContent = '';
+							// Remove extra cells if any
+							for (let i = 4; i < cells.length; i++) {
+								cells[i].remove();
+							}
+						}
+					});
+				}
+			});
+			
 			const popup = window.open('', '_blank', 'width=900,height=700');
 			if (!popup) { return; }
 			popup.document.write(`<html><head><title>Low Stock Purchase List</title>
@@ -779,7 +828,7 @@ document.addEventListener('DOMContentLoaded', function () {
 					section { margin-bottom: 24px; }
 					.hidden { display: none !important; }
 				</style>
-			</head><body>${modalContent.innerHTML}</body></html>`);
+			</head><body>${contentClone.innerHTML}</body></html>`);
 			popup.document.close();
 			popup.focus();
 			popup.print();

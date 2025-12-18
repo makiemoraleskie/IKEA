@@ -5,9 +5,20 @@ abstract class BaseController
 {
 	protected function render(string $viewPath, array $data = []): void
 	{
+		// Extract and clear unauthorized flash message if present
+		$unauthorizedFlash = null;
+		if (isset($_SESSION['flash_unauthorized'])) {
+			$unauthorizedFlash = $_SESSION['flash_unauthorized'];
+			unset($_SESSION['flash_unauthorized']);
+		}
+		
 		extract($data);
 		$basePath = BASE_PATH;
-			$baseUrl = defined('BASE_URL') ? BASE_URL : '';
+		$baseUrl = defined('BASE_URL') ? BASE_URL : '';
+		
+		// Make unauthorized flash available to header
+		$GLOBALS['unauthorizedFlash'] = $unauthorizedFlash;
+		
 		include $basePath . '/resources/header.php';
 		include $basePath . '/resources/views/' . ltrim($viewPath, '/');
 		include $basePath . '/resources/footer.php';
