@@ -1933,7 +1933,12 @@ function formatDate($dateString) {
 				const confirmModalContent = document.createElement('div');
 				confirmModalContent.className = 'p-6';
 				
-				const stockDisplay = currentStock.toFixed(2) + ' ' + (ingredient.display_unit || ingredient.unit || '');
+				// Format stock display: show base unit, and display unit if available
+				let stockDisplay = currentStock.toFixed(2) + ' ' + (ingredient.unit || '');
+				if (ingredient.display_unit && ingredient.display_factor && ingredient.display_factor > 0) {
+					const displayQty = currentStock / ingredient.display_factor;
+					stockDisplay += ' (' + displayQty.toFixed(2) + ' ' + ingredient.display_unit + ')';
+				}
 				
 				confirmModalContent.innerHTML = `
 					<div class="flex items-center gap-4 mb-4">
