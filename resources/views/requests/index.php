@@ -311,7 +311,7 @@ function formatDate($dateString) {
 									<?php if (!empty($b['custom_requester'])): ?>
 									<p class="text-sm text-gray-600 mb-2">Request Name: <span class="font-semibold text-gray-900"><?php echo htmlspecialchars($b['custom_requester']); ?></span></p>
 									<?php endif; ?>
-									<div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4 request-info-section">
+									<div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4 request-info-section" data-raw-date-requested="<?php echo htmlspecialchars(substr((string)($b['date_requested'] ?? ''), 0, 10)); ?>">
 										<div>
 											<p class="text-xs uppercase tracking-wider text-gray-500 font-medium mb-1">REQUESTED BY</p>
 											<p class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($b['staff_name'] ?? (string)$b['staff_id']); ?></p>
@@ -674,7 +674,7 @@ function formatDate($dateString) {
 									<?php if (!empty($b['custom_requester'])): ?>
 									<p class="text-sm font-semibold tracking-wide text-gray-500 mb-2">Request Name: <span class="font-semibold text-gray-900"><?php echo htmlspecialchars($b['custom_requester']); ?></span></p>
 									<?php endif; ?>
-									<div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4 request-info-section">
+									<div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4 request-info-section" data-raw-date-requested="<?php echo htmlspecialchars(substr((string)($b['date_requested'] ?? ''), 0, 10)); ?>">
 										<div>
 											<p class="text-xs uppercase tracking-wider text-gray-500 font-medium mb-1">REQUESTED BY</p>
 											<p class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($b['staff_name'] ?? (string)$b['staff_id']); ?></p>
@@ -1147,6 +1147,9 @@ function formatDate($dateString) {
 			// Find the request info section in the clone
 			const requestInfoSection = cardClone.querySelector('.request-info-section');
 			if (requestInfoSection) {
+				// Get the raw date from data attribute (YYYY-MM-DD format)
+				const rawDate = requestInfoSection.getAttribute('data-raw-date-requested') || '';
+				
 				const allDivs = requestInfoSection.querySelectorAll('div');
 				allDivs.forEach(div => {
 					const text = div.textContent || '';
@@ -1154,26 +1157,20 @@ function formatDate($dateString) {
 						const valueP = div.querySelector('p.text-sm.font-semibold');
 						if (valueP) requestedBy = valueP.textContent.trim();
 					}
-					if (text.includes('DATE REQUESTED')) {
-						const valueP = div.querySelector('p.text-sm.font-semibold');
-						if (valueP) {
-							const fullDate = valueP.textContent.trim();
-							// Extract only the date part (first 10 characters: YYYY-MM-DD) and format it
-							const dateStr = fullDate.substring(0, 10);
-							if (dateStr.length === 10) {
-								const date = new Date(dateStr + 'T00:00:00');
-								if (!isNaN(date.getTime())) {
-									const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-									dateRequested = months[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear();
-								} else {
-									dateRequested = dateStr;
-								}
-							} else {
-								dateRequested = dateStr;
-							}
-						}
-					}
 				});
+				
+				// Format the date from the raw date string (YYYY-MM-DD)
+				if (rawDate && rawDate.length === 10) {
+					const date = new Date(rawDate + 'T00:00:00');
+					if (!isNaN(date.getTime())) {
+						const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+						dateRequested = months[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear();
+					} else {
+						dateRequested = rawDate;
+					}
+				} else if (rawDate) {
+					dateRequested = rawDate;
+				}
 				
 				// Remove the Requested By and Date Requested section from cloned card content
 				requestInfoSection.remove();
@@ -1241,10 +1238,10 @@ function formatDate($dateString) {
 							Approve
 						</button>
 					</form>
-					<form method="post" action="${baseUrl}/requests/reject" class="inline" data-confirm="Are you sure you want to reject request batch #${id}? The requester will be notified." data-confirm-type="warning">
+					<form method="post" action="${baseUrl}/requests/reject" class="inline" id="rejectBatchForm${id}">
 						<input type="hidden" name="csrf_token" value="${csrfToken}">
 						<input type="hidden" name="batch_id" value="${id}">
-						<button type="submit" class="inline-flex items-center gap-1 px-2.5 md:px-3 py-1.5 bg-red-600 text-white text-[10px] md:text-xs rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+						<button type="button" class="rejectBatchBtn inline-flex items-center gap-1 px-2.5 md:px-3 py-1.5 bg-red-600 text-white text-[10px] md:text-xs rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
 							<i data-lucide="x" class="w-3 h-3"></i>
 							Reject
 						</button>
@@ -1281,14 +1278,84 @@ function formatDate($dateString) {
 				}
 			});
 			
-			// Handle form confirmations
+			// Handle reject form with UI confirmation modal
 			const rejectForm = modal.querySelector('form[action*="/requests/reject"]');
 			if (rejectForm) {
-				rejectForm.addEventListener('submit', function(e) {
-					if (!confirm('Are you sure you want to reject request batch #' + id + '? The requester will be notified.')) {
+				const rejectBtn = rejectForm.querySelector('.rejectBatchBtn');
+				if (rejectBtn) {
+					rejectBtn.addEventListener('click', function(e) {
 						e.preventDefault();
-					}
-				});
+						
+						// Remove any existing confirmation overlays
+						const existingConfirmOverlays = document.querySelectorAll('.reject-confirm-overlay');
+						existingConfirmOverlays.forEach(ov => ov.remove());
+						
+						// Create confirmation modal
+						const confirmOverlay = document.createElement('div');
+						confirmOverlay.className = 'reject-confirm-overlay fixed inset-0 z-[999999] hidden overflow-hidden';
+						confirmOverlay.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 999999 !important; pointer-events: none !important;';
+						const confirmBackdrop = document.createElement('div');
+						confirmBackdrop.className = 'fixed inset-0 bg-black/50';
+						confirmBackdrop.style.cssText = 'position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;';
+						confirmOverlay.appendChild(confirmBackdrop);
+						const confirmContainer = document.createElement('div');
+						confirmContainer.className = 'relative z-10 flex min-h-full items-center justify-center p-4 overflow-y-auto overflow-x-hidden';
+						
+						const confirmModal = document.createElement('div');
+						confirmModal.className = 'bg-white rounded-xl shadow-none max-w-md w-full mx-auto my-auto';
+						confirmModal.style.cssText = 'max-width: 28rem; margin-top: auto !important; margin-bottom: auto !important;';
+						confirmModal.style.pointerEvents = 'auto';
+						const confirmModalContent = document.createElement('div');
+						confirmModalContent.className = 'p-6';
+						
+						confirmModalContent.innerHTML = `
+							<div class="flex items-center gap-4 mb-4">
+								<div class="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+									<i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+								</div>
+								<div>
+									<h3 class="text-sm md:text-base font-semibold text-gray-900">Reject Request</h3>
+									<p class="text-[10px] md:text-xs text-gray-500 mt-0.5 md:mt-1">Confirm rejection</p>
+								</div>
+							</div>
+							<p class="text-xs md:text-sm text-gray-700 mb-4 md:mb-6">
+								Are you sure you want to reject request batch <strong>#${id}</strong>? The requester will be notified.
+							</p>
+							<div class="flex items-center justify-end gap-2 md:gap-3">
+								<button type="button" class="cancelRejectBtn inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+									No
+								</button>
+								<button type="button" class="confirmRejectBtn inline-flex items-center justify-center px-2.5 md:px-3 lg:px-4 py-1.5 md:py-2 text-xs md:text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+									Yes, Reject
+								</button>
+							</div>
+						`;
+						
+						confirmModal.appendChild(confirmModalContent);
+						confirmContainer.appendChild(confirmModal);
+						confirmOverlay.appendChild(confirmContainer);
+						confirmOverlay.classList.remove('hidden');
+						document.body.appendChild(confirmOverlay);
+						document.body.classList.add('overflow-hidden');
+						
+						if (typeof lucide !== 'undefined') {
+							lucide.createIcons();
+						}
+						
+						const closeConfirmModal = () => {
+							confirmOverlay.classList.add('hidden');
+							document.body.classList.remove('overflow-hidden');
+							setTimeout(() => confirmOverlay.remove(), 300);
+						};
+						
+						confirmBackdrop.addEventListener('click', closeConfirmModal);
+						confirmModal.querySelector('.cancelRejectBtn').addEventListener('click', closeConfirmModal);
+						confirmModal.querySelector('.confirmRejectBtn').addEventListener('click', function() {
+							closeConfirmModal();
+							rejectForm.submit();
+						});
+					});
+				}
 			}
 			
 			const approveForm = modal.querySelector('form[action*="/requests/approve"]');
@@ -1376,7 +1443,7 @@ function formatDate($dateString) {
 			
 			const closeModal = ()=> {
 				// Remove all overlays related to this modal
-				const allOverlays = document.querySelectorAll('.batch-detail-overlay, .delete-confirm-overlay');
+				const allOverlays = document.querySelectorAll('.batch-detail-overlay, .delete-confirm-overlay, .reject-confirm-overlay');
 				allOverlays.forEach(ov => ov.remove());
 				document.body.classList.remove('overflow-hidden');
 			};

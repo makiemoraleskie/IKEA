@@ -49,29 +49,32 @@ class Reports extends BaseModel
 	}
 
 	/**
-	 * Aggregate total ingredient consumption (requests distributed) within filters.
+	 * Get ingredient consumption records (individual distributions) within filters.
+	 * Returns: date, name, total_quantity, unit, remaining_stock
 	 */
 	public function getIngredientConsumption(array $filters): array
 	{
 		$sql = 'SELECT
+				COALESCE(b.date_approved, b.date_requested, b.created_at) AS distribution_date,
 				i.id,
 				i.name,
 				i.category,
 				i.unit,
 				i.display_unit,
 				i.display_factor,
-				SUM(r.quantity) AS total_quantity
+				r.quantity AS total_quantity,
+				b.id AS batch_id
 			FROM requests r
 			JOIN request_batches b ON r.batch_id = b.id
 			JOIN ingredients i ON r.item_id = i.id';
 		$params = [];
 		$conditions = [];
 		if (!empty($filters['date_from'])) {
-			$conditions[] = 'b.date_requested >= ?';
+			$conditions[] = 'COALESCE(b.date_approved, b.date_requested, b.created_at) >= ?';
 			$params[] = $filters['date_from'] . ' 00:00:00';
 		}
 		if (!empty($filters['date_to'])) {
-			$conditions[] = 'b.date_requested <= ?';
+			$conditions[] = 'COALESCE(b.date_approved, b.date_requested, b.created_at) <= ?';
 			$params[] = $filters['date_to'] . ' 23:59:59';
 		}
 		if (!empty($filters['category'])) {
@@ -93,17 +96,55 @@ class Reports extends BaseModel
 			}
 		}
 		if (!$statusApplied) {
-			$conditions[] = 'b.status = "Distributed"';
+			$conditions[] = 'b.status IN ("Distributed", "Pending Confirmation", "Received")';
 		}
 		if ($conditions) {
 			$sql .= ' WHERE ' . implode(' AND ', $conditions);
 		}
-		$sql .= ' GROUP BY i.id, i.name, i.category, i.unit, i.display_unit, i.display_factor
-			HAVING total_quantity > 0
-			ORDER BY i.name ASC';
+		$sql .= ' ORDER BY COALESCE(b.date_approved, b.date_requested, b.created_at) DESC, i.name ASC';
 		$stmt = $this->db->prepare($sql);
 		$stmt->execute($params);
-		return $stmt->fetchAll();
+		$results = $stmt->fetchAll();
+		
+		// Calculate remaining stock for each record
+		// We need to calculate stock after each distribution chronologically
+		// Get current stock for all ingredients
+		$currentStock = [];
+		$ingredientStmt = $this->db->query('SELECT id, quantity FROM ingredients');
+		foreach ($ingredientStmt->fetchAll() as $ing) {
+			$currentStock[(int)$ing['id']] = (float)$ing['quantity'];
+		}
+		
+		// Sort results by date ascending to calculate remaining stock correctly
+		usort($results, function($a, $b) {
+			$aDate = $a['distribution_date'] ?? '';
+			$bDate = $b['distribution_date'] ?? '';
+			if ($aDate === $bDate) return 0;
+			return $aDate < $bDate ? -1 : 1;
+		});
+		
+		// Calculate remaining stock for each distribution
+		foreach ($results as &$row) {
+			$ingredientId = (int)$row['id'];
+			$quantityUsed = (float)$row['total_quantity'];
+			
+			// Remaining stock = current stock (which is after this distribution)
+			$row['remaining_stock'] = $currentStock[$ingredientId] ?? 0;
+			
+			// Add back the distributed quantity for next iteration (working backwards)
+			$currentStock[$ingredientId] = ($currentStock[$ingredientId] ?? 0) + $quantityUsed;
+		}
+		unset($row);
+		
+		// Sort back by date descending for display
+		usort($results, function($a, $b) {
+			$aDate = $a['distribution_date'] ?? '';
+			$bDate = $b['distribution_date'] ?? '';
+			if ($aDate === $bDate) return 0;
+			return $aDate > $bDate ? -1 : 1;
+		});
+		
+		return $results;
 	}
 }
 

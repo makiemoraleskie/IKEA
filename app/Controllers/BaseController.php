@@ -14,7 +14,7 @@ abstract class BaseController
 		
 		extract($data);
 		$basePath = BASE_PATH;
-		$baseUrl = defined('BASE_URL') ? BASE_URL : '';
+			$baseUrl = defined('BASE_URL') ? BASE_URL : '';
 		
 		// Make unauthorized flash available to header
 		$GLOBALS['unauthorizedFlash'] = $unauthorizedFlash;

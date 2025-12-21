@@ -609,15 +609,15 @@ $uniqueCategories = !empty($consumption) ? count(array_filter(array_unique(array
 			<table class="w-full text-[10px] md:text-xs lg:text-sm" id="consumptionTable">
 				<thead class="sticky top-0 bg-white z-10">
 					<tr>
-						<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white cursor-pointer hover:bg-gray-50 sortable" data-sort="name">
+						<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white cursor-pointer hover:bg-gray-50 sortable" data-sort="date">
 							<div class="flex items-center gap-1">
-								<span>Ingredient</span>
+								<span>Date</span>
 								<i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400"></i>
 							</div>
 						</th>
-						<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white cursor-pointer hover:bg-gray-50 sortable" data-sort="category">
+						<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white cursor-pointer hover:bg-gray-50 sortable" data-sort="name">
 							<div class="flex items-center gap-1">
-								<span>Category</span>
+								<span>Name</span>
 								<i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400"></i>
 							</div>
 						</th>
@@ -627,24 +627,44 @@ $uniqueCategories = !empty($consumption) ? count(array_filter(array_unique(array
 								<i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400"></i>
 							</div>
 						</th>
-						<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white">Display Unit</th>
+						<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white">Unit</th>
+						<th class="text-left px-3 md:px-4 lg:px-6 py-2 md:py-2.5 lg:py-3 font-medium text-gray-700 bg-white">Remaining Stock</th>
 					</tr>
 				</thead>
 				<tbody id="consumptionTableBody" class="divide-y divide-gray-200">
-					<?php foreach ($consumption as $row): 
+					<?php 
+					// Helper function to format date and time
+					function formatDateTime($dateString) {
+						if (empty($dateString)) return '—';
+						try {
+							$date = new DateTime($dateString);
+							return $date->format('M j, Y g:i A');
+						} catch (Exception $e) {
+							return $dateString;
+						}
+					}
+					
+					foreach ($consumption as $row): 
 						$baseQty = (float)($row['total_quantity'] ?? 0);
 						$unit = $row['unit'] ?? '';
 						$displayUnit = $row['display_unit'] ?? '';
 						$displayFactor = (float)($row['display_factor'] ?? 1);
-						$convertedQty = null;
+						$remainingStock = (float)($row['remaining_stock'] ?? 0);
+						
+						// Format remaining stock: base unit (display unit)
+						$remainingStockDisplay = number_format($remainingStock, 2) . ' ' . htmlspecialchars($unit);
 						if ($displayUnit !== '' && $displayFactor > 0 && abs($displayFactor - 1) > 0.00001) {
-							$convertedQty = $baseQty / $displayFactor;
+							$remainingDisplayQty = $remainingStock / $displayFactor;
+							$remainingStockDisplay .= ' (' . number_format($remainingDisplayQty, 2) . ' ' . htmlspecialchars($displayUnit) . ')';
 						}
 					?>
 					<tr class="consumption-row hover:bg-gray-50 transition-colors"
 						data-name="<?php echo htmlspecialchars(strtolower($row['name'])); ?>"
-						data-category="<?php echo htmlspecialchars(strtolower($row['category'] ?? '')); ?>"
+						data-date="<?php echo htmlspecialchars($row['distribution_date'] ?? ''); ?>"
 						data-quantity="<?php echo $baseQty; ?>">
+						<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm text-gray-600">
+							<?php echo htmlspecialchars(formatDateTime($row['distribution_date'] ?? '')); ?>
+						</td>
 						<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
 							<div class="flex items-center gap-2">
 								<div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -652,24 +672,17 @@ $uniqueCategories = !empty($consumption) ? count(array_filter(array_unique(array
 								</div>
 								<div>
 									<p class="font-semibold text-gray-900"><?php echo htmlspecialchars($row['name']); ?></p>
-									<p class="text-xs text-gray-500">Base: <?php echo htmlspecialchars($unit ?: 'unit'); ?></p>
 								</div>
 							</div>
 						</td>
-						<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm text-gray-600">
-							<?php echo htmlspecialchars($row['category'] ?? '—'); ?>
-						</td>
 						<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
 							<span class="font-bold text-gray-900"><?php echo number_format($baseQty, 2); ?></span>
-							<span class="text-sm text-gray-500 ml-1"><?php echo htmlspecialchars($unit); ?></span>
+						</td>
+						<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm text-gray-600">
+							<?php echo htmlspecialchars($unit ?: 'unit'); ?>
 						</td>
 						<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
-							<?php if ($convertedQty !== null): ?>
-								<span class="font-semibold text-gray-900"><?php echo number_format($convertedQty, 2); ?></span>
-								<span class="text-sm text-gray-500 ml-1"><?php echo htmlspecialchars($displayUnit); ?></span>
-							<?php else: ?>
-								<span class="text-sm text-gray-500">—</span>
-							<?php endif; ?>
+							<span class="text-green-600 font-medium"><?php echo $remainingStockDisplay; ?></span>
 						</td>
 					</tr>
 					<?php endforeach; ?>
@@ -1198,7 +1211,113 @@ const purchaseChartIds = [];
 if (document.getElementById('dailySpendingChart')) purchaseChartIds.push('dailySpendingChart');
 if (document.getElementById('supplierChart')) purchaseChartIds.push('supplierChart');
 setupEnhancedPrint('purchasePrintBtn', 'purchaseReportSection', 'Purchase Report', purchaseChartIds);
-setupEnhancedPrint('consumptionPrintBtn', 'consumptionReportSection', 'Ingredient Consumption Report', []);
+// Custom print function for consumption report - only show title, timestamp, summary cards, and table
+const consumptionPrintBtn = document.getElementById('consumptionPrintBtn');
+if (consumptionPrintBtn) {
+	consumptionPrintBtn.addEventListener('click', () => {
+		const win = window.open('', '_blank', 'width=900,height=700');
+		if (!win) return;
+		
+		// Get summary cards - find the grid with summary cards
+		const summarySection = document.querySelector('#consumptionTabContent .grid.grid-cols-1');
+		let summaryCardsHtml = '';
+		if (summarySection) {
+			const summaryClone = summarySection.cloneNode(true);
+			// Remove icons
+			summaryClone.querySelectorAll('[data-lucide], i[class*="lucide"]').forEach(icon => icon.remove());
+			// Remove absolute positioned icon containers
+			summaryClone.querySelectorAll('.absolute').forEach(el => el.remove());
+			summaryCardsHtml = summaryClone.innerHTML;
+		}
+		
+		// Get table only
+		const table = document.querySelector('#consumptionTable');
+		let tableHtml = '';
+		if (table) {
+			const tableClone = table.cloneNode(true);
+			// Remove icons and sort indicators
+			tableClone.querySelectorAll('[data-lucide], i[class*="lucide"]').forEach(icon => icon.remove());
+			// Remove sortable class and data attributes
+			tableClone.querySelectorAll('th').forEach(th => {
+				th.classList.remove('sortable', 'cursor-pointer', 'hover:bg-gray-50');
+				th.removeAttribute('data-sort');
+				// Remove the div wrapper and just keep the text
+				const div = th.querySelector('div');
+				if (div) {
+					const span = div.querySelector('span');
+					if (span) {
+						th.textContent = span.textContent;
+					}
+				}
+			});
+			// Clean up table cells - remove icons from name column
+			tableClone.querySelectorAll('td').forEach(td => {
+				const iconContainer = td.querySelector('.w-8.h-8');
+				if (iconContainer) {
+					iconContainer.remove();
+				}
+				// Clean up name column - remove the flex container and just keep the text
+				const flexContainer = td.querySelector('.flex.items-center');
+				if (flexContainer) {
+					const nameText = flexContainer.querySelector('p.font-semibold');
+					if (nameText) {
+						td.textContent = nameText.textContent.trim();
+					}
+				}
+			});
+			tableHtml = tableClone.outerHTML;
+		}
+		
+		win.document.write(`<html><head><title>Ingredient Consumption Report</title>
+			<style>
+				@page { margin: 0.8cm; }
+				body { font-family: Arial, sans-serif; padding: 10px; color: #1f2937; font-size: 10px; line-height: 1.3; }
+				h1 { font-size: 18px; margin: 0 0 4px 0; color: #1d4ed8; font-weight: bold; }
+				.grid { display: flex; gap: 10px; margin: 12px 0; flex-wrap: wrap; }
+				.bg-white { background: white !important; border: 1px solid #e5e7eb !important; border-radius: 6px !important; padding: 10px !important; min-width: 150px; flex: 1; }
+				table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 9px; }
+				th, td { border: 1px solid #e5e7eb; padding: 6px 8px; text-align: left; }
+				th { background: #f3f4f6 !important; font-weight: 600; font-size: 9px; }
+				.text-2xl { font-size: 16px !important; font-weight: bold; }
+				.text-3xl { font-size: 18px !important; font-weight: bold; }
+				.text-sm { font-size: 9px !important; }
+				.text-xs { font-size: 8px !important; }
+				.text-gray-600 { color: #4b5563 !important; }
+				.text-gray-900 { color: #111827 !important; }
+				.text-green-600 { color: #059669 !important; }
+				.text-purple-600 { color: #9333ea !important; }
+				.text-blue-600 { color: #2563eb !important; }
+				.text-emerald-600 { color: #059669 !important; }
+				.font-semibold { font-weight: 600 !important; }
+				.font-bold { font-weight: 700 !important; }
+				.font-medium { font-weight: 500 !important; }
+				.font-black { font-weight: 900 !important; }
+				.mb-1 { margin-bottom: 4px !important; }
+				.mb-6 { margin-bottom: 12px !important; }
+				.mb-8 { margin-bottom: 16px !important; }
+				.pr-12 { padding-right: 0 !important; }
+				@media print {
+					body { padding: 5px; }
+					@page { margin: 0.5cm; }
+					table { page-break-inside: auto; font-size: 8px; }
+					th, td { padding: 4px 6px; }
+					tr { page-break-inside: avoid; page-break-after: auto; }
+					thead { display: table-header-group; }
+					.grid { gap: 8px; margin: 8px 0; }
+					.bg-white { padding: 8px !important; }
+				}
+			</style>
+		</head><body>
+			<h1>Ingredient Consumption Report</h1>
+			<p style="font-size: 9px; color: #6b7280; margin-bottom: 10px;">Generated on ${new Date().toLocaleString()}</p>
+			${summaryCardsHtml}
+			${tableHtml}
+		</body></html>`);
+		win.document.close();
+		win.focus();
+		setTimeout(() => win.print(), 250);
+	});
+}
 
 // Charts
 <?php if ($canViewCosts && !empty($daily)): ?>
