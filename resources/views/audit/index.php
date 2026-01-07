@@ -392,6 +392,7 @@ foreach ($logs as $log) {
 					data-module="<?php echo htmlspecialchars($entry['module']); ?>"
 					data-user="<?php echo htmlspecialchars($userName); ?>"
 					data-sentence="<?php echo htmlspecialchars($sentence ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+					data-details="<?php echo htmlspecialchars($detailsRaw ?? '', ENT_QUOTES, 'UTF-8'); ?>"
 					data-timestamp="<?php echo ($timestampRaw !== false) ? $timestamp : ''; ?>">
 					<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
 						<div class="flex items-center gap-2">
@@ -401,6 +402,7 @@ foreach ($logs as $log) {
 									data-module="<?php echo htmlspecialchars($entry['module']); ?>"
 									data-user="<?php echo htmlspecialchars($userName); ?>"
 									data-sentence="<?php echo htmlspecialchars($sentence ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+									data-details="<?php echo htmlspecialchars($detailsRaw ?? '', ENT_QUOTES, 'UTF-8'); ?>"
 									data-timestamp="<?php echo $timestamp; ?>">
 									<span class="font-medium text-gray-900"><?php echo htmlspecialchars($activityText); ?></span>
 								</button>
@@ -641,8 +643,38 @@ foreach ($logs as $log) {
 		const module = element.getAttribute('data-module') || '';
 		const user = element.getAttribute('data-user') || 'System';
 		const sentence = element.getAttribute('data-sentence') || '';
+		const detailsRaw = element.getAttribute('data-details') || '';
 		const timestampStr = element.getAttribute('data-timestamp') || '';
 		const timestamp = (timestampStr && !isNaN(parseInt(timestampStr, 10)) && parseInt(timestampStr, 10) > 0) ? parseInt(timestampStr, 10) : 0;
+		
+		// Parse raw details JSON if available
+		let detailData = null;
+		if (detailsRaw) {
+			try {
+				detailData = JSON.parse(detailsRaw);
+			} catch (e) {
+				// Invalid JSON, ignore
+			}
+		}
+		
+		// Helper function to format quantity with units
+		function formatQuantityWithUnits(quantity, unit, displayUnit, displayFactor) {
+			if (!quantity || isNaN(parseFloat(quantity))) return quantity;
+			const qty = parseFloat(quantity);
+			let formatted = parseFloat(qty).toLocaleString('en-US', {
+				minimumFractionDigits: 2,
+				maximumFractionDigits: 2
+			}) + ' ' + (unit || '');
+			
+			if (displayUnit && displayFactor && displayFactor > 0 && Math.abs(displayFactor - 1) > 0.00001) {
+				const displayQty = qty / displayFactor;
+				formatted += ' (' + parseFloat(displayQty).toLocaleString('en-US', {
+					minimumFractionDigits: 2,
+					maximumFractionDigits: 2
+				}) + ' ' + displayUnit + ')';
+			}
+			return formatted;
+		}
 		
 		// Set header activity info
 		document.getElementById('timelineModalActivity').textContent = `${action.charAt(0).toUpperCase() + action.slice(1)} on ${module}`;
@@ -723,6 +755,16 @@ foreach ($logs as $log) {
 						const changeDiv = document.createElement('div');
 						changeDiv.className = 'flex items-start justify-between gap-3 py-1.5';
 						
+						// Special handling for quantity_lost in record_loss actions
+						let displayValue = value;
+						if (action === 'record_loss' && keyLower.includes('quantity') && keyLower.includes('lost') && detailData) {
+							const quantityLost = parseFloat(detailData.quantity_lost || value);
+							const unit = detailData.unit || '';
+							const displayUnit = detailData.display_unit || '';
+							const displayFactor = parseFloat(detailData.display_factor || 1);
+							displayValue = formatQuantityWithUnits(quantityLost, unit, displayUnit, displayFactor);
+						}
+						
 						if (isUpdate) {
 							// Show before/after
 							const parts = value.split(/→| to /).map(p => p.trim());
@@ -738,13 +780,13 @@ foreach ($logs as $log) {
 							} else {
 								changeDiv.innerHTML = `
 									<span class="text-xs font-medium text-gray-700">${escapeHtml(key)}:</span>
-									<span class="text-xs font-semibold text-blue-700">${escapeHtml(value)}</span>
+									<span class="text-xs font-semibold text-blue-700">${escapeHtml(displayValue)}</span>
 								`;
 							}
 						} else {
 							changeDiv.innerHTML = `
 								<span class="text-xs font-medium text-gray-700 flex-1">${escapeHtml(key)}:</span>
-								<span class="text-xs font-semibold text-blue-700">${escapeHtml(value)}</span>
+								<span class="text-xs font-semibold text-blue-700">${escapeHtml(displayValue)}</span>
 							`;
 						}
 						changesContainer.appendChild(changeDiv);

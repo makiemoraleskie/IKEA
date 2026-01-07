@@ -96,6 +96,136 @@ if (!empty($lowStockGroups)) {
 	</div>
 </div>
 
+<!-- Record Loss Modal -->
+<?php if (Auth::role() === 'Owner'): ?>
+<div id="lossModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+	<div class="fixed inset-0 bg-gray-900/80 backdrop-blur-sm" data-loss-dismiss style="backdrop-filter: blur(4px) !important; -webkit-backdrop-filter: blur(4px) !important;"></div>
+	<div class="relative z-10 flex min-h-full items-center justify-center px-4 py-8">
+		<div class="w-full max-w-md bg-white rounded-2xl shadow-none border border-gray-200 overflow-hidden">
+			<div class="flex items-start justify-between gap-3 px-5 py-4 border-b bg-gray-100">
+				<div>
+					<p class="text-md uppercase tracking-[0.25em] text-red-500 font-semibold">Record Ingredient Loss</p>
+					<p class="text-sm text-gray-600 mt-1">Record spoiled, damaged, or expired ingredients</p>
+				</div>
+				<button type="button" class="text-gray-400 hover:text-gray-600 transition-colors shrink-0" data-loss-dismiss>
+					<i data-lucide="x" class="w-5 h-5"></i>
+				</button>
+			</div>
+			
+			<div class="p-5">
+				<form method="POST" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/loss" id="lossForm" class="space-y-4">
+					<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+					<input type="hidden" name="ingredient_id" id="loss_ingredient_id">
+					
+					<div class="space-y-3">
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1.5">Ingredient</label>
+							<input type="text" id="loss_ingredient_name" readonly class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm">
+						</div>
+						
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1.5">Quantity Lost <span class="text-red-500">*</span></label>
+							<div class="flex items-center gap-2">
+								<input type="number" name="quantity" id="loss_quantity" step="0.01" min="0.01" required class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm">
+								<span id="loss_unit_display" class="text-sm text-gray-600 whitespace-nowrap"></span>
+							</div>
+							<p class="text-xs text-gray-500 mt-1">Enter quantity in base unit</p>
+						</div>
+						
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1.5">Reason <span class="text-red-500">*</span></label>
+							<select name="reason" id="loss_reason" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm">
+								<option value="">Select reason...</option>
+								<option value="Spoiled">Spoiled</option>
+								<option value="Damaged">Damaged</option>
+								<option value="Expired">Expired</option>
+								<option value="Contaminated">Contaminated</option>
+								<option value="Other">Other</option>
+							</select>
+						</div>
+						
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1.5">Notes (Optional)</label>
+							<textarea name="notes" id="loss_notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm" placeholder="Additional details about the loss..."></textarea>
+						</div>
+					</div>
+					
+					<div class="flex justify-end gap-3 pt-2">
+						<button type="button" class="inline-flex items-center gap-2 px-5 py-2.5 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-300 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors" data-loss-dismiss>
+							Cancel
+						</button>
+						<button type="button" id="lossSubmitBtn" class="inline-flex items-center gap-2 bg-red-600 text-white px-5 py-2.5 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+							<i data-lucide="alert-triangle" class="w-4 h-4"></i>
+							Record Loss
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Loss Confirmation Modal -->
+<div id="lossConfirmModal" class="fixed inset-0 z-[60] hidden overflow-y-auto">
+	<div class="fixed inset-0 bg-gray-900/80 backdrop-blur-sm" data-loss-confirm-dismiss style="backdrop-filter: blur(4px) !important; -webkit-backdrop-filter: blur(4px) !important;"></div>
+	<div class="relative z-10 flex min-h-full items-center justify-center px-4 py-8">
+		<div class="w-full max-w-md bg-white rounded-2xl shadow-none border-2 border-red-200 overflow-hidden">
+			<div class="bg-red-50 px-5 py-4 border-b border-red-200">
+				<div class="flex items-start gap-3">
+					<div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+						<i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+					</div>
+					<div class="flex-1">
+						<h3 class="text-lg font-semibold text-gray-900 mb-1">Confirm Loss Recording</h3>
+						<p class="text-sm text-gray-600">Please review the details before confirming</p>
+					</div>
+				</div>
+			</div>
+			
+			<div class="p-5">
+				<div class="space-y-3 mb-6">
+					<div class="flex items-start gap-3">
+						<span class="text-sm font-medium text-gray-700 w-24 shrink-0">Ingredient:</span>
+						<span id="confirm_ingredient_name" class="text-sm text-gray-900 flex-1"></span>
+					</div>
+					<div class="flex items-start gap-3">
+						<span class="text-sm font-medium text-gray-700 w-24 shrink-0">Quantity:</span>
+						<span id="confirm_quantity" class="text-sm text-gray-900 flex-1 font-semibold"></span>
+					</div>
+					<div class="flex items-start gap-3">
+						<span class="text-sm font-medium text-gray-700 w-24 shrink-0">Reason:</span>
+						<span id="confirm_reason" class="text-sm text-gray-900 flex-1"></span>
+					</div>
+					<div id="confirm_notes_container" class="flex items-start gap-3 hidden">
+						<span class="text-sm font-medium text-gray-700 w-24 shrink-0">Notes:</span>
+						<span id="confirm_notes" class="text-sm text-gray-900 flex-1"></span>
+					</div>
+				</div>
+				
+				<div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+					<div class="flex items-start gap-2">
+						<i data-lucide="info" class="w-4 h-4 text-amber-600 mt-0.5 shrink-0"></i>
+						<p class="text-xs text-amber-800">
+							<strong>Warning:</strong> This action will permanently reduce the stock quantity. This cannot be undone.
+						</p>
+					</div>
+				</div>
+				
+				<div class="flex justify-end gap-3">
+					<button type="button" class="inline-flex items-center gap-2 px-5 py-2.5 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-300 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors" data-loss-confirm-dismiss>
+						Cancel
+					</button>
+					<button type="button" id="confirmLossBtn" class="inline-flex items-center gap-2 bg-red-600 text-white px-5 py-2.5 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+						<i data-lucide="check" class="w-4 h-4"></i>
+						Confirm & Record
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<?php endif; ?>
+
 <!-- Summary Cards -->
 <?php 
 $lowStockCount = 0;
@@ -837,9 +967,9 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-<!-- Delete Ingredient Confirmation Modal -->
-<?php if ($canManageInventory): ?>
-<div id="deleteIngredientModal" class="fixed inset-0 z-50 hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 50 !important;">
+<!-- Delete Ingredient Confirmation Modal (First Step) -->
+<?php if (Auth::role() === 'Owner'): ?>
+<div id="deleteIngredientConfirmModal" class="fixed inset-0 z-50 hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 50 !important;">
     <div class="fixed inset-0 bg-black/50" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
     <div class="relative z-10 flex items-center justify-center p-4 overflow-x-hidden" style="min-height: 100vh;">
         <div class="bg-white rounded-xl shadow-none max-w-sm w-full mx-auto">
@@ -849,25 +979,71 @@ document.addEventListener('DOMContentLoaded', function () {
                         <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600"></i>
                     </div>
                     <div class="flex-1">
-                        <h3 class="text-sm md:text-base font-semibold text-gray-900">Delete Ingredient</h3>
-                        <p class="text-[10px] md:text-xs text-gray-600 mt-0.5">Are you sure you want to delete this ingredient from the inventory?</p>
+                        <h3 class="text-sm md:text-base font-semibold text-gray-900">Confirm Deletion</h3>
+                    </div>
+                </div>
+                <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                    <p class="text-xs md:text-sm font-medium text-red-900 mb-1.5">⚠️ Warning: This action cannot be undone!</p>
+                    <p class="text-[10px] md:text-xs text-red-700 mb-2">Are you sure you want to delete this ingredient from the inventory?</p>
+                    <p class="text-xs md:text-sm font-semibold text-gray-900" id="deleteIngredientConfirmName"></p>
+                    <p class="text-[10px] md:text-xs text-red-700 mt-2">This will permanently delete the ingredient and all associated requests, purchases, and deliveries.</p>
+                </div>
+                <div class="flex justify-end gap-2">
+                    <button type="button" id="cancelDeleteConfirmBtn" class="inline-flex items-center justify-center px-3 md:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium text-xs md:text-sm">
+                        Cancel
+                    </button>
+                    <button type="button" id="proceedToReasonBtn" class="inline-flex items-center justify-center px-3 md:px-4 py-1.5 md:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-xs md:text-sm">
+                        Yes, Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Ingredient Reason Modal (Second Step) -->
+<div id="deleteIngredientModal" class="fixed inset-0 z-50 hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 50 !important;">
+    <div class="fixed inset-0 bg-black/50" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
+    <div class="relative z-10 flex items-center justify-center p-4 overflow-x-hidden" style="min-height: 100vh;">
+        <div class="bg-white rounded-xl shadow-none max-w-sm w-full mx-auto">
+            <div class="p-4 md:p-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="file-text" class="w-5 h-5 text-red-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-sm md:text-base font-semibold text-gray-900">Provide Deletion Reason</h3>
                     </div>
                 </div>
                 <div class="bg-gray-50 rounded-lg p-2.5 md:p-3 mb-3">
                     <p class="text-xs md:text-sm font-medium text-gray-900" id="deleteIngredientName"></p>
                 </div>
-                <div class="flex justify-end gap-2">
-                    <button type="button" id="cancelDeleteIngredientBtn" class="inline-flex items-center justify-center px-3 md:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium text-xs md:text-sm">
-                        Cancel
-                    </button>
-                    <form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/delete" id="deleteIngredientForm" class="inline">
-                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
-                        <input type="hidden" name="id" id="deleteIngredientId" value="">
-                        <button type="submit" id="confirmDeleteIngredientBtn" class="inline-flex items-center justify-center px-3 md:px-4 py-1.5 md:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-xs md:text-sm">
+                <form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/delete" id="deleteIngredientForm">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+                    <input type="hidden" name="id" id="deleteIngredientId" value="">
+                    <div class="mb-3">
+                        <label for="deleteIngredientReason" class="block text-xs md:text-sm font-medium text-gray-700 mb-1.5">
+                            Deletion Reason <span class="text-red-600">*</span>
+                        </label>
+                        <textarea 
+                            id="deleteIngredientReason" 
+                            name="reason" 
+                            rows="3" 
+                            required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs md:text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                            placeholder="Please provide a reason for deleting this ingredient..."
+                        ></textarea>
+                        <p class="mt-1 text-[10px] md:text-xs text-gray-500">This reason will be recorded in the audit log.</p>
+                    </div>
+                    <div class="flex justify-end gap-2">
+                        <button type="button" id="cancelDeleteIngredientBtn" class="inline-flex items-center justify-center px-3 md:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium text-xs md:text-sm">
+                            Cancel
+                        </button>
+                        <button type="submit" id="confirmDeleteIngredientBtn" class="inline-flex items-center justify-center px-3 md:px-4 py-1.5 md:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
                             Delete Ingredient
                         </button>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -1544,7 +1720,7 @@ document.addEventListener('DOMContentLoaded', function() {
 					<div class="space-y-1">
 						<div class="flex flex-col leading-tight gap-0.5">
 							<span class="inline-flex items-center gap-1 md:gap-1.5">
-								<span class="font-semibold text-green-700 text-[10px] md:text-xs lg:text-sm">${formatNumber(ing.quantity)}</span>
+								<span class="font-semibold ${ing.outOfStock ? 'text-red-600' : (ing.low ? 'text-yellow-600' : 'text-green-600')} text-[10px] md:text-xs lg:text-sm">${formatNumber(ing.quantity)}</span>
 								<span class="text-gray-500 text-[9px] md:text-[10px] lg:text-xs">${escapeHtml(ing.unit || '')}</span>
 							</span>
 							${(() => {
@@ -1573,8 +1749,8 @@ document.addEventListener('DOMContentLoaded', function() {
 					</div>
 				</td>
 				<td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4">
-					<span class="text-[10px] md:text-xs lg:text-sm font-medium ${ing.low ? 'text-red-600' : 'text-green-600'} whitespace-nowrap">
-						${ing.low ? 'Low Stock' : 'In Stock'}
+					<span class="text-[10px] md:text-xs lg:text-sm font-medium ${ing.outOfStock ? 'text-red-600' : (ing.low ? 'text-yellow-600' : 'text-green-600')} whitespace-nowrap">
+						${ing.outOfStock ? 'Out of Stock' : (ing.low ? 'Low Stock' : 'In Stock')}
 					</span>
 				</td>
 				${<?php echo $canManageInventory ? 'true' : 'false'; ?> ? `
@@ -1585,9 +1761,16 @@ document.addEventListener('DOMContentLoaded', function() {
 							<i data-lucide="pencil" class="w-4 h-4 md:w-4 md:h-4"></i>
 						</button>
 						` : ''}
+						${<?php echo Auth::role() === 'Owner' ? 'true' : 'false'; ?> ? `
+						<button type="button" class="record-loss-btn inline-flex items-center justify-center w-7 h-7 md:w-8 md:h-8 text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition-colors" data-ingredient-id="${ing.id}" data-ingredient-name="${escapeHtml(ing.name || '')}" data-unit="${escapeHtml(ing.unit || '')}" data-display-unit="${escapeHtml(ing.display_unit || '')}" data-display-factor="${ing.display_factor || 1}" title="Record loss">
+							<i data-lucide="alert-triangle" class="w-4 h-4 md:w-4 md:h-4"></i>
+						</button>
+						` : ''}
+						${<?php echo Auth::role() === 'Owner' ? 'true' : 'false'; ?> ? `
 						<button type="button" class="delete-ingredient-btn inline-flex items-center justify-center w-7 h-7 md:w-8 md:h-8 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors" data-ingredient-id="${ing.id}" data-ingredient-name="${escapeHtml(ing.name || '')}" title="Delete ingredient">
 							<i data-lucide="trash-2" class="w-4 h-4 md:w-4 md:h-4"></i>
 						</button>
+						` : ''}
 					</div>
 				</td>
 				` : ''}
@@ -1831,25 +2014,216 @@ document.addEventListener('DOMContentLoaded', function() {
 	}
 	<?php endif; ?>
 	
+	// Record Loss modal handlers
+	<?php if (Auth::role() === 'Owner'): ?>
+	(function(){
+		const lossModal = document.getElementById('lossModal');
+		const lossForm = document.getElementById('lossForm');
+		const lossSubmitBtn = document.getElementById('lossSubmitBtn');
+		const lossConfirmModal = document.getElementById('lossConfirmModal');
+		const confirmLossBtn = document.getElementById('confirmLossBtn');
+		const lossDismissEls = lossModal ? lossModal.querySelectorAll('[data-loss-dismiss]') : [];
+		const lossConfirmDismissEls = lossConfirmModal ? lossConfirmModal.querySelectorAll('[data-loss-confirm-dismiss]') : [];
+		
+		function openLossModal(ingredientId, ingredientName, unit, displayUnit, displayFactor) {
+			if (!lossModal) return;
+			
+			document.getElementById('loss_ingredient_id').value = ingredientId;
+			document.getElementById('loss_ingredient_name').value = ingredientName;
+			document.getElementById('loss_quantity').value = '';
+			document.getElementById('loss_reason').value = '';
+			document.getElementById('loss_notes').value = '';
+			
+			// Display unit info
+			let unitDisplay = unit;
+			if (displayUnit && displayFactor > 1) {
+				unitDisplay += ` (${displayUnit})`;
+			}
+			document.getElementById('loss_unit_display').textContent = unitDisplay;
+			
+			lossModal.classList.remove('hidden');
+			document.body.classList.add('overflow-hidden');
+			if (window.lucide?.createIcons) {
+				window.lucide.createIcons({ elements: lossModal.querySelectorAll('i[data-lucide]') });
+			}
+		}
+		
+		function closeLossModal() {
+			if (!lossModal) return;
+			lossModal.classList.add('hidden');
+			document.body.classList.remove('overflow-hidden');
+		}
+		
+		function openConfirmModal() {
+			if (!lossConfirmModal || !lossForm) return;
+			
+			// Get form values
+			const ingredientName = document.getElementById('loss_ingredient_name').value;
+			const quantity = document.getElementById('loss_quantity').value;
+			const reason = document.getElementById('loss_reason').value;
+			const notes = document.getElementById('loss_notes').value;
+			const unitDisplay = document.getElementById('loss_unit_display').textContent;
+			
+			// Validate required fields
+			if (!quantity || parseFloat(quantity) <= 0) {
+				alert('Please enter a valid quantity.');
+				return;
+			}
+			
+			if (!reason) {
+				alert('Please select a reason for the loss.');
+				return;
+			}
+			
+			// Populate confirmation modal
+			document.getElementById('confirm_ingredient_name').textContent = ingredientName;
+			document.getElementById('confirm_quantity').textContent = parseFloat(quantity).toLocaleString('en-US', {
+				minimumFractionDigits: 2,
+				maximumFractionDigits: 2
+			}) + ' ' + unitDisplay;
+			document.getElementById('confirm_reason').textContent = reason;
+			
+			// Show/hide notes
+			const notesContainer = document.getElementById('confirm_notes_container');
+			const notesField = document.getElementById('confirm_notes');
+			if (notes && notes.trim()) {
+				notesField.textContent = notes.trim();
+				notesContainer.classList.remove('hidden');
+			} else {
+				notesContainer.classList.add('hidden');
+			}
+			
+			// Hide loss modal and show confirmation modal
+			lossModal.classList.add('hidden');
+			lossConfirmModal.classList.remove('hidden');
+			
+			if (window.lucide?.createIcons) {
+				window.lucide.createIcons({ elements: lossConfirmModal.querySelectorAll('i[data-lucide]') });
+			}
+		}
+		
+		function closeConfirmModal() {
+			if (!lossConfirmModal) return;
+			lossConfirmModal.classList.add('hidden');
+			// Show loss modal again
+			lossModal.classList.remove('hidden');
+		}
+		
+		// Handle form submission button click - show confirmation instead
+		if (lossSubmitBtn) {
+			lossSubmitBtn.addEventListener('click', (e) => {
+				e.preventDefault();
+				openConfirmModal();
+			});
+		}
+		
+		// Handle confirmation button click - submit form
+		if (confirmLossBtn && lossForm) {
+			confirmLossBtn.addEventListener('click', () => {
+				lossForm.submit();
+			});
+		}
+		
+		// Handle record loss button clicks (delegated event listener on table body)
+		if (tableBody) {
+			tableBody.addEventListener('click', (e) => {
+				const lossBtn = e.target.closest('.record-loss-btn');
+				if (!lossBtn) return;
+				
+				e.preventDefault();
+				const ingredientId = parseInt(lossBtn.dataset.ingredientId || '0', 10);
+				const ingredientName = lossBtn.dataset.ingredientName || '';
+				const unit = lossBtn.dataset.unit || '';
+				const displayUnit = lossBtn.dataset.displayUnit || '';
+				const displayFactor = parseFloat(lossBtn.dataset.displayFactor || '1');
+				
+				if (ingredientId > 0) {
+					openLossModal(ingredientId, ingredientName, unit, displayUnit, displayFactor);
+				}
+			});
+		}
+		
+		// Dismiss handlers for loss modal
+		lossDismissEls.forEach(el => el.addEventListener('click', closeLossModal));
+		lossModal?.addEventListener('click', (e) => {
+			if (e.target === lossModal || e.target.classList.contains('bg-gray-900')) closeLossModal();
+		});
+		
+		// Dismiss handlers for confirmation modal
+		lossConfirmDismissEls.forEach(el => el.addEventListener('click', closeConfirmModal));
+		lossConfirmModal?.addEventListener('click', (e) => {
+			if (e.target === lossConfirmModal || e.target.classList.contains('bg-gray-900')) closeConfirmModal();
+		});
+		
+		// Make functions globally available for potential external calls
+		window.openLossModal = openLossModal;
+		window.closeLossModal = closeLossModal;
+	})();
+	<?php endif; ?>
+	
 	// Delete ingredient modal handlers
-	<?php if ($canManageInventory): ?>
+	<?php if (Auth::role() === 'Owner'): ?>
+	const deleteIngredientConfirmModal = document.getElementById('deleteIngredientConfirmModal');
 	const deleteIngredientModal = document.getElementById('deleteIngredientModal');
+	const deleteIngredientConfirmName = document.getElementById('deleteIngredientConfirmName');
 	const deleteIngredientName = document.getElementById('deleteIngredientName');
 	const deleteIngredientId = document.getElementById('deleteIngredientId');
+	const deleteIngredientReason = document.getElementById('deleteIngredientReason');
+	const deleteIngredientForm = document.getElementById('deleteIngredientForm');
+	const cancelDeleteConfirmBtn = document.getElementById('cancelDeleteConfirmBtn');
+	const proceedToReasonBtn = document.getElementById('proceedToReasonBtn');
 	const cancelDeleteIngredientBtn = document.getElementById('cancelDeleteIngredientBtn');
 	
-	function openDeleteModal(ingredientId, ingredientName) {
+	let pendingDeleteIngredientId = null;
+	let pendingDeleteIngredientName = null;
+	
+	function openDeleteConfirmModal(ingredientId, ingredientName) {
+		if (!deleteIngredientConfirmModal || !deleteIngredientConfirmName) return;
+		pendingDeleteIngredientId = ingredientId;
+		pendingDeleteIngredientName = ingredientName;
+		deleteIngredientConfirmName.textContent = ingredientName;
+		deleteIngredientConfirmModal.classList.remove('hidden');
+		if (window.lucide?.createIcons) {
+			window.lucide.createIcons({ elements: deleteIngredientConfirmModal.querySelectorAll('i[data-lucide]') });
+		}
+	}
+	
+	function closeDeleteConfirmModal() {
+		if (deleteIngredientConfirmModal) deleteIngredientConfirmModal.classList.add('hidden');
+		pendingDeleteIngredientId = null;
+		pendingDeleteIngredientName = null;
+	}
+	
+	function openDeleteReasonModal() {
 		if (!deleteIngredientModal || !deleteIngredientName || !deleteIngredientId) return;
-		deleteIngredientName.textContent = ingredientName;
-		deleteIngredientId.value = ingredientId;
+		if (!pendingDeleteIngredientId || !pendingDeleteIngredientName) return;
+		
+		// Close confirmation modal
+		closeDeleteConfirmModal();
+		
+		// Open reason modal
+		deleteIngredientName.textContent = pendingDeleteIngredientName;
+		deleteIngredientId.value = pendingDeleteIngredientId;
+		if (deleteIngredientReason) {
+			deleteIngredientReason.value = '';
+		}
 		deleteIngredientModal.classList.remove('hidden');
 		if (window.lucide?.createIcons) {
 			window.lucide.createIcons({ elements: deleteIngredientModal.querySelectorAll('i[data-lucide]') });
+		}
+		// Focus on reason field
+		if (deleteIngredientReason) {
+			setTimeout(() => deleteIngredientReason.focus(), 100);
 		}
 	}
 	
 	function closeDeleteModal() {
 		if (deleteIngredientModal) deleteIngredientModal.classList.add('hidden');
+		if (deleteIngredientReason) {
+			deleteIngredientReason.value = '';
+		}
+		pendingDeleteIngredientId = null;
+		pendingDeleteIngredientName = null;
 	}
 	
 	// Handle delete button clicks (delegated event listener on table body)
@@ -1861,8 +2235,24 @@ document.addEventListener('DOMContentLoaded', function() {
 				const ingredientId = deleteBtn.getAttribute('data-ingredient-id');
 				const ingredientName = deleteBtn.getAttribute('data-ingredient-name');
 				if (ingredientId && ingredientName) {
-					openDeleteModal(ingredientId, ingredientName);
+					openDeleteConfirmModal(ingredientId, ingredientName);
 				}
+			}
+		});
+	}
+	
+	if (cancelDeleteConfirmBtn) {
+		cancelDeleteConfirmBtn.addEventListener('click', closeDeleteConfirmModal);
+	}
+	
+	if (proceedToReasonBtn) {
+		proceedToReasonBtn.addEventListener('click', openDeleteReasonModal);
+	}
+	
+	if (deleteIngredientConfirmModal) {
+		deleteIngredientConfirmModal.addEventListener('click', (e) => {
+			if (e.target === deleteIngredientConfirmModal || e.target.classList.contains('bg-black')) {
+				closeDeleteConfirmModal();
 			}
 		});
 	}
@@ -1875,6 +2265,18 @@ document.addEventListener('DOMContentLoaded', function() {
 		deleteIngredientModal.addEventListener('click', (e) => {
 			if (e.target === deleteIngredientModal || e.target.classList.contains('bg-black')) {
 				closeDeleteModal();
+			}
+		});
+	}
+	
+	// Form validation before submission
+	if (deleteIngredientForm) {
+		deleteIngredientForm.addEventListener('submit', (e) => {
+			if (!deleteIngredientReason || !deleteIngredientReason.value.trim()) {
+				e.preventDefault();
+				alert('Please provide a reason for deleting this ingredient.');
+				deleteIngredientReason.focus();
+				return false;
 			}
 		});
 	}

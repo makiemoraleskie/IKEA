@@ -81,30 +81,144 @@ class SimplePdfBuilder
 		}
 		$positions = [];
 		$x = self::MARGIN;
+		$totalWidth = 0;
+		$availableWidth = self::PAGE_WIDTH - (self::MARGIN * 2); // Available width between margins
 		for ($i = 0; $i < $columnCount; $i++) {
 			$positions[$i] = $x;
-			$x += $widths[$i] ?? 80;
+			$colWidth = $widths[$i] ?? 80;
+			$totalWidth += $colWidth;
+		}
+		
+		// Scale down widths if table exceeds available width
+		if ($totalWidth > $availableWidth) {
+			$scale = $availableWidth / $totalWidth;
+			// Recalculate positions with scaled widths
+			$x = self::MARGIN;
+			$totalWidth = 0;
+			for ($i = 0; $i < $columnCount; $i++) {
+				$positions[$i] = $x;
+				$widths[$i] = ($widths[$i] ?? 80) * $scale;
+				$x += $widths[$i];
+				$totalWidth += $widths[$i];
+			}
+		} else {
+			// Calculate positions normally
+			$x = self::MARGIN;
+			for ($i = 0; $i < $columnCount; $i++) {
+				$positions[$i] = $x;
+				$x += $widths[$i] ?? 80;
+			}
 		}
 
-		$neededHeight = ($fontSize + 6) * (max(count($rows), 1) + 1) + 8;
+		$rowHeight = $fontSize + 6;
+		$headerHeight = $fontSize + 6;
+		$cellPadding = 4; // Padding inside cells
+		$neededHeight = $headerHeight + ($rowHeight * count($rows)) + 8;
 		$this->ensureSpace($neededHeight);
 
-		$headerY = $this->cursorY;
+		// Draw header row - position text lower in the cell
+		$headerY = $this->cursorY - 10; // Lower the header text by 8 points
 		foreach ($headers as $index => $label) {
-			$this->writeText($label, $positions[$index], $headerY, $fontSize + 1);
+			$this->writeText($label, $positions[$index] + $cellPadding, $headerY, $fontSize + 1);
 		}
-		$this->cursorY = $headerY - ($fontSize + 6);
+		$this->cursorY = $headerY - $headerHeight;
+		$headerBottomY = $this->cursorY;
+		$firstRowY = $this->cursorY;
 
+		// Draw data rows - position text lower in each cell
 		foreach ($rows as $row) {
-			$this->ensureSpace($fontSize + 6);
-			$rowY = $this->cursorY;
+			$this->ensureSpace($rowHeight);
+			$rowY = $this->cursorY - 8; // Lower each row text by 6 points
 			foreach ($row as $index => $cell) {
-				$truncated = $this->truncate($cell, 60);
-				$this->writeText($truncated, $positions[$index] ?? self::MARGIN, $rowY, $fontSize);
+				// Calculate max characters based on column width (approximate 6 points per character)
+				$colWidth = $widths[$index] ?? 80;
+				$maxChars = (int)(($colWidth - $cellPadding * 2) / 6);
+				$truncated = $this->truncate($cell, $maxChars);
+				$this->writeText($truncated, $positions[$index] + $cellPadding, $rowY, $fontSize);
 			}
-			$this->cursorY -= ($fontSize + 6);
+			$this->cursorY -= $rowHeight;
 		}
+		
+		// Calculate table borders to contain the text
+		// Top border: above header text (account for font ascenders)
+		$headerFontSize = $fontSize + 1;
+		$tableTopY = round($headerY + ($headerFontSize * 0.7) + 2, 2);
+		// Bottom border: below last row text
+		// Last row text is at: cursorY (after all decrements) + rowHeight - 6 (lowered position)
+		$lastRowTextY = $this->cursorY + $rowHeight - 6;
+		$tableBottomY = round($lastRowTextY - ($fontSize * 0.3) - 2, 2);
+		
+		// Draw borders - use miter joins and butt caps for perfect grid
+		$this->current .= "0.5 w\n"; // Set line width to 0.5 points
+		$this->current .= "10 M\n"; // Set miter limit
+		$this->current .= "0 J\n"; // Miter join for sharp corners
+		$this->current .= "0 j\n"; // Butt cap for clean line ends
+		
+		$tableLeftX = round(self::MARGIN, 2);
+		$tableRightX = round(self::MARGIN + $totalWidth, 2);
+		// $tableTopY and $tableBottomY already calculated and rounded above
+		
+		// Calculate all Y positions for horizontal lines (rounded for precision)
+		// Header separator is between header and first data row
+		$headerBottomY = round($headerBottomY, 2); // Already calculated above
+		$horizontalLines = [
+			round($tableTopY, 2),      // Top border (above header)
+			round($headerBottomY, 2),   // Header separator (below header row)
+		];
+		// Row separators (between data rows)
+		$currentY = round($firstRowY, 2);
+		foreach ($rows as $row) {
+			$horizontalLines[] = round($currentY, 2);
+			$currentY = round($currentY - $rowHeight, 2);
+		}
+		$horizontalLines[] = round($tableBottomY, 2); // Bottom border (below last row)
+		
+		// Calculate all X positions for vertical lines (rounded for precision)
+		$verticalLines = [round($tableLeftX, 2)]; // Left border
+		$xPos = round(self::MARGIN, 2);
+		for ($i = 1; $i < $columnCount; $i++) {
+			$xPos = round($xPos + ($widths[$i - 1] ?? 80), 2);
+			$verticalLines[] = round($xPos, 2);
+		}
+		$verticalLines[] = round($tableRightX, 2); // Right border
+		
+		// Draw all horizontal lines first (ensures they connect with verticals)
+		foreach ($horizontalLines as $y) {
+			$this->current .= sprintf("%.2F %.2F m\n", $tableLeftX, $y);
+			$this->current .= sprintf("%.2F %.2F l\n", $tableRightX, $y);
+			$this->current .= "S\n";
+		}
+		
+		// Draw all vertical lines (they will connect with horizontals)
+		foreach ($verticalLines as $x) {
+			$this->current .= sprintf("%.2F %.2F m\n", $x, $tableTopY);
+			$this->current .= sprintf("%.2F %.2F l\n", $x, $tableBottomY);
+			$this->current .= "S\n";
+		}
+		
+		// Reset line settings to default
+		$this->current .= "1 w\n"; // Reset line width
+		$this->current .= "0 J\n"; // Reset line join style
+		$this->current .= "0 j\n"; // Reset line cap style
+		
 		$this->cursorY -= 6;
+	}
+	
+	private function drawLine(float $x1, float $y1, float $x2, float $y2): void
+	{
+		$this->current .= sprintf("%.2F %.2F m\n", $x1, $y1);
+		$this->current .= sprintf("%.2F %.2F l\n", $x2, $y2);
+		$this->current .= "S\n";
+	}
+	
+	private function drawRectangle(float $x, float $y, float $width, float $height): void
+	{
+		// Draw rectangle: bottom-left -> bottom-right -> top-right -> top-left -> close and stroke
+		$this->current .= sprintf("%.2F %.2F m\n", $x, $y);
+		$this->current .= sprintf("%.2F %.2F l\n", $x + $width, $y);
+		$this->current .= sprintf("%.2F %.2F l\n", $x + $width, $y + $height);
+		$this->current .= sprintf("%.2F %.2F l\n", $x, $y + $height);
+		$this->current .= "s\n"; // s = close path and stroke
 	}
 
 	private function truncate(string $text, int $limit): string

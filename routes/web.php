@@ -50,6 +50,7 @@ return [
 		'/inventory/update' => ['InventoryController', 'update'],
 		'/inventory/set' => ['InventoryController', 'storeSet'],
 		'/inventory/set/delete' => ['InventoryController', 'deleteSet'],
+		'/inventory/loss' => ['InventoryController', 'recordLoss'],
 		'/users' => ['UserController', 'store'],
 		'/users/update' => ['UserController', 'update'],
 		'/users/delete' => ['UserController', 'delete'],

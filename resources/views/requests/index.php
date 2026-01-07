@@ -415,26 +415,26 @@ function formatDate($dateString) {
 														$displayUnit = $ingredient['display_unit'] ?? null;
 														$displayFactor = (float)($ingredient['display_factor'] ?? 1.0);
 														
-														// Format remaining stock with display unit if available
+														// Format remaining stock: base unit (display unit)
 														$stockValue = (float)$remainingStock;
-														$stockDisplay = '';
+														$stockDisplay = number_format($stockValue, 2) . ' ' . $baseUnit;
 														
 														if ($displayUnit && $displayFactor > 0) {
-															// Convert to display unit
+															// Calculate display unit value
+															$displayValue = 0;
 															if ($baseUnit === 'g' && $displayUnit === 'kg') {
-																$stockDisplay = number_format($stockValue / 1000.0, 2) . ' ' . $displayUnit;
+																$displayValue = $stockValue / 1000.0;
 															} else if ($baseUnit === 'kg' && $displayUnit === 'g') {
-																$stockDisplay = number_format($stockValue * 1000.0, 2) . ' ' . $displayUnit;
+																$displayValue = $stockValue * 1000.0;
 															} else if ($baseUnit === 'ml' && $displayUnit === 'L') {
-																$stockDisplay = number_format($stockValue / 1000.0, 2) . ' ' . $displayUnit;
+																$displayValue = $stockValue / 1000.0;
 															} else if ($baseUnit === 'L' && $displayUnit === 'ml') {
-																$stockDisplay = number_format($stockValue * 1000.0, 2) . ' ' . $displayUnit;
+																$displayValue = $stockValue * 1000.0;
 															} else {
 																// Use display_factor for conversion
-																$stockDisplay = number_format($stockValue / $displayFactor, 2) . ' ' . $displayUnit;
+																$displayValue = $stockValue / $displayFactor;
 															}
-														} else {
-															$stockDisplay = number_format($stockValue, 2) . ' ' . $baseUnit;
+															$stockDisplay .= ' (' . number_format($displayValue, 2) . ' ' . $displayUnit . ')';
 														}
 													?>
 														<span class="text-green-600 text-xs md:text-sm"><?php echo htmlspecialchars($stockDisplay); ?></span>
@@ -780,26 +780,26 @@ function formatDate($dateString) {
 														$displayUnit = $ingredient['display_unit'] ?? null;
 														$displayFactor = (float)($ingredient['display_factor'] ?? 1.0);
 														
-														// Format remaining stock with display unit if available
+														// Format remaining stock: base unit (display unit)
 														$stockValue = (float)$remainingStock;
-														$stockDisplay = '';
+														$stockDisplay = number_format($stockValue, 2) . ' ' . $baseUnit;
 														
 														if ($displayUnit && $displayFactor > 0) {
-															// Convert to display unit
+															// Calculate display unit value
+															$displayValue = 0;
 															if ($baseUnit === 'g' && $displayUnit === 'kg') {
-																$stockDisplay = number_format($stockValue / 1000.0, 2) . ' ' . $displayUnit;
+																$displayValue = $stockValue / 1000.0;
 															} else if ($baseUnit === 'kg' && $displayUnit === 'g') {
-																$stockDisplay = number_format($stockValue * 1000.0, 2) . ' ' . $displayUnit;
+																$displayValue = $stockValue * 1000.0;
 															} else if ($baseUnit === 'ml' && $displayUnit === 'L') {
-																$stockDisplay = number_format($stockValue / 1000.0, 2) . ' ' . $displayUnit;
+																$displayValue = $stockValue / 1000.0;
 															} else if ($baseUnit === 'L' && $displayUnit === 'ml') {
-																$stockDisplay = number_format($stockValue * 1000.0, 2) . ' ' . $displayUnit;
+																$displayValue = $stockValue * 1000.0;
 															} else {
 																// Use display_factor for conversion
-																$stockDisplay = number_format($stockValue / $displayFactor, 2) . ' ' . $displayUnit;
+																$displayValue = $stockValue / $displayFactor;
 															}
-														} else {
-															$stockDisplay = number_format($stockValue, 2) . ' ' . $baseUnit;
+															$stockDisplay .= ' (' . number_format($displayValue, 2) . ' ' . $displayUnit . ')';
 														}
 													?>
 														<span class="text-gray-900 text-xs md:text-sm"><?php echo htmlspecialchars($stockDisplay); ?></span>
@@ -1497,6 +1497,7 @@ function formatDate($dateString) {
 						name: option.textContent,
 						unit: option.getAttribute('data-unit') || ingredient.unit || '',
 						quantity: ingredient.quantity || parseFloat(option.getAttribute('data-quantity') || '0'),
+						reorderLevel: ingredient.reorder_level || 0,
 						nameLower: (option.getAttribute('data-name') || option.textContent.toLowerCase())
 					});
 				}
@@ -1520,10 +1521,17 @@ function formatDate($dateString) {
 			
 			ingredientDropdown.innerHTML = filtered.map(opt => {
 				const stockQty = Number(opt.quantity || 0);
+				const reorderLevel = Number(opt.reorderLevel || 0);
 				const stockText = stockQty > 0 
 					? `${Number(stockQty).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} ${opt.unit}`
 					: 'Out of Stock';
-				const stockColor = stockQty > 0 ? 'text-green-600' : 'text-red-600';
+				// Determine stock color: red for out of stock, yellow for low stock, green for in stock
+				let stockColor = 'text-green-600';
+				if (stockQty <= 0) {
+					stockColor = 'text-red-600';
+				} else if (reorderLevel > 0 && stockQty <= reorderLevel) {
+					stockColor = 'text-yellow-600';
+				}
 				const stockBg = stockQty > 0 ? 'bg-green-50' : 'bg-red-50';
 				
 				return `

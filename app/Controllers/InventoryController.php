@@ -150,12 +150,19 @@ class InventoryController extends BaseController
 
     public function deleteIngredient(): void
     {
-        Auth::requireRole(['Owner','Manager','Stock Handler']);
+        // Only Owner can delete ingredients
+        Auth::requireRole(['Owner']);
         if (!Csrf::verify($_POST['csrf_token'] ?? null)) { http_response_code(400); echo 'Invalid CSRF token'; return; }
         $id = (int)($_POST['id'] ?? 0);
         if ($id <= 0) { $this->redirect('/inventory'); }
+        
+        // Require deletion reason
+        $reason = trim((string)($_POST['reason'] ?? ''));
+        if (empty($reason)) {
+            $_SESSION['flash_inventory'] = ['type' => 'error', 'text' => 'Deletion reason is required.'];
+            $this->redirect('/inventory');
+        }
 
-        $force = false;
         $db = Database::getConnection();
         // Fetch ingredient name for feedback
         $ingName = null;
@@ -200,7 +207,10 @@ class InventoryController extends BaseController
         } finally { }
 
         $logger = new AuditLog();
-        $logger->log(Auth::id() ?? 0, 'delete', 'ingredients', ['ingredient_id' => $id, 'force' => (bool)$force]);
+        $logger->log(Auth::id() ?? 0, 'delete', 'ingredients', [
+            'ingredient_id' => $id,
+            'reason' => $reason
+        ]);
         $this->redirect('/inventory');
     }
 
@@ -759,6 +769,90 @@ class InventoryController extends BaseController
 		
 		fclose($output);
 		exit;
+	}
+
+	/**
+	 * Record ingredient loss (spoiled, damaged, expired, etc.)
+	 * Only accessible by Owner role
+	 */
+	public function recordLoss(): void
+	{
+		Auth::requireRole(['Owner']);
+		
+		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
+			http_response_code(400);
+			echo 'Invalid CSRF token';
+			return;
+		}
+		
+		$ingredientId = (int)($_POST['ingredient_id'] ?? 0);
+		$quantity = (float)($_POST['quantity'] ?? 0);
+		$reason = trim((string)($_POST['reason'] ?? ''));
+		$notes = trim((string)($_POST['notes'] ?? '')) ?: null;
+		
+		$validReasons = ['Spoiled', 'Damaged', 'Expired', 'Contaminated', 'Other'];
+		if ($ingredientId <= 0 || $quantity <= 0 || !in_array($reason, $validReasons, true)) {
+			$_SESSION['flash_inventory'] = ['type' => 'error', 'text' => 'Invalid data provided. Please fill all required fields.'];
+			$this->redirect('/inventory');
+			return;
+		}
+		
+		$ingredientModel = new Ingredient();
+		$ingredient = $ingredientModel->find($ingredientId);
+		if (!$ingredient) {
+			$_SESSION['flash_inventory'] = ['type' => 'error', 'text' => 'Ingredient not found.'];
+			$this->redirect('/inventory');
+			return;
+		}
+		
+		$currentQuantity = (float)($ingredient['quantity'] ?? 0);
+		if ($quantity > $currentQuantity) {
+			$_SESSION['flash_inventory'] = ['type' => 'error', 'text' => 'Loss quantity cannot exceed current stock (' . number_format($currentQuantity, 2) . ' ' . htmlspecialchars($ingredient['unit']) . ').'];
+			$this->redirect('/inventory');
+			return;
+		}
+		
+		try {
+			$db = Database::getConnection();
+			$db->beginTransaction();
+			
+			// Record the loss
+			$lossModel = new IngredientLoss();
+			$lossId = $lossModel->create($ingredientId, $quantity, $reason, $notes, Auth::id() ?? 0);
+			
+			// Reduce ingredient quantity automatically
+			$newQuantity = max(0.0, $currentQuantity - $quantity);
+			$ingredientModel->updateQuantity($ingredientId, $newQuantity);
+			
+			$db->commit();
+			
+			// Audit log - include unit information for proper display
+			$unit = $ingredient['unit'] ?? '';
+			$displayUnit = $ingredient['display_unit'] ?? '';
+			$displayFactor = (float)($ingredient['display_factor'] ?? 1);
+			
+			$logger = new AuditLog();
+			$logger->log(Auth::id() ?? 0, 'record_loss', 'ingredients', [
+				'ingredient_id' => $ingredientId,
+				'ingredient_name' => $ingredient['name'],
+				'quantity_lost' => $quantity,
+				'unit' => $unit,
+				'display_unit' => $displayUnit,
+				'display_factor' => $displayFactor,
+				'reason' => $reason,
+				'notes' => $notes,
+				'loss_id' => $lossId,
+			]);
+			
+			$_SESSION['flash_inventory'] = ['type' => 'success', 'text' => 'Ingredient loss recorded successfully. Stock has been updated.'];
+		} catch (Throwable $e) {
+			if (isset($db) && $db->inTransaction()) {
+				$db->rollBack();
+			}
+			$_SESSION['flash_inventory'] = ['type' => 'error', 'text' => 'Failed to record loss: ' . $e->getMessage()];
+		}
+		
+		$this->redirect('/inventory');
 	}
 }
 

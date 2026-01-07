@@ -23,154 +23,221 @@ $consumption = $consumption ?? [];
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>Purchases Report</title>
+	<title>IKEA Commissary Report (<?php echo ucfirst($section); ?>)</title>
 	<style>
-		:root {
-			--primary: #1d4ed8;
-			--accent: #4ade80;
-			--muted: #6b7280;
-			--border: #e5e7eb;
+		* {
+			box-sizing: border-box;
 		}
-		body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 12px; color:#111827; margin: 24px; }
-		h1 { font-size: 24px; margin: 0 0 4px 0; color: var(--primary); }
-		section { margin-top: 20px; }
-		.card { border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-		.meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
-		table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-		th, td { border: 1px solid var(--border); padding: 8px 10px; }
-		th { background: #f8fafc; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; color: #0f172a; }
-		td { font-size: 12px; }
-		.summary-grid { display: flex; gap: 12px; }
-		.summary { flex: 1; background: #eef2ff; border-radius: 8px; padding: 12px; border: 1px solid #c7d2fe; }
-		.summary span { display: block; font-size: 11px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.04em; }
-		.summary strong { display: block; font-size: 18px; margin-top: 6px; }
-		.filter-list { list-style: none; padding: 0; margin: 0; }
-		.filter-list li { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+		body { 
+			font-family: DejaVu Sans, Arial, sans-serif; 
+			font-size: 9px; 
+			color: #000; 
+			margin: 0;
+			padding: 0;
+			width: 100%;
+			overflow-x: hidden;
+		}
+		header {
+			margin-bottom: 15px;
+		}
+		h1 { 
+			font-size: 18px; 
+			margin: 0 0 8px 0; 
+			padding: 0;
+			font-weight: bold;
+			color: #000;
+			line-height: 1.2;
+		}
+		.meta { 
+			font-size: 9px; 
+			margin: 0 0 0 0;
+			padding: 0;
+			color: #000;
+			line-height: 1.4;
+		}
+		.filters { 
+			margin: 0 0 15px 0;
+			padding: 0;
+			font-size: 9px;
+			color: #000;
+		}
+		.filters p {
+			margin: 3px 0;
+			padding: 0;
+			line-height: 1.4;
+		}
+		.report-title {
+			font-size: 14px;
+			font-weight: bold;
+			margin: 15px 0 8px 0;
+			padding: 0;
+			color: #000;
+			line-height: 1.3;
+		}
+		table { 
+			width: 100%;
+			max-width: 100%;
+			border-collapse: collapse; 
+			margin: 0 0 20px 0;
+			padding: 0;
+			font-size: 8px;
+			table-layout: fixed;
+		}
+		th, td { 
+			border: 1px solid #000; 
+			padding: 3px 4px; 
+			text-align: left;
+			word-wrap: break-word;
+			word-break: break-word;
+			overflow: hidden;
+			line-height: 1.2;
+			max-width: 0;
+		}
+		th { 
+			font-weight: bold; 
+			font-size: 8px;
+			background: #fff;
+			color: #000;
+		}
+		td { 
+			font-size: 8px;
+			color: #000;
+		}
+		thead {
+			display: table-header-group;
+		}
+		tfoot {
+			display: table-footer-group;
+		}
+		tbody tr {
+			page-break-inside: avoid;
+		}
+		thead tr {
+			page-break-after: avoid;
+			page-break-inside: avoid;
+		}
+		.table-container {
+			width: 100%;
+			max-width: 100%;
+			overflow: hidden;
+		}
+		@page {
+			margin: 18mm 15mm 18mm 15mm;
+			size: A4 portrait;
+		}
 	</style>
 </head>
 <body>
-	<header class="card">
-		<h1>IKEA Commissary — Purchases Report</h1>
-		<p class="meta">Generated on <?php echo htmlspecialchars(date('M j, Y g:i A')); ?></p>
+	<header>
+		<h1>IKEA Commissary Report (<?php echo ucfirst($section); ?>)</h1>
+		<p class="meta">Generated on: <?php echo htmlspecialchars(date('M j, Y g:i A')); ?></p>
 	</header>
 
-	<section class="card">
-		<h2 style="margin:0 0 10px 0; font-size:16px;">Filter Summary</h2>
-		<ul class="filter-list">
-			<li><strong>Date range:</strong> <?php echo $filterDateFrom ?: 'Any'; ?> → <?php echo $filterDateTo ?: 'Any'; ?></li>
-			<?php if ($section === 'purchase'): ?>
-				<li><strong>Supplier:</strong> <?php echo $filterSupplier ?: 'All suppliers'; ?></li>
-				<li><strong>Item:</strong> <?php echo $filterItem ? 'ID #' . (int)$filterItem : 'All items'; ?></li>
-				<li><strong>Payment Status:</strong> <?php echo $filterPaymentStatus ?: 'All'; ?></li>
-				<li><strong>Category:</strong> <?php echo $filterCategory !== '' ? htmlspecialchars($filterCategory) : 'All categories'; ?></li>
-			<?php else: ?>
-				<li><strong>Category:</strong> <?php echo $filterCategory !== '' ? htmlspecialchars($filterCategory) : 'All categories'; ?></li>
-				<li><strong>Usage Status:</strong> <?php echo htmlspecialchars($usageStatusLabel); ?></li>
-			<?php endif; ?>
-		</ul>
+	<section class="filters">
+		<p><strong>Date Range:</strong> <?php echo $filterDateFrom ? htmlspecialchars($filterDateFrom) : ''; ?><?php echo ($filterDateFrom && $filterDateTo) ? ' - ' : ''; ?><?php echo $filterDateTo ? htmlspecialchars($filterDateTo) : ''; ?></p>
+		<?php if ($section === 'consumption'): ?>
+			<p><strong>Category:</strong> <?php echo $filterCategory !== '' ? htmlspecialchars($filterCategory) : ''; ?></p>
+			<p><strong>Usage Status:</strong> <?php echo htmlspecialchars($usageStatusLabel); ?></p>
+		<?php else: ?>
+			<p><strong>Supplier:</strong> <?php echo $filterSupplier ? htmlspecialchars($filterSupplier) : ''; ?></p>
+			<p><strong>Item:</strong> <?php echo $filterItem ? 'ID #' . (int)$filterItem : ''; ?></p>
+			<p><strong>Payment Status:</strong> <?php echo $filterPaymentStatus ? htmlspecialchars($filterPaymentStatus) : ''; ?></p>
+			<p><strong>Category:</strong> <?php echo $filterCategory !== '' ? htmlspecialchars($filterCategory) : ''; ?></p>
+		<?php endif; ?>
 	</section>
 
-	<?php if ($section === 'consumption'): ?>
-		<section class="card">
-			<h2 style="margin:0 0 10px 0; font-size:16px;">Ingredient Consumption</h2>
-			<table>
-				<thead>
-					<tr>
-						<th>#</th>
-						<th>Ingredient</th>
-						<th>Category</th>
-						<th>Total Used (Base)</th>
-						<th>Unit</th>
-						<th>Converted Display</th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php foreach ($consumption as $index => $row): 
-						$baseQty = (float)($row['total_quantity'] ?? 0);
-						$displayUnit = $row['display_unit'] ?? '';
-						$displayFactor = (float)($row['display_factor'] ?? 1);
-						$converted = ($displayUnit !== '' && $displayFactor > 0 && abs($displayFactor - 1) > 0.00001)
-							? number_format($baseQty / $displayFactor, 2) . ' ' . $displayUnit
-							: '—';
-					?>
-					<tr>
-						<td><?php echo $index + 1; ?></td>
-						<td><?php echo htmlspecialchars($row['name']); ?></td>
-						<td><?php echo htmlspecialchars($row['category'] ?? ''); ?></td>
-						<td><?php echo number_format($baseQty, 2); ?></td>
-						<td><?php echo htmlspecialchars($row['unit']); ?></td>
-						<td><?php echo htmlspecialchars($converted); ?></td>
-					</tr>
-					<?php endforeach; ?>
-					<?php if (empty($consumption)): ?>
-					<tr>
-						<td colspan="6" style="text-align:center; color:var(--muted); padding:20px;">No consumption records match the selected filters.</td>
-					</tr>
-					<?php endif; ?>
-				</tbody>
-			</table>
-		</section>
-	<?php else: ?>
-		<section class="card">
-			<h2 style="margin:0 0 10px 0; font-size:16px;">Snapshot</h2>
-			<div class="summary-grid">
-				<div class="summary">
-					<span>Transactions</span>
-					<strong><?php echo count($purchases); ?></strong>
-				</div>
-				<?php if ($showCosts): ?>
-				<div class="summary">
-					<span>Total Cost</span>
-					<strong>₱<?php echo number_format(array_sum(array_column($purchases, 'cost')), 2); ?></strong>
-				</div>
+	<?php if ($section === 'consumption'): 
+		// Helper function to format date and time
+		function formatDateTime($dateString) {
+			if (empty($dateString)) return '—';
+			try {
+				$date = new DateTime($dateString);
+				return $date->format('M j, Y g:i A');
+			} catch (Exception $e) {
+				return $dateString;
+			}
+		}
+	?>
+		<div class="report-title">Ingredient Consumption</div>
+		<div class="table-container">
+		<table>
+			<thead>
+				<tr>
+					<th style="width: 22%;">Date</th>
+					<th style="width: 23%;">Name</th>
+					<th style="width: 13%;">Total Used</th>
+					<th style="width: 8%;">Unit</th>
+					<th style="width: 34%;">Remaining Stock</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach ($consumption as $row): 
+					$baseQty = (float)($row['total_quantity'] ?? 0);
+					$unit = $row['unit'] ?? '';
+					$displayUnit = $row['display_unit'] ?? '';
+					$displayFactor = (float)($row['display_factor'] ?? 1);
+					$remainingStock = (float)($row['remaining_stock'] ?? 0);
+					
+					// Format remaining stock: base unit (display unit)
+					$remainingStockDisplay = number_format($remainingStock, 2) . ' ' . htmlspecialchars($unit);
+					if ($displayUnit !== '' && $displayFactor > 0 && abs($displayFactor - 1) > 0.00001) {
+						$remainingDisplayQty = $remainingStock / $displayFactor;
+						$remainingStockDisplay .= ' (' . number_format($remainingDisplayQty, 2) . ' ' . htmlspecialchars($displayUnit) . ')';
+					}
+				?>
+				<tr>
+					<td><?php echo htmlspecialchars(formatDateTime($row['distribution_date'] ?? '')); ?></td>
+					<td><?php echo htmlspecialchars($row['name']); ?></td>
+					<td><?php echo number_format($baseQty, 2); ?></td>
+					<td><?php echo htmlspecialchars($unit ?: 'unit'); ?></td>
+					<td><?php echo $remainingStockDisplay; ?></td>
+				</tr>
+				<?php endforeach; ?>
+				<?php if (empty($consumption)): ?>
+				<tr>
+					<td colspan="5" style="text-align:center; padding:20px;">No consumption records match the selected filters.</td>
+				</tr>
 				<?php endif; ?>
-				<div class="summary">
-					<span>Suppliers</span>
-					<strong><?php echo count(array_unique(array_column($purchases, 'supplier'))); ?></strong>
-				</div>
-				<div class="summary">
-					<span>Items</span>
-					<strong><?php echo count(array_unique(array_column($purchases, 'item_name'))); ?></strong>
-				</div>
-			</div>
-		</section>
-
-		<section class="card">
-			<h2 style="margin:0 0 10px 0; font-size:16px;">Detailed Transactions</h2>
-			<table>
-				<thead>
-					<tr>
-						<th>#</th>
-						<th>Date</th>
-						<th>Item</th>
-						<th>Supplier</th>
-						<th>Quantity</th>
-						<?php if ($showCosts): ?>
-						<th>Cost</th>
-						<?php endif; ?>
-					</tr>
-				</thead>
-				<tbody>
-					<?php foreach ($purchases as $index => $p): ?>
-					<tr>
-						<td><?php echo $index + 1; ?></td>
-						<td><?php echo htmlspecialchars($p['date_purchased']); ?></td>
-						<td><?php echo htmlspecialchars($p['item_name']); ?></td>
-						<td><?php echo htmlspecialchars($p['supplier']); ?></td>
-						<td><?php echo htmlspecialchars(number_format((float)$p['quantity'], 2)); ?></td>
-						<?php if ($showCosts): ?>
-						<td>₱<?php echo number_format((float)$p['cost'], 2); ?></td>
-						<?php endif; ?>
-					</tr>
-					<?php endforeach; ?>
-					<?php if (empty($purchases)): ?>
-					<tr>
-						<td colspan="<?php echo $showCosts ? 6 : 5; ?>" style="text-align:center; color:var(--muted); padding:20px;">No purchases match the selected filters.</td>
-					</tr>
+			</tbody>
+		</table>
+		</div>
+	<?php else: ?>
+		<div class="report-title">Purchases</div>
+		<div class="table-container">
+		<table>
+			<thead>
+				<tr>
+					<th style="width: 4%;">#</th>
+					<th style="width: 14%;">Date</th>
+					<th style="width: 23%;">Item</th>
+					<th style="width: 18%;">Supplier</th>
+					<th style="width: 14%;">Quantity</th>
+					<?php if ($showCosts): ?>
+					<th style="width: 27%;">Cost</th>
 					<?php endif; ?>
-				</tbody>
-			</table>
-		</section>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach ($purchases as $index => $p): ?>
+				<tr>
+					<td><?php echo $index + 1; ?></td>
+					<td><?php echo htmlspecialchars($p['date_purchased']); ?></td>
+					<td><?php echo htmlspecialchars($p['item_name']); ?></td>
+					<td><?php echo htmlspecialchars($p['supplier']); ?></td>
+					<td><?php echo number_format((float)$p['quantity'], 2); ?></td>
+					<?php if ($showCosts): ?>
+					<td>₱<?php echo number_format((float)$p['cost'], 2); ?></td>
+					<?php endif; ?>
+				</tr>
+				<?php endforeach; ?>
+				<?php if (empty($purchases)): ?>
+				<tr>
+					<td colspan="<?php echo $showCosts ? 6 : 5; ?>" style="text-align:center; padding:20px;">No purchases match the selected filters.</td>
+				</tr>
+				<?php endif; ?>
+			</tbody>
+		</table>
+		</div>
 	<?php endif; ?>
 </body>
 </html>

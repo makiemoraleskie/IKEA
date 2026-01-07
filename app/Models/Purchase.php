@@ -123,7 +123,9 @@ class Purchase extends BaseModel
         }
         
         // Group purchases by stable key (without payment_status)
+        // Track all payment_status values for each group to ensure all are "Paid" if we mark as "Paid"
         $groups = [];
+        $groupPaymentStatuses = []; // Track all payment_status values per group
         foreach ($purchases as $p) {
             $ts = substr((string)($p['date_purchased'] ?? $p['created_at'] ?? ''), 0, 19);
             $stableKey = ($p['purchaser_id'] ?? '') . '|' . ($p['supplier'] ?? '') . '|' . ($p['receipt_url'] ?? '') . '|' . $ts;
@@ -135,8 +137,11 @@ class Purchase extends BaseModel
                     'cost_sum' => 0.0,
                     'payment_status' => $p['payment_status'] ?? 'Pending',
                 ];
+                $groupPaymentStatuses[$stableGroupId] = [];
             }
             $groups[$stableGroupId]['cost_sum'] += (float)$p['cost'];
+            // Track payment_status for each purchase in the group
+            $groupPaymentStatuses[$stableGroupId][] = $p['payment_status'] ?? 'Pending';
         }
         
         // Calculate current balance and determine payment status for each group
@@ -145,8 +150,20 @@ class Purchase extends BaseModel
             $totalPaid = $paymentTotals[$group['group_id']] ?? 0.0;
             $currentBalance = max(0, $group['cost_sum'] - $totalPaid);
             
+            // Check stored payment_status from database first
+            // If all purchases in the group have payment_status = 'Paid', then group is Paid
+            $storedStatuses = $groupPaymentStatuses[$group['group_id']] ?? [];
+            $allPaid = !empty($storedStatuses) && count(array_filter($storedStatuses, function($s) { return $s === 'Paid'; })) === count($storedStatuses);
+            
             // Determine actual payment status
-            $actualStatus = ($currentBalance <= 0.01 && $totalPaid > 0) ? 'Paid' : 'Pending';
+            // Priority: If all purchases are marked "Paid" in DB, or if fully paid via transactions
+            if ($allPaid) {
+                $actualStatus = 'Paid';
+            } elseif ($currentBalance <= 0.01 && $totalPaid > 0) {
+                $actualStatus = 'Paid';
+            } else {
+                $actualStatus = 'Pending';
+            }
             
             if ($status === 'Pending' && $actualStatus === 'Pending') {
                 $pendingCount++;

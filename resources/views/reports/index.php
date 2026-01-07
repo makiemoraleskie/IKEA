@@ -560,7 +560,7 @@ $uniqueCategories = !empty($consumption) ? count(array_filter(array_unique(array
 				
 				<!-- Action Buttons -->
 				<div class="flex flex-wrap gap-3">
-					<button type="submit" class="inline-flex items-center gap-2 bg-emerald-600 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-lg hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors text-sm font-medium">
+					<button type="button" id="applyConsumptionFilters" class="inline-flex items-center gap-2 bg-emerald-600 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-lg hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors text-sm font-medium">
 						<i data-lucide="search" class="w-4 h-4"></i>
 						Apply Filters
 					</button>
@@ -838,42 +838,61 @@ function setupFilterToggle(toggleId, panelId) {
 setupFilterToggle('togglePurchaseFilters', 'purchaseFiltersPanel');
 setupFilterToggle('toggleConsumptionFilters', 'consumptionFiltersPanel');
 
-// Date Presets
+// Date Presets - Use local timezone to avoid UTC conversion issues
+function formatLocalDate(date) {
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+	return `${year}-${month}-${day}`;
+}
+
 function setDatePreset(preset, fromField, toField) {
 	const today = new Date();
 	let fromDate, toDate;
 	
+	// Get today's date in local timezone
+	const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+	
 	switch(preset) {
 		case 'today':
-			fromDate = toDate = today.toISOString().split('T')[0];
+			fromDate = toDate = formatLocalDate(todayLocal);
 			break;
 		case 'week':
-			const weekStart = new Date(today);
-			weekStart.setDate(today.getDate() - today.getDay());
-			fromDate = weekStart.toISOString().split('T')[0];
-			toDate = today.toISOString().split('T')[0];
+			// Get the start of the week (Monday = 0, Sunday = 6)
+			const dayOfWeek = today.getDay();
+			const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert Sunday (0) to 6
+			const weekStart = new Date(todayLocal);
+			weekStart.setDate(todayLocal.getDate() - daysFromMonday);
+			fromDate = formatLocalDate(weekStart);
+			toDate = formatLocalDate(todayLocal);
 			break;
 		case 'month':
-			fromDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
-			toDate = today.toISOString().split('T')[0];
+			const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+			fromDate = formatLocalDate(monthStart);
+			toDate = formatLocalDate(todayLocal);
 			break;
 		case 'lastmonth':
 			const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
 			const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
-			fromDate = lastMonth.toISOString().split('T')[0];
-			toDate = lastMonthEnd.toISOString().split('T')[0];
+			fromDate = formatLocalDate(lastMonth);
+			toDate = formatLocalDate(lastMonthEnd);
 			break;
 		case 'year':
-			fromDate = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0];
-			toDate = today.toISOString().split('T')[0];
+			const yearStart = new Date(today.getFullYear(), 0, 1);
+			fromDate = formatLocalDate(yearStart);
+			toDate = formatLocalDate(todayLocal);
 			break;
 		case 'last30':
-			fromDate = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-			toDate = today.toISOString().split('T')[0];
+			const last30Days = new Date(todayLocal);
+			last30Days.setDate(todayLocal.getDate() - 30);
+			fromDate = formatLocalDate(last30Days);
+			toDate = formatLocalDate(todayLocal);
 			break;
 		case 'last90':
-			fromDate = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-			toDate = today.toISOString().split('T')[0];
+			const last90Days = new Date(todayLocal);
+			last90Days.setDate(todayLocal.getDate() - 90);
+			fromDate = formatLocalDate(last90Days);
+			toDate = formatLocalDate(todayLocal);
 			break;
 		default:
 			return;
@@ -890,9 +909,28 @@ document.querySelectorAll('.date-preset-btn').forEach(btn => {
 		if (!form) return;
 		
 		if (form.id === 'purchaseFiltersForm') {
-			setDatePreset(preset, document.getElementById('purchaseDateFrom'), document.getElementById('purchaseDateTo'));
+			const fromField = document.getElementById('purchaseDateFrom');
+			const toField = document.getElementById('purchaseDateTo');
+			if (fromField && toField) {
+				setDatePreset(preset, fromField, toField);
+				// Small delay to ensure values are set before submission
+				setTimeout(() => {
+					form.submit();
+				}, 10);
+			}
 		} else if (form.id === 'consumptionFiltersForm') {
-			setDatePreset(preset, document.getElementById('consumptionDateFrom'), document.getElementById('consumptionDateTo'));
+			const fromField = document.getElementById('consumptionDateFrom');
+			const toField = document.getElementById('consumptionDateTo');
+			if (fromField && toField) {
+				setDatePreset(preset, fromField, toField);
+				// Small delay to ensure values are set before triggering apply
+				setTimeout(() => {
+					const applyBtn = document.getElementById('applyConsumptionFilters');
+					if (applyBtn) {
+						applyBtn.click();
+					}
+				}, 10);
+			}
 		}
 	});
 });
@@ -969,6 +1007,129 @@ document.getElementById('clearConsumptionFilters')?.addEventListener('click', ()
 	if (form) {
 		form.reset();
 		updateFilterChips('consumptionFiltersForm', 'consumptionFilterChips');
+	}
+});
+
+// Apply Consumption Filters without page refresh
+document.getElementById('applyConsumptionFilters')?.addEventListener('click', async () => {
+	const form = document.getElementById('consumptionFiltersForm');
+	const tableBody = document.getElementById('consumptionTableBody');
+	const emptyState = document.getElementById('consumptionTableEmpty');
+	const summaryCards = document.querySelectorAll('#consumptionTabContent .grid.grid-cols-1.sm\\:grid-cols-3 > div');
+	
+	if (!form || !tableBody) return;
+	
+	// Get form data and build query string
+	const formData = new FormData(form);
+	const params = new URLSearchParams();
+	
+	// Add all form values to params
+	formData.forEach((value, key) => {
+		if (value instanceof File) return;
+		const trimmed = typeof value === 'string' ? value.trim() : value;
+		if (trimmed !== '' && trimmed !== null) {
+			params.append(key, trimmed);
+		}
+	});
+	
+	params.set('section', 'consumption');
+	
+	// Show loading state
+	const applyBtn = document.getElementById('applyConsumptionFilters');
+	const originalContent = applyBtn.innerHTML;
+	applyBtn.disabled = true;
+	applyBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Loading...';
+	
+	try {
+		// Fetch the filtered page
+		const response = await fetch(buildUrl('/reports?' + params.toString()));
+		if (!response.ok) throw new Error('Failed to fetch filtered results');
+		
+		const html = await response.text();
+		const parser = new DOMParser();
+		const doc = parser.parseFromString(html, 'text/html');
+		
+		// Extract the filtered table body
+		const newTableBody = doc.getElementById('consumptionTableBody');
+		const tableContainer = tableBody.closest('.overflow-x-auto');
+		if (newTableBody && tableContainer) {
+			tableBody.innerHTML = newTableBody.innerHTML;
+			
+			// Check if there's an empty state message in the new HTML
+			const newEmptyState = doc.querySelector('#consumptionTabContent .flex.flex-col.items-center.justify-center.py-12');
+			const currentEmptyState = tableContainer.querySelector('.flex.flex-col.items-center.justify-center.py-12');
+			
+			if (newEmptyState) {
+				if (currentEmptyState) {
+					currentEmptyState.outerHTML = newEmptyState.outerHTML;
+				} else {
+					const table = document.getElementById('consumptionTable');
+					if (table) {
+						table.insertAdjacentHTML('afterend', newEmptyState.outerHTML);
+					}
+				}
+			} else if (currentEmptyState) {
+				currentEmptyState.remove();
+			}
+		}
+		
+		// Update summary cards if they exist
+		const newSummaryCards = doc.querySelectorAll('#consumptionTabContent .grid.grid-cols-1.sm\\:grid-cols-3 > div');
+		if (newSummaryCards.length === summaryCards.length) {
+			newSummaryCards.forEach((newCard, index) => {
+				if (summaryCards[index]) {
+					summaryCards[index].innerHTML = newCard.innerHTML;
+				}
+			});
+		}
+		
+		// Update ingredient count display
+		const newIngredientCount = doc.querySelector('#consumptionTabContent .text-xs.text-gray-600 .font-medium');
+		const currentIngredientCount = document.querySelector('#consumptionTabContent .text-xs.text-gray-600 .font-medium');
+		if (newIngredientCount && currentIngredientCount) {
+			currentIngredientCount.textContent = newIngredientCount.textContent;
+			const parentText = currentIngredientCount.parentElement;
+			if (parentText) {
+				const suffix = newIngredientCount.textContent === '1' ? 'ingredient' : 'ingredients';
+				parentText.innerHTML = `<span class="font-medium">${newIngredientCount.textContent}</span> ${suffix}`;
+			}
+		}
+		
+		// Update filter chips
+		updateFilterChips('consumptionFiltersForm', 'consumptionFilterChips');
+		
+		// Update URL without page reload
+		const newUrl = buildUrl('/reports?' + params.toString());
+		window.history.pushState({}, '', newUrl);
+		
+		// Show/hide empty state
+		const rows = tableBody.querySelectorAll('tr');
+		const hasRows = rows.length > 0;
+		if (emptyState) {
+			emptyState.classList.toggle('hidden', hasRows);
+		}
+		
+		// Show table if there are rows
+		const table = document.getElementById('consumptionTable');
+		if (table) {
+			table.style.display = hasRows ? '' : 'none';
+		}
+		
+		// Reinitialize icons
+		if (typeof lucide !== 'undefined') {
+			lucide.createIcons();
+		}
+		
+	} catch (error) {
+		console.error('Error applying filters:', error);
+		alert('Failed to apply filters. Please try again.');
+	} finally {
+		// Restore button state
+		applyBtn.disabled = false;
+		applyBtn.innerHTML = originalContent;
+		if (typeof lucide !== 'undefined') {
+			lucide.createIcons();
+		}
 	}
 });
 
@@ -1270,48 +1431,187 @@ if (consumptionPrintBtn) {
 		
 		win.document.write(`<html><head><title>Ingredient Consumption Report</title>
 			<style>
-				@page { margin: 0.8cm; }
-				body { font-family: Arial, sans-serif; padding: 10px; color: #1f2937; font-size: 10px; line-height: 1.3; }
-				h1 { font-size: 18px; margin: 0 0 4px 0; color: #1d4ed8; font-weight: bold; }
-				.grid { display: flex; gap: 10px; margin: 12px 0; flex-wrap: wrap; }
-				.bg-white { background: white !important; border: 1px solid #e5e7eb !important; border-radius: 6px !important; padding: 10px !important; min-width: 150px; flex: 1; }
-				table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 9px; }
-				th, td { border: 1px solid #e5e7eb; padding: 6px 8px; text-align: left; }
-				th { background: #f3f4f6 !important; font-weight: 600; font-size: 9px; }
-				.text-2xl { font-size: 16px !important; font-weight: bold; }
-				.text-3xl { font-size: 18px !important; font-weight: bold; }
-				.text-sm { font-size: 9px !important; }
-				.text-xs { font-size: 8px !important; }
-				.text-gray-600 { color: #4b5563 !important; }
-				.text-gray-900 { color: #111827 !important; }
-				.text-green-600 { color: #059669 !important; }
-				.text-purple-600 { color: #9333ea !important; }
-				.text-blue-600 { color: #2563eb !important; }
-				.text-emerald-600 { color: #059669 !important; }
-				.font-semibold { font-weight: 600 !important; }
-				.font-bold { font-weight: 700 !important; }
-				.font-medium { font-weight: 500 !important; }
-				.font-black { font-weight: 900 !important; }
-				.mb-1 { margin-bottom: 4px !important; }
-				.mb-6 { margin-bottom: 12px !important; }
-				.mb-8 { margin-bottom: 16px !important; }
-				.pr-12 { padding-right: 0 !important; }
+				* {
+					box-sizing: border-box;
+				}
+				@page {
+					margin: 15mm 15mm 15mm 15mm;
+					size: A4 portrait;
+				}
+				body {
+					font-family: Arial, sans-serif;
+					margin: 0;
+					padding: 0;
+					color: #1f2937;
+					font-size: 9px;
+					line-height: 1.4;
+					width: 100%;
+					overflow-x: hidden;
+				}
+				h1 {
+					font-size: 18px;
+					margin: 0 0 8px 0;
+					padding: 0;
+					color: #1d4ed8;
+					font-weight: bold;
+					line-height: 1.2;
+				}
+				body > p {
+					font-size: 9px;
+					color: #6b7280;
+					margin: 0 0 15px 0;
+					padding: 0;
+					line-height: 1.4;
+				}
+				.grid {
+					display: flex;
+					gap: 10px;
+					margin: 0 0 15px 0;
+					padding: 0;
+					flex-wrap: wrap;
+				}
+				.bg-white {
+					background: white !important;
+					border: 1px solid #e5e7eb !important;
+					border-radius: 6px !important;
+					padding: 10px !important;
+					min-width: 150px;
+					flex: 1;
+					page-break-inside: avoid;
+				}
+				.table-container {
+					width: 100%;
+					max-width: 100%;
+					overflow: hidden;
+				}
+				table {
+					width: 100%;
+					max-width: 100%;
+					border-collapse: collapse;
+					margin: 0 0 20px 0;
+					padding: 0;
+					font-size: 8px;
+					table-layout: fixed;
+				}
+				th, td {
+					border: 1px solid #e5e7eb;
+					padding: 3px 4px;
+					text-align: left;
+					word-wrap: break-word;
+					word-break: break-word;
+					overflow: hidden;
+					line-height: 1.2;
+					max-width: 0;
+				}
+				th {
+					background: #f3f4f6 !important;
+					font-weight: 600;
+					font-size: 8px;
+				}
+				tbody tr {
+					page-break-inside: avoid;
+				}
+				thead {
+					display: table-header-group;
+				}
+				thead tr {
+					page-break-after: avoid;
+					page-break-inside: avoid;
+				}
+				.text-2xl {
+					font-size: 16px !important;
+					font-weight: bold;
+				}
+				.text-3xl {
+					font-size: 18px !important;
+					font-weight: bold;
+				}
+				.text-sm {
+					font-size: 9px !important;
+				}
+				.text-xs {
+					font-size: 8px !important;
+				}
+				.text-gray-600 {
+					color: #4b5563 !important;
+				}
+				.text-gray-900 {
+					color: #111827 !important;
+				}
+				.text-green-600 {
+					color: #059669 !important;
+				}
+				.text-purple-600 {
+					color: #9333ea !important;
+				}
+				.text-blue-600 {
+					color: #2563eb !important;
+				}
+				.text-emerald-600 {
+					color: #059669 !important;
+				}
+				.font-semibold {
+					font-weight: 600 !important;
+				}
+				.font-bold {
+					font-weight: 700 !important;
+				}
+				.font-medium {
+					font-weight: 500 !important;
+				}
+				.font-black {
+					font-weight: 900 !important;
+				}
+				.mb-1 {
+					margin-bottom: 4px !important;
+				}
+				.mb-6 {
+					margin-bottom: 12px !important;
+				}
+				.mb-8 {
+					margin-bottom: 16px !important;
+				}
+				.pr-12 {
+					padding-right: 0 !important;
+				}
 				@media print {
-					body { padding: 5px; }
-					@page { margin: 0.5cm; }
-					table { page-break-inside: auto; font-size: 8px; }
-					th, td { padding: 4px 6px; }
-					tr { page-break-inside: avoid; page-break-after: auto; }
-					thead { display: table-header-group; }
-					.grid { gap: 8px; margin: 8px 0; }
-					.bg-white { padding: 8px !important; }
+					@page {
+						margin: 18mm 15mm 18mm 15mm;
+						size: A4 portrait;
+					}
+					body {
+						margin: 0;
+						padding: 0;
+					}
+					table {
+						page-break-inside: auto;
+						font-size: 8px;
+					}
+					th, td {
+						padding: 3px 4px;
+					}
+					tr {
+						page-break-inside: avoid;
+						page-break-after: auto;
+					}
+					thead {
+						display: table-header-group;
+					}
+					.grid {
+						gap: 10px;
+						margin: 0 0 15px 0;
+					}
+					.bg-white {
+						padding: 10px !important;
+						page-break-inside: avoid;
+					}
 				}
 			</style>
 		</head><body>
 			<h1>Ingredient Consumption Report</h1>
-			<p style="font-size: 9px; color: #6b7280; margin-bottom: 10px;">Generated on ${new Date().toLocaleString()}</p>
+			<p style="font-size: 9px; color: #6b7280; margin-bottom: 15px;">Generated on ${new Date().toLocaleString()}</p>
 			${summaryCardsHtml}
-			${tableHtml}
+			<div class="table-container">${tableHtml}</div>
 		</body></html>`);
 		win.document.close();
 		win.focus();

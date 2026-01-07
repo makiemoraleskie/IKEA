@@ -55,7 +55,15 @@ class ReportsController extends BaseController
 
 		if (class_exists('Dompdf\\Dompdf')) {
 			$html = $this->renderPdfView($data);
-			$dompdf = new Dompdf\Dompdf();
+			if (class_exists('Dompdf\\Options')) {
+				$options = new Dompdf\Options();
+				$options->set('defaultFont', 'DejaVu Sans');
+				$options->set('isHtml5ParserEnabled', true);
+				$options->set('isRemoteEnabled', false);
+				$dompdf = new Dompdf\Dompdf($options);
+			} else {
+				$dompdf = new Dompdf\Dompdf();
+			}
 			$dompdf->loadHtml($html);
 			$dompdf->setPaper('A4', 'portrait');
 			$dompdf->render();
@@ -323,43 +331,86 @@ class ReportsController extends BaseController
 		$consumption = $data['consumption'] ?? [];
 		$showCosts = !empty($data['show_costs']);
 
+		// Header
 		$builder->addHeading('IKEA Commissary Report (' . ucfirst($section) . ')', 18);
 		$builder->addLine('Generated on: ' . date('M j, Y g:i A'));
-		$builder->addSpacer(4);
-		$builder->addLine('Filters:', 12);
-		$builder->addLine(' - Date Range: ' . ($filters['date_from'] ?? 'Any') . ' → ' . ($filters['date_to'] ?? 'Any'));
+		$builder->addSpacer(8);
+		
+		// Filters section
+		$filterDateFrom = trim((string)($filters['date_from'] ?? ''));
+		$filterDateTo = trim((string)($filters['date_to'] ?? ''));
+		$dateRange = $filterDateFrom;
+		if ($filterDateFrom && $filterDateTo) {
+			$dateRange .= ' - ' . $filterDateTo;
+		} elseif ($filterDateTo) {
+			$dateRange = $filterDateTo;
+		}
+		$builder->addLine('Date Range: ' . $dateRange);
+		
 		if ($section === 'purchase') {
-			$builder->addLine(' - Supplier: ' . ($filters['supplier'] ?? 'All'));
-			$builder->addLine(' - Category: ' . ($filters['category'] ?? 'All'));
-			$builder->addLine(' - Status: ' . ($filters['payment_status'] ?? 'All'));
+			$builder->addLine('Supplier: ' . trim((string)($filters['supplier'] ?? '')));
+			$builder->addLine('Item: ' . (isset($filters['item_id']) && $filters['item_id'] ? 'ID #' . (int)$filters['item_id'] : ''));
+			$builder->addLine('Payment Status: ' . trim((string)($filters['payment_status'] ?? '')));
+			$builder->addLine('Category: ' . trim((string)($filters['category'] ?? '')));
 		} else {
-			$builder->addLine(' - Category: ' . ($filters['category'] ?? 'All'));
-			$builder->addLine(' - Usage Status: ' . ($filters['usage_status'] ?? 'All'));
+			$builder->addLine('Category: ' . trim((string)($filters['category'] ?? '')));
+			$usageStatusLabels = [
+				'used' => 'Used',
+				'expired' => 'Expired',
+				'transferred' => 'Transferred',
+			];
+			$usageStatusLabel = isset($filters['usage_status']) && $filters['usage_status'] !== '' 
+				? ($usageStatusLabels[$filters['usage_status']] ?? ucfirst($filters['usage_status'])) 
+				: '';
+			$builder->addLine('Usage Status: ' . $usageStatusLabel);
 		}
 		$builder->addSpacer(10);
 
 		if ($section === 'consumption') {
 			$builder->addHeading('Ingredient Consumption');
 			if (!empty($consumption)) {
+				// Helper function to format date and time - same as web view
+				$formatDateTime = function($dateString) {
+					if (empty($dateString)) return '—';
+					try {
+						$date = new DateTime($dateString);
+						return $date->format('M j, Y g:i A');
+					} catch (Exception $e) {
+						return $dateString;
+					}
+				};
+				
 				$rows = [];
 				foreach ($consumption as $row) {
 					$baseQty = (float)($row['total_quantity'] ?? 0);
+					$unit = $row['unit'] ?? '';
 					$displayUnit = $row['display_unit'] ?? '';
 					$displayFactor = (float)($row['display_factor'] ?? 1);
-					$converted = ($displayUnit !== '' && $displayFactor > 0 && abs($displayFactor - 1) > 0.00001)
-						? number_format($baseQty / $displayFactor, 2) . ' ' . $displayUnit
-						: '—';
+					$remainingStock = (float)($row['remaining_stock'] ?? 0);
+					
+					// Format remaining stock exactly as in web view: base unit (display unit)
+					$remainingStockDisplay = number_format($remainingStock, 2) . ' ' . $unit;
+					if ($displayUnit !== '' && $displayFactor > 0 && abs($displayFactor - 1) > 0.00001) {
+						$remainingDisplayQty = $remainingStock / $displayFactor;
+						$remainingStockDisplay .= ' (' . number_format($remainingDisplayQty, 2) . ' ' . $displayUnit . ')';
+					}
+					
 					$rows[] = [
+						$formatDateTime($row['distribution_date'] ?? ''),
 						$row['name'] ?? '',
-						$row['category'] ?? '',
-						number_format($baseQty, 2) . ' ' . ($row['unit'] ?? ''),
-						$converted,
+						number_format($baseQty, 2),
+						$unit ?: 'unit',
+						$remainingStockDisplay,
 					];
 				}
+				// Calculate available width: A4 width (595.28) - margins (36*2) = 523.28 points
+				// Distribute proportionally, ensuring Date and Remaining Stock have enough space
+				// Reduced font size to 8.5 for better fit
 				$builder->addTable(
-					['Ingredient', 'Category', 'Total Used', 'Display'],
+					['Date', 'Name', 'Total Used', 'Unit', 'Remaining Stock'],
 					$rows,
-					[180, 120, 120, 120]
+					[135, 115, 75, 50, 148], // Total: 523 points (fits within 523.28 available width)
+					8.5 // Smaller font size
 				);
 			} else {
 				$builder->addLine('No consumption records for the selected filters.');
@@ -381,15 +432,18 @@ class ReportsController extends BaseController
 					$rows[] = $currentRow;
 				}
 				$headers = ['Date', 'Item', 'Supplier', 'Qty'];
-				$widths = [70, 160, 150, 70];
+				$widths = [65, 155, 145, 65];
 				if ($showCosts) {
 					$headers[] = 'Cost';
-					$widths[] = 70;
+					$widths[] = 93; // Total: 523 points
+				} else {
+					// Total without costs: 430 points
 				}
 				$builder->addTable(
 					$headers,
 					$rows,
-					$widths
+					$widths,
+					8.5 // Smaller font size
 				);
 			} else {
 				$builder->addLine('No purchases match the selected filters.');

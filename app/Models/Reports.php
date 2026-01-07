@@ -54,6 +54,56 @@ class Reports extends BaseModel
 	 */
 	public function getIngredientConsumption(array $filters): array
 	{
+		// First, get ALL distributions (not filtered) to build complete stock timeline
+		// This ensures accurate remaining stock calculation
+		$allDistributionsSql = 'SELECT
+				COALESCE(b.date_approved, b.date_requested, b.created_at) AS distribution_date,
+				i.id AS ingredient_id,
+				r.id AS request_id,
+				r.quantity AS total_quantity,
+				b.id AS batch_id
+			FROM requests r
+			JOIN request_batches b ON r.batch_id = b.id
+			JOIN ingredients i ON r.item_id = i.id
+			WHERE b.status IN ("Distributed", "Pending Confirmation", "Received")
+			ORDER BY COALESCE(b.date_approved, b.date_requested, b.created_at) DESC, i.id ASC';
+		
+		$allDistributions = $this->db->query($allDistributionsSql)->fetchAll();
+		
+		// Get current stock for all ingredients
+		$currentStock = [];
+		$ingredientStmt = $this->db->query('SELECT id, quantity FROM ingredients');
+		foreach ($ingredientStmt->fetchAll() as $ing) {
+			$currentStock[(int)$ing['id']] = (float)$ing['quantity'];
+		}
+		
+		// Calculate remaining stock after each distribution by working backwards
+		// Start with current stock and add back distributed quantities chronologically (reverse order)
+		$stockAfterDistribution = [];
+		$runningStock = $currentStock; // Start with current stock
+		
+		foreach ($allDistributions as $dist) {
+			$ingredientId = (int)$dist['ingredient_id'];
+			$quantityUsed = (float)$dist['total_quantity'];
+			$distDate = $dist['distribution_date'] ?? '';
+			$requestId = (int)$dist['request_id'];
+			$key = $distDate . '_' . $requestId;
+			
+			// Initialize if not set
+			if (!isset($stockAfterDistribution[$ingredientId])) {
+				$stockAfterDistribution[$ingredientId] = [];
+			}
+			
+			// The remaining stock AFTER this distribution is the current running stock
+			// (because we're working backwards from the most recent distribution)
+			$stockAfterDistribution[$ingredientId][$key] = $runningStock[$ingredientId] ?? 0;
+			
+			// Add back the distributed quantity to get stock before this distribution
+			// This becomes the "remaining stock after" for the previous distribution
+			$runningStock[$ingredientId] = ($runningStock[$ingredientId] ?? 0) + $quantityUsed;
+		}
+		
+		// Now get filtered results
 		$sql = 'SELECT
 				COALESCE(b.date_approved, b.date_requested, b.created_at) AS distribution_date,
 				i.id,
@@ -62,6 +112,7 @@ class Reports extends BaseModel
 				i.unit,
 				i.display_unit,
 				i.display_factor,
+				r.id AS request_id,
 				r.quantity AS total_quantity,
 				b.id AS batch_id
 			FROM requests r
@@ -106,43 +157,22 @@ class Reports extends BaseModel
 		$stmt->execute($params);
 		$results = $stmt->fetchAll();
 		
-		// Calculate remaining stock for each record
-		// We need to calculate stock after each distribution chronologically
-		// Get current stock for all ingredients
-		$currentStock = [];
-		$ingredientStmt = $this->db->query('SELECT id, quantity FROM ingredients');
-		foreach ($ingredientStmt->fetchAll() as $ing) {
-			$currentStock[(int)$ing['id']] = (float)$ing['quantity'];
-		}
-		
-		// Sort results by date ascending to calculate remaining stock correctly
-		usort($results, function($a, $b) {
-			$aDate = $a['distribution_date'] ?? '';
-			$bDate = $b['distribution_date'] ?? '';
-			if ($aDate === $bDate) return 0;
-			return $aDate < $bDate ? -1 : 1;
-		});
-		
-		// Calculate remaining stock for each distribution
+		// Assign remaining stock from pre-calculated values
 		foreach ($results as &$row) {
 			$ingredientId = (int)$row['id'];
-			$quantityUsed = (float)$row['total_quantity'];
+			$distDate = $row['distribution_date'] ?? '';
+			$requestId = (int)($row['request_id'] ?? 0);
+			$key = $distDate . '_' . $requestId;
 			
-			// Remaining stock = current stock (which is after this distribution)
-			$row['remaining_stock'] = $currentStock[$ingredientId] ?? 0;
-			
-			// Add back the distributed quantity for next iteration (working backwards)
-			$currentStock[$ingredientId] = ($currentStock[$ingredientId] ?? 0) + $quantityUsed;
+			// Get pre-calculated remaining stock
+			if (isset($stockAfterDistribution[$ingredientId][$key])) {
+				$row['remaining_stock'] = $stockAfterDistribution[$ingredientId][$key];
+			} else {
+				// Fallback: get current stock if calculation failed
+				$row['remaining_stock'] = $currentStock[$ingredientId] ?? 0;
+			}
 		}
 		unset($row);
-		
-		// Sort back by date descending for display
-		usort($results, function($a, $b) {
-			$aDate = $a['distribution_date'] ?? '';
-			$bDate = $b['distribution_date'] ?? '';
-			if ($aDate === $bDate) return 0;
-			return $aDate > $bDate ? -1 : 1;
-		});
 		
 		return $results;
 	}
