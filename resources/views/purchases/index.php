@@ -446,6 +446,7 @@ if (!in_array(Auth::role(), ['Stock Handler'], true)):
 					<select id="paymentStatusFilter" data-default="<?php echo htmlspecialchars($paymentFilter); ?>" class="w-full sm:w-auto border border-gray-300 rounded-lg px-3 md:px-4 py-2 text-xs md:text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
 						<option value="all">All</option>
 						<option value="paid">Paid</option>
+						<option value="partial">Partial</option>
 						<option value="pending">Pending</option>
 					</select>
 				</div>
@@ -478,12 +479,21 @@ if (!in_array(Auth::role(), ['Stock Handler'], true)):
                     </td>
                     <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
                         <?php 
-                        $paymentClass = $g['payment_status'] === 'Paid' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-yellow-100 text-yellow-800 border-yellow-200';
-                        $paymentIcon = $g['payment_status'] === 'Paid' ? 'check-circle' : 'clock';
+                        $paymentStatus = $g['payment_status'] ?? 'Pending';
+                        if ($paymentStatus === 'Paid') {
+                            $paymentClass = 'bg-green-100 text-green-800 border-green-200';
+                            $paymentIcon = 'check-circle';
+                        } elseif ($paymentStatus === 'Partial') {
+                            $paymentClass = 'bg-orange-100 text-orange-800 border-orange-200';
+                            $paymentIcon = 'dollar-sign';
+                        } else {
+                            $paymentClass = 'bg-yellow-100 text-yellow-800 border-yellow-200';
+                            $paymentIcon = 'clock';
+                        }
                         ?>
                         <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] md:text-xs lg:text-sm font-medium border <?php echo $paymentClass; ?>">
                             <i data-lucide="<?php echo $paymentIcon; ?>" class="w-3 h-3 md:w-3.5 md:h-3.5"></i>
-                            <?php echo htmlspecialchars($g['payment_status']); ?>
+                            <?php echo htmlspecialchars($paymentStatus); ?>
                         </span>
                          <?php if (!empty($g['paid_at'])): ?>
                              <p class="text-[9px] md:text-[10px] lg:text-xs text-gray-500 mt-1" data-paid-at="<?php echo htmlspecialchars($g['paid_at']); ?>">Paid on <?php echo htmlspecialchars(date('M j, Y g:i A', strtotime($g['paid_at']))); ?></p>
@@ -512,7 +522,7 @@ if (!in_array(Auth::role(), ['Stock Handler'], true)):
                         </div>
                     </td>
                     <td class="px-3 md:px-4 lg:px-6 py-2.5 md:py-3 lg:py-4 text-[10px] md:text-xs lg:text-sm">
-                        <?php if (($g['payment_status'] ?? '') === 'Pending'): ?>
+                        <?php if (($g['payment_status'] ?? '') === 'Pending' || ($g['payment_status'] ?? '') === 'Partial'): ?>
                             <button type="button" class="recordPaymentBtn inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-[10px] md:text-xs lg:text-sm rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors" data-purchase-group-id="<?php echo htmlspecialchars($g['group_id']); ?>" data-purchase-id="<?php echo (int)$g['first_id']; ?>" data-total-cost="<?php echo number_format((float)$g['cost_sum'], 2, '.', ''); ?>" data-current-balance="<?php echo number_format((float)($g['current_balance'] ?? $g['cost_sum']), 2, '.', ''); ?>" data-supplier="<?php echo htmlspecialchars($g['supplier']); ?>" data-stop-row-modal>
                                 <i data-lucide="dollar-sign" class="w-3 h-3 md:w-3.5 md:h-3.5"></i>
                                 Record Payment
@@ -642,19 +652,32 @@ if (!in_array(Auth::role(), ['Stock Handler'], true)):
                                     <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold border bg-gray-100 text-gray-800 border-gray-200">Card</span>
                                 <?php endif; ?>
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-semibold border <?php echo ($g['payment_status']==='Paid')?'bg-green-100 text-green-800 border-green-200':'bg-yellow-100 text-yellow-800 border-yellow-200'; ?>">
-                                        <i data-lucide="<?php echo ($g['payment_status']==='Paid')?'check-circle':'clock'; ?>" class="w-3 h-3"></i>
-                                        <?php echo htmlspecialchars($g['payment_status']); ?>
+                                    <?php 
+                                    $paymentStatus = $g['payment_status'] ?? 'Pending';
+                                    if ($paymentStatus === 'Paid') {
+                                        $paymentClass = 'bg-green-100 text-green-800 border-green-200';
+                                        $paymentIcon = 'check-circle';
+                                    } elseif ($paymentStatus === 'Partial') {
+                                        $paymentClass = 'bg-orange-100 text-orange-800 border-orange-200';
+                                        $paymentIcon = 'dollar-sign';
+                                    } else {
+                                        $paymentClass = 'bg-yellow-100 text-yellow-800 border-yellow-200';
+                                        $paymentIcon = 'clock';
+                                    }
+                                    ?>
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-semibold border <?php echo $paymentClass; ?>">
+                                        <i data-lucide="<?php echo $paymentIcon; ?>" class="w-3 h-3"></i>
+                                        <?php echo htmlspecialchars($paymentStatus); ?>
                                     </span>
                                     <div class="space-y-2">
-                                        <?php if (($g['payment_status'] ?? '') === 'Pending'): ?>
+                                        <?php if (($paymentStatus === 'Pending' || $paymentStatus === 'Partial')): ?>
                                             <div class="text-[11px] text-gray-600">
                                                 <span class="font-medium">Current Balance:</span> 
                                                 <span class="text-red-600 font-semibold">₱<?php echo number_format((float)($g['current_balance'] ?? $g['cost_sum']), 2); ?></span>
                                             </div>
                                         <?php elseif (!empty($g['paid_at'])): ?>
                                             <span class="text-[11px] text-gray-500" data-paid-at="<?php echo htmlspecialchars($g['paid_at']); ?>">Paid on <?php echo htmlspecialchars(date('M j, Y g:i A', strtotime($g['paid_at']))); ?></span>
-                                        <?php elseif (($g['payment_status'] ?? '') === 'Paid'): ?>
+                                        <?php elseif ($paymentStatus === 'Paid'): ?>
                                             <span class="text-[11px] text-gray-500">Fully Paid</span>
                                         <?php endif; ?>
                                         <button
@@ -909,6 +932,48 @@ if (!in_array(Auth::role(), ['Stock Handler'], true)):
                 </div>
             </div>
         </div>
+        </div>
+    </div>
+</div>
+
+<!-- Receipt Viewer Modal -->
+<div id="receiptViewerModal" class="fixed inset-0 z-[70] hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 70 !important;">
+    <div class="fixed inset-0 bg-black/75" data-receipt-viewer-dismiss style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
+    <div class="relative z-10 flex min-h-full items-center justify-center p-4 overflow-y-auto overflow-x-hidden">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl mx-auto my-8" style="max-width: 80rem;">
+            <div class="p-4 md:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-2">
+                        <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i>
+                        Receipt
+                    </h2>
+                    <div class="flex items-center gap-2">
+                        <!-- Zoom Controls -->
+                        <div class="flex items-center gap-1 bg-gray-100 rounded-lg p-1" id="zoomControls" style="display: none;">
+                            <button type="button" id="zoomOutBtn" class="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded transition-colors" title="Zoom Out">
+                                <i data-lucide="zoom-out" class="w-4 h-4"></i>
+                            </button>
+                            <span id="zoomLevel" class="px-2 text-xs font-medium text-gray-700 min-w-[3rem] text-center">100%</span>
+                            <button type="button" id="zoomInBtn" class="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded transition-colors" title="Zoom In">
+                                <i data-lucide="zoom-in" class="w-4 h-4"></i>
+                            </button>
+                            <button type="button" id="resetZoomBtn" class="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded transition-colors ml-1" title="Reset Zoom">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <button type="button" id="closeReceiptViewerModal" class="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-lg">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="receiptViewerContent" class="space-y-4 overflow-auto" style="max-height: calc(100vh - 200px);">
+                    <div class="text-center py-8 text-gray-500">
+                        <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
+                        <p>Loading receipt...</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -2847,8 +2912,22 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
             `;
             
             data.transactions.forEach(txn => {
-              const receiptHtml = txn.receipt_url ? 
-                `<a href="${txn.receipt_url}" target="_blank" class="text-blue-600 hover:underline text-xs">View Receipt</a>` : 
+              // Escape the URL to prevent XSS
+              const receiptUrl = txn.receipt_url ? String(txn.receipt_url || '').replace(/"/g, '&quot;').replace(/'/g, '&#x27;') : '';
+              
+              // Extract file extension to determine if it's an image
+              let isImage = false;
+              if (receiptUrl) {
+                const urlPath = receiptUrl.split('?')[0]; // Remove query params if any
+                const ext = urlPath.split('.').pop()?.toLowerCase() || '';
+                isImage = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext);
+              }
+              
+              const receiptHtml = receiptUrl ? 
+                `<button type="button" class="view-receipt-btn inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-xs font-medium" data-receipt-url="${receiptUrl}" data-is-image="${isImage}">
+                  <i data-lucide="file-text" class="w-3 h-3"></i>
+                  View Receipt
+                </button>` : 
                 '<span class="text-gray-400 text-xs">No receipt</span>';
               
               html += `
@@ -2943,8 +3022,188 @@ const INGREDIENTS = <?php echo json_encode(array_map(function($i){ return ['id'=
   };
 
   // Escape key to close any open modal
+  // Receipt Viewer Modal
+  const receiptViewerModal = document.getElementById('receiptViewerModal');
+  const closeReceiptViewerModal = document.getElementById('closeReceiptViewerModal');
+  const receiptViewerContent = document.getElementById('receiptViewerContent');
+  const zoomControls = document.getElementById('zoomControls');
+  const zoomInBtn = document.getElementById('zoomInBtn');
+  const zoomOutBtn = document.getElementById('zoomOutBtn');
+  const resetZoomBtn = document.getElementById('resetZoomBtn');
+  const zoomLevel = document.getElementById('zoomLevel');
+  
+  let currentZoom = 1;
+  let currentReceiptElement = null;
+  let isImageReceipt = false;
+
+  function updateZoom(zoom) {
+    if (!currentReceiptElement) return;
+    
+    // Clamp zoom between 0.25x and 5x
+    currentZoom = Math.max(0.25, Math.min(5, zoom));
+    
+    if (isImageReceipt) {
+      // For images, use CSS transform
+      currentReceiptElement.style.transform = `scale(${currentZoom})`;
+      currentReceiptElement.style.transformOrigin = 'center center';
+    } else {
+      // For iframes (PDFs), adjust width/height
+      const baseWidth = currentReceiptElement.dataset.baseWidth || '100%';
+      const baseHeight = currentReceiptElement.dataset.baseHeight || '70vh';
+      currentReceiptElement.style.width = `calc(${baseWidth} * ${currentZoom})`;
+      currentReceiptElement.style.height = `calc(${baseHeight} * ${currentZoom})`;
+    }
+    
+    if (zoomLevel) {
+      zoomLevel.textContent = Math.round(currentZoom * 100) + '%';
+    }
+  }
+
+  function showReceiptViewer(receiptUrl, isImage) {
+    if (!receiptViewerModal || !receiptViewerContent) return;
+    
+    receiptViewerModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+    currentZoom = 1;
+    isImageReceipt = isImage;
+    
+    // Show loading state
+    receiptViewerContent.innerHTML = `
+      <div class="text-center py-8 text-gray-500">
+        <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
+        <p>Loading receipt...</p>
+      </div>
+    `;
+    if (window.lucide) window.lucide.createIcons();
+    
+    // Hide zoom controls initially
+    if (zoomControls) zoomControls.style.display = 'none';
+    
+    // Load receipt content
+    if (isImage) {
+      receiptViewerContent.innerHTML = `
+        <div class="flex justify-center items-center bg-gray-50 rounded-lg p-4 min-h-[400px] overflow-auto" id="receiptContainer">
+          <img 
+            id="receiptImage"
+            src="${receiptUrl.replace(/"/g, '&quot;').replace(/'/g, '&#x27;')}" 
+            alt="Receipt" 
+            class="max-w-full max-h-[70vh] object-contain rounded-lg shadow-lg transition-transform duration-200"
+            style="transform: scale(1); transform-origin: center center;"
+            onerror="this.parentElement.innerHTML='<div class=\'text-center py-8 text-red-500\'><i data-lucide=\'alert-circle\' class=\'w-8 h-8 mx-auto mb-2\'></i><p>Failed to load receipt image.</p></div>'; if(window.lucide) window.lucide.createIcons(); if(document.getElementById('zoomControls')) document.getElementById('zoomControls').style.display='none';"
+            onload="const img = this; const container = document.getElementById('receiptContainer'); if(img && container && document.getElementById('zoomControls')) { document.getElementById('zoomControls').style.display='flex'; currentReceiptElement = img; updateZoom(1); }"
+          />
+        </div>
+      `;
+      currentReceiptElement = document.getElementById('receiptImage');
+    } else {
+      // For PDFs or other files, use an iframe
+      receiptViewerContent.innerHTML = `
+        <div class="flex justify-center items-center bg-gray-50 rounded-lg p-4 min-h-[400px] overflow-auto" id="receiptContainer">
+          <iframe 
+            id="receiptIframe"
+            src="${receiptUrl.replace(/"/g, '&quot;').replace(/'/g, '&#x27;')}" 
+            class="w-full h-[70vh] border-0 rounded-lg shadow-lg transition-all duration-200"
+            data-base-width="100%"
+            data-base-height="70vh"
+            onerror="this.parentElement.innerHTML='<div class=\'text-center py-8 text-red-500\'><i data-lucide=\'alert-circle\' class=\'w-8 h-8 mx-auto mb-2\'></i><p>Failed to load receipt. <a href=\'${receiptUrl.replace(/"/g, '&quot;').replace(/'/g, '&#x27;')}\' target=\'_blank\' class=\'text-blue-600 underline\'>Try opening in new tab</a></p></div>'; if(window.lucide) window.lucide.createIcons(); if(document.getElementById('zoomControls')) document.getElementById('zoomControls').style.display='none';"
+            onload="const iframe = this; if(iframe && document.getElementById('zoomControls')) { document.getElementById('zoomControls').style.display='flex'; currentReceiptElement = iframe; updateZoom(1); }"
+          ></iframe>
+        </div>
+      `;
+      currentReceiptElement = document.getElementById('receiptIframe');
+    }
+    
+    if (window.lucide) window.lucide.createIcons();
+    
+    // Update zoom level display
+    if (zoomLevel) {
+      zoomLevel.textContent = '100%';
+    }
+  }
+
+  function hideReceiptViewer() {
+    if (!receiptViewerModal) return;
+    receiptViewerModal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+    currentZoom = 1;
+    currentReceiptElement = null;
+    if (receiptViewerContent) {
+      receiptViewerContent.innerHTML = `
+        <div class="text-center py-8 text-gray-500">
+          <i data-lucide="loader" class="w-8 h-8 mx-auto mb-2 animate-spin"></i>
+          <p>Loading receipt...</p>
+        </div>
+      `;
+    }
+    if (zoomControls) zoomControls.style.display = 'none';
+  }
+
+  // Handle View Receipt button clicks
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.view-receipt-btn');
+    if (!btn) return;
+    e.stopPropagation();
+    e.preventDefault();
+    
+    const receiptUrl = btn.dataset.receiptUrl || '';
+    const isImage = btn.dataset.isImage === 'true';
+    
+    if (receiptUrl) {
+      showReceiptViewer(receiptUrl, isImage);
+    }
+  });
+
+  // Zoom controls
+  if (zoomInBtn) {
+    zoomInBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      updateZoom(currentZoom + 0.25);
+    });
+  }
+  
+  if (zoomOutBtn) {
+    zoomOutBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      updateZoom(currentZoom - 0.25);
+    });
+  }
+  
+  if (resetZoomBtn) {
+    resetZoomBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      updateZoom(1);
+    });
+  }
+  
+  // Mouse wheel zoom (when holding Ctrl/Cmd)
+  if (receiptViewerContent) {
+    receiptViewerContent.addEventListener('wheel', (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        updateZoom(currentZoom + delta);
+      }
+    }, { passive: false });
+  }
+
+  if (closeReceiptViewerModal) {
+    closeReceiptViewerModal.addEventListener('click', hideReceiptViewer);
+  }
+  if (receiptViewerModal) {
+    receiptViewerModal.addEventListener('click', (e) => {
+      if (e.target === receiptViewerModal || e.target.hasAttribute('data-receipt-viewer-dismiss')) {
+        hideReceiptViewer();
+      }
+    });
+  }
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      // Close receipt viewer modal if open
+      if (receiptViewerModal && !receiptViewerModal.classList.contains('hidden')) {
+        hideReceiptViewer();
+        return;
+      }
       // Close viewTransactionsModal if open
       if (viewTransactionsModal && !viewTransactionsModal.classList.contains('hidden')) {
         hideViewTransactionsModal();

@@ -274,6 +274,7 @@ $logoPath = (defined('BASE_URL') ? BASE_URL : '') . '/resources/views/logo/54047
 						'password-updated' => 'Password updated. Please sign in with your new credentials.',
 						'disabled' => 'Your account has been disabled. Contact an administrator.',
 						'expired' => 'Your session expired. Please sign in again.',
+						'restored' => 'Database backup was restored. All sessions have been invalidated. Please sign in again.',
 					];
 					$statusMessage = ($status && isset($statusMessages[$status])) ? htmlspecialchars($statusMessages[$status]) : '';
 					?>

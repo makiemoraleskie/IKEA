@@ -415,6 +415,32 @@ foreach ($deliveries as $d) {
 	</div>
 </div>
 
+<!-- Record Delivery Confirmation Modal -->
+<div id="recordDeliveryConfirmModal" class="fixed inset-0 z-[60] hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 60 !important;">
+	<div class="fixed inset-0 bg-black/50" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important;"></div>
+	<div class="relative z-10 flex items-center justify-center p-4" style="position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; overflow-y: auto !important; overflow-x: hidden !important;">
+		<div class="bg-white rounded-xl shadow-none w-full max-w-md mx-auto my-auto" style="max-width: 28rem; margin-top: auto !important; margin-bottom: auto !important;">
+			<div class="p-6">
+				<div class="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-orange-100 rounded-full">
+					<i data-lucide="package-check" class="w-6 h-6 text-orange-600"></i>
+				</div>
+				<h3 class="text-lg font-semibold text-gray-900 text-center mb-2">Confirm Delivery Recording</h3>
+				<p class="text-sm text-gray-600 text-center mb-6" id="recordDeliveryConfirmMessage">
+					Are you sure you want to record this delivery? This action will update inventory quantities.
+				</p>
+				<div class="flex flex-col sm:flex-row gap-3">
+					<button type="button" id="cancelRecordDeliveryBtn" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+						Cancel
+					</button>
+					<button type="button" id="confirmRecordDeliveryBtn" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors">
+						<i data-lucide="check" class="w-4 h-4"></i>
+						Confirm
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 
 <!-- Quick Receive Modal -->
 <div id="receiveQuickModal" class="fixed inset-0 z-50 hidden overflow-hidden" style="position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; margin: 0 !important; z-index: 50 !important;">
@@ -778,7 +804,11 @@ foreach ($deliveries as $d) {
 				</div>
 				
 				<!-- Record Delivery Button -->
-				<div class="flex justify-end mt-4">
+				<div class="flex flex-col items-end mt-4 gap-3">
+					<div id="continueDeliveryError" class="hidden w-full px-4 py-3 rounded-lg border border-red-300 bg-red-50 text-sm text-red-700 flex items-start gap-2">
+						<i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+						<span class="flex-1 font-medium"></span>
+					</div>
 					<button type="button" id="continueRecordDeliveryBtn" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
 						<i data-lucide="truck" class="w-4 h-4"></i>
 						Record Delivery
@@ -831,6 +861,55 @@ foreach ($deliveries as $d) {
   INGREDIENTS.forEach(ing => {
     INGREDIENT_LOOKUP[ing.id] = ing;
   });
+  
+  // Define error handling functions early so they're available throughout the IIFE
+  function showContinueDeliveryError(message){
+    const errorElement = document.getElementById('continueDeliveryError');
+    if (!errorElement) {
+      // Fallback: show in a temporary UI element
+      const tempError = document.createElement('div');
+      tempError.className = 'fixed top-4 right-4 z-50 px-4 py-3 rounded-lg border border-red-300 bg-red-50 text-sm text-red-700 shadow-lg';
+      tempError.textContent = message;
+      document.body.appendChild(tempError);
+      setTimeout(() => tempError.remove(), 5000);
+      return;
+    }
+    
+    // Find or create the span element for the error message
+    let errorText = errorElement.querySelector('span.flex-1');
+    if (!errorText) {
+      errorText = document.createElement('span');
+      errorText.className = 'flex-1 font-medium';
+      errorElement.appendChild(errorText);
+    }
+    
+    // Set the error message
+    errorText.textContent = message;
+    
+    // Show the error element
+    errorElement.classList.remove('hidden');
+    
+    // Scroll error into view
+    if (errorElement) {
+      errorElement.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+    }
+    
+    // Re-initialize icons if lucide is available
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons({ elements: errorElement.querySelectorAll('i[data-lucide]') });
+    }
+  }
+  
+  function clearContinueDeliveryError(){
+    const errorElement = document.getElementById('continueDeliveryError');
+    if (errorElement) {
+      errorElement.classList.add('hidden');
+      const errorText = errorElement.querySelector('span.flex-1');
+      if (errorText) {
+        errorText.textContent = '';
+      }
+    }
+  }
   
   const GROUPS = <?php echo json_encode(array_map(function($g) use ($deliveredTotals) {
     $deliveredLookup = [];
@@ -1188,7 +1267,7 @@ foreach ($deliveries as $d) {
         });
       }
     } catch (e) {
-      console.error('Error parsing deliveriesItemsJson:', e);
+      // Silently handle parsing errors - invalid JSON will just result in empty array
     }
     
     // Get purchase IDs from modal form (deliveryItems array)
@@ -1692,7 +1771,7 @@ foreach ($deliveries as $d) {
 
   function openDeliveryModal(groupId){
     if (!deliveryModal) {
-      alert('Error: Delivery modal not found. Please refresh the page.');
+      showDeliveryError('Error: Delivery modal not found. Please refresh the page.');
       return;
     }
     
@@ -1701,7 +1780,7 @@ foreach ($deliveries as $d) {
     
     const g = GROUPS.find(x=>x.group_id===groupId);
     if (!g) {
-      alert('Error: Purchase batch not found. Please refresh the page.');
+      showDeliveryError('Error: Purchase batch not found. Please refresh the page.');
       return;
     }
     
@@ -1788,7 +1867,7 @@ foreach ($deliveries as $d) {
     
     // Populate item select dropdown with ALL ingredients from inventory
     if (!deliveryItemSelect || !deliveryItemSearch) {
-      alert('Error: Delivery form elements not found. Please refresh the page.');
+      showDeliveryError('Error: Delivery form elements not found. Please refresh the page.');
       return;
     }
     deliveryItemSelect.innerHTML = '<option value="">Choose ingredient</option>';
@@ -1955,54 +2034,45 @@ foreach ($deliveries as $d) {
   }
 
   function showDeliveryError(message){
-    console.log('showDeliveryError called with message:', message);
     // Re-fetch element in case DOM changed
     const errorElement = document.getElementById('deliveryBuilderError');
     if (!errorElement) {
-      console.error('deliveryBuilderError element not found');
-      alert(message); // Fallback to alert if element not found
+      // Fallback: show in a temporary UI element or use a generic error display
+      const tempError = document.createElement('div');
+      tempError.className = 'fixed top-4 right-4 z-50 px-4 py-3 rounded-lg border border-red-300 bg-red-50 text-sm text-red-700 shadow-lg';
+      tempError.textContent = message;
+      document.body.appendChild(tempError);
+      setTimeout(() => tempError.remove(), 5000);
       return;
     }
-    
-    console.log('Error element found:', errorElement);
     
     // Find or create the span element for the error message
     let errorText = errorElement.querySelector('span.flex-1');
     if (!errorText) {
-      console.log('Creating new span element for error message');
       // If span doesn't exist, create it
       errorText = document.createElement('span');
       errorText.className = 'flex-1 font-medium';
-      // Insert after icon if it exists, otherwise append
-      const icon = errorElement.querySelector('i[data-lucide]');
-      // Simply append the error text - it will appear after the icon
       errorElement.appendChild(errorText);
     }
     
     // Set the error message
     errorText.textContent = message;
-    console.log('Error message set:', errorText.textContent);
     
     // Show the error element
     errorElement.classList.remove('hidden');
-    errorElement.style.display = 'flex'; // Ensure flex display
-    errorElement.style.visibility = 'visible'; // Ensure visibility
-    errorElement.style.opacity = '1'; // Ensure opacity
+    errorElement.style.display = 'flex';
+    errorElement.style.visibility = 'visible';
+    errorElement.style.opacity = '1';
     
     // Check parent visibility
     let parent = errorElement.parentElement;
     while (parent && parent !== document.body) {
       if (parent.classList.contains('hidden') || parent.style.display === 'none') {
-        console.warn('Parent element is hidden:', parent);
         parent.classList.remove('hidden');
         parent.style.display = '';
       }
       parent = parent.parentElement;
     }
-    
-    console.log('Error element classes:', errorElement.className);
-    console.log('Error element display:', errorElement.style.display);
-    console.log('Error element is visible:', errorElement.offsetParent !== null);
     
     // Scroll error into view
     if (errorElement) {
@@ -2011,10 +2081,10 @@ foreach ($deliveries as $d) {
     
     // Re-initialize icons if lucide is available
     if (typeof lucide !== 'undefined') {
-      lucide.createIcons();
+      lucide.createIcons({ elements: errorElement.querySelectorAll('i[data-lucide]') });
     }
   }
-
+  
   function clearDeliveryError(){
     if (!deliveryBuilderError) return;
     const errorText = deliveryBuilderError.querySelector('span');
@@ -2427,10 +2497,7 @@ foreach ($deliveries as $d) {
         }
         
         // Warn if unit doesn't match expected display_unit (optional warning, not blocking)
-        if (displayUnit && unit !== displayUnit && unit !== baseUnit) {
-          // Allow it but show a note - backend will handle conversion
-          console.log(`Note: Unit "${unit}" may not match expected unit "${displayUnit}" or base unit "${baseUnit}". Backend will attempt conversion.`);
-        }
+        // Note: Unit conversion is handled by backend if unit doesn't match expected unit
       }
       
       const supplier = (deliverySupplierInput?.value || '').trim();
@@ -2729,9 +2796,192 @@ foreach ($deliveries as $d) {
     if (e.target === deliveryModal) closeDeliveryModal();
   });
 
+  // Record Delivery Confirmation Modal
+  const recordDeliveryConfirmModal = document.getElementById('recordDeliveryConfirmModal');
+  const confirmRecordDeliveryBtn = document.getElementById('confirmRecordDeliveryBtn');
+  const cancelRecordDeliveryBtn = document.getElementById('cancelRecordDeliveryBtn');
+  const recordDeliveryConfirmMessage = document.getElementById('recordDeliveryConfirmMessage');
+  let pendingFormSubmission = null;
+  let pendingFormType = null; // 'modal' or 'inline'
+  let isSubmittingAfterConfirmation = false; // Flag to bypass confirmation on actual submit
+
+  function showRecordDeliveryConfirmation() {
+    if (!recordDeliveryConfirmModal) return false;
+    
+    // Check if all purchase items are included
+    const purchaseItemsList = document.getElementById('deliveryPurchaseItemsList');
+    let allItemsIncluded = true;
+    let missingItemsCount = 0;
+    const missingItemsList = [];
+    
+    if (purchaseItemsList) {
+      const allPurchaseRows = purchaseItemsList.querySelectorAll('tr');
+      allPurchaseRows.forEach(row => {
+        if (row.style.display !== 'none' && row.dataset.removed !== 'true') {
+          allItemsIncluded = false;
+          missingItemsCount++;
+          const itemName = row.dataset.itemName || 'Unknown item';
+          missingItemsList.push(itemName);
+        }
+      });
+    }
+    
+    // Update confirmation message based on whether all items are included
+    if (allItemsIncluded) {
+      recordDeliveryConfirmMessage.textContent = 'Are you sure you want to record this delivery? This action will update inventory quantities.';
+    } else {
+      const itemsText = missingItemsCount === 1 
+        ? missingItemsList[0] 
+        : `${missingItemsCount} items`;
+      recordDeliveryConfirmMessage.textContent = `You are recording a partial delivery (${itemsText} not included). The delivery status will be set to "Partial" and you can complete it later. Continue?`;
+    }
+    
+    recordDeliveryConfirmModal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+    if (window.lucide) {
+      window.lucide.createIcons({ elements: recordDeliveryConfirmModal.querySelectorAll('i[data-lucide]') });
+    }
+    return true;
+  }
+
+  function hideRecordDeliveryConfirmation() {
+    if (!recordDeliveryConfirmModal) return;
+    recordDeliveryConfirmModal.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+    pendingFormSubmission = null;
+    pendingFormType = null;
+    
+    // Re-enable buttons if user cancels
+    if (deliverySubmitBtn && !isSubmittingAfterConfirmation) {
+      deliverySubmitBtn.removeAttribute('disabled');
+      deliverySubmitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+    }
+    
+    if (continueRecordDeliveryBtn && !isSubmittingAfterConfirmation) {
+      continueRecordDeliveryBtn.disabled = false;
+      continueRecordDeliveryBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+    }
+    
+    // Clear pending continue delivery submit function
+    if (window.pendingContinueDeliverySubmit) {
+      window.pendingContinueDeliverySubmit = null;
+    }
+  }
+
+  confirmRecordDeliveryBtn?.addEventListener('click', () => {
+    if (!pendingFormSubmission) return;
+    
+    // Set flag to bypass confirmation on actual submit
+    isSubmittingAfterConfirmation = true;
+    
+    if (pendingFormType === 'modal' && deliveryModalForm) {
+      // Ensure items_json is synced before submitting
+      renderDeliveryItems();
+      
+      // Proceed with modal form submission
+      deliverySubmitBtn?.setAttribute('disabled','disabled');
+      deliverySubmitBtn?.classList.add('opacity-60','cursor-not-allowed');
+      addRecentDeliveryRows(buildRecentEntriesFromModal());
+      removeSelectedBatchOption();
+      
+      // Hide confirmation modal
+      hideRecordDeliveryConfirmation();
+      
+      // Submit the form - the flag will prevent the event listener from intercepting
+      deliveryModalForm.submit();
+    } else if (pendingFormType === 'inline' && deliveriesForm) {
+      // Ensure items_json is synced before submitting
+      sync();
+      
+      // Proceed with inline form submission
+      deliverySubmitBtn?.setAttribute('disabled','disabled');
+      deliverySubmitBtn?.classList.add('opacity-60','cursor-not-allowed');
+      addRecentDeliveryRows(buildRecentEntriesFromInline());
+      removeSelectedBatchOption();
+      
+      // Hide confirmation modal
+      hideRecordDeliveryConfirmation();
+      
+      // Submit the form - the flag will prevent the event listener from intercepting
+      deliveriesForm.submit();
+    } else if (pendingFormType === 'continue') {
+      // Hide confirmation modal
+      hideRecordDeliveryConfirmation();
+      
+      // Get the continue delivery button (it's defined later in the code)
+      const continueRecordDeliveryBtn = document.getElementById('continueRecordDeliveryBtn');
+      
+      // Disable the button
+      if (continueRecordDeliveryBtn) {
+        continueRecordDeliveryBtn.disabled = true;
+        continueRecordDeliveryBtn.classList.add('opacity-60', 'cursor-not-allowed');
+      }
+      
+      // Execute the stored submit function if it exists
+      if (window.pendingContinueDeliverySubmit) {
+        try {
+          window.pendingContinueDeliverySubmit();
+          window.pendingContinueDeliverySubmit = null;
+        } catch (error) {
+          // If submit function fails, show error
+          showContinueDeliveryError('Error submitting delivery. Please try again.');
+          if (continueRecordDeliveryBtn) {
+            continueRecordDeliveryBtn.disabled = false;
+            continueRecordDeliveryBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+          }
+        }
+      } else {
+        // Fallback: try to submit directly using the form we created
+        const continueDeliveryForm = document.querySelector('form[action*="/deliveries"][style*="display: none"]');
+        if (continueDeliveryForm) {
+          const itemsJsonInput = document.getElementById('continueDeliveryItemsJson');
+          if (itemsJsonInput && window.continueDeliveryItems && window.continueDeliveryItems.length > 0) {
+            const itemsJson = window.continueDeliveryItems.map(item => ({
+              purchase_id: item.purchase_id,
+              ingredient_id: item.ingredient_id,
+              quantity: item.quantity,
+              unit: item.unit,
+              receive_quantity: item.receiveQuantity
+            }));
+            itemsJsonInput.value = JSON.stringify(itemsJson);
+            continueDeliveryForm.submit();
+          } else {
+            showContinueDeliveryError('No items to submit. Please add items first.');
+            if (continueRecordDeliveryBtn) {
+              continueRecordDeliveryBtn.disabled = false;
+              continueRecordDeliveryBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+            }
+          }
+        } else {
+          showContinueDeliveryError('Error: Delivery form not found. Please refresh the page.');
+          if (continueRecordDeliveryBtn) {
+            continueRecordDeliveryBtn.disabled = false;
+            continueRecordDeliveryBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+          }
+        }
+      }
+    } else {
+      hideRecordDeliveryConfirmation();
+    }
+  });
+
+  cancelRecordDeliveryBtn?.addEventListener('click', hideRecordDeliveryConfirmation);
+
+  recordDeliveryConfirmModal?.addEventListener('click', (event) => {
+    if (event.target === recordDeliveryConfirmModal || event.target.classList.contains('bg-black')) {
+      hideRecordDeliveryConfirmation();
+    }
+  });
+
   // Handle modal form submission
   if (deliveryModalForm) {
     deliveryModalForm.addEventListener('submit', (e)=>{
+      // If we're submitting after confirmation, allow it to proceed
+      if (isSubmittingAfterConfirmation) {
+        isSubmittingAfterConfirmation = false;
+        return; // Let the form submit normally
+      }
+      
       if (deliveryItems.length === 0) {
         e.preventDefault();
         showDeliveryError('Please add at least one item to record delivery.');
@@ -2743,54 +2993,31 @@ foreach ($deliveries as $d) {
         return;
       }
       
-      // Check if all purchase items have been added
-      const purchaseItemsList = document.getElementById('deliveryPurchaseItemsList');
-      if (purchaseItemsList) {
-        const allPurchaseRows = purchaseItemsList.querySelectorAll('tr');
-        const unprocessedItems = [];
-        allPurchaseRows.forEach(row => {
-          // Check if row is visible (not removed/hidden)
-          if (row.style.display !== 'none' && row.dataset.removed !== 'true') {
-            const itemName = row.dataset.itemName || 'Unknown item';
-            unprocessedItems.push(itemName);
-          }
-        });
-        
-        if (unprocessedItems.length > 0) {
-          e.preventDefault();
-          const itemList = unprocessedItems.join(', ');
-          showDeliveryError(`Please add all purchase items to the delivery. Remaining items: ${itemList}`);
-          // Ensure button is enabled so user can fix the issue
-          if (deliverySubmitBtn) {
-            deliverySubmitBtn.removeAttribute('disabled');
-            deliverySubmitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
-            // Reset button text if it was changed to "Processing..."
-            const btnContent = deliverySubmitBtn.textContent || '';
-            if (btnContent.includes('Processing')) {
-              const icon = deliverySubmitBtn.querySelector('i[data-lucide]');
-              if (icon) {
-                deliverySubmitBtn.innerHTML = '<i data-lucide="package-check" class="w-4 h-4"></i>Record Delivery';
-                if (typeof lucide !== 'undefined') {
-                  lucide.createIcons();
-                }
-              }
-            }
-          }
-          return;
-        }
+      // Prevent default submission and show confirmation modal
+      e.preventDefault();
+      pendingFormSubmission = true;
+      pendingFormType = 'modal';
+      if (!showRecordDeliveryConfirmation()) {
+        // If modal failed to show, proceed with submission
+        isSubmittingAfterConfirmation = true;
+        renderDeliveryItems();
+        deliverySubmitBtn?.setAttribute('disabled','disabled');
+        deliverySubmitBtn?.classList.add('opacity-60','cursor-not-allowed');
+        addRecentDeliveryRows(buildRecentEntriesFromModal());
+        removeSelectedBatchOption();
+        deliveryModalForm.requestSubmit();
       }
-      
-      // Only disable button if validation passes
-      deliverySubmitBtn?.setAttribute('disabled','disabled');
-      deliverySubmitBtn?.classList.add('opacity-60','cursor-not-allowed');
-      addRecentDeliveryRows(buildRecentEntriesFromModal());
-      removeSelectedBatchOption();
-      // Form will submit normally with items_json
     });
   }
 
   if (deliveriesForm){
     deliveriesForm.addEventListener('submit', (e)=>{
+      // If we're submitting after confirmation, allow it to proceed
+      if (isSubmittingAfterConfirmation) {
+        isSubmittingAfterConfirmation = false;
+        return; // Let the form submit normally
+      }
+      
       clearInlineError();
       sync();
       const payload = collectInlinePayload();
@@ -2799,15 +3026,29 @@ foreach ($deliveries as $d) {
         showInlineError('Add at least one outstanding item with a quantity before recording the delivery.');
         return;
       }
-      deliverySubmitBtn?.setAttribute('disabled','disabled');
-      deliverySubmitBtn?.classList.add('opacity-60','cursor-not-allowed');
-      addRecentDeliveryRows(buildRecentEntriesFromInline());
-      removeSelectedBatchOption();
+      
+      // Show confirmation modal for inline form as well
+      e.preventDefault();
+      pendingFormSubmission = true;
+      pendingFormType = 'inline';
+      
+      // Update message for inline form
+      recordDeliveryConfirmMessage.textContent = 'Are you sure you want to record this delivery? This action will update inventory quantities.';
+      
+      if (!showRecordDeliveryConfirmation()) {
+        // If modal failed to show, proceed with submission
+        isSubmittingAfterConfirmation = true;
+        sync();
+        deliverySubmitBtn?.setAttribute('disabled','disabled');
+        deliverySubmitBtn?.classList.add('opacity-60','cursor-not-allowed');
+        addRecentDeliveryRows(buildRecentEntriesFromInline());
+        removeSelectedBatchOption();
+        deliveriesForm.requestSubmit();
+      }
     });
   }
 
 
-  console.log("sel", sel);
   // Update batch selection to open modal instead of rendering table
   if (sel) {
     sel.addEventListener('change', ()=>{ 
@@ -2973,9 +3214,8 @@ foreach ($deliveries as $d) {
         }
       })
       .catch(error => {
-        console.error('Error fetching batch details:', error);
         if (deliveryDetailsItemsBody) {
-          deliveryDetailsItemsBody.innerHTML = '<tr><td colspan="4" class="px-4 py-6 text-center text-red-500">Error loading batch details</td></tr>';
+          deliveryDetailsItemsBody.innerHTML = '<tr><td colspan="4" class="px-4 py-6 text-center text-red-500">Error loading batch details. Please try again.</td></tr>';
         }
       });
   }
@@ -3100,6 +3340,9 @@ foreach ($deliveries as $d) {
   
   let continueCurrentPurchaseItemData = null;
   let continueDeliveryItems = [];
+  // Make it globally accessible for the confirm button handler
+  // Use the same array reference so modifications are synced
+  window.continueDeliveryItems = continueDeliveryItems;
   
   // Show complete delivery section when button is clicked
   if (continueDeliveryBtn && continueDeliverySection) {
@@ -3117,7 +3360,7 @@ foreach ($deliveries as $d) {
   // Populate ingredient options for continue delivery (from INGREDIENTS array)
   function populateContinueDeliveryIngredientOptions() {
     if (typeof INGREDIENTS === 'undefined' || !Array.isArray(INGREDIENTS)) {
-      console.error('INGREDIENTS array not found');
+      showContinueDeliveryError('Error: Ingredients data not found. Please refresh the page.');
       return;
     }
     
@@ -3197,7 +3440,7 @@ foreach ($deliveries as $d) {
       
       // Check if another item is already selected
       if (continueCurrentPurchaseItemData) {
-        alert('Cannot add multiple items. Please complete or cancel the current item first.');
+        showContinueDeliveryError('Cannot add multiple items. Please complete or cancel the current item first.');
         return;
       }
       
@@ -3325,33 +3568,35 @@ foreach ($deliveries as $d) {
       const purchaseQty = continueCurrentPurchaseItemData.orderedQty;
       const remainingQty = continueCurrentPurchaseItemData.remainingQty;
       
+      clearContinueDeliveryError();
+      
       // Validate receive quantity
       if (receiveQty <= 0) {
-        alert('Please enter a valid receive quantity.');
+        showContinueDeliveryError('Please enter a valid receive quantity.');
         return;
       }
       
       if (receiveQty > remainingQty + 0.0001) {
-        alert(`Receive quantity cannot exceed remaining quantity (${remainingQty.toFixed(2)}).`);
+        showContinueDeliveryError(`Receive quantity cannot exceed remaining quantity (${remainingQty.toFixed(2)}).`);
         return;
       }
       
       // Get inventory item
       const ingredientName = continueDeliveryItemSearch?.value?.trim() || '';
       if (!ingredientName) {
-        alert('Please select an inventory item.');
+        showContinueDeliveryError('Please select an inventory item.');
         return;
       }
       
       const ingredient = INGREDIENTS.find(ing => ing.name.toLowerCase() === ingredientName.toLowerCase());
       if (!ingredient) {
-        alert('Selected ingredient not found.');
+        showContinueDeliveryError('Selected ingredient not found.');
         return;
       }
       
       const inventoryQty = parseFloat(continueDeliveryQuantityInput?.value || '0');
       if (inventoryQty <= 0) {
-        alert('Please enter a valid inventory quantity.');
+        showContinueDeliveryError('Please enter a valid inventory quantity.');
         return;
       }
       
@@ -3364,7 +3609,7 @@ foreach ($deliveries as $d) {
       }
       
       if (!inventoryUnit) {
-        alert('Please enter or select a unit.');
+        showContinueDeliveryError('Please enter or select a unit.');
         return;
       }
       
@@ -3373,7 +3618,7 @@ foreach ($deliveries as $d) {
       const deliveryStatus = newReceivedQty < purchaseQty - 0.0001 ? 'partial' : 'complete';
       
       // Add to delivery items
-      continueDeliveryItems.push({
+      const newItem = {
         purchase_id: continueCurrentPurchaseItemData.purchaseId,
         ingredient_id: ingredient.id,
         itemName: ingredient.name,
@@ -3384,7 +3629,9 @@ foreach ($deliveries as $d) {
         receiveUnit: continueCurrentPurchaseItemData.unit,
         purchaseItemName: continueCurrentPurchaseItemData.itemName,
         status: deliveryStatus
-      });
+      };
+      continueDeliveryItems.push(newItem);
+      // window.continueDeliveryItems is the same array reference, so it's automatically updated
       
       // Clear and hide sections
       if (continueReceiveItemSection) {
@@ -3497,6 +3744,7 @@ foreach ($deliveries as $d) {
         }
         
         continueDeliveryItems.splice(index, 1);
+        // window.continueDeliveryItems is the same array reference, so it's automatically updated
         renderContinueDeliveryItems();
         
         if (typeof lucide !== 'undefined') {
@@ -3695,22 +3943,88 @@ foreach ($deliveries as $d) {
   // Handle Record Delivery button click
   if (continueRecordDeliveryBtn) {
     continueRecordDeliveryBtn.addEventListener('click', () => {
+      clearContinueDeliveryError();
+      
       if (continueDeliveryItems.length === 0) {
-        alert('Please add at least one item to record delivery.');
+        showContinueDeliveryError('Please add at least one item to record delivery.');
         return;
       }
       
-      // Prepare items JSON
-      const itemsJson = continueDeliveryItems.map(item => ({
-        purchase_id: item.purchase_id,
-        ingredient_id: item.ingredient_id,
-        quantity: item.quantity,
-        unit: item.unit,
-        receive_quantity: item.receiveQuantity
-      }));
+      // Check if all purchase items are included
+      const continuePurchaseItemsList = document.getElementById('continueDeliveryPurchaseItemsList');
+      let allItemsIncluded = true;
+      let missingItemsCount = 0;
+      const missingItemsList = [];
       
-      itemsJsonInput.value = JSON.stringify(itemsJson);
-      continueDeliveryForm.submit();
+      if (continuePurchaseItemsList) {
+        const allPurchaseRows = continuePurchaseItemsList.querySelectorAll('tr');
+        allPurchaseRows.forEach(row => {
+          if (row.style.display !== 'none' && row.dataset.removed !== 'true') {
+            allItemsIncluded = false;
+            missingItemsCount++;
+            const itemName = row.dataset.itemName || 'Unknown item';
+            missingItemsList.push(itemName);
+          }
+        });
+      }
+      
+      // Update confirmation message based on whether all items are included
+      if (allItemsIncluded) {
+        recordDeliveryConfirmMessage.textContent = 'Are you sure you want to record this delivery? This action will update inventory quantities.';
+      } else {
+        const itemsText = missingItemsCount === 1 
+          ? missingItemsList[0] 
+          : `${missingItemsCount} items`;
+        recordDeliveryConfirmMessage.textContent = `You are recording a partial delivery (${itemsText} not included). The delivery status will be set to "Partial" and you can complete it later. Continue?`;
+      }
+      
+      // Set pending form submission type
+      pendingFormSubmission = true;
+      pendingFormType = 'continue';
+      
+      // Show confirmation modal
+      if (showRecordDeliveryConfirmation()) {
+        // Confirmation will be handled by the confirm button handler
+        // Store the form submission function
+        window.pendingContinueDeliverySubmit = () => {
+          // Use the global reference to ensure we have the latest items
+          const itemsToSubmit = window.continueDeliveryItems || continueDeliveryItems;
+          
+          if (!itemsToSubmit || itemsToSubmit.length === 0) {
+            showContinueDeliveryError('No items to submit. Please add items first.');
+            const continueRecordDeliveryBtn = document.getElementById('continueRecordDeliveryBtn');
+            if (continueRecordDeliveryBtn) {
+              continueRecordDeliveryBtn.disabled = false;
+              continueRecordDeliveryBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+            }
+            return;
+          }
+          
+          // Prepare items JSON
+          const itemsJson = itemsToSubmit.map(item => ({
+            purchase_id: item.purchase_id,
+            ingredient_id: item.ingredient_id,
+            quantity: item.quantity,
+            unit: item.unit,
+            receive_quantity: item.receiveQuantity
+          }));
+          
+          itemsJsonInput.value = JSON.stringify(itemsJson);
+          continueDeliveryForm.submit();
+        };
+      } else {
+        // If modal failed to show, proceed with submission
+        const itemsJson = continueDeliveryItems.map(item => ({
+          purchase_id: item.purchase_id,
+          ingredient_id: item.ingredient_id,
+          quantity: item.quantity,
+          unit: item.unit,
+          receive_quantity: item.receiveQuantity
+        }));
+        
+        itemsJsonInput.value = JSON.stringify(itemsJson);
+        continueDeliveryForm.submit();
+      }
     });
   }
 

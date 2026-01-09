@@ -38,6 +38,7 @@ class InventoryController extends BaseController
 		}
 		
 		$inventoryActionsVisible = Settings::get('inventory.actions_visible', '0') === '1';
+		$inventoryCsvButtonsEnabled = Settings::get('inventory.csv_buttons_enabled', '1') === '1';
 		
 		$this->render('inventory/index.php', [
 			'ingredients' => $ingredients,
@@ -45,6 +46,7 @@ class InventoryController extends BaseController
 			'ingredientSetsEnabled' => $ingredientSetsEnabled,
 			'lowStockGroups' => $lowStockGroups,
 			'inventoryActionsVisible' => $inventoryActionsVisible,
+			'inventoryCsvButtonsEnabled' => $inventoryCsvButtonsEnabled,
             'flash' => $_SESSION['flash_inventory'] ?? null,
 		]);
         unset($_SESSION['flash_inventory']);
@@ -311,7 +313,7 @@ class InventoryController extends BaseController
 
 	public function import(): void
 	{
-		Auth::requireRole(['Owner']);
+		Auth::requireRole(['Owner','Manager']);
 		
 		// Handle GET request - show import form
 		if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -716,11 +718,11 @@ class InventoryController extends BaseController
 
 	/**
 	 * Export current inventory to CSV
-	 * Only accessible by Owner role
+	 * Accessible by Owner, Manager, and Stock Handler roles
 	 */
 	public function export(): void
 	{
-		Auth::requireRole(['Owner']);
+		Auth::requireRole(['Owner','Manager']);
 		
 		$ingredientModel = new Ingredient();
 		$ingredients = $ingredientModel->all();

@@ -1,0 +1,1276 @@
+﻿EASTERN VISAYAS STATE UNIVERSITY – ORMOC CAMPUS
+COMPUTER STUDIES DEPARTMENT
+
+
+DESIGN AND IMPLEMENTATION OF AN INVENTORY AND PURCHASER TRANSACTION TRACKING SYSTEM FOR IKEA CAKES AND SNACKS COMMISSARY
+
+
+A Capstone Project Proposal
+Submitted to the Computer Studies Department
+In Partial Fulfillment of the Requirements
+for the Degree
+Bachelor of Science in Information Technology
+
+
+
+
+
+
+
+
+
+
+By: 
+RANSMARK A. MORALES
+LOREN C. CAPUYAN
+
+
+
+
+
+
+
+
+Capstone Adviser:
+JUDE ALEXES RAMAS
+
+
+
+
+
+
+DECEMBER 2025
+
+
+ABSTRACT
+
+
+This study developed a web-based commissary inventory management system with a built-in purchaser transaction tracker and audit trail for IKEA Cakes and Snacks Commissary in Ormoc City. The commissary previously relied on handwritten request forms, manual stock logs, and paper-based receipt verification, resulting in inefficiencies, stock discrepancies, and gaps in accountability. Using a developmental research design and the Agile Software Development Life Cycle (SDLC), the system was designed, implemented, and evaluated based on end-user requirements gathered through interviews and observations. The completed system provides modules for digital request handling, automated stock updates, purchase logging with receipt uploads, delivery acknowledgment, reporting, and audit logging.
+System evaluation using ISO/IEC 25010 quality attributes yielded Excellent ratings in Functionality (4.62), Usability (4.44), Reliability (4.63), Maintainability (4.90), Portability (5.00), and Overall Assessment (4.50), with Efficiency rated Very Good (4.13). These results demonstrate that the system effectively enhances accuracy, efficiency, and traceability within commissary operations. The project successfully modernizes the inventory workflow of IKEA Cakes and Snacks and provides a scalable model for similar small-scale food-service enterprises.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ACKNOWLEDGEMENT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+TABLE OF CONTENTS
+ABSTRACT        i
+ACKNOWLEDGEMENT        ii
+TABLE OF CONTENTS        iii
+LIST OF TABLES        iv
+LIST OF FIGURES        v
+INTRODUCTION        1
+Background of the Study        1
+Problem Statement        2
+General Objective        3
+Specific Objectives        3
+Significance of the Study        4
+Scope and Limitations        4
+Definition of Terms        6
+REVIEW OF RELATED LITERATURE        7
+2.1 Introduction        7
+2.1.1 Inventory Management in the Food Service Industry        7
+2.1.2 Challenges in Manual Inventory Processes        7
+2.1.3 Digital Solutions for SMEs and Commissary Operations        8
+2.1.4 Purchase Tracking and Receipt Management        8
+2.1.5 Usability and User-Centered System Design        9
+2.2 Review of Related Studies        9
+2.2.1 International Studies        9
+2.2.2 Local / Philippine-Context Studies        10
+2.2.3 Review of Related Systems        11
+Table 2.1 Feature Comparison Table        13
+2.2.5 Synthesis and Research Gap        13
+RESEARCH DESIGN AND METHODOLOGY        14
+3.1 Research Design        14
+3.2 Software Development Life Cycle (SDLC) Model Used        14
+3.3 System Architecture        15
+Figure 3.3.1 System Architecture Structure        15
+3.4 Tools and Technologies Used        17
+3.5 Requirements Specification        17
+3.6 Target Users and Respondents        19
+3.7 Data Gathering Procedures        19
+3.8 Evaluation Methods        20
+NEEDS ASSESSMENT AND REQUIREMENT ANALYSIS        22
+4.1 Database Design        22
+Figure 4.1 Entity Relationship Diagram        22
+Table 4.1 Database Design Table        23
+4.2 User Interface (UI) Design        25
+Figure 4.2.1 Login Page        25
+Figure 4.2.2 Dashboard Page        27
+4.3 Module Description        30
+4.4 System Features        34
+Figure 4.4.1 Distribution Modal        34
+Figure 4.4.2 Inventory Table        35
+Figure 4.4.3 Filtering Supplier        35
+Figure 4.4.4 Audit Logs        36
+Figure 4.4.5 Batch Request Modal        37
+Figure 4.4.6 Request History Table        37
+4.5 Security Features        38
+4.6 System Deployment        38
+RESULTS AND DISCUSSION        40
+5.1 System Implementation        40
+Figure 5.1.1 Login Page        40
+Figure 5.1.2 Dashboard Page        41
+Figure 5.1.3 Item Request History Modal        42
+Figure 5.1.4 Inventory Table        42
+Figure 5.1.5 Recent Purchase History        43
+5.2 Evaluation Results        43
+Table 5.2.1 ISO/IEC 25010 Evaluation Summary        44
+5.3 Analysis of Results        45
+5.4 Summary of Findings        45
+SUMMARY, CONCLUSIONS, AND        47
+RECOMMENDATIONS        47
+6.1 Summary        47
+6.2 Conclusions        48
+6.3 Recommendations        49
+REFERENCES        50
+
+
+
+
+LIST OF TABLES
+Table 2.1 Feature Comparison Table        13
+Table 4.1 Database Design Table        23
+Table 5.2.1 ISO/IEC 25010 Evaluation Summary        44
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+LIST OF FIGURES
+Figure 3.3.1 System Architecture Structure        15
+Figure 4.1 Entity Relationship Diagram        22
+Figure 4.2.1 Login Page        25
+Figure 4.2.2 Dashboard Page        27
+Figure 4.4.1 Distribution Modal        34
+Figure 4.4.2 Inventory Table        35
+Figure 4.4.3 Filtering Supplier        35
+Figure 4.4.4 Audit Logs        36
+Figure 4.4.5 Batch Request Modal        37
+Figure 4.4.6 Request History Table        37
+Figure 5.1.1 Login Page        40
+Figure 5.1.2 Dashboard Page        41
+Figure 5.1.3 Item Request History Modal        42
+Figure 5.1.4 Inventory Table        42
+Figure 5.1.5 Recent Purchase History        43
+
+
+
+
+
+
+
+
+INTRODUCTION
+Background of the Study
+The food service industry relies on efficient inventory management systems to preserve product quality, control costs, and ensure operational stability. The daily production needs of retail branches depend on precise raw material tracking, as commissary-based operations serve as their centralized production hubs. Small and medium-sized enterprises (SMEs) in the Philippines still use manual inventory management systems, including handwritten request forms, paper logs, and separate spreadsheet records. Research shows that human errors in inventory documentation lead to significant financial losses, operational delays, and poor business decisions (Wynn, 2021). Operational inefficiencies in high-volume food production facilities lead to duplicate requests and overstocking, negatively affecting business profitability and sustainability.
+The IKEA Cakes and Snacks Commissary in Ormoc City highlights the challenges faced in the industry. The central kitchen serves as the main supply hub for two retail locations and manages a range of raw materials, including perishables and bulk supplies. Currently, kitchen staff must create handwritten ingredient requests on paper slips, which they submit to the stock handler for approval. The stock handler manages the inventory. If the stock is low, the stock handler provides the purchaser with an authorized paper request and a budget for purchasing new stock. The stock handler manually verifies physical receipts and updates inventory in Excel after the purchaser returns with purchased items.
+The current process, which relies on paper documents, hampers real-time stock monitoring and delivery verification, making it challenging to identify discrepancies. The system lacks an integrated audit trail that tracks user activities with timestamps, a feature essential for monitoring changes to requests, purchases, and stock records. Without the ability to track changes, users can falsify reports, steal items, or skip procedures, potentially harming operations regardless of the business size (Sharma & Saxena, 2021).
+
+
+
+
+Multiple inventory management solutions exist, but most fail to meet the requirements of small commissary operations serving a few outlets. The current process at IKEA Cakes and Snacks Commissary fails to link purchase tracking to inventory control. It lacks an effective audit trail, preventing complete verification of expenses, stock levels, and user actions. The research proposes creating an IKEA Cakes and Snacks Commissary Inventory System with a Built-in Purchaser Transaction Tracker, focusing on managing raw materials and ingredients. The system unifies paper-based operations through digitalization to achieve real-time reporting accuracy and prevent overstocking.
+
+
+Problem Statement
+The manual and paper-based handling of raw materials inventory at IKEA Cakes and Snacks Commissary, which supplies two retail branches, results in inefficiencies, gaps in accountability, and a lack of transaction traceability. Requests for ingredients are handwritten on paper forms and submitted in person, requiring the stock handler to verify them before preparation. For stock replenishment, the purchaser shops for supplies with an approved list and returns with physical receipts, which are reconciled against a separate, handwritten expense form. This fragmented, paper-reliant process lacks any real-time integration between purchasing and stock monitoring, and it has no audit trail to record who made changes to requests, stock counts, or purchase entries. As a result, double requests and unverified stock adjustments can occur without clear responsibility attribution.
+The absence of an integrated, automated inventory-tracking and purchase-verification process has significant operational consequences. Stock discrepancies can go unnoticed, expense reports may be incomplete or delayed, and restocking decisions are often reactive rather than data-driven. These inefficiencies increase operational costs, compromise supply accuracy, and reduce transparency. Given the importance of accurate inventory and transaction records in commissary operations, this problem warrants a dedicated, technology-driven solution that centralizes tracking, strengthens accountability, and supports evidence-based management.
+
+
+
+
+
+
+
+
+General Objective
+Design and develop a web-based commissary inventory management system with an integrated purchaser transaction tracker and audit trail that centralizes request processing, stock monitoring, purchase verification, and user activity logging for IKEA Cakes and Snacks Commissary’s raw materials and ingredients.
+Specific Objectives
+1. To design a digital request and approval module that allows kitchen staff to submit ingredient requests and enables authorized personnel to verify and approve them in real time.
+2. To develop an automated stock monitoring module that updates inventory levels after verified transactions, issues low-stock alerts, and supports unit conversions for bulk-to-usable quantities.
+3. To implement a purchaser transaction tracker that logs all purchases, links receipts to corresponding inventory updates, and categorizes transactions by supplier and payment status.
+4. To integrate a delivery acknowledgment feature that records partial and full deliveries, with pending quantities remaining visible until fulfilled.
+5. To implement an audit trail module that logs all user actions with timestamps for accountability and traceability.
+6. To generate customizable reports summarizing requests, stock changes, deliveries, and supplier balances for improved decision-making.
+7. To implement security measures, including secure authentication, role-based access control, and regular data backups, to protect sensitive inventory and transaction records.
+8. To provide a print and export feature for generating hard copies or digital files of PDFs of inventory, transactions, and supplier reports.
+9. To evaluate the system in terms of usability, efficiency, accuracy, and security through user acceptance testing, System Usability Scale, and performance analysis.
+
+
+
+
+Significance of the Study
+This capstone project will be most beneficial to the IKEA Cakes and Snacks Commissary staff and management. The proposed system will enable them to process ingredient requests digitally, monitor inventory in real time, track purchases with corresponding receipts, and review audit trail logs to see who performed specific actions and when. This ensures greater accountability and transparency.
+Secondary beneficiaries include the commissary’s branch staff and customers, who will indirectly benefit from more reliable ingredient availability and fewer production delays. Accurate inventory tracking will help ensure consistent product quality and better cost control.
+From a technological perspective, this project introduces an integrated system tailored for a small-scale commissary. By consolidating request approvals, stock monitoring, purchase logging, and an audit trail into a single platform, it supports the broader shift toward digital transformation in local food businesses. In a broader context, this study aligns with the ongoing push for SME digitalization in the Philippines and serves as a model for similar food service operations seeking to modernize their supply chain management.
+
+
+Scope and Limitations
+Scope
+This study focuses on the design and development of a web-based commissary inventory management system with a built-in purchaser transaction tracker and audit trail for the IKEA Cakes and Snacks Commissary. The system will manage the raw materials and ingredient inventory used in the commissary's operations for its two retail branches.
+The system will include the following features:
+* Digital Request and Approval Module: Kitchen staff can submit ingredient requests, and authorized personnel can verify and approve them in real time.
+* Automated Stock Monitoring: Tracks stock-in and stock-out transactions, provides low-stock alerts, and supports unit conversions from bulk to usable quantities.
+* Purchaser Transaction Tracker: Logs purchases with receipt uploads, categorizes by supplier, and records payment status.
+* Delivery Acknowledgment Module: Records full and partial deliveries, with pending quantities visible until fulfilled.
+* Audit Trail: Records all user actions with timestamps, ensuring accountability and traceability.
+* Reporting Tools: Generates summaries on requests, deliveries, stock changes, and unpaid supplier balances.
+* Printing and Exporting of Reports: Generates physical copies (via a printer) or digital PDF files of inventory summaries, purchase records, and supplier balances for documentation and auditing purposes.
+The system will have role-based access for:
+* Owner/Admin: Approve requests, manage inventory, monitor transactions, and access the complete audit trail.
+* Stock Handler: Manage stock records, verify purchases, and prepare requested ingredients.
+* Purchaser: Record purchases, upload receipts, and contact suppliers.
+* Kitchen Staff: Initiates requests for raw material issuance from the Stock Handler for production use.
+Limitations
+* The system is limited to raw materials and ingredient inventory; it excludes finished product inventory for the two branches.
+* The system is web-based and works on desktops, laptops, tablets, and mobile phones through a browser, but it is not a native mobile app.
+* A stable internet connection is required for real-time updates; the system does not support offline operation.
+* User acceptance testing will be limited to selected staff of IKEA Cakes and Snacks Commissary.
+* The current version will not integrate with external accounting or point-of-sale (POS) systems.
+* Automated forecasting of ingredient usage is excluded from the current scope.
+
+
+Definition of Terms
+* Audit Trail: A system feature that records all user actions within the application, including date, time, and user identity, to ensure accountability.
+* Bulk-to-Usable Quantity Conversion: The process of recording bulk-purchased items in smaller units (e.g., converting a 50-kg sack of sugar into 50 1-kg units).
+* Commissary: A centralized kitchen facility responsible for preparing and managing raw materials for multiple retail branches.
+* Delivery Acknowledgment: The process of confirming and recording the receipt of purchased supplies.
+* Digital Request and Approval Module: A system function that allows users to submit, verify, and approve ingredient requests electronically.
+* Low-Stock Alert: A system-generated notification that warns when an ingredient’s quantity falls below a pre-defined threshold.
+* Purchaser Transaction Tracker: A module that logs all purchases, links receipts to inventory updates, and records payment statuses.
+* Raw Materials: Basic food items or ingredients used in production.
+* Role-Based Access: A security feature that assigns different permissions to users based on their roles.
+* Stock Handler: A staff member responsible for managing inventory records, verifying purchases, and preparing requested ingredients.
+* Supplier: An external vendor from which the commissary purchases raw materials.
+* SME: Small and medium enterprises.
+
+
+
+
+
+
+REVIEW OF RELATED LITERATURE
+2.1 Introduction
+This section presents scholarly concepts, theories, and discussions relevant to the development of the proposed IKEA Cakes and Snacks Commissary Inventory Management System with Built-in Purchaser Transaction Tracker. The literature review is organized thematically, covering inventory management practices in the food service industry, challenges in manual inventory processes, digital solutions for small and medium enterprises (SMEs), purchase tracking and receipt management, and user-centered system design. These discussions establish the theoretical foundation and contextual relevance of the proposed system.
+
+
+2.1.1 Inventory Management in the Food Service Industry
+Effective inventory management plays a pivotal role in sustaining food quality, minimizing operational costs, and ensuring uninterrupted workflow in food service operations. Li (2025) emphasized that intelligent inventory systems utilizing automation and real-time tracking significantly improve stock accuracy and reduce food waste. According to Althaqafi (2020), strong inventory control correlates positively with SME profitability, as poor stock oversight results in unnecessary expenditures and inefficiencies.
+In the Philippines, Cabungcal, De Jesus, and Dela Cruz (2023) highlighted that MSMEs with structured inventory practices achieved greater financial stability and operational efficiency. These findings underscore the importance of systematic inventory control in commissary-based operations such as IKEA Cakes and Snacks, where raw ingredients are distributed across multiple retail branches.
+
+
+2.1.2 Challenges in Manual Inventory Processes
+Manual inventory systems present substantial limitations in accuracy, efficiency, and reliability. Wynn (2021) found that handwritten records are prone to errors that may lead to financial losses. Sharma and Saxena (2021) reported that SMEs relying on manual processes commonly experience stock discrepancies, delayed replenishment, and redundant ordering. Li (2025) also observed that manual logs and spreadsheets increase the likelihood of oversight, especially in fast-paced food-related operations.
+These challenges reflect the current workflow of IKEA Cakes and Snacks, where handwritten slips and manual spreadsheet updates make tracking difficult and introduce gaps in accountability.
+
+
+2.1.3 Digital Solutions for SMEs and Commissary Operations
+Digital inventory systems address inefficiencies caused by manual processes. Lim Hui Qi, Rahmat, and Suban@Ani (2025) developed a digital inventory platform for SMEs that streamlined ordering, stock monitoring, and reporting, resulting in improved operational performance. Gill (2023) emphasized the importance of centralized systems that integrate purchase and inventory updates to minimize data fragmentation.
+Opoku, Mensah, and Boateng (2021) likewise noted that structured digital platforms reduce financial risks by enabling continuous monitoring and timely intervention. These findings suggest that a digital system could address inefficiencies in commissary operations, such as IKEA Cakes and Snacks.
+
+
+2.1.4 Purchase Tracking and Receipt Management
+Purchase tracking systems help organizations maintain transparency and reduce discrepancies between procurement and inventory records. Gill (2023) noted that centralized receipt management significantly lowers inconsistencies and operational costs. Li (2025) similarly discussed that misaligned purchasing and inventory practices contribute to food waste and budget mismanagement in food service businesses.
+Integrating supplier details, digital receipts, and purchase logs into a unified system can help commissaries like IKEA Cakes and Snacks ensure accountability and streamline procurement tracking.
+
+
+2.1.5 Usability and User-Centered System Design
+User-centered design is essential in developing systems that cater to diverse users with varying levels of digital literacy. Baskerville and Myers (2023) argued that aligning system interfaces with user roles and workflows enhances usability and adoption. In commissary environments, where responsibilities range from administrative oversight to hands-on stock handling, intuitive and role-specific interfaces reduce training requirements and increase system acceptance.
+This principle is highly relevant to IKEA Cakes and Snacks, where staff members include managers, stock handlers, purchasers, and operational personnel who may have different levels of computer experience.
+2.2 Review of Related Studies
+This section presents local and foreign studies relevant to inventory systems, commissary operations, and purchase tracking. Each study highlights methodologies, findings, and contributions that inform the proposed system.
+
+
+2.2.1 International Studies
+        In the study entitled “Intelligent Inventory Management System: Innovation and Implementation of Restaurant Food Management” by Li (2025), the system was designed and tested specifically for restaurant operations. It incorporated automation and real-time tracking to enhance stock accuracy, reduce food waste, and improve ingredient shelf-life management. The study demonstrated that intelligent inventory systems could effectively align procurement with actual demand, reducing both overstock and shortages. The findings support the need for automated inventory management in food-service operations, highlighting the benefits of real-time monitoring for accuracy and efficiency. This is relevant to the current project as it emphasizes the importance of implementing a digital system to manage raw materials and reduce waste in commissary operations.
+        Gupta, Joshi, Jindal, and Singh (2025) conducted a study titled “Optimizing Inventory Costs in Quick Service Restaurants: A Case Study Approach,” which applied supply-chain optimization and inventory control models, including an adapted Economic Order Quantity (EOQ) model and demand forecasting, to fast-food restaurants. Their results showed that optimized inventory planning significantly reduced food wastage and improved order fulfillment in dynamic, perishable-goods environments. The study also highlighted how data-driven inventory management contributes to operational efficiency and cost reduction. This supports the proposed system by demonstrating the need for predictive tracking and optimization of perishable raw materials in a commissary setting.
+In the work “Design of an Inventory Management System for a Manabita Restaurant” by Zamora Saltos and Rodríguez Borges (2023), the authors proposed a restaurant-oriented inventory system capable of managing raw materials, preventing overstocking, and optimizing procurement timing. Their system reduced maintenance costs and improved stock control by providing timely alerts for replenishment needs. The study showed that integrating structured inventory processes in restaurant operations enhances operational stability and cost efficiency. This is relevant to the current project, as it underscores the benefits of a tailored inventory system for commissary operations distributing raw materials across multiple outlets.
+
+
+2.2.2 Local / Philippine-Context Studies
+In the study titled “Inventory Management Practices of Small-Scale Pharmacies in Selected Towns in Cavite: A Marketing Perspective” by Soliveres, Herrera, and Cedillo (2024), the authors examined how small-scale pharmacies benefit from structured inventory control. Their findings indicated that businesses with systematic stock monitoring experienced fewer stockouts and lower holding costs. Although the study focused on pharmacies, the principles of structured inventory management can be applied to food-service SMEs. This supports the current project by showing that formal inventory systems contribute to better operational efficiency and reduced material loss, which is essential for managing a commissary’s raw materials.
+
+
+Toroba, Gregori, Baraas, Impas, Martinez, and Cervantes (2025) conducted a study entitled “The Influence of Inventory Management Practices on Financial Performance Among Retail Businesses,” focusing on retail MSMEs in Davao Oriental. The study found a moderate but significant positive correlation between structured inventory practices and profitability, sales growth, and market expansion. It emphasized that disciplined stock management improves financial outcomes in small enterprises. This is relevant to the proposed system because it highlights the importance of maintaining accurate inventory records to support financial accountability and operational performance in a commissary business.
+In the conference paper “Inventory Management System of Seasonal Raw Materials of Feeds at San Jose Batangas through Integer Linear Programming and VBA” by Napa (2023), the researcher developed a systematic inventory management approach for perishable feed materials. The system used demand forecasting and restocking planning to prevent overstock and shortages, thereby improving operational stability. The study demonstrated that even small-scale enterprises can achieve better efficiency through structured inventory planning. This is relevant to the current project because it justifies the need for a digital system to efficiently manage seasonal and perishable raw materials within IKEA Cakes and Snacks’ commissary operations.
+
+
+2.2.3 Review of Related Systems
+        This section reviews existing inventory management systems currently used by SMEs or food‑service businesses. The goal is to examine their features, strengths, and limitations relative to the needs of a commissary business like IKEA Cakes and Snacks.
+The first system, Zoho Inventory, is a cloud-based inventory management solution developed by Zoho Corporation. It provides features such as stock tracking, purchase order management, supplier management, real-time updates, and multi-warehouse support. Zoho Inventory’s strengths include its scalability, user-friendly interface, and ability to centralize inventory and procurement processes. However, it lacks built-in features for commissary-specific raw material tracking, digital receipt storage, and a comprehensive audit trail. This limitation highlights the need for a system with specialized functionality for small commissaries such as IKEA Cakes and Snacks, particularly for tracking raw materials and purchase proof.
+Upserve Inventory (now integrated with Lightspeed Restaurant) is designed specifically for the restaurant industry. Developed by Upserve/Lightspeed, it includes ingredient-level tracking, vendor ordering, cost analysis, recipe costing, and menu integration to support better procurement planning. Its main strengths are the restaurant-focused features that enable precise ingredient tracking and help manage food costs effectively. However, the system is subscription-based, which may be expensive for small-scale commissaries, and it lacks native functionality for uploading digital receipts or maintaining multi-branch audit trails. This indicates the need for a more cost-effective, comprehensive solution for commissary operations.
+Loyverse Back Office is an inventory and POS system developed for small retail and food-service businesses. Its paid version offers inventory control, stock adjustments, basic purchase order creation, and limited multi-store support. Its strengths include a simple, easy-to-use interface and a free version suitable for small businesses. The weaknesses, however, include a weak purchase-tracking module, the absence of digital receipt management, and limited audit logging, which may hinder accountability and oversight. This reinforces the need for a custom system tailored to commissary operations, combining inventory management, purchase tracking, and audit features.
+
+
+
+
+Feature/Requirement
+	Zoho Inventory
+	Upserve Inventory
+	Loyverse Back Office
+	Proposed System
+	Inventory Monitoring / Stock Counts
+	✅
+	✅
+	✅
+	✅
+	Ingredient-Level / Raw-Material Tracking
+	❌
+	✅
+	❌
+	✅
+	Purchase Order / Supplier Management
+	✅
+	✅
+	✅
+	✅
+	Purchase Receipt / Proof Upload (Images)
+	❌
+	❌
+	❌
+	✅
+	Audit Trail / User-Level Logging
+	Limited
+	Same logging
+	Very limited
+	✅
+	Commissary / Food Service Specific Design
+	❌
+	Restaurant-focused
+	General retail
+	✅
+	
+
+Table 2.1 Feature Comparison Table
+
+
+2.2.5 Synthesis and Research Gap
+The reviewed literature and studies emphasize the need for structured inventory management in small-to-medium enterprises (SMEs), consistently linking formalized practices, particularly digital systems, to improved stock accuracy, reduced waste, better cost control, and enhanced financial performance (Li, 2025; Gupta et al., 2025; Soliveres et al., 2024; Toroba et al., 2025). This research provides the theoretical justification for implementing a systematic solution within a local commissary context.
+However, the evaluation of existing systems (as summarized in the table) reveals that commercial solutions either compromise on cost and complexity (e.g., restaurant-focused systems like Upserve) or feature completeness (e.g., general retail tools like Zoho, Loyverse). Specifically, existing systems lack the crucial combination of features required by the target commissary: raw-material tracking, comprehensive purchase-to-stock traceability, digital receipt upload, and robust audit logging.
+The research gap is therefore identified as a lack of systems optimally tailored to small-to-micro-scale commissary operations that handle perishable raw materials and distribute to multiple outlets, while demanding high auditability and cost-effectiveness.
+Thus, the current project, the IKEA Cakes and Snacks Commissary Inventory Management System with Built-in Purchaser Transaction Tracker, aims to fill this gap. Its unique contribution is providing a unified, cost-effective, and user-centered solution that integrates raw-material inventory management with purchaser transaction tracking (including receipt proof upload) and multi-outlet support, directly addressing the limitations and specific workflow needs identified in the local SME context.
+RESEARCH DESIGN AND METHODOLOGY
+3.1 Research Design
+The developmental approach systematically integrated both qualitative and quantitative methods. The qualitative aspect was utilized during the initial phase to gather detailed user requirements and process insights through interviews and observations at the commissary. The quantitative component was employed in the later stages to analyze system evaluation metrics and user satisfaction surveys during the testing and acceptance phase. This blended methodology enabled essential feedback-based iterations and ensured that the developed system was both technically sound and aligned with end users' operational needs.
+
+
+3.2 Software Development Life Cycle (SDLC) Model Used
+
+
+        The study adopted the Agile Software Development Life Cycle (SDLC) model. This model promotes iterative and incremental development, emphasizing adaptability, flexible responses to change, and frequent collaboration with stakeholders.
+This model was chosen for its suitability to developing a specialized system such as the IKEA Cakes and Snacks Commissary Inventory Management System. Its inherent flexibility was crucial for handling specific and potentially evolving user requirements within the dynamic environment of a small commissary. The iterative nature of Agile allowed the team to incorporate continuous feedback from the commissary staff, ensuring the final product was highly practical and aligned with the end-users' specific workflow needs.
+The project followed the key phases of the Agile process, applied as follows:
+* Planning: The initial project scope and objectives were defined based on findings from the literature review and qualitative data gathered through interviews and observations at the IKEA Cakes and Snacks Commissary.
+* Analysis: User needs and requirements were translated into detailed system requirements and functional specifications, which are documented in Chapter 4.
+* Design: The system architecture, database schema (Entity-Relationship Diagram), and user interface mockups were created. These designs were reviewed with stakeholders before development began.
+* Implementation: The system modules were developed incrementally in short cycles or sprints. Each sprint delivered a working piece of functionality, allowing for early demonstration and continuous evaluation.
+* Testing: Comprehensive testing was conducted within and after each sprint, including unit testing (for individual code components), integration testing (for module cohesion), and formal User Acceptance Testing (UAT) with the commissary staff to validate functionality against real-world scenarios.
+* Deployment: The fully tested system was deployed and implemented within the commissary's operational environment, making it live for daily use.
+* Maintenance: The final phase involved applying necessary updates, patches, and fixes based on post-deployment monitoring and ongoing end-user feedback.
+
+
+3.3 System Architecture
+  
+
+Figure 3.3.1 System Architecture Structure
+
+
+
+
+
+
+
+
+
+
+
+
+Presentation Layer (Client Devices)
+Component: Web Browser
+The user accesses the system through a web browser on a client device.
+The browser displays the interface, sends user requests to the application server, and receives processed output for display.
+Application Layer (Web Server Machine)
+Components:
+Web-Based Application
+Module of IKEA - Portal
+This layer processes all application logic. It receives requests from the client, performs validation, executes programmed functions, and interacts with the database layer when necessary. The web server returns processed results back to the client's browser.
+Data Layer (Database Server Machine)
+Component: MySQL Database
+This layer stores, manages, and retrieves system data. The application layer communicates with the MySQL database to run queries such as retrieving patient records, updating transactions, or saving new inputs.
+Data Flow Explanation
+1. User Interaction:
+ The user sends a request via the web browser (e.g., to view records or submit a form).
+2. Request Processing:
+ The browser forwards the request through the Internet to the web server.
+3. Application Logic Execution:
+ The web server processes the request using the web-based application and IKEA portal modules.
+Database Communication:
+ If data is needed, the web server sends a query to the MySQL database.
+4. Data Retrieval or Update:
+ The database returns the required data or updates records.
+5. Response Delivery:
+ The processed output returns from the application server to the client’s browser for display.
+
+
+3.4 Tools and Technologies Used
+Programming Languages and Frameworks
+   * Frontend: HTML, Tailwind CSS, JavaScript
+   * Backend: PHP
+   * Database: MySQL
+   * Reporting: Chart.js for graphical reports
+Development and Design Tools
+   * Figma – UI/UX design and wireframing
+   * Draw.io – System diagrams and workflows
+   * GitHub – Version control and collaborative coding
+
+
+Testing Tools
+   * Browser Developer Tools – Debugging and performance checks
+Hosting and Deployment
+   * Local Development Server: XAMPP
+   * Live Deployment: Hostinger
+
+
+3.5 Requirements Specification
+Functional Requirements (FR)
+   * FR-01: The system shall allow kitchen staff to submit ingredient requests with item name, quantity, and date needed.
+   * FR-02: The system shall allow authorized personnel (owner/manager) to approve or reject requests.
+   * FR-03: The system shall automatically update inventory levels after transactions are verified.
+   * FR-04: The system shall generate low-stock alerts when reorder levels are reached.
+   * FR-05: The system shall support unit conversions from bulk purchases to smaller usable units.
+   * FR-06: The system shall allow purchasers to log purchases with item details, cost, and receipt image uploads.
+   * FR-07: The system shall record delivery acknowledgments, including partial deliveries.
+   * FR-08: The system shall generate customizable reports by date range, supplier, or item category.
+   * FR-09: The system shall maintain an audit trail of all user actions.
+   * FR-10: The system shall allow users to print or export reports in PDF format.
+Non-Functional Requirements (NFR)
+   * NFR-01: The system shall be accessible via web browsers on desktop, laptop, and mobile devices.
+   * NFR-02: The system shall respond to user actions within 3 seconds under normal load.
+   * NFR-03: The system shall implement secure authentication with strong password policies and role-based access control.
+   * NFR-04: All user inputs shall be validated on the server-side to prevent common vulnerabilities such as SQL injection and Cross-Site Scripting (XSS).
+   * NFR-05: The system shall store all transactions with timestamps and maintain an unalterable audit trail.
+   * NFR-06: The system shall ensure automated daily data backups are performed to prevent data loss.
+   * NFR-07: The system shall encrypt sensitive data such as user credentials to ensure confidentiality.
+   * NFR-08: The system shall be usable by staff with only basic computer literacy.
+User Requirements (UR)
+   * UR-01: Owner: Can approve/reject requests, manage stock, view audit trails, and view all reports.
+   * UR-02: Stock Handler: Can verify requests, update inventory, and record deliveries.
+   * UR-03: Purchaser: Can log purchases, upload receipts, and categorize supplier details.
+   * UR-04: Kitchen Staff: Can submit ingredient requests and confirm received items.
+        
+3.6 Target Users and Respondents
+The participants in this study, who also served as the primary system users and evaluation respondents, were composed of ten (10) staff members from IKEA Cakes and Snacks Commissary. These respondents represented multiple operational roles across the commissary and its two branch kitchens, ensuring comprehensive coverage of all user interactions with the system.
+The respondent roles included the Owner, Stock Handler, Purchaser, and several Kitchen Staff members responsible for ingredient requests and production workflows. Purposive sampling was employed to select individuals directly involved in inventory operations, purchasing processes, and stock movements, ensuring that the evaluation reflected actual system usage and operational needs.
+
+
+3.7 Data Gathering Procedures
+        Data were collected using a mixed-methods approach, combining qualitative and quantitative instruments to inform the system design and validate its performance.
+
+
+Qualitative Data Collection:
+   * Semi-structured interviews were conducted with ten respondents representing key commissary roles, including the Owner, Stock Handler, Purchaser, and multiple Kitchen Staff members. These interviews gathered detailed insights into current operational workflows, pain points, and system requirements.
+   * Observation checklists were employed during on-site visits to document existing inventory workflows, stock handling processes, and purchasing procedures.
+
+
+Quantitative Data Collection:
+   * A structured survey instrument based on the ISO/IEC 25010 software quality model was administered to ten respondents during the testing phase.
+   * The questionnaire measured seven quality attributes—Usability, Functionality, Reliability, Efficiency, Maintainability, Portability, and Overall Quality—using a 5-point Likert scale (1 = Poor, 5 = Excellent).
+
+
+Data Processing and Analysis
+   1. Qualitative Analysis: Interview and observation data were transcribed, coded, and thematically analyzed to identify recurring challenges and essential system features.
+
+   2. Quantitative Analysis: Survey responses were analyzed using descriptive statistics. Mean scores for each ISO/IEC 25010 attribute were computed to evaluate overall system performance.
+
+   3. Synthesis: Findings from both qualitative and quantitative analyses were integrated to validate whether the developed system effectively addressed the operational issues identified in Chapter 1.
+
+
+3.8 Evaluation Methods
+The system’s performance was evaluated using criteria derived from the ISO/IEC 25010 software quality model. This model was selected because it provides a comprehensive and industry-recognized framework for assessing software quality across multiple dimensions relevant to commissary operations.
+      * Usability: clarity, learnability, and ease of navigation
+      * Functionality: accuracy, completeness, and suitability of features
+      * Reliability: stability, consistency, and error-free operation
+      * Efficiency: response time and system performanceconducting basic vulnerability checks on data entry forms to test for common threats like SQL injection.
+      * Maintainability: ease of updates and modification
+      * Portability: compatibility across devices
+      * Overall Assessment: users’ overall satisfaction with the system
+A 21-item Likert-scale questionnaire was administered to ten respondents who used the system during User Acceptance Testing (UAT). Mean scores for each quality attribute were computed to determine the system’s performance level. The results served as the basis for evaluating whether the system met its intended objectives and design requirements.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+NEEDS ASSESSMENT AND REQUIREMENT ANALYSIS
+
+
+4.1 Database Design
+
+
+The system's data structure is typically implemented using a Relational Database Management System (RDBMS), such as MySQL or PostgreSQL. This model is chosen because it effectively manages and links diverse, structured data through tables and defined relationships. The provided diagram is an Entity-Relationship Diagram (ERD) that visually represents the database schema.  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Figure 4.1 Entity Relationship Diagram
+
+
+Table Name
+	Key(s)
+	Key Attributes
+	Data Types of Key Attributes
+	users
+	Primary Key 
+(PK)
+	id
+	Int
+	ingredients
+	PK
+	id
+	Int
+	purchases
+	PK
+	id
+	Int
+	deliveries
+	PK
+	id
+	Int
+	requests
+	PK
+Foreign Key (FK)
+	id
+Batch_id, item_id
+staff_id
+	Int
+	notifications
+	PK
+FK
+	id
+user_id
+	Int
+	audit_log
+	PK
+	id
+	BigInt
+	request_batches
+	PK
+FK
+	id
+staff_id
+	Int
+	request_item_sets
+	PK
+FK
+	id
+request_id
+	Int
+	ingredient_sets
+	PK
+	id
+	Int
+	ingredient_set_items
+	Composite PK
+
+
+FK
+	ingredients_set_id,
+ingredient_id
+
+ingredients_set_id,
+ingredient_id
+	Int
+	Table 4.1 Database Design Table
+
+
+      * Users: Stores information about system users, including their role (e.g., Owner, Staff) and credentials.
+      * Ingredients: Contains details on all raw materials, including unit, display_unit, and inventory management attributes such as reorder_level.
+      * Purchases: Records every purchase transaction with details like supplier, cost, and payment status/type.
+      * Deliveries: Tracks incoming ingredients, links back to a purchase_id, and records the quantity_received.
+      * Requests: Represents internal requests for items, likely submitted by staff (staff_id) and linked to a request_batches and an item_id.
+
+
+ Relationships
+Relationships ensure data coherence by linking tables based on shared key columns.
+      * One-to-Many (1:N):
+      * A single user can be associated with multiple notifications.
+      * A single purchase can result in multiple deliveries.
+      * An ingredient_set can contain multiple ingredient_set_items.
+      * A user (likely a staff member) can be linked to multiple request_batches.
+      * Many-to-Many (M: N) via Junction/Bridge Tables:
+      * request_batches and request_item_sets are linked to requests.
+      * ingredient_sets and ingredients are linked by the junction table ingredient_set_items. This table allows a single ingredient set to contain multiple ingredients, and a single ingredient can belong to multiple sets.
+Data Integrity and Normalization
+The design adheres to principles of data integrity and normalization (appearing to be at least Third Normal Form - 3NF):
+      1. Primary and Foreign Keys: The use of Primary Keys (PKs) (unique identifiers such as id) and Foreign Keys (FKs) (linking columns, such as purchase_id in deliveries) ensures Referential Integrity. This means a record in a "child" table (e.g., deliveries) must always refer to an existing record in the "parent" table (e.g., purchases), preventing orphaned data.
+      2. No Redundancy: By splitting data into separate, thematic tables (e.g., separating user info from purchase details), data redundancy is minimized. For instance, an ingredient's name and unit are stored only once in the ingredients table, even if it appears in many deliveries.
+      3. Data Consistency: ENUM data types are used in columns like users.role, purchases.payment_status, and requests.status. This restricts the allowed values for these fields, ensuring data consistency and preventing incorrect entries.
+Overall, this structure is robust, minimizing storage waste and ensuring accurate, reliable data for effective system operation.
+4.2 User Interface (UI) Design
+  
+
+Figure 4.2.1 Login Page
+The login page serves as the system's entry point and provides real-time feedback on invalid credentials, ensuring that only authorized users can access it. The layout enhances readability and usability with its simple, contemporary, and minimalistic design. Before allowing users access to the dashboard and other system modules, the login page authenticates them.
+Functionality
+      * It contains two primary input fields:
+      * Email Address – allows users to enter their registered email.
+      * Password – masks input to protect password visibility, with an eye icon to toggle view.
+      * A Login button submits the credentials for validation.
+      * A Support section includes a “Forgot Credentials?” prompt that guides users to contact the system owner for account recovery.
+
+
+User Experience Considerations
+      * The interface uses a two-panel layout:
+      * The left panel presents branding, history, and store identity.
+      * The right panel focuses on the login form.
+      * Ample spacing and clear hierarchy make the page easy to read and navigate.
+      * Typography is consistent, with readable font sizes and clear contrast.
+      * The green gradient and soft colors provide a calm, welcoming visual experience.
+      * The system maintains accessibility by:
+      * Using high-contrast input boxes
+      * Providing descriptive placeholder texts
+      * Ensuring large button sizes for easy clicking
+      * The design adapts well to different screen sizes, supporting mobile responsiveness.
+Consistency and Intuitiveness
+      * The visual style aligns with the brand’s identity—soft gradients, rounded corners, and minimal icons.
+      * Input fields and buttons follow a consistent shape, spacing, and alignment across the interface.
+      * Icons and labels are intuitive, helping users understand each component without difficulty.
+      * The login form is positioned where users naturally expect it—center-right of the screen—making access straightforward.
+Annotated UI Elements (Login Page)
+Left Panel
+      * Brand Logo — reinforces identity.
+      * Location Tag (ORMOC CITY, PH) — indicates service area.
+      * Tagline (“Well-loved pastry and snack shop since 1990”) — adds context and builds trust.
+      * Short Description — summarizes the business history and specialties.
+      * Footer Note (“Serving smiles since 1990”) — enhances brand storytelling.
+
+Right Panel
+         * Heading: “Welcome” — greets the user and indicates purpose.
+         * Subtext: “Sign in to access your account” — clarifies action.
+         * Email Address Field — main authentication input.
+         * Password Field — includes password visibility toggle.
+         * Login Button — primary action button.
+         * Support Section — provides guidance for locked-out users.
+  
+
+Figure 4.2.2 Dashboard Page
+
+
+        The dashboard functions as the system's primary control center. This interface allows authorized users to quickly access system status, pending tasks, and decision-supporting summary data after logging in. The dashboard's goal is to give users a real-time overview of system events, including deliveries, payments, pending requests, and inventory levels. Important information is centralized so users may act right away.
+
+
+
+
+
+
+
+
+Functionality
+1. Sidebar Navigation
+The left panel contains the main navigation menu, allowing users to move between different modules:
+         * Dashboard
+         * Requests
+         * Inventory
+         * Purchases
+         * Deliveries
+         * Reports
+         * Audit Logs
+         * Admin Settings
+Each item includes an icon for easy visual recognition.
+2. Greeting and User Status
+The top section displays a welcome message:
+         * Shows the logged-in role (e.g., Owner Admin).
+         * Confirms the user’s access level.
+3. Summary Cards
+The dashboard displays four main summary widgets:
+a. Low Stock Items
+         * Shows the number of ingredients at critical stock levels.
+         * Provides a link to "Review inventory" for immediate action.
+b. Pending Requests
+         * Displays the number of approval requests waiting for review.
+         * Provides a shortcut to the approval queue.
+c. Pending Payments
+         * Shows outstanding payment transactions.
+         * Includes a link to the payments module.
+d. Partial Deliveries
+         * Shows the number of incomplete deliveries.
+         * Includes a link to track ongoing deliveries.
+Each card uses visual cues (icons, colors) to differentiate between alert types.
+4. Notification Panel
+         * A bell icon at the top-right corner indicates system notifications.
+         * A red badge appears when unread notifications are present.
+5. User Profile Menu
+The user profile dropdown on the top-right:
+         * Shows account name and role.
+         * Provides access to account settings or logout options.
+User Experience Considerations
+         * Clean and Balanced Layout: The dashboard uses a spacious, grid-based layout that avoids clutter and presents information clearly.
+         * Color Coding for Priority:
+         * Red icons signal potential issues (e.g., low stock).
+         * Green elements emphasize available actions or successful states.
+         * Readable Typography: Consistent and modern fonts improve readability, especially for quick scanning of numbers and labels.
+         * Quick Access: Summary cards include action links that let users reach detailed pages with one click.
+         * Accessibility:
+         * Icons are recognizable and complemented with clear labels.
+         * Buttons and links are sufficiently spaced for easier clicking.
+         * Mobile Responsiveness: The layout adapts to smaller screens by collapsing the sidebar and stacking the cards vertically.
+Consistency and Intuitiveness
+         * Icons, spacing, and border styles remain consistent across all modules.
+         * The sidebar maintains the same structure throughout the system, helping users recognize navigation patterns.
+         * Card components follow a unified design—rounded corners, shadows, and typographic hierarchy.
+         * Visual grouping (cards arranged in rows) makes status information easy to digest.
+         * The interface behaves predictably: clicking any summary card always leads to the related module.
+
+
+4.3 Module Description
+This section describes the system's major functional modules, including their inputs, internal processes, outputs, and the user roles assigned to each. Each module contributes to the overall goal of managing ingredient requests, inventory tracking, purchasing workflows, deliveries, and administrative control.
+Module: Ingredient Requests
+Input: Batch request details such as requested name, requested ingredients, and date needed.
+Process: The request is recorded, validated, and placed in the batch request history. The system sorts each request by status (Preparing, Approved, Rejected, Done) and moves approved batches to the “To Prepare” section.
+Output: An updated list of request records with real-time statuses and a detailed request view.
+User Role: Kitchen Staff,  Owner.
+
+
+
+
+
+
+
+
+Module: Inventory Management
+Input: Ingredient details, including ingredient name, category, base unit, display unit, and reorder level.
+Process: Inventory information is stored in the system and used as reference data to monitor ingredient availability. The module serves as a placeholder for viewing current stock values, which are updated manually or via other modules as needed. Items that fall below their reorder level are identified and highlighted to prompt replenishment actions. Users can search for and filter ingredients by name, category, status, or alphabetical order to quickly locate specific items.
+Output: Current inventory table showing Current Stock, Reorder Level, and Status (In Stock, Low Stock); visual indicators for low stock items; summary counts for Total Ingredients, Low Stock Items, and In Stock Items; a printable Purchase List.
+User Role: Stock Handler, Owner.
+Module: Purchase Item Entry
+Input: The user inputs order details such as Ingredient name, quantity, unit, and cost.
+Process: The system validates that all fields are filled. Upon clicking "Add to Purchase List", the individual item's details (Ingredient, Qty, Unit, Cost) are transferred from the form to the Items list below.
+Output: A populated row is added to the Items table; the input fields are cleared, ready for the next item.
+User Role: Purchaser, Owner
+Module: Purchase Batch Aggregation
+Input: System: Individual items transferred from the Purchase Item Details Form; User: Actions to delete existing items in the list.
+Process: Items are stored temporarily in a list/table. Actions are provided to allow the user to remove an item before the batch is finalized. Once the user clicks "Record Purchase Batch", the entire list of items is processed.
+Output: A new transaction entry appearing in the Recent Purchases log, providing an immediate overview of the procurement activity. This entry contains crucial details that summarize the transaction: the Purchaser, Supplier, Payment status, Delivery status, and action buttons.
+User Role: Purchaser, Owner
+Module: Record New Delivery
+Input: User/System: A specific, existing Purchase Batch is selected by searching or choosing from a dropdown menu based on the supplier, purchaser, or batch ID.
+Process: 1. The module retrieves the details of the selected Purchase Batch (the items ordered and their quantities). 2. The user is prompted to enter the actual quantity received for each ordered item. 3. The system compares the received quantity against the ordered quantity. 4. Upon clicking "Record Delivery," the system validates the input and updates the stock.
+Output: 1. The Current Stock levels in the Inventory Module are increased by the quantity recorded as received. 2. The Delivery Status for the original Purchase Batch in the Recent Purchases log is updated (e.g., from Partial to Complete or remains Partial if not fully received).
+User Role: Stock Handler, Owner
+Module: Recent Deliveries Log
+Input: System: Every successfully recorded delivery transaction.
+Process: Each completed delivery is timestamped and logged with a unique Delivery ID. The log displays a summary of the received items, providing a historical record of all fulfilled orders.
+Output: A table of recent deliveries showing the following fields: Delivery ID, Batch, Item, Quantity Received, Status, Date Received.
+User Role: Stock Handler, Owner
+Module: Purchase Filters & Details
+Input: User: Date Range (From Date, To Date); Filters for Supplier, Item, Category, and Payment Status.
+Process: The system retrieves purchase transactions that match the defined filters. The data is compiled into a detailed table and is available for export.
+Output: A table of Purchase Details showing the Date, Item, Supplier, and Quantity for each transaction.
+User Role: Stock Handler, Owner
+
+
+
+
+Module: Consumption Filters & Report
+Input: User: Date Range (From Date, To Date); Filters for Category and Usage Status.
+Process: The system consolidates all consumed or distributed batches within the selected date range. All consumption values are automatically converted and presented in the ingredient's defined Base Unit.
+Output: A table of Ingredient Consumption showing the Ingredient, Category, and Total Used (Base Unit). 
+User Role: Stock Handler, Owner
+Module: Audit Filters
+Input: User: Filters for User, Module, Date Range (From Date, To Date), Keyword, and Show entries (number of entries per page).
+Process: The system queries the master log database using the specified criteria and retrieves matching activities. It also allows for Clear Logs functionality, though this action is restricted to the Owner.
+Output: A filtered and updated Audit Logs table showing only the relevant activities and their associated details.
+User Role:  Owner.
+Module: Audit Logs Table
+Input: System: Every transaction or action successfully logged by the system (e.g., logins, request ingredients, approve request).
+Process: Displays the filtered data, summarizing the event, the user responsible, and the time it occurred. The system tracks the total entries and activity for the current day.
+Output: A detailed log showing: Activity, User, Time.
+User Role:  Owner.
+
+
+4.4 System Features
+          
+
+
+Figure 4.4.1 Distribution Modal
+
+
+Based on the 4.4.1 screenshot, once the stock handler finalizes the list of ingredients or items and clicks the Distribute button, the system automatically deducts the corresponding quantities from the inventory in real time. This automated feature replaces the commissary’s current manual deduction process, eliminating common errors such as incorrect encoding, delayed updates, and inconsistent inventory records. By integrating process automation, real-time data tracking, and system-controlled calculations, the feature ensures accurate stock levels, improves operational efficiency, and strengthens accountability. Additionally, the automated deduction supports better decision-making by providing up-to-date inventory status and can trigger low-stock notifications, enabling timely reordering and preventing production delays (Based on figure 4.4.2).
+
+
+  
+
+Figure 4.4.2 Inventory Table
+
+
+  
+
+Figure 4.4.3 Filtering Supplier
+
+
+Based on the Figure 4.4.3 screenshot, the system includes a Low Stock Alert feature that automatically highlights ingredients or items once their current quantity reaches the designated reorder level. In addition, the system can automatically generate and print a list of low-stock items, which can also be filtered by supplier for easier monitoring and procurement. This automated functionality enables both the stock handler and the owner to quickly identify which items require replenishment, ensuring timely restocking and preventing production delays. Overall, this feature significantly improves efficiency and accuracy compared to the manual process of checking and identifying low-stock ingredients or items.
+
+
+  
+
+Figure 4.4.4 Audit Logs
+
+Based on the Figure 4.4.4 screenshot, the system includes a comprehensive Audit Log feature that records all user activities, including login attempts, request creation, preparation, approval, purchasing, and other key transactions. This centralized log enhances accountability and transparency by ensuring that every action is accurately documented and traceable. The audit module also provides multiple filtering options—such as by user, module, and date range—along with adjustable table entries and a search function, enabling users to quickly and efficiently locate specific records. Overall, this feature strengthens system security, supports performance monitoring, and reinforces responsible system usage by maintaining a clear, organized record of all user interactions.
+
+
+
+
+
+
+
+
+
+
+  
+
+Figure 4.4.5 Batch Request Modal
+
+  
+
+Figure 4.4.6 Request History Table
+
+
+Based on the Figure 4.4.6 screenshot, the system provides a dedicated Ingredient Request feature for kitchen staff, allowing them to submit requests for needed ingredients or items by specifying their name and the required date, with all entries automatically recorded in the system. This digital process eliminates the current paper-based method, making requests more secure, organized, and less prone to loss or miscommunication. The module also includes a Request History table that displays all submitted requests along with their corresponding statuses, such as distributed, to prepare, pending, or rejected (when items are out of stock). This ensures full transparency, allows staff to monitor the progress of their requests, and streamlines coordination between the kitchen staff and the stock handler.
+
+
+
+
+4.5 Security Features
+
+        The system enforces distinct authorization levels to restrict access to sensitive functions, thus preserving system integrity. Access is strictly governed by four defined user roles, each assigned specific permissions: Owner, full administrative and financial oversight of the entire system, Stock Handler access to inventory levels and stock movement records, Purchaser authorized to initiate purchasing orders for supplies, and Kitchen Staff limited to functions related to requesting ingredients or items. Password security is ensured by using the bcrypt hashing algorithm to hash credentials. This mechanism employs an adaptive cost factor to significantly impede brute-force attacks, thereby protecting user confidentiality. All user input is rigorously validated and sanitized prior to processing. Data types, formats, and acceptable ranges are verified to ensure that only expected and safe information is processed by the system. 
+        
+
+
+4.6 System Deployment
+        
+The system was deployed on the Hostinger web hosting platform, with a dedicated domain made available to make the application publicly accessible. The deployed system supports multiple device types, including desktop computers, iPads, and mobile devices, ensuring consistent usability across various screen sizes.
+During development, XAMPP served as the local server stack, providing the Apache server, PHP environment, and MySQL database required for system testing. After completion, the system was transferred from the local environment to the live hosting platform through the following procedures:
+The project files were uploaded to the (public_html/IKEA) directory using Hostinger’s File Manager. File organization and directory placement were verified to ensure correct routing, asset loading, and system functionality.
+A MySQL database was created and configured through Hostinger’s hPanel. The project’s local database was exported from XAMPP and imported into the newly created MySQL database in Hostinger. Necessary connection adjustments were applied in the configuration files to link the live server to the hosted database.
+The live, fully deployed system can be accessed at https://ikea-cakes-n-snacks.shop/.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+RESULTS AND DISCUSSION
+5.1 System Implementation
+The system was successfully implemented and deployed on the Hostinger web hosting platform after initial development and testing in a local XAMPP environment. The implementation process included migrating the database to Hostinger’s MySQL service, configuring environment parameters, and verifying system routing and functionality. All major modules—Request, Inventory, Purchase, Deliveries, Reports, Audit Logs, and Admin Settings were configured and tested to ensure operational stability across desktop, tablet, and mobile devices.
+Four user roles were implemented: Owner, Stock Handler, Purchaser, and Kitchen Staff, each with specific access privileges. Role-based access control was tested to confirm that users could only access system sections corresponding to their assigned permissions. Authentication, navigation, request processing, purchase logging, inventory updates, and   reporting features were all validated through user walkthroughs and module-level testing.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Figure 5.1.1 Login Page
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+Figure 5.1.2 Dashboard Page
+Figure 5.1.1 presents the Login Page, showing the interface where users enter their credentials to access the system. This screenshot demonstrates the authentication process and verifies that the login functionality was operating correctly. Figure 5.1.2 displays the Dashboard interface after a successful login. This confirms that authorized users could access the system and were correctly redirected to the main dashboard upon authentication.
+  Figure 5.1.3 Item Request History Modal
+Figure 5.1.3 shows the successful submission of an ingredient or item request in the Request Section. The screenshot also demonstrates that the request was transmitted correctly and made available to the Stock Handler for processing.
+  
+
+Figure 5.1.4 Inventory Table
+Figure 5.1.4 displays the current Inventory Table, which shows all ingredient and item entries along with their corresponding remaining stock levels. The screenshot also highlights items that are marked as low in stock, demonstrating that the inventory monitoring feature is functioning accurately and effectively.
+  
+
+Figure 5.1.5 Recent Purchase History
+Figure 5.1.5 presents the Recent Purchase table, which displays the successful purchase transactions recorded by the Purchaser. The screenshot confirms that purchase entries were properly saved, reflected in the system, and included in the transaction history. This demonstrates that the purchasing workflow was functioning correctly and that the system accurately tracks and logs all purchase activities.
+The current version of the system was implemented in a beta deployment, allowing continued monitoring, refinement, and debugging based on user feedback gathered from real-time usage.
+
+
+5.2 Evaluation Results
+System evaluation was conducted with ten (10) respondents, including staff members who hold actual operational roles within the IKEA Cakes and Snacks Commissary. The evaluation tool comprised 21 Likert-scale questions organized according to the ISO/IEC 25010 software quality model: Usability, Functionality, Reliability, Efficiency, Maintainability, Portability, and Overall Assessment.
+A 5-point Likert scale was used:
+1 = Poor, 2 = Fair, 3 = Satisfactory, 4 = Very Good, 5 = Excellent.
+The mean scores computed from respondent ratings are summarized in Table 5.2.1.
+ISO/IEC 25010 Attribute
+	Mean Score
+	Interpretation
+	Usability
+	4.44
+	Excellent
+	Functionality
+	4.62
+	Excellent
+	Reliability
+	4.63
+	Excellent
+	Efficiency
+	4.13
+	Very Good
+	Maintainability
+	4.90
+	Excellent
+	Portability
+	5.00
+	Excellent
+	Overall Assessment
+	4.50
+	Excellent
+	Table 5.2.1 ISO/IEC 25010 Evaluation Summary
+Respondents expressed particularly high satisfaction with the system’s reliability, maintainability, and cross-device compatibility (portability). Although slightly lower at 4.13, efficiency still falls within the Very Good range, indicating a positive user perception of system responsiveness and task execution speed.
+
+
+
+
+
+
+5.3 Analysis of Results
+The evaluation results show that the system effectively fulfills the commissary’s operational needs and aligns with the project’s goals. The high Usability score (4.44) indicates that users find the interface intuitive and easy to navigate. This suggests that the UI/UX design choices—such as clear layout hierarchies, responsive design, and consistent controls—successfully supported the needs of kitchen staff, stock handlers, and purchasers during system use. The Functionality score (4.62) reflects strong performance of core features like request processing, inventory updates, purchase logging, and audit trail creation. Users viewed the system as accurate, complete, and reliable in performing essential commissary workflows. The Reliability score (4.63) demonstrates that the system behaves consistently and without unexpected errors. This verifies that the backend setup, data validation methods, and module integrations are stable and suitable for daily operations. The slightly lower but still strong Efficiency rating (4.13) indicates that, while the system performs well, there is room for improvement in processing times or data loading during peak usage—especially during high-volume request periods. Near-perfect ratings for Maintainability (4.90) and Portability (5.00) show that the system’s structure is easy to update and troubleshoot, and it performs well across various devices including desktops, tablets, and smartphones. This is crucial for the distributed nature of commissary operations supporting multiple locations. The Overall Assessment score (4.50) confirms that the system successfully enhances efficiency, accuracy, and accountability within the commissary’s operations, fulfilling the general and specific objectives outlined in Chapter 1.
+
+
+5.4 Summary of Findings
+         1. The following summarizes the key findings from the system implementation and evaluation:
+         2. The system was successfully deployed and became operational using web-based technologies, featuring functional modules for request handling, inventory management, purchase tracking, deliveries, reporting, and audit logging.
+
+         3. Usability received an excellent rating (4.44), indicating that respondents found the system intuitive, accessible, and easy to use.
+
+         4. Functionality achieved an excellent rating (4.62), confirming that all required system features worked as intended and effectively supported commissary workflows.
+
+         5. Reliability was rated excellent (4.63), demonstrating that the system operated consistently without errors or interruptions.
+
+         6. Efficiency received a very good rating (4.13), suggesting satisfactory system responsiveness with minor areas for improvement.
+
+         7. Maintainability (4.90) and Portability (5.00) were rated excellent, showing strong system adaptability, ease of modification, and compatibility across devices.
+
+         8. The overall system rating was excellent (4.50), confirming that the system addressed the commissary’s operational challenges and fulfilled both the general and specific objectives of the project.
+
+
+
+
+
+
+
+
+
+
+
+
+SUMMARY, CONCLUSIONS, AND
+RECOMMENDATIONS
+6.1 Summary
+This study examined the operational challenges faced by the IKEA Cakes and Snacks Commissary, which depended on manual, paper-based processes for ingredient requests, inventory tracking, and purchase verification. These manual workflows caused issues in accuracy, traceability, and efficiency, mainly because the commissary supplies two retail branches and handles a variety of raw materials. To address these problems, the study aimed to design and develop a web-based inventory management system for the commissary, featuring a built-in purchaser transaction tracker and audit trail.
+
+
+The project used a developmental research design supported by the Agile Software Development Life Cycle (SDLC). User requirements were collected through interviews and observations, while system evaluation was conducted using quantitative questionnaires aligned with ISO/IEC 25010. The system was developed using PHP, MySQL, and Tailwind CSS and deployed on Hostinger.
+
+
+The finalized system included modules for digital request processing, stock monitoring, purchase logging with receipt uploads, delivery acknowledgment, reporting, and a thorough audit trail. Evaluation with ten respondents yielded high ratings across all ISO/IEC 25010 attributes: Usability (4.44), Functionality (4.62), Reliability (4.63), Maintainability (4.90), Portability (5.00), Efficiency (4.13), and Overall Assessment (4.50). These results demonstrate that the system effectively met user needs and addressed the operational inefficiencies identified at the start of the study.
+
+
+
+
+
+
+6.2 Conclusions
+Based on the findings, the following conclusions are drawn:
+            1. The system centralizes and automates commissary operations, effectively replacing handwritten request forms, manual stock logs, and fragmented purchase records. This directly supports the overall goal of providing an integrated inventory and purchase transaction tracking solution.
+
+            2. The digital request and approval module works effectively, allowing kitchen staff to submit ingredient requests and enabling authorized personnel to approve them in real time, thereby enhancing coordination and workflow clarity.
+
+            3. The automated stock monitoring module provides accurate and timely inventory updates, supports unit conversions, and generates low-stock alerts, reducing the risk of overstocking and shortages.
+
+            4. The purchaser transaction tracker functions as intended, successfully logging purchases, linking receipt images, and categorizing expenses by supplier and payment status, which enhances financial traceability.
+
+            5. The delivery acknowledgment module improves transparency by ensuring that complete and partial deliveries are recorded and visible to relevant personnel.
+
+            6. The audit trail module effectively records all user actions, ensuring accountability and preventing unauthorized or untracked changes to inventory and purchasing records.
+
+            7. The system shows strong software quality, with excellent ratings in usability, functionality, reliability, maintainability, and portability. Efficiency was rated very good, indicating minor areas for improvement, but overall, the firm's performance was strong.
+
+            8. User feedback confirms that the system enhances operational efficiency, accuracy, and accountability, fulfilling the objectives outlined in Chapter 1.
+
+Overall, the project successfully met its goal of creating a responsive, efficient, and transparent commissary management system tailored to the needs of IKEA Cakes and Snacks.
+
+
+
+
+6.3 Recommendations
+Based on the system implementation and evaluation results, the following recommendations are forwarded:
+For System Enhancement
+               1. Improve system performance by enhancing database query efficiency.
+
+               2. Add advanced reporting features, such as downloadable summaries, graphical trend analyses, and customizable report templates.
+
+               3. Integrate notification alerts for pending approvals, low-stock levels, and overdue deliveries via email or SMS to streamline communication.
+
+For Future Researchers
+                  5. Expand the system to include forecasting modules that use consumption history to predict ingredient demand, improving procurement planning.
+
+                  6. Integrate POS or accounting systems to automate sales-to-inventory reconciliation and streamline financial reporting.
+
+                  7. Explore developing mobile apps for offline use and better accessibility in environments with unstable internet connections.
+
+For Institutional or Business Use
+                     8. Provide onboarding and training sessions for staff to ensure consistent and proper system usage.
+
+                     9. Develop a detailed user manual containing step-by-step instructions, screenshots, and troubleshooting guides.
+
+
+
+
+
+REFERENCES
+Gill, A. (2023). Developing a centralized receipt service to streamline restaurant operations and reduce costs. Journal of Engineering and Applied Sciences Technology, 5(6), 1–12. http://dx.doi.org/10.47363/JEAST/2023(5)E130
+Li, D. (2025). Intelligent inventory management system: Innovation and implementation of restaurant food management. Economics and Management Innovation, 2(1), 1–12. https://doi.org/10.71222/64cdzw06
+Lim Hui Qi, Rahmat, A. R., & Suban@Ani, S. (2025). An inventory management system for small businesses. Journal of Digital System Development, 3(1), 29–44. https://doi.org/10.32890/jdsd2025.3.1.3
+Sharma, P., & Saxena, A. (2021). Challenges and solutions for inventory management in small and medium enterprises (SMEs): A systematic literature review. Journal of Business Studies, 9(2), 45–60.
+Wynn, S. (2021). The financial impact of manual inventory record errors [Doctoral dissertation, Liberty University]. https://digitalcommons.liberty.edu/doctoral/3208
+Althaqafi, S. S. (2020). The relationship between inventory management and the financial performance of small and medium enterprises. Journal of Accounting and Finance Research, 2(1), 10–25. https://www.eajournals.org/wp-content/uploads/Effect-of-Inventory-Management-on-Financial-Performance.pdf
+Baskerville, R., & Myers, M. D. (2023). A user-centered design approach to information systems. MIS Quarterly, 47(3), 89–105. 
+Cabungcal, E. C., De Jesus, L. A., & Dela Cruz, M. R. (2023). The impact of inventory management on the financial performance of MSMEs in Santiago City. Philippine Business Review, 15(2), 45-60. https://www.researchgate.net/publication/373385793_Impact_of_Inventory_Management_on_Financial_Performance_of_MSMEs_in_Santiago_City
+Gill, J. (2023). The evolution of receipt management: From paper to digital solutions. Journal of Digital Business, 11(4), 201–215. https://www.researchgate.net/publication/388194718_Developing_a_Centralized_Receipt_Service_to_Streamline_Restaurant_Operations_and_Reduce_Costs
+Iyer, V. (2025). The role of data-driven decision-making in modern organizations. Journal of Business Strategy, 46(1), 78–92. https://doi.org/10.47191/rajar/v11i3.06
+Li, A. (2025). The impact of manual records on food waste and operational costs in the food industry. International Journal of Food Science and Technology, 60(2), 112-125. https://www.fsis.usda.gov/news-events/news-press-releases/constituent-update-january-3-2025
+Lim, S., Rahmat, M., & Suban@Ani, N. (2025). EzStock: A web-based inventory management system for small businesses. Journal of Information Technology and Systems Management, 20(1), 30–45. https://e-journal.uum.edu.my/index.php/jdsd/article/view/26384
+Opoku, A., Mensah, F., & Boateng, K. (2021). The financial risks of improper inventory management: A case study approach. Journal of Financial Management, 8(3), 55–70. http://doi.org/10.17270/J.LOG.2021.557 
+Raji, A., Ijomah, C., & Eyieyien, B. (2024). Data-Driven decision making in agriculture and business: The role of advanced analytics. Computer Science & IT Research Journal, 5(7), 1565–1575. https://fepbl.com/index.php/csitrj/article/view/1275
+Ravalji, S., & Singh, R. (2025). Responsive web design: A critical methodology for optimal user experience. Journal of Web Engineering, 24(1), 5–18. https://www.researchgate.net/publication/391994214_User-Centric_Design_for_Real_Estate_Web_Applications
+Gupta, H., Joshi, M., Jindal, M., & Singh, S. (2025). Optimizing inventory costs in quick service restaurants: A case study approach. Lex Localis – Journal of Local Self-Government, 23(S4), 2354–2368. https://doi.org/10.52152/800892
+
+
+Zamora Saltos, C. E., & Rodríguez Borges, C. G. (2024). Design of an inventory management system for a Manabita restaurant. InGenio Journal, 7(2), 85–97. https://doi.org/10.18779/ingenio.v7i2.808 UTEQ Revistas
+Toroba, A. O., Gregori, R. A., Baraas, C. V., Impas, C. B., Martinez, D. J., & Cervantes, J. S. (2025). The influence of inventory management practices on financial performance among retail businesses. South Asian Journal of Social Studies and Economics, 22(8), 24–43. https://doi.org/10.9734/sajsse/2025/v22i81099 journalsajsse.com
+Soliveres, V. L., Herrera, A., & Cedillo, A. K. (2024). Inventory management practices of small-scale pharmacies in the selected towns in Cavite: A marketing perspective. Logistic and Operation Management Research (LOMR), 3(1), 42–56. https://doi.org/10.31098/lomr.v3i1.2194

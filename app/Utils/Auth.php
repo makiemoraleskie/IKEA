@@ -158,13 +158,17 @@ class Auth
 	private static function forceLogout(string $reason): void
 	{
 		self::logout();
-		header('Location: /login?status=' . urlencode($reason));
+		$baseUrl = defined('BASE_URL') ? BASE_URL : '';
+		$url = $baseUrl . '/login?status=' . urlencode($reason);
+		header('Location: ' . $url);
 		exit;
 	}
 
 	private static function redirectToLogin(): void
 	{
-		header('Location: /login');
+		$baseUrl = defined('BASE_URL') ? BASE_URL : '';
+		$url = $baseUrl . '/login';
+		header('Location: ' . $url);
 		exit;
 	}
 }

@@ -17,7 +17,18 @@ class AuditLog extends BaseModel
 		$where = [];
 		$params = [];
 		if (!empty($filters['user_id'])) { $where[] = 'a.user_id = ?'; $params[] = (int)$filters['user_id']; }
-		if (!empty($filters['module'])) { $where[] = 'a.module = ?'; $params[] = $filters['module']; }
+		
+		// Handle ingredient_losses_only filter - it overrides module filter
+		if (!empty($filters['ingredient_losses_only'])) {
+			$where[] = 'a.module = ?';
+			$where[] = 'a.action = ?';
+			$params[] = 'ingredients';
+			$params[] = 'record_loss';
+		} else {
+			// Only apply module filter if ingredient_losses_only is not set
+			if (!empty($filters['module'])) { $where[] = 'a.module = ?'; $params[] = $filters['module']; }
+			if (!empty($filters['action'])) { $where[] = 'a.action = ?'; $params[] = $filters['action']; }
+		}
 		if (!empty($filters['date_from'])) { $where[] = 'a.timestamp >= ?'; $params[] = $filters['date_from'] . ' 00:00:00'; }
 		if (!empty($filters['date_to'])) { $where[] = 'a.timestamp <= ?'; $params[] = $filters['date_to'] . ' 23:59:59'; }
 		if (!empty($filters['search'])) {
@@ -42,7 +53,18 @@ class AuditLog extends BaseModel
 		$where = [];
 		$params = [];
 		if (!empty($filters['user_id'])) { $where[] = 'user_id = ?'; $params[] = (int)$filters['user_id']; }
-		if (!empty($filters['module'])) { $where[] = 'module = ?'; $params[] = $filters['module']; }
+		
+		// Handle ingredient_losses_only filter - it overrides module filter
+		if (!empty($filters['ingredient_losses_only'])) {
+			$where[] = 'module = ?';
+			$where[] = 'action = ?';
+			$params[] = 'ingredients';
+			$params[] = 'record_loss';
+		} else {
+			// Only apply module filter if ingredient_losses_only is not set
+			if (!empty($filters['module'])) { $where[] = 'module = ?'; $params[] = $filters['module']; }
+			if (!empty($filters['action'])) { $where[] = 'action = ?'; $params[] = $filters['action']; }
+		}
 		if (!empty($filters['date_from'])) { $where[] = 'timestamp >= ?'; $params[] = $filters['date_from'] . ' 00:00:00'; }
 		if (!empty($filters['date_to'])) { $where[] = 'timestamp <= ?'; $params[] = $filters['date_to'] . ' 23:59:59'; }
 		if (!empty($filters['search'])) {

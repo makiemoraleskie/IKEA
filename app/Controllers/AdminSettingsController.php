@@ -40,6 +40,7 @@ class AdminSettingsController extends BaseController
 				'dashboardWidgets' => Settings::getJson('display.dashboard_widgets', []),
 				'ingredientSetsEnabled' => Settings::get('features.ingredient_sets_enabled', '1') === '1',
 				'inventoryActionsVisible' => Settings::get('inventory.actions_visible', '0') === '1',
+				'inventoryCsvButtonsEnabled' => Settings::get('inventory.csv_buttons_enabled', '1') === '1',
 			],
 			'flash' => $flash,
 		]);
@@ -334,6 +335,32 @@ class AdminSettingsController extends BaseController
 		$logger->log(Auth::id() ?? 0, 'force_logout', 'users', ['user_id' => $userId]);
 		$_SESSION['flash_admin_settings'] = ['type' => 'success', 'text' => 'User will be required to sign in again.'];
 		$this->redirect('/admin/settings');
+	}
+
+	public function toggleCsvButtons(): void
+	{
+		Auth::requireRole(['Owner','Manager']);
+		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
+			http_response_code(400);
+			echo 'Invalid CSRF token';
+			return;
+		}
+		
+		$userId = Auth::id() ?? 0;
+		$currentValue = Settings::get('inventory.csv_buttons_enabled', '1');
+		$newValue = $currentValue === '1' ? '0' : '1';
+		
+		Settings::set('inventory.csv_buttons_enabled', $newValue, $userId);
+		
+		$logger = new AuditLog();
+		$logger->log($userId, 'toggle_setting', 'settings', [
+			'setting' => 'inventory.csv_buttons_enabled',
+			'value' => $newValue
+		]);
+		
+		$state = $newValue === '1' ? 'enabled' : 'disabled';
+		$_SESSION['flash_admin_settings'] = ['type' => 'success', 'text' => "CSV Export/Import buttons are now {$state}."];
+		$this->redirect('/inventory');
 	}
 
 	private function streamSqlBackup(string $timestamp): void

@@ -9,6 +9,15 @@ class PurchaseController extends BaseController
 		$ingredientModel = new Ingredient();
 		$ingredients = $ingredientModel->all();
         $purchaseModel = new Purchase();
+        
+        // Ensure payment_status enum includes 'Partial'
+        $db = $purchaseModel->getDb();
+        try {
+            $db->exec("ALTER TABLE purchases MODIFY COLUMN payment_status ENUM('Paid','Pending','Partial') NOT NULL DEFAULT 'Pending'");
+        } catch (\Exception $e) {
+            // Column might already be updated or table doesn't exist yet
+        }
+        
         $purchases = $purchaseModel->listAll();
         $deliveryModel = new Delivery();
         $deliveredTotals = [];
@@ -127,8 +136,9 @@ class PurchaseController extends BaseController
                 $groups[$key]['current_balance'] = 0.0;
             } else {
                 $groups[$key]['current_balance'] = max(0, (float)$group['cost_sum'] - $totalPaid);
-                // Update payment status if fully paid
+                // Determine payment status based on balance and transactions
                 if ($groups[$key]['current_balance'] <= 0.01 && $totalPaid > 0) {
+                    // Fully paid
                     $groups[$key]['payment_status'] = 'Paid';
                     // If fully paid, use the last payment receipt instead of original purchase receipt
                     // The receipt URL from payment_transactions is already in the correct format (/public/uploads/...)
@@ -136,6 +146,12 @@ class PurchaseController extends BaseController
                     if (isset($lastReceipts[$group['group_id']]) && !empty($lastReceipts[$group['group_id']])) {
                         $groups[$key]['receipt_url'] = $lastReceipts[$group['group_id']];
                     }
+                } elseif ($totalPaid > 0 && $groups[$key]['current_balance'] > 0.01) {
+                    // Partial payment: has transactions but still has remaining balance
+                    $groups[$key]['payment_status'] = 'Partial';
+                } else {
+                    // No payments made yet
+                    $groups[$key]['payment_status'] = 'Pending';
                 }
             }
         }

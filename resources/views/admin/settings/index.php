@@ -178,7 +178,7 @@ $widgetsByRole = function (string $role) use ($widgetSettings, $dashboardWidgets
 					<hr class="border-gray-100">
 
 					<!-- Permissions -->
-					<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/admin/settings/save" class="space-y-5">
+					<!-- <form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/admin/settings/save" class="space-y-5">
 						<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 						<input type="hidden" name="section" value="security">
 						<div class="flex items-center justify-between">
@@ -228,12 +228,12 @@ $widgetsByRole = function (string $role) use ($widgetSettings, $dashboardWidgets
 						<button class="inline-flex items-center gap-2 bg-indigo-600 text-white px-5 py-3 rounded-lg hover:bg-indigo-700">
 							<i data-lucide="save" class="w-4 h-4"></i>Save Security Settings
 						</button>
-					</form>
+					</form> -->
 				</div>
 			</div>
 
 			<!-- Reporting -->
-			<div class="bg-white border border-gray-200 rounded-2xl shadow-sm">
+			<!-- <div class="bg-white border border-gray-200 rounded-2xl shadow-sm">
 				<div class="px-6 py-4 border-b border-gray-100">
 					<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
 						<i data-lucide="file-bar-chart" class="w-5 h-5 text-emerald-600"></i>
@@ -266,10 +266,10 @@ $widgetsByRole = function (string $role) use ($widgetSettings, $dashboardWidgets
 						<i data-lucide="save" class="w-4 h-4"></i>Save Reporting Rules
 					</button>
 				</form>
-			</div>
+			</div> -->
 
 			<!-- Display & Branding -->
-			<div class="bg-white border border-gray-200 rounded-2xl shadow-sm">
+			<!-- <div class="bg-white border border-gray-200 rounded-2xl shadow-sm">
 				<div class="px-6 py-4 border-b border-gray-100">
 					<h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
 						<i data-lucide="color-swatch" class="w-5 h-5 text-purple-600"></i>
@@ -350,7 +350,7 @@ $widgetsByRole = function (string $role) use ($widgetSettings, $dashboardWidgets
 						</form>
 					</div>
 				</div>
-			</div>
+			</div> -->
 		</div>
 
 		<!-- Data & Backup Column -->

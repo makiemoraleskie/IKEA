@@ -16,6 +16,7 @@ if ($user) {
 	$notifications = $feedBuilder->compose($user, (int)($user['id'] ?? 0), $baseUrl, 8, true);
 	$notificationCount = count($notifications);
 }
+$inventoryCsvButtonsEnabled = Settings::get('inventory.csv_buttons_enabled', '1') === '1';
 ?>
 <!doctype html>
 <html lang="en">
@@ -120,7 +121,6 @@ if ($user) {
 					}
 					if (in_array($role, ['Owner','Manager'], true)) {
 						$navItems[] = ['url' => '/audit', 'label' => 'Audit Logs', 'icon' => 'clock'];
-						$navItems[] = ['url' => '/admin/settings', 'label' => 'Admin Settings', 'icon' => 'settings'];
 					}
 				}
 				
@@ -170,6 +170,70 @@ if ($user) {
 							</button>
 							<button id="sidebarShowTablet" class="hidden" aria-label="Show sidebar"></button>
 							<h1 class="text-lg md:text-xl lg:text-2xl font-bold text-gray-800 truncate"><?php echo $pageTitle ?? 'Dashboard'; ?></h1>
+						</div>
+						<!-- User Profile Dropdown (Mobile) -->
+						<div class="relative md:hidden" id="userProfileDropdownMobile">
+							<button type="button" id="userProfileButtonMobile" class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500/20" style="border-color: #e5e7eb !important;">
+								<div class="text-left">
+									<div class="text-xs font-semibold text-green-600 leading-tight"><?php echo htmlspecialchars($user['name'] ?? 'User'); ?></div>
+									<div class="text-[10px] text-gray-600 leading-tight"><?php echo htmlspecialchars($user['role'] ?? 'User'); ?></div>
+								</div>
+								<svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+								</svg>
+							</button>
+							<div id="userProfileMenuMobile" class="hidden fixed right-4 mt-2 w-[calc(100vw-2rem)] max-w-xs bg-white border border-gray-200 rounded-xl shadow-xl z-[9999] overflow-hidden" style="top: auto; z-index: 9999 !important;">
+								<div class="px-4 py-3 border-b border-gray-100">
+									<div class="flex items-center gap-3">
+										<div>
+											<div class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($user['name'] ?? 'User'); ?></div>
+											<div class="text-xs text-gray-600"><?php echo htmlspecialchars($user['role'] ?? 'User'); ?></div>
+										</div>
+									</div>
+								</div>
+								<?php if (in_array($role ?? '', ['Owner','Manager'], true)): ?>
+								<div class="py-1">
+									<a href="<?php echo htmlspecialchars($baseUrl); ?>/account/security" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+										<svg class="w-5 h-5 flex-shrink-0 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+										</svg>
+										<span>Account Settings</span>
+									</a>
+									<a href="<?php echo htmlspecialchars($baseUrl); ?>/users" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+										<svg class="w-5 h-5 flex-shrink-0 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+										</svg>
+										<span>User Management</span>
+									</a>
+									<a href="<?php echo htmlspecialchars($baseUrl); ?>/backup" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+										<svg class="w-5 h-5 flex-shrink-0 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+										</svg>
+										<span>Backup and restore</span>
+									</a>
+									<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/admin/settings/toggle-csv-buttons" class="w-full">
+										<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+										<button type="submit" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors text-left">
+											<svg class="w-5 h-5 flex-shrink-0 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+											</svg>
+											<span><?php echo $inventoryCsvButtonsEnabled ? 'Disable CSV buttons' : 'Enable CSV buttons'; ?></span>
+										</button>
+									</form>
+								</div>
+								<?php endif; ?>
+								<div class="border-t border-gray-100">
+									<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/logout">
+										<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+										<button type="submit" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors active:bg-red-100">
+											<svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+											</svg>
+											<span>Logout</span>
+										</button>
+									</form>
+								</div>
+							</div>
 						</div>
 						<!-- Notification Bell (Mobile) -->
 						<div class="relative md:hidden" id="notificationWrapper">
@@ -344,15 +408,48 @@ if ($user) {
 											</div>
 										</div>
 									</div>
-									<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/logout" class="border-t border-gray-100">
-										<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
-										<button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors active:bg-red-100">
-											<svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+									<?php if (in_array($role ?? '', ['Owner','Manager'], true)): ?>
+									<div class="py-1">
+										<a href="<?php echo htmlspecialchars($baseUrl); ?>/account/security" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+											<svg class="w-5 h-5 flex-shrink-0 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
 											</svg>
-											<span>Logout</span>
+											<span>Account Settings</span>
+										</a>
+										<a href="<?php echo htmlspecialchars($baseUrl); ?>/users" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+											<svg class="w-5 h-5 flex-shrink-0 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+											</svg>
+											<span>User Management</span>
+										</a>
+									<a href="<?php echo htmlspecialchars($baseUrl); ?>/backup" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+										<svg class="w-5 h-5 flex-shrink-0 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+										</svg>
+										<span>Backup and restore</span>
+									</a>
+									<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/admin/settings/toggle-csv-buttons" class="w-full">
+										<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+										<button type="submit" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors text-left">
+											<svg class="w-5 h-5 flex-shrink-0 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+											</svg>
+											<span><?php echo $inventoryCsvButtonsEnabled ? 'Disable CSV buttons' : 'Enable CSV buttons'; ?></span>
 										</button>
 									</form>
+								</div>
+								<?php endif; ?>
+								<div class="border-t border-gray-100">
+										<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/logout">
+											<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
+											<button type="submit" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors active:bg-red-100">
+												<svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+												</svg>
+												<span>Logout</span>
+											</button>
+										</form>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -617,6 +714,37 @@ if ($user) {
 				window.addEventListener('resize', () => {
 					if (!userMenu.classList.contains('hidden')) {
 						positionUserMenu();
+					}
+				});
+			})();
+			(function(){
+				const userBtnMobile = document.getElementById('userProfileButtonMobile');
+				const userMenuMobile = document.getElementById('userProfileMenuMobile');
+				if (!userBtnMobile || !userMenuMobile) return;
+				
+				userBtnMobile.addEventListener('click', (e) => {
+					e.stopPropagation();
+					const isOpen = !userMenuMobile.classList.contains('hidden');
+					if (isOpen) {
+						userMenuMobile.classList.add('hidden');
+						userBtnMobile.setAttribute('aria-expanded', 'false');
+					} else {
+						// Close notification panel if open
+						const notificationPanel = document.getElementById('notificationPanel');
+						const notificationButton = document.getElementById('notificationButton');
+						if (notificationPanel && notificationButton) {
+							notificationPanel.classList.add('hidden');
+							notificationButton.setAttribute('aria-expanded', 'false');
+						}
+						userMenuMobile.classList.remove('hidden');
+						userBtnMobile.setAttribute('aria-expanded', 'true');
+					}
+				});
+				
+				document.addEventListener('click', (e) => {
+					if (!userMenuMobile.contains(e.target) && !userBtnMobile.contains(e.target)) {
+						userMenuMobile.classList.add('hidden');
+						userBtnMobile.setAttribute('aria-expanded', 'false');
 					}
 				});
 			})();

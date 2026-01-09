@@ -99,6 +99,37 @@ $extractActivitySummary = static function ($rawDetails, $module, $action): strin
 		return '';
 	}
 	
+	// Special handling for record_loss actions
+	if (strtolower($action) === 'record_loss' && strtolower($module) === 'ingredients') {
+		$ingredientName = $array['ingredient_name'] ?? '';
+		$quantityLost = isset($array['quantity_lost']) ? (float)$array['quantity_lost'] : 0;
+		$unit = $array['unit'] ?? '';
+		$displayUnit = $array['display_unit'] ?? '';
+		$displayFactor = isset($array['display_factor']) ? (float)$array['display_factor'] : 1;
+		$reason = $array['reason'] ?? '';
+		
+		// Format quantity with display unit if available
+		$formattedQty = $quantityLost;
+		if ($displayUnit && $displayFactor > 0) {
+			$displayQty = $quantityLost * $displayFactor;
+			$formattedQty = number_format($displayQty, 2) . ' ' . $displayUnit;
+		} else if ($unit) {
+			$formattedQty = number_format($quantityLost, 2) . ' ' . $unit;
+		} else {
+			$formattedQty = number_format($quantityLost, 2);
+		}
+		
+		$summary = '';
+		if ($ingredientName) {
+			$summary = '"' . $ingredientName . '" - ' . $formattedQty;
+			if ($reason) {
+				$reasonShort = strlen($reason) > 30 ? substr($reason, 0, 27) . '...' : $reason;
+				$summary .= ' (Reason: ' . $reasonShort . ')';
+			}
+		}
+		return $summary;
+	}
+	
 	// Priority order for extracting summary based on module and common fields
 	$summaryKeys = [];
 	
@@ -288,6 +319,14 @@ foreach ($logs as $log) {
 				</select>
 			</div>
 		</div>
+		<!-- Ingredient Losses Only Filter -->
+		<div class="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+			<input type="checkbox" name="ingredient_losses_only" value="1" id="ingredient_losses_only" <?php echo (isset($_GET['ingredient_losses_only']) && $_GET['ingredient_losses_only'] === '1') ? 'checked' : ''; ?> class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 focus:ring-2">
+			<label for="ingredient_losses_only" class="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
+				<i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600"></i>
+				<span>Show ingredient losses only</span>
+			</label>
+		</div>
 		<div class="flex flex-wrap items-center gap-3">
 			<button type="submit" class="inline-flex items-center justify-center gap-1 md:gap-1.5 bg-green-600 text-white px-2.5 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-xs md:text-sm">
 				<i data-lucide="search" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
@@ -309,6 +348,9 @@ foreach ($logs as $log) {
 			<?php foreach (['user_id','module','date_from','date_to','search','limit'] as $key): ?>
 				<input type="hidden" name="current[<?php echo $key; ?>]" value="<?php echo htmlspecialchars($filters[$key] ?? ''); ?>">
 			<?php endforeach; ?>
+			<?php if (!empty($filters['ingredient_losses_only'])): ?>
+				<input type="hidden" name="current[ingredient_losses_only]" value="1">
+			<?php endif; ?>
 			<select name="scope" class="border border-gray-300 rounded-lg px-3 md:px-4 py-2 text-xs md:text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 w-full md:w-auto">
 				<option value="filtered">Only logs matching current filters</option>
 				<option value="all">All audit logs</option>
@@ -371,9 +413,18 @@ foreach ($logs as $log) {
 						}
 					}
 					$summary = $extractActivitySummary($detailsRaw, $entry['module'], $entry['action']);
-					$activityText = ucfirst($entry['action']);
+					$actionText = str_replace('_', ' ', $entry['action']);
+					$activityText = ucwords($actionText);
 					$moduleText = strtolower($entry['module']);
-					if ($summary) {
+					
+					// Special formatting for record_loss actions
+					if (strtolower($entry['action']) === 'record_loss' && strtolower($entry['module']) === 'ingredients') {
+						if ($summary) {
+							$activityText = 'Record loss: ' . $summary;
+						} else {
+							$activityText = 'Record loss in ' . ucwords(str_replace('_', ' ', $moduleText));
+						}
+					} else if ($summary) {
 						$activityText .= ' ' . $moduleText . ' ' . $summary;
 					} else {
 						$activityText .= ' in ' . ucwords(str_replace('_', ' ', $moduleText));
@@ -893,6 +944,35 @@ foreach ($logs as $log) {
 		const div = document.createElement('div');
 		div.textContent = text;
 		return div.innerHTML;
+	}
+	
+	// Handle ingredient losses only checkbox
+	const ingredientLossesCheckbox = document.getElementById('ingredient_losses_only');
+	const moduleSelect = document.querySelector('select[name="module"]');
+	if (ingredientLossesCheckbox && moduleSelect) {
+		function updateModuleSelect() {
+			if (ingredientLossesCheckbox.checked) {
+				moduleSelect.disabled = true;
+				moduleSelect.style.opacity = '0.6';
+				moduleSelect.style.cursor = 'not-allowed';
+				// Store the current value in case user wants to restore it
+				moduleSelect.dataset.previousValue = moduleSelect.value;
+				// Optionally clear it to avoid confusion
+				moduleSelect.value = '';
+			} else {
+				moduleSelect.disabled = false;
+				moduleSelect.style.opacity = '1';
+				moduleSelect.style.cursor = 'default';
+				// Restore previous value if it was stored
+				if (moduleSelect.dataset.previousValue) {
+					moduleSelect.value = moduleSelect.dataset.previousValue;
+					delete moduleSelect.dataset.previousValue;
+				}
+			}
+		}
+		
+		ingredientLossesCheckbox.addEventListener('change', updateModuleSelect);
+		updateModuleSelect(); // Initialize on page load
 	}
 })();
 

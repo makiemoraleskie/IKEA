@@ -289,15 +289,7 @@ foreach ($ingredients as $ing) {
 		</button>
 		<?php endif; ?>
 		<?php if ($inventoryActionsVisible): ?>
-			<?php if (Auth::role() === 'Owner'): ?>
-			<button 
-				type="button" 
-				id="openImportCsvModal"
-				class="inline-flex items-center gap-1 md:gap-1.5 bg-green-600 text-white px-2.5 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-xs md:text-sm"
-			>
-				<i data-lucide="upload" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
-				Import CSV
-			</button>
+			<?php if (($inventoryCsvButtonsEnabled ?? true) && in_array(Auth::role(), ['Owner','Manager'], true)): ?>
 			<a 
 				href="<?php echo htmlspecialchars($baseUrl); ?>/inventory/export"
 				class="inline-flex items-center gap-1 md:gap-1.5 bg-blue-600 text-white px-2.5 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors text-xs md:text-sm"
@@ -306,17 +298,7 @@ foreach ($ingredients as $ing) {
 				Export CSV
 			</a>
 			<?php endif; ?>
-			<?php if (in_array(Auth::role(), ['Owner','Manager'], true)): ?>
-			<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/migrate-kg-to-g" class="inline-block" data-confirm="This will convert all ingredients with base unit 'kg' to 'g'. Quantities will be multiplied by 1000. This action cannot be undone. Continue?">
-				<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
-				<button type="submit" class="inline-flex items-center gap-1 md:gap-1.5 bg-purple-600 text-white px-2.5 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors text-xs md:text-sm">
-					<i data-lucide="refresh-cw" class="w-3.5 h-3.5 md:w-4 md:h-4"></i>
-					<span class="hidden sm:inline">Convert kg → g</span>
-					<span class="sm:hidden">Convert</span>
-				</button>
-			</form>
-			<?php endif; ?>
-			<?php if (Auth::role() === 'Owner'): ?>
+			<?php if (($inventoryCsvButtonsEnabled ?? true) && in_array(Auth::role(), ['Owner','Manager'], true)): ?>
 			<button 
 				type="button" 
 				id="openImportCsvModal2"
@@ -635,7 +617,7 @@ foreach ($ingredients as $ing) {
 document.addEventListener('DOMContentLoaded', function () {
 	// Import CSV modal
 	(function(){
-		const importOpenBtns = Array.from(document.querySelectorAll('#openImportCsvModal, #openImportCsvModal2'));
+		const importOpenBtns = Array.from(document.querySelectorAll('#openImportCsvModal2'));
 		const modal = document.getElementById('importCsvModal');
 		const dismissEls = modal ? modal.querySelectorAll('[data-import-dismiss]') : [];
 		

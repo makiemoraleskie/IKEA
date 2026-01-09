@@ -150,15 +150,47 @@ class DeliveryController extends BaseController
             $groups[$key]['delivered_sum'] += (float)($deliveredTotals[(int)$p['id']] ?? 0);
         }
 
+        // Check which purchases have delivery records (even with 0 quantity)
+        // This helps identify batches that have been started (partial deliveries)
+        $purchasesWithDeliveries = [];
+        $allDeliveries = $deliveryModel->listAll();
+        foreach ($allDeliveries as $delivery) {
+            $purchaseId = (int)($delivery['purchase_id'] ?? 0);
+            if ($purchaseId > 0) {
+                $purchasesWithDeliveries[$purchaseId] = true;
+            }
+        }
+        
         // Keep only groups that still have remaining quantities after recent deliveries
-        $groups = array_filter($groups, static function(array $group) use ($deliveredTotals): bool {
+        // AND haven't had all items recorded in a delivery (even if partial)
+        $groups = array_filter($groups, static function(array $group) use ($deliveredTotals, $purchasesWithDeliveries): bool {
+            $allItemsHaveDeliveries = true;
+            $hasRemainingQuantity = false;
+            
             foreach ($group['items'] as $item) {
-                $delivered = (float)($deliveredTotals[(int)$item['id']] ?? 0);
-                if (((float)$item['quantity'] - $delivered) > 0.0001) {
-                    return true;
+                $purchaseId = (int)$item['id'];
+                $delivered = (float)($deliveredTotals[$purchaseId] ?? 0);
+                $remaining = (float)$item['quantity'] - $delivered;
+                
+                // Check if this purchase has a delivery record
+                if (!isset($purchasesWithDeliveries[$purchaseId])) {
+                    $allItemsHaveDeliveries = false;
+                }
+                
+                // Check if there's remaining quantity
+                if ($remaining > 0.0001) {
+                    $hasRemainingQuantity = true;
                 }
             }
-            return false;
+            
+            // Hide batch if all items have delivery records (even if partial)
+            // This means the batch has been recorded and shouldn't show in initial selection
+            if ($allItemsHaveDeliveries) {
+                return false;
+            }
+            
+            // Otherwise, show if there's remaining quantity
+            return $hasRemainingQuantity;
         });
 
         // Additionally hide any groups containing purchase IDs flagged after submission
@@ -218,8 +250,10 @@ class DeliveryController extends BaseController
 
         // First pass: Check all items to determine if batch should be complete
         // Batch is complete only if ALL items have receiveQty >= purchaseQty
+        // AND all purchases in the batch are included in the submission
         $allItemsComplete = true;
         $purchaseReceiveQuantities = []; // Store purchase_id => receive_quantity mapping
+        $submittedPurchaseIds = []; // Track which purchase IDs are in the submission
         
         foreach ($rows as $row) {
             $purchaseId = (int)($row['purchase_id'] ?? 0);
@@ -227,6 +261,8 @@ class DeliveryController extends BaseController
             
             $purchase = $purchaseModel->find($purchaseId);
             if (!$purchase) continue;
+            
+            $submittedPurchaseIds[] = $purchaseId;
             
             $purchaseQuantity = (float)($purchase['quantity'] ?? 0);
             $receiveQuantity = isset($row['receive_quantity']) ? (float)$row['receive_quantity'] : (float)($row['quantity'] ?? 0);
@@ -239,8 +275,70 @@ class DeliveryController extends BaseController
             }
         }
         
-        // Determine batch status: Complete only if all items are complete
-        $batchStatus = $allItemsComplete ? 'Complete' : 'Partial';
+        // Check if all purchases in the batch are included in the submission
+        // If any purchase is missing, automatically set status to "Partial"
+        $allBatchItemsIncluded = true;
+        if (!empty($submittedPurchaseIds)) {
+            // Get the first purchase to determine the batch
+            $firstPurchaseId = $submittedPurchaseIds[0];
+            $firstPurchase = $purchaseModel->find($firstPurchaseId);
+            if ($firstPurchase) {
+                // Calculate batch_id using the same logic as getBatchDetails
+                $ts = substr((string)($firstPurchase['date_purchased'] ?? $firstPurchase['created_at'] ?? ''), 0, 19);
+                $stableKey = ($firstPurchase['purchaser_id'] ?? '') . '|' . ($firstPurchase['supplier'] ?? '') . '|' . ($firstPurchase['receipt_url'] ?? '') . '|' . $ts;
+                $batchId = substr(sha1($stableKey), 0, 10);
+                
+                // Get all purchases in this batch
+                $allPurchases = $purchaseModel->listAll();
+                $batchPurchaseIds = [];
+                foreach ($allPurchases as $p) {
+                    $pTs = substr((string)($p['date_purchased'] ?? $p['created_at'] ?? ''), 0, 19);
+                    $pStableKey = ($p['purchaser_id'] ?? '') . '|' . ($p['supplier'] ?? '') . '|' . ($p['receipt_url'] ?? '') . '|' . $pTs;
+                    $pBatchId = substr(sha1($pStableKey), 0, 10);
+                    if ($pBatchId === $batchId) {
+                        $batchPurchaseIds[] = (int)$p['id'];
+                    }
+                }
+                
+                // Check if all batch purchases are in the submission
+                $submittedPurchaseIdsSet = array_flip($submittedPurchaseIds);
+                foreach ($batchPurchaseIds as $batchPurchaseId) {
+                    if (!isset($submittedPurchaseIdsSet[$batchPurchaseId])) {
+                        $allBatchItemsIncluded = false;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // Determine batch status: Complete only if all items are complete AND all batch items are included
+        $batchStatus = ($allItemsComplete && $allBatchItemsIncluded) ? 'Complete' : 'Partial';
+        
+        // Get all purchases in the batch for creating delivery records for missing items
+        $allBatchPurchases = [];
+        $batchId = null;
+        if (!empty($submittedPurchaseIds)) {
+            // Get the first purchase to determine the batch
+            $firstPurchaseId = $submittedPurchaseIds[0];
+            $firstPurchase = $purchaseModel->find($firstPurchaseId);
+            if ($firstPurchase) {
+                // Calculate batch_id using the same logic as getBatchDetails
+                $ts = substr((string)($firstPurchase['date_purchased'] ?? $firstPurchase['created_at'] ?? ''), 0, 19);
+                $stableKey = ($firstPurchase['purchaser_id'] ?? '') . '|' . ($firstPurchase['supplier'] ?? '') . '|' . ($firstPurchase['receipt_url'] ?? '') . '|' . $ts;
+                $batchId = substr(sha1($stableKey), 0, 10);
+                
+                // Get all purchases in this batch
+                $allPurchases = $purchaseModel->listAll();
+                foreach ($allPurchases as $p) {
+                    $pTs = substr((string)($p['date_purchased'] ?? $p['created_at'] ?? ''), 0, 19);
+                    $pStableKey = ($p['purchaser_id'] ?? '') . '|' . ($p['supplier'] ?? '') . '|' . ($p['receipt_url'] ?? '') . '|' . $pTs;
+                    $pBatchId = substr(sha1($pStableKey), 0, 10);
+                    if ($pBatchId === $batchId) {
+                        $allBatchPurchases[(int)$p['id']] = $p;
+                    }
+                }
+            }
+        }
 
         foreach ($rows as $row) {
             $purchaseId = (int)($row['purchase_id'] ?? 0);
@@ -334,6 +432,58 @@ class DeliveryController extends BaseController
             $processed++;
             $processedPurchaseIds[] = $purchaseId;
         }
+        
+        // Create delivery records for purchases in the batch that weren't included in the submission
+        // This ensures the batch is removed from selection and can be completed later
+        if (!empty($allBatchPurchases) && !empty($submittedPurchaseIds)) {
+            $submittedPurchaseIdsSet = array_flip($submittedPurchaseIds);
+            foreach ($allBatchPurchases as $batchPurchaseId => $batchPurchase) {
+                // Skip if this purchase was already processed
+                if (isset($submittedPurchaseIdsSet[$batchPurchaseId])) {
+                    continue;
+                }
+                
+                // Get ingredient_id from purchase
+                $batchIngredientId = (int)($batchPurchase['item_id'] ?? 0);
+                if ($batchIngredientId <= 0) {
+                    continue;
+                }
+                
+                // Get ingredient to determine unit
+                $batchItem = $ingredientModel->find($batchIngredientId);
+                if (!$batchItem) {
+                    continue;
+                }
+                
+                // Create delivery record with 0 quantity for missing items
+                // Use the purchase unit or ingredient unit
+                $batchUnit = trim((string)($batchPurchase['purchase_unit'] ?? $batchItem['unit'] ?? 'pcs'));
+                $batchDeliveryId = $deliveryModel->create(
+                    $batchPurchaseId,
+                    $batchIngredientId,
+                    0.0, // 0 quantity received
+                    'Partial', // Status is Partial since quantity is 0
+                    $batchUnit,
+                    0.0 // receive_quantity is also 0
+                );
+                
+                // Update delivered cache (stays 0 since quantity is 0)
+                if (!array_key_exists($batchPurchaseId, $deliveredCache)) {
+                    $deliveredCache[$batchPurchaseId] = $deliveryModel->getDeliveredTotal($batchPurchaseId);
+                }
+                
+                $logger->log(Auth::id() ?? 0, 'create', 'deliveries', [
+                    'delivery_id' => $batchDeliveryId,
+                    'purchase_id' => $batchPurchaseId,
+                    'ingredient_id' => $batchIngredientId,
+                    'quantity_received' => 0.0,
+                    'unit' => $batchUnit,
+                    'note' => 'Created for missing item in partial delivery'
+                ]);
+                $processedPurchaseIds[] = $batchPurchaseId;
+            }
+        }
+        
         if ($processed === 0) {
             $_SESSION['flash_deliveries'] = ['type' => 'error', 'text' => 'No delivery rows were processed. Ensure quantities are greater than zero.'];
         } else {

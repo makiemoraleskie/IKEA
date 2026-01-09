@@ -10,10 +10,8 @@ class AccountController extends BaseController
 		$flash = $_SESSION['flash_account'] ?? null;
 		unset($_SESSION['flash_account']);
 
-		$theme = $_SESSION['user_theme'] ?? Settings::themeDefault();
 		$this->render('account/security.php', [
 			'user' => $user,
-			'theme' => $theme,
 			'flash' => $flash,
 		]);
 	}
@@ -50,9 +48,11 @@ class AccountController extends BaseController
 		$logger = new AuditLog();
 		$logger->log($userId, 'change_password', 'account', []);
 
+		// Logout user before redirecting
 		Auth::logout();
-		header('Location: /login?status=password-updated');
-		exit;
+		
+		// Redirect to login page with success message
+		$this->redirect('/login?status=password-updated');
 	}
 
 	public function updateTheme(): void
