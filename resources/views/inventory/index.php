@@ -26,19 +26,19 @@ if (!empty($lowStockGroups)) {
 </div>
 
 <!-- Import CSV Modal -->
-<div id="importCsvModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-	<div class="fixed inset-0 bg-gray-900/80 backdrop-blur-sm" data-import-dismiss style="backdrop-filter: blur(4px) !important; -webkit-backdrop-filter: blur(4px) !important;"></div>
-	<div class="relative z-10 flex min-h-full items-center justify-center px-4 py-8">
-		<div class="w-full max-w-4xl bg-white rounded-2xl shadow-none border border-gray-200 overflow-hidden max-h-[90vh] flex flex-col">
-			<div class="flex items-start justify-between gap-3 px-5 py-4 border-b bg-gray-100">
+<div id="importCsvModal" class="fixed inset-0 hidden overflow-y-auto" style="z-index: 9999 !important;">
+	<div class="fixed inset-0 bg-gray-900/80 backdrop-blur-sm" data-import-dismiss style="backdrop-filter: blur(4px) !important; -webkit-backdrop-filter: blur(4px) !important; z-index: 9998 !important;"></div>
+	<div class="relative flex min-h-full items-center justify-center px-4 py-8" style="z-index: 9999 !important;">
+		<div class="w-full max-w-4xl bg-white rounded-2xl shadow-2xl border-2 border-blue-300 overflow-hidden max-h-[90vh] flex flex-col" style="box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(59, 130, 246, 0.3) !important;">
+			<div class="flex items-start justify-between gap-3 px-5 py-4 border-b bg-gradient-to-r from-blue-50 to-blue-100">
 				<div>
-					<p class="text-md uppercase tracking-[0.25em] text-blue-500 font-semibold">Inventory Import</p>
-					<p class="text-sm text-gray-600 mt-1">Select a CSV file containing inventory data</p>
+					<p class="text-md uppercase tracking-[0.25em] text-blue-600 font-bold">Inventory Import</p>
+					<p class="text-sm text-gray-700 mt-1 font-medium">Select a CSV file containing inventory data</p>
 				</div>
 			</div>
 			
 			<div class="p-5 overflow-y-auto">
-				<form method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/import" enctype="multipart/form-data" class="space-y-4">
+				<form id="importCsvForm" method="post" action="<?php echo htmlspecialchars($baseUrl); ?>/inventory/import" enctype="multipart/form-data" class="space-y-4">
 					<input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(Csrf::token()); ?>">
 
 					<div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
@@ -85,9 +85,18 @@ if (!empty($lowStockGroups)) {
 						<button type="button" class="inline-flex items-center gap-2 px-5 py-2.5 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-300 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors" data-import-dismiss>
 							Cancel
 						</button>
-						<button type="submit" class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
-							<i data-lucide="upload" class="w-4 h-4"></i>
-							Import Inventory
+						<button type="submit" id="importSubmitBtn" class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+							<span id="importSubmitText" class="inline-flex items-center gap-2">
+								<i data-lucide="upload" class="w-4 h-4"></i>
+								Import Inventory
+							</span>
+							<span id="importSubmitLoading" class="hidden inline-flex items-center gap-2">
+								<svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+									<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+									<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+								</svg>
+								Importing...
+							</span>
 						</button>
 					</div>
 				</form>
@@ -613,6 +622,22 @@ foreach ($ingredients as $ing) {
 	</div>
 </div>
 
+<style>
+@keyframes slide-in {
+	from {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+.animate-slide-in {
+	animation: slide-in 0.3s ease-out;
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 	// Import CSV modal
@@ -661,6 +686,130 @@ document.addEventListener('DOMContentLoaded', function () {
 		modal?.addEventListener('click', (e) => {
 			if (e.target === modal) toggleModal(false);
 		});
+		
+		// Form submission handler
+		const importForm = document.getElementById('importCsvForm');
+		const importSubmitBtn = document.getElementById('importSubmitBtn');
+		const importSubmitText = document.getElementById('importSubmitText');
+		const importSubmitLoading = document.getElementById('importSubmitLoading');
+		
+		function showSuccessMessage(messages) {
+			// Create toast notification
+			const toast = document.createElement('div');
+			toast.className = 'fixed top-4 right-4 z-[10000] bg-green-600 text-white px-6 py-4 rounded-lg shadow-2xl max-w-md animate-slide-in';
+			toast.style.zIndex = '10000';
+			toast.innerHTML = `
+				<div class="flex items-start gap-3">
+					<i data-lucide="check-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+					<div class="flex-1">
+						<p class="font-semibold mb-1">Import Successful!</p>
+						<ul class="text-sm space-y-1">
+							${Array.isArray(messages) ? messages.map(msg => `<li>• ${msg}</li>`).join('') : `<li>• ${messages}</li>`}
+						</ul>
+					</div>
+					<button type="button" class="text-white/80 hover:text-white" onclick="this.parentElement.parentElement.remove()">
+						<i data-lucide="x" class="w-4 h-4"></i>
+					</button>
+				</div>
+			`;
+			document.body.appendChild(toast);
+			if (window.lucide) {
+				window.lucide.createIcons({ elements: toast.querySelectorAll('i[data-lucide]') });
+			}
+			// Auto-remove after 5 seconds
+			setTimeout(() => {
+				if (toast.parentElement) {
+					toast.style.opacity = '0';
+					toast.style.transition = 'opacity 0.3s';
+					setTimeout(() => toast.remove(), 300);
+				}
+			}, 5000);
+		}
+		
+		function showErrorMessage(messages) {
+			const toast = document.createElement('div');
+			toast.className = 'fixed top-4 right-4 z-[10000] bg-red-600 text-white px-6 py-4 rounded-lg shadow-2xl max-w-md animate-slide-in';
+			toast.style.zIndex = '10000';
+			toast.innerHTML = `
+				<div class="flex items-start gap-3">
+					<i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+					<div class="flex-1">
+						<p class="font-semibold mb-1">Import Failed</p>
+						<ul class="text-sm space-y-1">
+							${Array.isArray(messages) ? messages.map(msg => `<li>• ${msg}</li>`).join('') : `<li>• ${messages}</li>`}
+						</ul>
+					</div>
+					<button type="button" class="text-white/80 hover:text-white" onclick="this.parentElement.parentElement.remove()">
+						<i data-lucide="x" class="w-4 h-4"></i>
+					</button>
+				</div>
+			`;
+			document.body.appendChild(toast);
+			if (window.lucide) {
+				window.lucide.createIcons({ elements: toast.querySelectorAll('i[data-lucide]') });
+			}
+			setTimeout(() => {
+				if (toast.parentElement) {
+					toast.style.opacity = '0';
+					toast.style.transition = 'opacity 0.3s';
+					setTimeout(() => toast.remove(), 300);
+				}
+			}, 5000);
+		}
+		
+		if (importForm && importSubmitBtn) {
+			importForm.addEventListener('submit', async function(e) {
+				e.preventDefault();
+				
+				// Show loading state
+				importSubmitBtn.disabled = true;
+				importSubmitText.classList.add('hidden');
+				importSubmitLoading.classList.remove('hidden');
+				
+				const formData = new FormData(importForm);
+				
+				try {
+					const response = await fetch(importForm.action, {
+						method: 'POST',
+						body: formData,
+						headers: {
+							'X-Requested-With': 'XMLHttpRequest'
+						}
+					});
+					
+					// Check if response is JSON
+					const contentType = response.headers.get('content-type') || '';
+					if (contentType.includes('application/json')) {
+						const data = await response.json();
+						if (data.success) {
+							showSuccessMessage(data.messages || ['Inventory imported successfully!']);
+							setTimeout(() => {
+								toggleModal(false);
+								window.location.reload();
+							}, 1500);
+						} else {
+							showErrorMessage(data.messages || ['Import failed. Please try again.']);
+							importSubmitBtn.disabled = false;
+							importSubmitText.classList.remove('hidden');
+							importSubmitLoading.classList.add('hidden');
+						}
+					} else {
+						// Fallback: HTML response (redirect happened)
+						showSuccessMessage(['Inventory imported successfully!']);
+						setTimeout(() => {
+							toggleModal(false);
+							window.location.reload();
+						}, 1500);
+					}
+				} catch (error) {
+					console.error('Import error:', error);
+					showErrorMessage(['An error occurred during import. Please try again.']);
+					importSubmitBtn.disabled = false;
+					importSubmitText.classList.remove('hidden');
+					importSubmitLoading.classList.add('hidden');
+				}
+			});
+		}
 	})();
 	
 	const modal = document.getElementById('purchaseListModal');
@@ -2178,14 +2327,30 @@ document.addEventListener('DOMContentLoaded', function() {
 	
 	function openDeleteReasonModal() {
 		if (!deleteIngredientModal || !deleteIngredientName || !deleteIngredientId) return;
-		if (!pendingDeleteIngredientId || !pendingDeleteIngredientName) return;
+		if (!pendingDeleteIngredientId || !pendingDeleteIngredientName) {
+			console.error('Invalid ingredient ID: null');
+			alert('Invalid ingredient ID. Please refresh the page and try again.');
+			return;
+		}
 		
-		// Close confirmation modal
+		// Save values before closing the confirmation modal (which clears them)
+		const savedIngredientId = pendingDeleteIngredientId;
+		const savedIngredientName = pendingDeleteIngredientName;
+		
+		// Close confirmation modal (this will clear pendingDeleteIngredientId)
 		closeDeleteConfirmModal();
 		
+		// Convert ingredient ID to number to ensure it's valid
+		const ingredientIdNum = parseInt(savedIngredientId, 10);
+		if (isNaN(ingredientIdNum) || ingredientIdNum <= 0) {
+			console.error('Invalid ingredient ID:', savedIngredientId);
+			alert('Invalid ingredient ID. Please refresh the page and try again.');
+			return;
+		}
+		
 		// Open reason modal
-		deleteIngredientName.textContent = pendingDeleteIngredientName;
-		deleteIngredientId.value = pendingDeleteIngredientId;
+		deleteIngredientName.textContent = savedIngredientName;
+		deleteIngredientId.value = ingredientIdNum.toString();
 		if (deleteIngredientReason) {
 			deleteIngredientReason.value = '';
 		}
@@ -2217,7 +2382,14 @@ document.addEventListener('DOMContentLoaded', function() {
 				const ingredientId = deleteBtn.getAttribute('data-ingredient-id');
 				const ingredientName = deleteBtn.getAttribute('data-ingredient-name');
 				if (ingredientId && ingredientName) {
-					openDeleteConfirmModal(ingredientId, ingredientName);
+					// Ensure ingredient ID is a valid number
+					const ingredientIdNum = parseInt(ingredientId, 10);
+					if (isNaN(ingredientIdNum) || ingredientIdNum <= 0) {
+						console.error('Invalid ingredient ID from button:', ingredientId);
+						alert('Invalid ingredient ID. Please refresh the page and try again.');
+						return;
+					}
+					openDeleteConfirmModal(ingredientIdNum, ingredientName);
 				}
 			}
 		});
@@ -2251,14 +2423,119 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	}
 	
-	// Form validation before submission
+	// Form submission handler (AJAX)
 	if (deleteIngredientForm) {
-		deleteIngredientForm.addEventListener('submit', (e) => {
+		deleteIngredientForm.addEventListener('submit', async function(e) {
+			e.preventDefault();
+			
+			// Validate reason
 			if (!deleteIngredientReason || !deleteIngredientReason.value.trim()) {
-				e.preventDefault();
 				alert('Please provide a reason for deleting this ingredient.');
 				deleteIngredientReason.focus();
 				return false;
+			}
+			
+			const submitBtn = document.getElementById('confirmDeleteIngredientBtn');
+			const originalBtnText = submitBtn ? submitBtn.textContent : 'Delete Ingredient';
+			
+			if (submitBtn) {
+				submitBtn.disabled = true;
+				submitBtn.textContent = 'Deleting...';
+			}
+			
+			// Validate ingredient ID before proceeding
+			const ingredientIdToDelete = parseInt(deleteIngredientId.value, 10);
+			if (isNaN(ingredientIdToDelete) || ingredientIdToDelete <= 0) {
+				console.error('Invalid ingredient ID in form:', deleteIngredientId.value);
+				alert('Invalid ingredient ID. Please refresh the page and try again.');
+				if (submitBtn) {
+					submitBtn.disabled = false;
+					submitBtn.textContent = originalBtnText;
+				}
+				return;
+			}
+			
+			const formData = new FormData(deleteIngredientForm);
+			
+			console.log('Deleting ingredient ID:', ingredientIdToDelete);
+			console.log('Form action:', deleteIngredientForm.action);
+			
+			try {
+				const response = await fetch(deleteIngredientForm.action, {
+					method: 'POST',
+					body: formData,
+					headers: {
+						'X-Requested-With': 'XMLHttpRequest'
+					}
+				});
+				
+				console.log('Response status:', response.status);
+				console.log('Response ok:', response.ok);
+				
+				// Check response
+				if (response.ok) {
+					// Check if response is JSON or HTML
+					const contentType = response.headers.get('content-type') || '';
+					console.log('Content-Type:', contentType);
+					
+					if (contentType.includes('application/json')) {
+						const data = await response.json();
+						console.log('Response data:', data);
+						
+						if (data.success) {
+							console.log('Deletion successful, reloading page...');
+							// Close modal
+							closeDeleteModal();
+							
+							// Reload page to get fresh data from database
+							window.location.reload();
+						} else {
+							console.error('Deletion failed:', data.message);
+							alert(data.message || 'Failed to delete ingredient. Please try again.');
+							if (submitBtn) {
+								submitBtn.disabled = false;
+								submitBtn.textContent = originalBtnText;
+							}
+						}
+					} else {
+						// HTML response (redirect happened) - reload page
+						console.log('HTML response received, reloading page...');
+						closeDeleteModal();
+						window.location.reload();
+					}
+				} else {
+					// Error response - try to get JSON error or text
+					const contentType = response.headers.get('content-type') || '';
+					let errorMessage = 'Failed to delete ingredient. Please try again.';
+					
+					try {
+						if (contentType.includes('application/json')) {
+							const errorData = await response.json();
+							errorMessage = errorData.message || errorData.error || errorMessage;
+						} else {
+							const errorText = await response.text();
+							if (errorText && errorText.length < 200) {
+								errorMessage = errorText;
+							}
+						}
+					} catch (e) {
+						console.error('Error parsing response:', e);
+					}
+					
+					console.error('Delete error:', errorMessage);
+					alert(errorMessage);
+					if (submitBtn) {
+						submitBtn.disabled = false;
+						submitBtn.textContent = originalBtnText;
+					}
+				}
+			} catch (error) {
+				console.error('Delete error:', error);
+				alert('An error occurred while deleting the ingredient: ' + (error.message || 'Unknown error'));
+				if (submitBtn) {
+					submitBtn.disabled = false;
+					submitBtn.textContent = originalBtnText;
+				}
 			}
 		});
 	}

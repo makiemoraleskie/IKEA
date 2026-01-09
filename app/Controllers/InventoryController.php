@@ -154,65 +154,203 @@ class InventoryController extends BaseController
     {
         // Only Owner can delete ingredients
         Auth::requireRole(['Owner']);
-        if (!Csrf::verify($_POST['csrf_token'] ?? null)) { http_response_code(400); echo 'Invalid CSRF token'; return; }
+        
+        // Check if this is an AJAX request first
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+        
+        if (!Csrf::verify($_POST['csrf_token'] ?? null)) { 
+            if ($isAjax) {
+                http_response_code(400);
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
+                return;
+            }
+            http_response_code(400);
+            echo 'Invalid CSRF token';
+            return;
+        }
+        
         $id = (int)($_POST['id'] ?? 0);
-        if ($id <= 0) { $this->redirect('/inventory'); }
+        if ($id <= 0) {
+            if ($isAjax) {
+                http_response_code(400);
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Invalid ingredient ID']);
+                return;
+            }
+            $this->redirect('/inventory');
+        }
         
         // Require deletion reason
         $reason = trim((string)($_POST['reason'] ?? ''));
         if (empty($reason)) {
+            if ($isAjax) {
+                http_response_code(400);
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Deletion reason is required.']);
+                return;
+            }
             $_SESSION['flash_inventory'] = ['type' => 'error', 'text' => 'Deletion reason is required.'];
             $this->redirect('/inventory');
         }
 
         $db = Database::getConnection();
-        // Fetch ingredient name for feedback
+        
+        // First, verify the ingredient exists
         $ingName = null;
+        $ingredientExists = false;
         try {
             $stmt = $db->prepare('SELECT name FROM ingredients WHERE id = ?');
             $stmt->execute([$id]);
             $row = $stmt->fetch();
-            $ingName = $row ? (string)$row['name'] : null;
+            if ($row) {
+                $ingName = (string)$row['name'];
+                $ingredientExists = true;
+            }
         } catch (Throwable $e) {
-            // ignore
+            error_log('Error checking ingredient existence: ' . $e->getMessage());
         }
+        
+        if (!$ingredientExists) {
+            if ($isAjax) {
+                http_response_code(404);
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Ingredient not found.']);
+                return;
+            }
+            $_SESSION['flash_inventory'] = ['type' => 'error', 'text' => 'Ingredient not found.'];
+            $this->redirect('/inventory');
+        }
+        $deletedIngredients = 0;
+        $deletedRequests = 0;
+        $deletedPurchases = 0;
+        $deletedDeliveries = 0;
+        $deletedSetItems = 0;
+        $deletedLosses = 0;
+        
         try {
             $db->beginTransaction();
-            // Do not alter FK checks in normal mode
-            // Remove dependent rows referencing this ingredient
-            // Requests
-            $stmt = $db->prepare('DELETE r FROM requests r WHERE r.item_id = ?');
+            
+            // Disable foreign key checks temporarily to allow deletion
+            $db->exec('SET FOREIGN_KEY_CHECKS = 0');
+            
+            // Remove dependent rows referencing this ingredient in order:
+            // 1. Ingredient set items (ingredient_set_items)
+            $stmt = $db->prepare('DELETE FROM ingredient_set_items WHERE ingredient_id = ?');
             $stmt->execute([$id]);
-            $deletedRequests = $stmt->rowCount();
-            // Deliveries (explicit, in case cascade is not present in live DB)
+            $deletedSetItems = $stmt->rowCount();
+            
+            // 2. Ingredient losses (ingredient_losses)
+            $stmt = $db->prepare('DELETE FROM ingredient_losses WHERE ingredient_id = ?');
+            $stmt->execute([$id]);
+            $deletedLosses = $stmt->rowCount();
+            
+            // 3. Deliveries (via purchases)
             $stmt = $db->prepare('DELETE d FROM deliveries d JOIN purchases p ON d.purchase_id = p.id WHERE p.item_id = ?');
             $stmt->execute([$id]);
             $deletedDeliveries = $stmt->rowCount();
-            // Purchases
+            
+            // 4. Purchases
             $stmt = $db->prepare('DELETE FROM purchases WHERE item_id = ?');
             $stmt->execute([$id]);
             $deletedPurchases = $stmt->rowCount();
-            // Finally ingredient
+            
+            // 5. Requests
+            $stmt = $db->prepare('DELETE FROM requests WHERE item_id = ?');
+            $stmt->execute([$id]);
+            $deletedRequests = $stmt->rowCount();
+            
+            // 6. Finally, delete the ingredient itself
             $stmt = $db->prepare('DELETE FROM ingredients WHERE id = ?');
             $stmt->execute([$id]);
             $deletedIngredients = $stmt->rowCount();
+            
+            // Log deletion attempt
+            error_log("Delete ingredient attempt - ID: $id, Rows affected: $deletedIngredients");
+            
+            // Re-enable foreign key checks
+            $db->exec('SET FOREIGN_KEY_CHECKS = 1');
+            
             $db->commit();
+            
+            // Verify deletion by checking if ingredient still exists
+            $stillExists = false;
+            try {
+                $checkStmt = $db->prepare('SELECT COUNT(*) as cnt FROM ingredients WHERE id = ?');
+                $checkStmt->execute([$id]);
+                $checkRow = $checkStmt->fetch();
+                $stillExists = ($checkRow && (int)$checkRow['cnt'] > 0);
+            } catch (Throwable $e) {
+                error_log('Error verifying deletion: ' . $e->getMessage());
+            }
+            
+            // Log after commit
+            error_log("Delete ingredient committed - ID: $id, Rows affected: $deletedIngredients, Still exists: " . ($stillExists ? 'yes' : 'no'));
+            
+            // If rowCount says 0 but ingredient still exists, there's a problem
+            if ($deletedIngredients === 0 && $stillExists) {
+                error_log("WARNING: DELETE statement returned 0 rows affected but ingredient still exists! ID: $id");
+            }
+            
             $_SESSION['flash_inventory'] = [
-                'type' => $deletedIngredients > 0 ? 'success' : 'error',
-                'text' => ($deletedIngredients > 0
-                    ? ('Deleted "' . ($ingName ?? 'ingredient') . '" with ' . ($deletedRequests ?? 0) . ' request(s), ' . ($deletedPurchases ?? 0) . ' purchase(s), ' . ($deletedDeliveries ?? 0) . ' delivery(ies).')
-                    : 'Delete did not affect any ingredient row. Please refresh and try again.')
+                'type' => ($deletedIngredients > 0 && !$stillExists) ? 'success' : 'error',
+                'text' => (($deletedIngredients > 0 && !$stillExists)
+                    ? ('Deleted "' . ($ingName ?? 'ingredient') . '" with ' . ($deletedSetItems ?? 0) . ' set item(s), ' . ($deletedLosses ?? 0) . ' loss record(s), ' . ($deletedRequests ?? 0) . ' request(s), ' . ($deletedPurchases ?? 0) . ' purchase(s), ' . ($deletedDeliveries ?? 0) . ' delivery(ies).')
+                    : 'Delete did not affect any ingredient row. The ingredient may not exist or may have already been deleted.')
             ];
         } catch (Throwable $e) {
-            if ($db->inTransaction()) { $db->rollBack(); }
-            $_SESSION['flash_inventory'] = ['type' => 'error', 'text' => 'Delete failed. If this ingredient is referenced, enable Force Delete.'];
-        } finally { }
+            if ($db->inTransaction()) { 
+                $db->exec('SET FOREIGN_KEY_CHECKS = 1');
+                $db->rollBack(); 
+            }
+            error_log('Delete ingredient error: ' . $e->getMessage());
+            $_SESSION['flash_inventory'] = ['type' => 'error', 'text' => 'Delete failed: ' . $e->getMessage()];
+        }
 
         $logger = new AuditLog();
         $logger->log(Auth::id() ?? 0, 'delete', 'ingredients', [
             'ingredient_id' => $id,
             'reason' => $reason
         ]);
+        
+        if ($isAjax) {
+            header('Content-Type: application/json');
+            
+            // Verify one more time if ingredient still exists
+            $verifyExists = false;
+            try {
+                $verifyStmt = $db->prepare('SELECT COUNT(*) as cnt FROM ingredients WHERE id = ?');
+                $verifyStmt->execute([$id]);
+                $verifyRow = $verifyStmt->fetch();
+                $verifyExists = ($verifyRow && (int)$verifyRow['cnt'] > 0);
+            } catch (Throwable $e) {
+                // ignore
+            }
+            
+            $success = ($deletedIngredients > 0 && !$verifyExists);
+            $message = '';
+            
+            if ($success) {
+                $message = 'Deleted "' . ($ingName ?? 'ingredient') . '" with ' . ($deletedSetItems ?? 0) . ' set item(s), ' . ($deletedLosses ?? 0) . ' loss record(s), ' . ($deletedRequests ?? 0) . ' request(s), ' . ($deletedPurchases ?? 0) . ' purchase(s), ' . ($deletedDeliveries ?? 0) . ' delivery(ies).';
+            } else {
+                if ($verifyExists) {
+                    $message = 'Failed to delete ingredient. The ingredient still exists in the database.';
+                } else {
+                    $message = isset($_SESSION['flash_inventory']) ? $_SESSION['flash_inventory']['text'] : 'Delete did not affect any ingredient row. The ingredient may not exist or may have already been deleted.';
+                }
+            }
+            
+            error_log("AJAX delete response - ID: $id, Success: " . ($success ? 'yes' : 'no') . ", Message: $message");
+            
+            echo json_encode([
+                'success' => $success,
+                'message' => $message,
+                'deleted' => $deletedIngredients,
+                'still_exists' => $verifyExists
+            ]);
+            return;
+        }
+        
         $this->redirect('/inventory');
     }
 

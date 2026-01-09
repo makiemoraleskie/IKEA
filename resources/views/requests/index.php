@@ -132,7 +132,7 @@ function formatDate($dateString) {
 	</div>
 <?php endif; ?>
 
-<?php if (in_array(Auth::role(), ['Kitchen Staff','Manager','Owner','Stock Handler'], true)): ?>
+<?php if (in_array(Auth::role(), ['Kitchen Staff','Manager','Owner'], true)): ?>
 <!-- New Request Button -->
 <div class="mb-4 md:mb-8">
 	<button type="button" id="newRequestBtn" class="inline-flex items-center gap-1 md:gap-1.5 bg-green-600 text-white px-2.5 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-xs md:text-sm">
@@ -164,7 +164,7 @@ function formatDate($dateString) {
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
 				<div class="space-y-1">
 					<label class="block text-sm md:text-base font-medium text-gray-700">Requester Name</label>
-					<input name="requester_name" class="w-full border border-gray-300 rounded-lg px-3.5 md:px-4 py-2.5 md:py-3 text-sm md:text-base focus:ring-2 focus:ring-gray-500 md:focus:ring-0 focus:outline-none" placeholder="e.g., Juan Dela Cruz" required>
+					<input name="requester_name" value="<?php echo htmlspecialchars(Auth::user()['name'] ?? ''); ?>" readonly class="w-full border border-gray-300 rounded-lg px-3.5 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-gray-50 text-gray-700 cursor-not-allowed" required>
 				</div>
 				<div class="space-y-1">
 					<label class="block text-sm md:text-base font-medium text-gray-700">Date Needed</label>

@@ -314,8 +314,6 @@ The absence of an integrated, automated inventory-tracking and purchase-verifica
 
 
 
-
-
 General Objective
 Design and develop a web-based commissary inventory management system with an integrated purchaser transaction tracker and audit trail that centralizes request processing, stock monitoring, purchase verification, and user activity logging for IKEA Cakes and Snacks Commissary’s raw materials and ingredients.
 Specific Objectives
@@ -324,7 +322,7 @@ Specific Objectives
 3. To implement a purchaser transaction tracker that logs all purchases, links receipts to corresponding inventory updates, and categorizes transactions by supplier and payment status.
 4. To integrate a delivery acknowledgment feature that records partial and full deliveries, with pending quantities remaining visible until fulfilled.
 5. To implement an audit trail module that logs all user actions with timestamps for accountability and traceability.
-6. To generate customizable reports summarizing requests, stock changes, deliveries, and supplier balances for improved decision-making.
+6. To generate purchased and consumption reports through filtering feature for better decision making.
 7. To implement security measures, including secure authentication, role-based access control, and regular data backups, to protect sensitive inventory and transaction records.
 8. To provide a print and export feature for generating hard copies or digital files of PDFs of inventory, transactions, and supplier reports.
 9. To evaluate the system in terms of usability, efficiency, accuracy, and security through user acceptance testing, System Usability Scale, and performance analysis.
@@ -376,6 +374,10 @@ Definition of Terms
 * Stock Handler: A staff member responsible for managing inventory records, verifying purchases, and preparing requested ingredients.
 * Supplier: An external vendor from which the commissary purchases raw materials.
 * SME: Small and medium enterprises.
+
+
+
+
 
 
 

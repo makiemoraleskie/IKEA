@@ -144,7 +144,7 @@ class RequestController extends BaseController
 
 	public function store(): void
 	{
-		Auth::requireRole(['Kitchen Staff','Manager','Owner','Stock Handler']);
+		Auth::requireRole(['Kitchen Staff','Manager','Owner']);
 		if (!Csrf::verify($_POST['csrf_token'] ?? null)) {
 			http_response_code(400);
 			echo 'Invalid CSRF token';

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 18, 2025 at 07:30 AM
+-- Generation Time: Jan 09, 2026 at 05:00 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -35,6 +35,31 @@ CREATE TABLE `audit_log` (
   `timestamp` datetime NOT NULL DEFAULT current_timestamp(),
   `details` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`details`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `backups`
+--
+
+CREATE TABLE `backups` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `filename` varchar(255) NOT NULL,
+  `file_path` varchar(500) NOT NULL,
+  `file_size` bigint(20) UNSIGNED NOT NULL,
+  `created_by` int(10) UNSIGNED DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `description` text DEFAULT NULL,
+  `records_count` int(10) UNSIGNED DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `backups`
+--
+
+INSERT INTO `backups` (`id`, `filename`, `file_path`, `file_size`, `created_by`, `created_at`, `description`, `records_count`) VALUES
+(1, 'backup_2026-01-09_110453.sql', 'C:\\xampp\\htdocs\\IKEA/backups/backup_2026-01-09_110453.sql', 369518, 3, '2026-01-09 10:04:53', 'with inventory', 1262),
+(15, 'backup_2026-01-09_164700.sql', 'C:\\xampp\\htdocs\\IKEA/backups/backup_2026-01-09_164700.sql', 256910, 3, '2026-01-09 15:47:00', 'Skeleton', 935);
 
 -- --------------------------------------------------------
 
@@ -75,6 +100,23 @@ CREATE TABLE `ingredients` (
   `in_inventory` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ingredient_losses`
+--
+
+CREATE TABLE `ingredient_losses` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `ingredient_id` int(10) UNSIGNED NOT NULL,
+  `quantity` decimal(16,4) NOT NULL,
+  `reason` enum('Spoiled','Damaged','Expired','Contaminated','Other') NOT NULL DEFAULT 'Other',
+  `notes` text DEFAULT NULL,
+  `recorded_by` int(10) UNSIGNED NOT NULL,
+  `recorded_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -153,7 +195,7 @@ CREATE TABLE `purchases` (
   `purchase_quantity` decimal(16,4) NOT NULL DEFAULT 0.0000,
   `cost` decimal(16,2) NOT NULL,
   `receipt_url` varchar(255) DEFAULT NULL,
-  `payment_status` enum('Paid','Pending') NOT NULL DEFAULT 'Pending',
+  `payment_status` enum('Paid','Pending','Partial') NOT NULL DEFAULT 'Pending',
   `date_purchased` datetime NOT NULL DEFAULT current_timestamp(),
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -190,7 +232,7 @@ CREATE TABLE `requests` (
 CREATE TABLE `request_batches` (
   `id` int(10) UNSIGNED NOT NULL,
   `staff_id` int(10) UNSIGNED NOT NULL,
-  `status` enum('Pending','To Prepare','Distributed','Rejected') NOT NULL DEFAULT 'Pending',
+  `status` enum('Pending','To Prepare','Pending Confirmation','Distributed','Received','Rejected') NOT NULL DEFAULT 'Pending',
   `date_requested` datetime NOT NULL DEFAULT current_timestamp(),
   `date_approved` datetime DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -240,10 +282,11 @@ INSERT INTO `settings` (`id`, `setting_key`, `setting_value`, `updated_by`, `cre
 (6, 'display.company_tagline', 'Operations Console', 3, '2025-11-30 15:27:47', '2025-11-30 15:27:47'),
 (7, 'display.theme_default', 'system', 3, '2025-11-30 15:27:47', '2025-11-30 15:27:47'),
 (8, 'display.dashboard_widgets', '{\"Owner\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\",\"inventory_value\"],\"Manager\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\",\"inventory_value\"],\"Purchaser\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\"],\"Stock Handler\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\",\"inventory_value\"],\"Kitchen Staff\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\"],\"default\":[\"low_stock\",\"pending_requests\",\"pending_payments\",\"partial_deliveries\",\"pending_deliveries\",\"inventory_value\"]}', 3, '2025-11-30 15:27:47', '2025-11-30 15:27:47'),
-(13, 'features.ingredient_sets_enabled', '0', 3, '2025-12-02 01:53:04', '2025-12-02 01:53:35'),
-(23, 'inventory.actions_visible', '1', 3, '2025-12-08 16:01:04', '2025-12-18 05:43:42'),
+(13, 'features.ingredient_sets_enabled', '0', 3, '2025-12-02 01:53:04', '2025-12-26 01:40:07'),
+(23, 'inventory.actions_visible', '1', 3, '2025-12-08 16:01:04', '2026-01-08 03:17:55'),
 (38, 'reporting.archive_days', '0', 3, '2025-12-16 14:10:30', '2025-12-16 14:10:30'),
-(39, 'reporting.enabled_sections', '[\"purchase\",\"consumption\"]', 3, '2025-12-16 14:10:30', '2025-12-16 14:10:30');
+(39, 'reporting.enabled_sections', '[\"purchase\",\"consumption\"]', 3, '2025-12-16 14:10:30', '2025-12-16 14:10:30'),
+(61, 'inventory.csv_buttons_enabled', '0', 3, '2026-01-09 15:09:40', '2026-01-09 15:09:40');
 
 -- --------------------------------------------------------
 
@@ -270,7 +313,8 @@ INSERT INTO `users` (`id`, `name`, `role`, `email`, `password_hash`, `created_at
 (4, 'Manager Demo', 'Manager', 'manager@demo.local', '$2y$10$D0S5CYq5CHy/h0u0zrYORelBP0FRYyc9rKx6MLF4J3IGt.nvnJAa2', '2025-10-17 16:44:12', '2025-10-17 16:46:51'),
 (5, 'Stock Handler Demo', 'Stock Handler', 'stock@demo.local', '$2y$10$D6GiQlm.xhH3Ja/RRFHlqu6EtZoK6Rg49hTHThExg7AgxzpX6lXcW', '2025-10-17 16:44:12', '2025-12-16 11:09:01'),
 (6, 'Purchaser Demo', 'Purchaser', 'purchaser@demo.local', '$2y$10$ODVJx87mc2V10UxosEvXi.aI3/lBSYexpbTWR3ytsEC7ZOnF0lHra', '2025-10-17 16:44:12', '2025-12-17 01:11:59'),
-(7, 'Kitchen Staff Demo', 'Kitchen Staff', 'kitchen@demo.local', '$2y$10$D0S5CYq5CHy/h0u0zrYORelBP0FRYyc9rKx6MLF4J3IGt.nvnJAa2', '2025-10-17 16:44:12', '2025-10-17 16:46:37');
+(7, 'Kitchen Staff Demo', 'Kitchen Staff', 'kitchen@demo.local', '$2y$10$D0S5CYq5CHy/h0u0zrYORelBP0FRYyc9rKx6MLF4J3IGt.nvnJAa2', '2025-10-17 16:44:12', '2025-10-17 16:46:37'),
+(8, 'makie', 'Kitchen Staff', 'makie@demo.local', '$2y$10$ecQMbFqp2EA/3L8WSHHZdu6sEjB/Wsb3sgTK/DQVX6njoQFQ4FYo2', '2025-12-18 15:26:52', '2025-12-18 15:26:52');
 
 -- --------------------------------------------------------
 
@@ -293,10 +337,7 @@ CREATE TABLE `user_security` (
 --
 
 INSERT INTO `user_security` (`user_id`, `session_token`, `status`, `theme`, `dashboard_widgets`, `updated_at`, `created_at`) VALUES
-(3, 'bc1d0aaa7b53672ef8920a60501efd06957686af646f59e3b883b8e9379b3dff', 'active', 'light', NULL, '2025-12-18 05:44:39', '2025-11-30 15:28:02'),
-(5, NULL, 'active', 'light', NULL, '2025-12-18 06:07:52', '2025-12-01 01:44:08'),
-(6, '8c3449c5814fdb84859cbe59c209dfaca7822f5ae5f03fa0b989ee017a9d04f2', 'active', 'light', NULL, '2025-12-18 06:08:02', '2025-12-01 03:45:48'),
-(7, NULL, 'active', 'light', NULL, '2025-12-18 05:39:01', '2025-11-30 15:29:05');
+(3, 'c4006ef5ba5bbe551265352dc606c28367963933b5edc56676d78906fab6e825', 'active', 'system', NULL, '2026-01-09 15:46:35', '2026-01-09 15:46:17');
 
 --
 -- Indexes for dumped tables
@@ -312,6 +353,14 @@ ALTER TABLE `audit_log`
   ADD KEY `idx_audit_timestamp` (`timestamp`);
 
 --
+-- Indexes for table `backups`
+--
+ALTER TABLE `backups`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_backups_created_at` (`created_at`),
+  ADD KEY `idx_backups_created_by` (`created_by`);
+
+--
 -- Indexes for table `deliveries`
 --
 ALTER TABLE `deliveries`
@@ -324,6 +373,16 @@ ALTER TABLE `deliveries`
 ALTER TABLE `ingredients`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uniq_ingredient_name` (`name`);
+
+--
+-- Indexes for table `ingredient_losses`
+--
+ALTER TABLE `ingredient_losses`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_ingredient_losses_ingredient` (`ingredient_id`),
+  ADD KEY `idx_ingredient_losses_recorded_by` (`recorded_by`),
+  ADD KEY `idx_ingredient_losses_recorded_at` (`recorded_at`),
+  ADD KEY `idx_ingredient_losses_reason` (`reason`);
 
 --
 -- Indexes for table `ingredient_sets`
@@ -424,19 +483,31 @@ ALTER TABLE `user_security`
 -- AUTO_INCREMENT for table `audit_log`
 --
 ALTER TABLE `audit_log`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6961;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7879;
+
+--
+-- AUTO_INCREMENT for table `backups`
+--
+ALTER TABLE `backups`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `deliveries`
 --
 ALTER TABLE `deliveries`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=95;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=114;
 
 --
 -- AUTO_INCREMENT for table `ingredients`
 --
 ALTER TABLE `ingredients`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5841;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6456;
+
+--
+-- AUTO_INCREMENT for table `ingredient_losses`
+--
+ALTER TABLE `ingredient_losses`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `ingredient_sets`
@@ -454,31 +525,31 @@ ALTER TABLE `ingredient_set_items`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=142;
 
 --
 -- AUTO_INCREMENT for table `payment_transactions`
 --
 ALTER TABLE `payment_transactions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `purchases`
 --
 ALTER TABLE `purchases`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=187;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=207;
 
 --
 -- AUTO_INCREMENT for table `requests`
 --
 ALTER TABLE `requests`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=110;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=139;
 
 --
 -- AUTO_INCREMENT for table `request_batches`
 --
 ALTER TABLE `request_batches`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=78;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=116;
 
 --
 -- AUTO_INCREMENT for table `request_item_sets`
@@ -490,13 +561,13 @@ ALTER TABLE `request_item_sets`
 -- AUTO_INCREMENT for table `settings`
 --
 ALTER TABLE `settings`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Constraints for dumped tables
@@ -509,10 +580,23 @@ ALTER TABLE `audit_log`
   ADD CONSTRAINT `fk_audit_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
+-- Constraints for table `backups`
+--
+ALTER TABLE `backups`
+  ADD CONSTRAINT `fk_backups_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
 -- Constraints for table `deliveries`
 --
 ALTER TABLE `deliveries`
   ADD CONSTRAINT `fk_deliveries_purchase` FOREIGN KEY (`purchase_id`) REFERENCES `purchases` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `ingredient_losses`
+--
+ALTER TABLE `ingredient_losses`
+  ADD CONSTRAINT `fk_ingredient_losses_ingredient` FOREIGN KEY (`ingredient_id`) REFERENCES `ingredients` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_ingredient_losses_user` FOREIGN KEY (`recorded_by`) REFERENCES `users` (`id`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `ingredient_sets`
